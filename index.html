@@ -166,14 +166,22 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 /* Mobile: lock to viewport. Circle column is JUST the canvas (same spot every tab);
    the panel column (mode strip + panel) takes the rest, sized to fit with no scroll. */
 @media (max-width: 620px) {
-  body { height: 100dvh; min-height: 0; overflow: hidden; display: flex; flex-direction: column; }
+  /* Lock the app to the REAL visible height (JS sets --app-h = innerHeight, which
+     accounts for the browser toolbar that 100dvh can over-estimate). overflow:hidden
+     on html+body kills ALL page scroll - vertical and horizontal. */
+  html { overflow: hidden; }
+  body { height: var(--app-h, 100dvh); min-height: 0; max-height: var(--app-h, 100dvh);
+         overflow: hidden; display: flex; flex-direction: column; padding: 12px; }
   .layout { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
   .circle-col { flex: 0 0 auto; }
   .panel-col { flex: 1 1 auto; min-height: 0; }
   .panel { flex: 1 1 auto; min-height: 0; }
-  /* Mode strip: one compact, horizontally-scrollable row. */
-  .mode-strip { flex-wrap: nowrap; overflow-x: auto; justify-content: flex-start; }
-  .mode-strip-wrap { margin-top: 0; margin-bottom: 6px; }
+  /* Mode strip: compact, WRAPPING (no horizontal scroll) - note + mode only, no mood. */
+  .mode-strip { flex-wrap: wrap; overflow: hidden; justify-content: center; gap: 4px; max-width: 100%; }
+  .mode-strip-wrap { margin: 0 0 6px; max-width: 100%; overflow: hidden; }
+  .mbtn { padding: 4px 7px; }
+  .mbtn .mb-mood { display: none; }
+  .mode-div { display: none; }
   /* Compact mood/relation tiles + tighter sections so the Assist panel fits. */
   .etile { padding: 3px 7px; font-size: 9px; }
   .assist-tiles { gap: 3px; }
@@ -503,6 +511,9 @@ var ctx = cv.getContext('2d');
 var W=0, H=0, CX=0, CY=0, R=0;
 
 function resize() {
+  // Lock the app height to the REAL visible viewport (mobile toolbars make 100dvh
+  // unreliable). Must run before measuring so the circle/panel fit the true height.
+  document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
   var dpr = devicePixelRatio || 1;
   var s   = Math.min(cv.parentElement.clientWidth, 500);
   // On the two-column layout, also fit the circle to the available height so the
@@ -1859,6 +1870,9 @@ function _flashShare(msg) {
 })();
 
 window.addEventListener('resize', resize);
+window.addEventListener('orientationchange', resize);
+// visualViewport reflects the real height when the mobile toolbar shows/hides.
+if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
 function initResize() {
   var w = cv.parentElement ? cv.parentElement.clientWidth : 0;
   if (w > 0) { resize(); if(selected){ buildModeStrip(); updatePanel(); } }
