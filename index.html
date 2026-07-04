@@ -1537,6 +1537,9 @@ var EMOTIONS = [
    roman:'i - ♭VII - ♭VI - v',       device:'driving 8th-note motor, full rhythm section',
    rhythm:'constant energetic groove', bpmLo:130, bpmHi:165, traj:'sustained neutral energy, no narrative peak'},
   // Positive valence — low to high arousal
+  {name:'Peaceful',  hue:100, quality:'maj', mode:0, ar:0.1,  vl:1,
+   roman:'I - IV - I (pedal)',       device:'sustained drones, soft piano or guitar, pentatonic colour',
+   rhythm:'no motor, gentle and sparse', bpmLo:50, bpmHi:75, traj:'restful stillness, no build'},
   {name:'Romantic',  hue:340, quality:'maj', mode:0, ar:0.3,  vl:1, flex:1,
    roman:'I - V - vi - IV',          device:'lyrical strings or piano, legato phrasing',
    rhythm:'flowing moderate, rubato', bpmLo:55,  bpmHi:90,  traj:'yearning rise and fall, tender'},
@@ -1546,6 +1549,9 @@ var EMOTIONS = [
   {name:'Quirky',    hue:48,  quality:'maj', mode:1, ar:0.6,  vl:1, flex:1,
    roman:'I - ♭VII - IV - II',       device:'pizzicato, woodwinds, unexpected turns',
    rhythm:'syncopation, odd accents', bpmLo:100, bpmHi:145, traj:'unpredictable, playful'},
+  {name:'Magical',   hue:130, quality:'maj', mode:1, ar:0.5,  vl:1, flex:1,
+   roman:'I - III - ♭III (parallel 3rds)', device:'celesta, glockenspiel, harp + pizzicato, tremolo strings',
+   rhythm:'lilting 3/4 or shimmering 16ths', bpmLo:60, bpmHi:150, traj:'curiosity opening into wonder'},
   {name:'Happy',     hue:45,  quality:'maj', mode:0, ar:0.25, vl:1,
    roman:'I - IV - V - I',           device:'bright staccato, brass or woodwinds',
    rhythm:'energetic staccato 8ths', bpmLo:120, bpmHi:165, traj:'bright celebratory energy, sustained'},
@@ -1554,7 +1560,10 @@ var EMOTIONS = [
    rhythm:'driving march, building', bpmLo:100, bpmHi:140, traj:'struggle rising, striving not yet won'},
   {name:'Triumph',   hue:36,  quality:'maj', mode:0, ar:0.85, vl:1,
    roman:'IV - I - V - I',           device:'full tutti, sustained brass chords, choir',
-   rhythm:'broad declarative, slow harmonic rhythm', bpmLo:80, bpmHi:120, traj:'victory achieved, held at summit'}
+   rhythm:'broad declarative, slow harmonic rhythm', bpmLo:80, bpmHi:120, traj:'victory achieved, held at summit'},
+  {name:'Epic',      hue:60,  quality:'maj', mode:0, ar:0.75, vl:1, flex:1,
+   roman:'I - ♭VI - ♭III (sus4, stacked 5ths)', device:'high brass melody + choir, open 5ths, timpani and tam-tam',
+   rhythm:'slow homophonic, half-note pace', bpmLo:60, bpmHi:100, traj:'vast presence, grandeur held'}
 ];
 // DJ mixing moves - each maps current key→target using the Camelot grid. On the
 // circle of fifths a step of +1 slice = up a perfect fifth = +1 Camelot hour.
