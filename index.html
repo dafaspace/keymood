@@ -586,7 +586,8 @@ function getParentSlice(slice, modeIdx) {
 function render() {
   ctx.clearRect(0, 0, W, H);
   var dark      = isDark();
-  var showMinor = appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
+  var showMinor = appMode === 'assist' || (appMode === 'tonal' && (document.getElementById('cb-minor').checked
+                  || (selected && selected.fromInner))); // a selected minor key always shows its ring
   var slA       = 2 * Math.PI / 12;
   // FIXED radii so the major ring is the SAME thickness in every tab (Modal too) and
   // major = minor thickness (0.30R each). Minor band is just left empty when hidden.
@@ -601,6 +602,13 @@ function render() {
   // Build sets for highlighting
   var relHL  = {};
   var prlTargetInner = false;
+  // Fixed-interval relations (neighbours, mediants, tritone, dim7, Neapolitan) are
+  // computed as a SECTOR offset that is identical whether the current key is a
+  // sector's major or its relative minor (major<->minor is always a constant -3
+  // semitones, which commutes with any fixed interval). So when the current key IS
+  // the minor (fromInner), the targets are that same sector's MINOR - highlight the
+  // inner ring, not the outer one.
+  var relHLIsMinor = false;
   var scaleHL = {};
   // tonic = the actual tonal centre (parent for non-Ionian modes)
   // Relation highlights live ONLY in the Assist THEORY lens now (Feelings/DJ stay
@@ -620,6 +628,7 @@ function render() {
       var relFn = RELS[activeRel].get;
       var relArr = relFn ? relFn(selected.slice) : [];
       for (var k=0; k<relArr.length; k++) relHL[relArr[k]] = true;
+      relHLIsMinor = !!selected.fromInner;
     }
     var scArr = getScaleSlices(selected.slice, 0);
     for (var k=0; k<scArr.length; k++) scaleHL[scArr[k]] = true;
@@ -739,16 +748,20 @@ function render() {
       ctx.setLineDash([]);
       ctx.restore();
     }
-    // Other relation modes
+    // Other relation modes - draw on the inner (minor) ring when the current key
+    // IS a minor tonic (relHLIsMinor), since the target is that sector's minor too.
     if (inRel && !isSel && !isPRLTarget) {
-      ctx.save();
-      ctx.beginPath(); ctx.arc(CX,CY,outerR-1.5,a0,a1);
-      ctx.strokeStyle = ha(col, 0.8);
-      ctx.lineWidth = 2.5;
-      ctx.setLineDash([5,3]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.restore();
+      var relOnInner = relHLIsMinor && showMinor;
+      if (!relHLIsMinor || showMinor) {
+        ctx.save();
+        ctx.beginPath(); ctx.arc(CX,CY,(relOnInner?innerR:outerR)-1.5,a0,a1);
+        ctx.strokeStyle = ha(col, 0.8);
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([5,3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
     }
 
     var midA = (-Math.PI/2) + i*slA;
@@ -803,7 +816,8 @@ function render() {
 // ── Input ─────────────────────────────────────────────────────────────────────
 function getSlice(x, y) {
   var dx=x-CX, dy=y-CY, dist=Math.sqrt(dx*dx+dy*dy);
-  var showMinor = appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
+  var showMinor = appMode === 'assist' || (appMode === 'tonal' && (document.getElementById('cb-minor').checked
+                  || (selected && selected.fromInner))); // a selected minor key always shows its ring
   var innerR = R * 0.70;            // FIXED - matches render() (major/minor boundary)
   if (dist > R * 1.04 || dist < R * 0.40) return null;
   // Sectors are drawn CENTERED on -PI/2 + i*slA (where the label sits), so the
@@ -1026,9 +1040,13 @@ function getSecondaryDominants(slice, tSlice) {
 
 function updatePanel() {
   var panel = document.getElementById('panel');
+  // Quiz owns the panel while active - anything that repaints the panel mid-question
+  // (tab/notation/palette changes) used to destroy it while quizMode stayed true,
+  // leaving wheel clicks routed to a dead quiz (TypeError on #qnext).
+  if (quizMode) { renderQuizPanel(); return; }
   if (appMode === 'assist') { renderAssistPanel(); return; }
   if (!selected) {
-    panel.innerHTML = '<div class="phead">Info</div><div class="pbody"><div class="empty">Click a key on the circle</div></div>';
+    panel.innerHTML = '<div class="phead">Info</div><div class="pbody"><div class="empty">Tap a key on the circle</div></div>';
     return;
   }
 
@@ -1102,8 +1120,14 @@ function updatePanel() {
     hlHTML += '<span class="hl-pill" style="background:'+SYNTH[actualSlice]+'">'+curLabel+'</span>';
     hlHTML += '<span class="hl-pill" style="background:'+SYNTH[_pgt.sector]+'">'+tgtLabel+'</span>';
   } else {
+    // These relations are computed as a fixed SECTOR offset (e.g. neighbours = ±1),
+    // which is the same interval whether read on the major or the relative-minor
+    // ring (major↔minor is always a constant -3 semitones, so it commutes with any
+    // fixed interval). When the current key is minor (fromInner), the targets are
+    // therefore that SAME sector's minor, not its major.
     for (var i=0; i<relArr.length; i++) {
-      hlHTML += '<span class="hl-pill" style="background:'+SYNTH[relArr[i]]+'">'+MAJSHORT[relArr[i]]+'</span>';
+      var _lbl = fromInner ? MINNAMES[relArr[i]] : MAJSHORT[relArr[i]];
+      hlHTML += '<span class="hl-pill" style="background:'+SYNTH[relArr[i]]+'">'+_lbl+'</span>';
     }
   }
 
@@ -1229,44 +1253,25 @@ var QUIZ = [
     return { q:'What is the parallel major of '+qName(MINNAMES[i])+'?', correct:i,
       opts:shuffled4(i, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
-  // Relative minor - same sector (same key signature)
-  function(i) {
-    return { q:'Relative minor of '+qName(MAJSHORT[i])+' major?', correct:i,
-      opts:shuffled4(i, function(j){ return qName(MINNAMES[j]); }) };
-  },
   // Relative major - same sector (same key signature)
   function(i) {
     return { q:'Relative major of '+qName(MINNAMES[i])+'?', correct:i,
       opts:shuffled4(i, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
-  // How many sharps (uses i, works for all keys)
+  // Conceptual (non-key) questions: text-only answers, shuffled, no wheel
+  // interaction (noWheel) - random wheel taps used to answer them via meaningless
+  // fake slices, and the "correct answer" highlight landed on a random key.
   function(i) {
-    var ACC=[0,1,2,3,4,5,6,-5,-4,-3,-2,-1];
-    var n = ACC[i];
-    var label = n===0 ? 'none' : n>0 ? n+'♯' : Math.abs(n)+'♭';
-    return { q:'How many accidentals in '+qName(MAJSHORT[i])+' major?', correct:i,
-      opts:shuffled4(i, function(j){
-        var a=ACC[j];
-        return a===0?'none':a>0?a+'♯':Math.abs(a)+'♭';
-      }) };
+    return { q:'Which degree is raised in Lydian compared to major?',
+      noWheel:1, opts:shuffledText('4', ['2','6','7']) };
   },
-  // Lydian: raised degree
   function(i) {
-    return { q:'Which degree is raised in Lydian compared to major?', correct:i,
-      opts:[ {slice:i,label:'4',isCorrect:true},{slice:(i+1)%12,label:'2',isCorrect:false},
-             {slice:(i+2)%12,label:'6',isCorrect:false},{slice:(i+3)%12,label:'7',isCorrect:false}] };
+    return { q:'Which degree is lowered in Mixolydian compared to major?',
+      noWheel:1, opts:shuffledText('7', ['3','6','2']) };
   },
-  // Mixolydian: lowered degree
   function(i) {
-    return { q:'Which degree is lowered in Mixolydian compared to major?', correct:i,
-      opts:[ {slice:i,label:'7',isCorrect:true},{slice:(i+1)%12,label:'3',isCorrect:false},
-             {slice:(i+2)%12,label:'6',isCorrect:false},{slice:(i+3)%12,label:'2',isCorrect:false}] };
-  },
-  // Phrygian: characteristic lowered degree
-  function(i) {
-    return { q:'What makes Phrygian darker than Aeolian?', correct:i,
-      opts:[ {slice:i,label:'Lowered 2nd (b2)',isCorrect:true},{slice:(i+1)%12,label:'Lowered 4th (b4)',isCorrect:false},
-             {slice:(i+2)%12,label:'Lowered 5th (b5)',isCorrect:false},{slice:(i+3)%12,label:'Lowered 6th (b6)',isCorrect:false}] };
+    return { q:'What makes Phrygian darker than Aeolian?',
+      noWheel:1, opts:shuffledText('Lowered 2nd (b2)', ['Lowered 4th (b4)','Lowered 5th (b5)','Lowered 6th (b6)']) };
   },
   function(i) {
     var target = (i+7)%12; // neapolitan = -5 steps = +7 steps
@@ -1288,13 +1293,21 @@ function shuffled4(correct, label) {
   for (var i=0;i<pool.length;i++) out.push({ slice:pool[i], label:label(pool[i]), isCorrect:pool[i]===correct });
   return out;
 }
+// Text-only options for conceptual (non-key) questions - no slice/wheel mapping,
+// shuffled so the correct answer isn't always first.
+function shuffledText(correctLabel, wrongLabels) {
+  var out = [{label:correctLabel, isCorrect:true}];
+  for (var i=0;i<wrongLabels.length;i++) out.push({label:wrongLabels[i], isCorrect:false});
+  out.sort(function(){ return Math.random()-0.5; });
+  return out;
+}
 
 function startQuiz() {
   var i    = Math.floor(Math.random()*12);
   var type = QUIZ[Math.floor(Math.random()*QUIZ.length)];
   try {
     var q = type(i);
-    quizState = { q:q.q, opts:q.opts, correct:q.correct, targetSlice:q.correct, answered:false };
+    quizState = { q:q.q, opts:q.opts, correct:q.correct, targetSlice:q.correct, noWheel:!!q.noWheel, answered:false };
     renderQuizPanel();
     selected = null; render();
   } catch(e) { startQuiz(); }
@@ -1328,16 +1341,16 @@ function answerQuiz(idx) {
     if (quizState.opts[i].isCorrect) b.classList.add('correct');
     else if (i===idx) b.classList.add('wrong');
   }
-  selected = { slice:quizState.targetSlice, modeIdx:0, fromInner:false };
-  render();
+  // Conceptual questions have no meaningful key - don't paint a random highlight.
+  if (!quizState.noWheel) { selected = { slice:quizState.targetSlice, modeIdx:0, fromInner:false }; render(); }
   document.getElementById('qnext').style.display='inline-block';
   var h=document.getElementById('qhint'); h.style.display='block';
-  h.textContent = ok ? '\u2713 Correct!' : '\u2717 Correct answer highlighted above';
+  h.textContent = ok ? '\u2713 Correct!' : (quizState.noWheel ? '\u2717 Correct answer shown above' : '\u2717 Correct answer highlighted on the wheel');
 }
 window.answerQuiz = answerQuiz;
 
 function handleQuizClick(slice) {
-  if (!quizState||quizState.answered) return;
+  if (!quizState||quizState.answered||quizState.noWheel) return;
   for (var i=0;i<quizState.opts.length;i++) {
     if (quizState.opts[i].slice===slice) { answerQuiz(i); return; }
   }
@@ -1481,8 +1494,19 @@ function setAppMode(mode) {
   // The mode strip's container is always present (reserves height in every tab so
   // the circle never shifts); buildModeStrip only fills it in Modal. The minor-ring
   // toggle is rendered into the Tonal panel header by updatePanel().
-  // Reset selection to avoid stale fromInner state
-  if (selected) { selected.fromInner = false; }
+  // KEEP the key's identity across tabs. Tonal and Assist both support the inner
+  // (minor) ring, so fromInner is preserved. Only Modal has no inner ring: there we
+  // REMAP the selection to its actual tonic sector (same key, outer ring) instead of
+  // clearing fromInner - clearing it silently turned Am into "C Aeolian" (a
+  // different key!) on every tab switch.
+  if (selected && selected.fromInner && mode === 'modal') {
+    var _m = MODES[selected.modeIdx];
+    var _tonicSemi = (MROOT[selected.slice] + _m.off) % 12;
+    var _tonicSlice = MROOT.indexOf(_tonicSemi);
+    selected.slice = _tonicSlice;
+    selected.tonicSlice = _tonicSlice;
+    selected.fromInner = false;   // same tonic, now addressed on the outer ring
+  }
   lastModeIdx = mode === 'modal' ? lastModeIdx : (MODES[lastModeIdx].type === 'maj' ? lastModeIdx : 0);
   buildModeStrip();
   render();
@@ -1683,7 +1707,11 @@ function assistSuggest(cs,cm,emoIdx){
       bright:moveMood(cs,cm,s.slice,s.min),       // axis 1: brighter / darker
       hard:hardLabel(cs,s.slice),                  // axis 2: Seamless .. Cut
       tip:moveTip(cs,cm,s.slice,s.min,ml),
-      modeIdx: emo?emo.mode:(s.min?4:0), modeLabel: ml};
+      // The card must select EXACTLY the key it names: plain major (Ionian) or plain
+      // minor (Aeolian). The emotion's characteristic mode is a recipe HINT, not the
+      // selection - passing it here made an "Am" card resolve to a different tonic
+      // via the fromInner+mode.off convention (e.g. E Phrygian under Action).
+      modeIdx: (s.min?4:0), modeLabel: ml};
   });
 }
 // DJ mixing-move suggestions: run the move's mapping from the current key.
@@ -1714,9 +1742,26 @@ function assistPick(slice,min,modeIdx){
   render(); renderAssistPanel();
   playTonic(slice,selected.modeIdx,selected.fromInner);
 }
+// The Assist engine (assistSuggest/camelot/MINNAMES/moveMood/notesChanged) only
+// understands the SECTOR-based (slice, isMinor) pair, where isMinor means "this
+// sector's relative minor" - the same convention as fromInner:true. But a selection
+// can also arrive as fromInner:false with a minor-type mode (Aeolian via the
+// "Parallel minor" Quick Nav, or Dorian/Phrygian/Locrian via Modal) - there the
+// slice IS the actual tonic and the mode carries the minor-ness instead. Convert
+// that form to the equivalent sector pair (relative-major sector, isMinor:true) so
+// every Assist computation sees a consistent, correct key.
+function assistKeyState(sel) {
+  if (!sel) return { cs:null, cm:false };
+  if (sel.fromInner) return { cs:sel.slice, cm:true };
+  var isMinor = MODES[sel.modeIdx].type !== 'maj';
+  if (!isMinor) return { cs:sel.slice, cm:false };
+  var relMajorSemi = (MROOT[sel.slice] + 3) % 12;
+  return { cs: MROOT.indexOf(relMajorSemi), cm:true };
+}
 function renderAssistPanel(){
   var panel=document.getElementById('panel');
-  var cs=selected?selected.slice:null, cm=selected?!!selected.fromInner:false;
+  var _ks = assistKeyState(selected);
+  var cs=_ks.cs, cm=_ks.cm;
   var tog='<div class="ta-toggle">'
     +'<button class="ta-seg'+(assistStyle==='moods'?' active':'')+'" onclick="setAssistStyle(\'moods\')" title="Mood tags - for video / non-musicians">Moods</button>'
     +'<button class="ta-seg'+(assistStyle==='relations'?' active':'')+'" onclick="setAssistStyle(\'relations\')" title="Named harmonic relations - for composers">Relations</button>'
@@ -1825,6 +1870,11 @@ function shareLink() {
     if (selected.fromInner) params.push('inner=1');
   }
   if (appMode === 'modal') params.push('app=modal');
+  if (appMode === 'assist') {
+    params.push('app=assist');
+    params.push('lens=' + assistStyle);
+    if (assistStyle === 'moods' && assistEmotion !== null) params.push('emo=' + assistEmotion);
+  }
   if (isCamelot()) params.push('cam=1');
   if (isSol()) params.push('sol=1');
   if (document.documentElement.classList.contains('light')) params.push('light=1');
@@ -1845,7 +1895,9 @@ function _flashShare(msg) {
   var orig = btn.innerHTML;
   btn.innerHTML = msg;
   btn.style.fontSize = '10px';
-  setTimeout(function(){ btn.innerHTML = orig; btn.style.fontSize = '13px'; }, 1500);
+  // Reset to '' (CSS default, 15px) rather than a hardcoded value that didn't match
+  // .util-btn's actual size - the button was drifting smaller after every share.
+  setTimeout(function(){ btn.innerHTML = orig; btn.style.fontSize = ''; }, 1500);
 }
 
 // Apply sticky preferences first (defaults); a share-link URL param overrides below.
@@ -1874,6 +1926,15 @@ function _flashShare(msg) {
     }
   }
   if (p.get('app') === 'modal') setAppMode('modal');
+  else if (p.get('app') === 'assist') {
+    var lens = p.get('lens');
+    if (lens === 'moods' || lens === 'relations' || lens === 'dj') assistStyle = lens;
+    if (p.has('emo')) {
+      var emoIdx = parseInt(p.get('emo'));
+      if (emoIdx >= 0 && emoIdx < EMOTIONS.length) assistEmotion = emoIdx;
+    }
+    setAppMode('assist');
+  }
   updateNotationSeg();
   updatePaletteSeg();
 })();
