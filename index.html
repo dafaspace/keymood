@@ -118,6 +118,8 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .more-btn { width:100%; margin-top:5px; padding:6px; font-size:11px; color:var(--text3); background:none; border:0.5px dashed var(--bd2); border-radius:8px; cursor:pointer; font-family:var(--font); transition:all .12s; }
 .more-btn:hover { color:var(--text2); background:var(--bg2); }
 .recipe-hint { font-size:10px; color:var(--text3); padding:6px 2px 2px; display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
+.metro-btn { font-size:10px; color:var(--text3); background:none; border:0.5px solid var(--bd2); border-radius:9px; padding:2px 7px; cursor:pointer; font-family:var(--font); }
+.metro-btn.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:600; }
 .rh-dot { opacity:0.4; }
 
 .btn {
@@ -1477,6 +1479,43 @@ function _playArp(semis, oct) {
   });
 }
 
+// ── Metronome (design-review consensus: yes, but tied to the recipe hint's BPM,
+// not living in the wheel's centre - "the recipe made audible", not a bolted-on
+// tool). Simple lookahead scheduler on the existing WebAudio context - no mic,
+// no permissions.
+var _metroTimer = null, _metroBeat = 0;
+function _playClick(when, accent) {
+  var ctx = _getCtx();
+  var osc = ctx.createOscillator(), gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = accent ? 1600 : 1000;
+  gain.gain.setValueAtTime(0.20, when);
+  gain.gain.exponentialRampToValueAtTime(0.001, when + 0.05);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(when); osc.stop(when + 0.06);
+}
+function toggleMetronome(bpm, btn) {
+  if (_metroTimer) {
+    clearInterval(_metroTimer); _metroTimer = null;
+    if (btn) btn.classList.remove('active');
+    return;
+  }
+  if (btn) btn.classList.add('active');
+  _withCtx(function() {
+    var ctx = _getCtx();
+    var interval = 60 / bpm;
+    var nextTime = ctx.currentTime + 0.05;
+    _metroBeat = 0;
+    _metroTimer = setInterval(function() {
+      while (nextTime < ctx.currentTime + 0.1) {
+        _playClick(nextTime, _metroBeat % 4 === 0);
+        nextTime += interval; _metroBeat++;
+      }
+    }, 25);
+  });
+}
+window.toggleMetronome = toggleMetronome;
+
 function _triad(root, type) {
   // root is 0-11 (semitone within octave)
   // return intervals relative to C (so _playNote with baseOct=4 gives correct pitches)
@@ -1537,6 +1576,7 @@ function playNotePill(semi) {
 
 // ── App Mode (Tonal / Modal) ──────────────────────────────────────────────────
 function setAppMode(mode) {
+  _stopMetronome(); // leaving Assist (or switching within it) shouldn't leave a click track running
   appMode = mode;
   // Update switcher buttons
   document.getElementById('ms-tonal').classList.toggle('active', mode === 'tonal');
@@ -1777,11 +1817,15 @@ function djSuggest(cs,cm,moveIdx){
       modeIdx:(tg.min?4:0), modeLabel:''};
   });
 }
-function setAssistEmotion(i){ assistEmotion=(assistEmotion===i?null:i); assistShowMore=false; renderAssistPanel(); }
+// Stop the metronome whenever its BPM context changes underneath it (switching
+// mood/lens/tab) - otherwise it silently keeps clicking at a now-unrelated tempo.
+function _stopMetronome(){ if(_metroTimer){ clearInterval(_metroTimer); _metroTimer=null; } }
+function setAssistEmotion(i){ _stopMetronome(); assistEmotion=(assistEmotion===i?null:i); assistShowMore=false; renderAssistPanel(); }
 function setAssistMove(i){ assistMove=(assistMove===i?null:i); renderAssistPanel(); }
 function toggleAssistMore(){ assistShowMore=!assistShowMore; renderAssistPanel(); }
 window.toggleAssistMore=toggleAssistMore;
 function setAssistStyle(s){
+  _stopMetronome();
   assistStyle=s; savePref('assist_style',s);
   assistEmotion=null; assistMove=null; assistShowMore=false;
   if(appMode==='assist') renderAssistPanel(); // toggle redrawn with active state
@@ -1855,9 +1899,10 @@ function renderAssistPanel(){
   }
   if(assistStyle==='moods' && assistEmotion!==null){
     var re=EMOTIONS[assistEmotion];
+    var re_bpm = Math.round((re.bpmLo+re.bpmHi)/2);
     h+='<div class="recipe-hint">'
       +'<span>'+MODES[re.mode].name+'</span><span class="rh-dot">·</span>'
-      +'<span>'+re.bpmLo+'-'+re.bpmHi+' BPM</span><span class="rh-dot">·</span>'
+      +'<button class="metro-btn" onclick="toggleMetronome('+re_bpm+',this)" title="Tap to hear this mood\'s tempo">▸ '+re.bpmLo+'-'+re.bpmHi+' BPM</button><span class="rh-dot">·</span>'
       +'<span>'+re.traj+'</span></div>';
   }
   // Relations highlights the wheel + shows a memo instead of suggestion cards.
