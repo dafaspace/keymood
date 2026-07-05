@@ -104,10 +104,27 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .etile { font-size:11px; padding:8px 10px; min-height:36px; border-radius:14px; border:0.5px solid var(--bd2); border-left:3px solid hsl(var(--eh) 60% 52%); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); transition:all .12s; display:inline-flex; align-items:center; }
 .etile:hover { background:var(--bg2); }
 .etile.active { background:hsl(var(--eh) 60% 50%); color:#fff; border-color:hsl(var(--eh) 60% 50%); font-weight:500; }
+/* Mood picker: COLLAPSED by default (a single summary row) so the ranked "Next
+   key" result is always visible with no scroll and no "More" cut. Expands into
+   the valence x arousal pad (our long-planned 2D picker) only on tap, and
+   auto-collapses the instant a mood is picked. */
+.mood-summary { display:flex; align-items:center; gap:8px; width:100%; height:40px; padding:0 12px; margin-bottom:6px; border-radius:10px; border:0.5px solid var(--bd2); background:var(--bg2); cursor:pointer; font-family:var(--font); font-size:12px; color:var(--text2); text-align:left; }
+.mood-summary .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.mood-summary .chev { margin-left:auto; color:var(--text3); font-size:10px; }
+/* Pure colour+position map - no permanent text labels (19 dots at close arousal
+   spacing WILL collide if every one carries a name). Names come from: the title=
+   tooltip (hover/long-press), and the collapsed summary row showing the picked
+   name immediately after tap. */
+.mood-pad { position:relative; width:100%; height:150px; margin-bottom:6px; border-radius:12px; border:0.5px solid var(--bd2); background:var(--bg2); overflow:hidden; }
+.mood-pad-axis { position:absolute; font-size:9px; color:var(--text3); letter-spacing:.03em; text-transform:uppercase; pointer-events:none; }
+.mood-pad .etile-dot { position:absolute; transform:translate(-50%,50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; padding:0; }
+.mood-pad .etile-dot .dot { width:13px; height:13px; border-radius:50%; border:1.5px solid var(--bg2); box-shadow:0 0 0 1px var(--bd2); transition:transform .1s; }
+.mood-pad .etile-dot.active .dot { width:16px; height:16px; border-color:#fff; box-shadow:0 0 0 2px hsl(var(--eh) 60% 45%); }
 /* Relation tiles (Assist > Relations lens) - no hue, neutral active state */
 .etile.rel { border-left-color:var(--bd2); }
 .etile.rel.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:600; }
 .rel-memo { font-size:11px; line-height:1.5; color:var(--text2); margin-top:8px; padding:9px 11px; background:var(--bg2); border-radius:9px; border:0.5px solid var(--bd); }
+.axis-legend { font-size:10px; color:var(--text3); margin:2px 0 6px; }
 .sugg-list { display:flex; flex-direction:column; gap:4px; }
 /* Fixed-height single-row card so switching suggestions never resizes it.
    44px = a real tap target (was 34px, flagged by every design review). */
@@ -1431,10 +1448,11 @@ buildModeStrip();
 
 // ── Audio ─────────────────────────────────────────────────────────────────────
 var _audioCtx = null;
-var _soundOn  = true;
+var _soundOn  = loadPref('sound', true); // was hardcoded true - reset itself every load unlike every other setting
 
 function toggleSound() {
   _soundOn = !_soundOn;
+  savePref('sound', _soundOn);
   var btn = document.getElementById('btn-sound');
   btn.innerHTML = _soundOn
     ? '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'
@@ -1705,6 +1723,31 @@ var assistStyle   = loadPref('assist_style','moods'); // 'moods' | 'relations' |
 var assistEmotion = null;
 var assistMove    = null;
 var assistShowMore = false;  // Moods: show 6 closely-related by default, More reveals bolder ones
+// Mood picker: COLLAPSED by default (a one-line summary) so the ranked "Next key"
+// result is always visible with no scroll - only the 2D valence x arousal pad
+// (tap to open) costs real height, and only while the user is actively choosing.
+var assistPadOpen = false;
+
+// Position every emotion on the valence(x) x arousal(y) pad, with a simple
+// anti-collision nudge for the few pairs that share near-identical (vl,ar) - e.g.
+// Mysterious/Nostalgic both sit at vl:0, ar:0.3.
+function moodPadPositions(){
+  var pts = EMOTIONS.map(function(e,i){
+    var x = ((e.vl+1)/2)*70 + 15;   // vl -1..1 -> 15%..85% (keep off the edges)
+    var y = e.ar*76 + 10;           // ar 0..1 -> 10%..86% from the bottom
+    return {e:e, i:i, x:x, y:y};
+  });
+  for(var a=0;a<pts.length;a++){
+    for(var b=0;b<a;b++){
+      if(Math.abs(pts[a].x-pts[b].x)<6 && Math.abs(pts[a].y-pts[b].y)<9){
+        pts[a].x += 7; pts[b].x -= 7;
+      }
+    }
+  }
+  return pts;
+}
+function toggleMoodPad(){ assistPadOpen = !assistPadOpen; renderAssistPanel(); }
+window.toggleMoodPad = toggleMoodPad;
 
 function smoothScore(cs,cm,ts,tm){
   var d=Math.min((ts-cs+12)%12,(cs-ts+12)%12); // circle-of-fifths distance 0..6
@@ -1829,14 +1872,18 @@ function djSuggest(cs,cm,moveIdx){
 // Stop the metronome whenever its BPM context changes underneath it (switching
 // mood/lens/tab) - otherwise it silently keeps clicking at a now-unrelated tempo.
 function _stopMetronome(){ if(_metroTimer){ clearInterval(_metroTimer); _metroTimer=null; } }
-function setAssistEmotion(i){ _stopMetronome(); assistEmotion=(assistEmotion===i?null:i); assistShowMore=false; renderAssistPanel(); }
+function setAssistEmotion(i){
+  _stopMetronome(); assistEmotion=(assistEmotion===i?null:i); assistShowMore=false;
+  assistPadOpen=false; // picking a mood (from the pad) auto-collapses it back to the summary row
+  renderAssistPanel();
+}
 function setAssistMove(i){ assistMove=(assistMove===i?null:i); renderAssistPanel(); }
 function toggleAssistMore(){ assistShowMore=!assistShowMore; renderAssistPanel(); }
 window.toggleAssistMore=toggleAssistMore;
 function setAssistStyle(s){
   _stopMetronome();
   assistStyle=s; savePref('assist_style',s);
-  assistEmotion=null; assistMove=null; assistShowMore=false;
+  assistEmotion=null; assistMove=null; assistShowMore=false; assistPadOpen=false;
   if(appMode==='assist') renderAssistPanel(); // toggle redrawn with active state
 }
 function assistPick(slice,min,modeIdx){
@@ -1898,13 +1945,26 @@ function renderAssistPanel(){
         +'onclick="setAssistMove('+i+')" title="'+DJMOVES[i].sub+'">'+DJMOVES[i].name+'</button>';
     }
     h+='</div>';
-  }else{
-    h+='<div class="slabel">Next mood</div><div class="assist-tiles">';
-    for(var i=0;i<EMOTIONS.length;i++){
-      h+='<button class="etile'+(assistEmotion===i?' active':'')+'" style="--eh:'+EMOTIONS[i].hue
-        +'" onclick="setAssistEmotion('+i+')">'+EMOTIONS[i].name+'</button>';
+  }else if(assistPadOpen){
+    // Expanded valence(x) x arousal(y) pad - the only state that costs real
+    // height, and only while the user is actively choosing a mood.
+    var pts = moodPadPositions();
+    h+='<div class="mood-pad">'
+      +'<span class="mood-pad-axis" style="top:5px;left:8px">Intense</span>'
+      +'<span class="mood-pad-axis" style="bottom:5px;left:8px">Calm</span>';
+    for(var i=0;i<pts.length;i++){ var pt=pts[i];
+      h+='<button class="etile-dot'+(assistEmotion===pt.i?' active':'')+'" style="--eh:'+pt.e.hue+';left:'+pt.x+'%;bottom:'+pt.y+'%" '
+        +'onclick="setAssistEmotion('+pt.i+')" title="'+pt.e.name+'"><span class="dot" style="background:hsl(var(--eh) 60% 50%)"></span></button>';
     }
     h+='</div>';
+  }else{
+    // Collapsed by default: one summary row (current mood, or a prompt) so the
+    // ranked "Next key" result below is always visible with no scroll. Tap to
+    // open the pad; picking a mood auto-collapses it again (see setAssistEmotion).
+    var cur = assistEmotion!==null ? EMOTIONS[assistEmotion] : null;
+    h+='<button class="mood-summary" onclick="toggleMoodPad()">'
+      +(cur?'<span class="dot" style="background:hsl('+cur.hue+' 60% 50%)"></span><span>'+cur.name+'</span>':'<span>Pick a mood…</span>')
+      +'<span class="chev">▾ '+(cur?'Change':'Choose')+'</span></button>';
   }
   if(assistStyle==='moods' && assistEmotion!==null){
     var re=EMOTIONS[assistEmotion];
@@ -1927,7 +1987,11 @@ function renderAssistPanel(){
       // - bolder/distant keys - hide behind "More". DJ shows all its move targets.
       var defN = window.innerWidth <= 620 ? 3 : 6;   // fewer on a phone so it fits with no scroll
       var cap = (assistStyle==='dj') ? sg.length : (assistShowMore ? sg.length : Math.min(defN, sg.length));
-      h+='<div class="slabel" style="margin-top:11px">'+lbl+'</div><div class="sugg-list">';
+      h+='<div class="slabel" style="margin-top:11px">'+lbl+'</div>'
+        // On-screen legend for the two card axes - previously explained only via a
+        // hover title, invisible on the touch-first primary platform.
+        +'<div class="axis-legend">brighter/darker = tone shift &nbsp;·&nbsp; Seamless→Cut = how big the jump</div>'
+        +'<div class="sugg-list">';
       for(var j=0;j<cap;j++){ var s=sg[j];
         h+='<button class="sugg-card'+(showCamHere?'':' no-cam')+'" title="'+s.tip+'" onclick="assistPick('+s.slice+','+(s.min?1:0)+','+s.modeIdx+')">'
           +'<span class="sugg-key">'+s.name+'</span>'
@@ -2018,6 +2082,12 @@ function _flashShare(msg) {
   else if (notation === 'solfege') document.getElementById('cb-sol').checked = true;
   var minorPref = loadPref('minor', true);
   document.getElementById('cb-minor').checked = minorPref;
+  // Sound icon markup is hardcoded to "on" in the HTML; sync it to the loaded pref
+  // (was resetting to on every load regardless of the user's last choice).
+  if (!_soundOn) {
+    document.getElementById('btn-sound').innerHTML =
+      '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="9.5" y1="5" x2="12" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="12" y1="5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+  }
 })();
 
 // Read URL params on load
@@ -2034,9 +2104,17 @@ function _flashShare(msg) {
       selected    = { slice: slice, tonicSlice: slice, modeIdx: mode, fromInner: inner };
       lastModeIdx = mode;
     }
+  } else {
+    // The app should never open doing nothing ("Shazam-simple": always populated,
+    // never an empty wheel + "tap a key" as the first thing a new visitor sees).
+    // Silent - no auto-playing audio on load.
+    selected = { slice: 0, tonicSlice: 0, modeIdx: 0, fromInner: false };
   }
-  if (p.get('app') === 'modal') setAppMode('modal');
-  else if (p.get('app') === 'assist') {
+  // A share link's `app=` always wins; otherwise resume the tab the user was last
+  // on (was resetting to Tonal on every reopen, unlike every other preference).
+  var appParam = p.get('app');
+  if (appParam === 'modal') setAppMode('modal');
+  else if (appParam === 'assist') {
     var lens = p.get('lens');
     if (lens === 'moods' || lens === 'relations' || lens === 'dj') assistStyle = lens;
     if (p.has('emo')) {
@@ -2044,6 +2122,9 @@ function _flashShare(msg) {
       if (emoIdx >= 0 && emoIdx < EMOTIONS.length) assistEmotion = emoIdx;
     }
     setAppMode('assist');
+  } else {
+    var savedMode = loadPref('appMode', 'tonal');
+    if (savedMode === 'modal' || savedMode === 'assist') setAppMode(savedMode);
   }
   updateNotationSeg();
   updatePaletteSeg();
