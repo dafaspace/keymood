@@ -73,7 +73,11 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .t-btn { background:none; border:1px solid var(--bd2); border-radius:50%; cursor:pointer; width:20px; height:20px; font-size:11px; line-height:1; color:var(--text2); padding:0; flex-shrink:0; }
 .t-btn:hover { background:var(--bg2); }
 .util { display:inline-flex; align-items:center; gap:1px; flex-shrink:0; }
-.util-btn { background:none; border:none; cursor:pointer; width:28px; height:26px; padding:0; line-height:1; color:var(--text2); font-size:15px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+/* Visual size stays compact (5 icons share a tight header row), but the tappable
+   area extends to ~40px via an invisible ::before - the "extend hit area, don't
+   grow the icon" pattern all three design reviews recommended. */
+.util-btn { position:relative; background:none; border:none; cursor:pointer; width:28px; height:26px; padding:0; line-height:1; color:var(--text2); font-size:15px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.util-btn::before { content:''; position:absolute; inset:-7px; }
 .util-btn:hover { background:var(--bg2); }
 .util-btn.active { color:var(--text); background:var(--bg3); }
 #bm-quiz { color:#9b7fd4; }
@@ -93,11 +97,11 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .rel-tools { display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
 
 /* Transition Assistant */
-.ta-toggle { margin-left:auto; display:inline-flex; gap:2px; background:var(--bg2); border-radius:11px; padding:2px; }
-.ta-seg { font-size:10px; padding:2px 9px; border-radius:9px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); line-height:1.5; }
+.ta-toggle { margin-left:auto; display:inline-flex; gap:2px; background:var(--bg2); border-radius:13px; padding:2px; }
+.ta-seg { font-size:11px; padding:7px 11px; min-height:30px; border-radius:11px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); line-height:1; display:inline-flex; align-items:center; }
 .ta-seg.active { background:var(--text); color:var(--bg); font-weight:600; }
 .assist-tiles { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:4px; }
-.etile { font-size:10px; padding:4px 8px; border-radius:14px; border:0.5px solid var(--bd2); border-left:3px solid hsl(var(--eh) 60% 52%); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); transition:all .12s; }
+.etile { font-size:11px; padding:8px 10px; min-height:36px; border-radius:14px; border:0.5px solid var(--bd2); border-left:3px solid hsl(var(--eh) 60% 52%); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); transition:all .12s; display:inline-flex; align-items:center; }
 .etile:hover { background:var(--bg2); }
 .etile.active { background:hsl(var(--eh) 60% 50%); color:#fff; border-color:hsl(var(--eh) 60% 50%); font-weight:500; }
 /* Relation tiles (Assist > Relations lens) - no hue, neutral active state */
@@ -105,8 +109,9 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .etile.rel.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:600; }
 .rel-memo { font-size:11px; line-height:1.5; color:var(--text2); margin-top:8px; padding:9px 11px; background:var(--bg2); border-radius:9px; border:0.5px solid var(--bd); }
 .sugg-list { display:flex; flex-direction:column; gap:4px; }
-/* Fixed-height single-row card so switching suggestions never resizes it. */
-.sugg-card { display:grid; grid-template-columns:auto auto 1fr auto; align-items:center; gap:8px; width:100%; height:34px; text-align:left; padding:0 10px; border-radius:8px; border:0.5px solid var(--bd); background:var(--bg2); cursor:pointer; font-family:var(--font); transition:background .12s; }
+/* Fixed-height single-row card so switching suggestions never resizes it.
+   44px = a real tap target (was 34px, flagged by every design review). */
+.sugg-card { display:grid; grid-template-columns:auto auto 1fr auto; align-items:center; gap:8px; width:100%; height:44px; text-align:left; padding:0 12px; border-radius:9px; border:0.5px solid var(--bd); background:var(--bg2); cursor:pointer; font-family:var(--font); transition:background .12s; }
 /* Camelot hidden by default (see showCamHere) - 3 columns instead of 4 so bright/hard
    don't get squeezed into the column meant for the (now absent) Camelot chip. */
 .sugg-card.no-cam { grid-template-columns:auto 1fr auto; }
@@ -203,12 +208,12 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
   /* Mode strip: deterministic single row, equal columns - never wraps raggedly. */
   .mode-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
   .mode-strip-wrap { margin: 0 0 6px; }
-  .mbtn { padding: 6px 2px; min-height: 40px; }
+  .mbtn { padding: 6px 2px; min-height: 44px; }
   .mbtn .mb-mood { display: none; }
   .mode-div { display: none; }
   /* Mood/relation tiles as an equal grid (was ragged-width wrapping chips). */
   .assist-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
-  .etile { padding: 7px 3px; font-size: 10px; text-align: center; min-height: 40px;
+  .etile { padding: 7px 3px; font-size: 10px; text-align: center; min-height: 44px;
            display: flex; align-items: center; justify-content: center; border-left-width: 2px; }
 }
 /* margin auto centers the circle when resize() shrinks it below the column width
@@ -220,10 +225,14 @@ canvas { display: block; margin-left: auto; margin-right: auto; cursor: pointer;
 .phead { padding: 9px 13px; border-bottom: 0.5px solid var(--bd); font-size: 12px; font-weight: 500; color: var(--text2); display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .pbody { padding: 11px 13px; overflow-y: auto; }
-/* Transpose stepper - lives next to the key name (pitch-shift is core to Assist) */
-.kt-step { display:inline-flex; align-items:center; gap:3px; vertical-align:middle; margin-left:10px; }
+/* Transpose stepper - lives next to the key name (pitch-shift is core to Assist).
+   Was 20x18px - flagged by every design review as the smallest tap target in the
+   app despite being one of the most-used controls. Grown to a real tap size, with
+   an extended invisible hit area on top of that. */
+.kt-step { display:inline-flex; align-items:center; gap:4px; vertical-align:middle; margin-left:10px; }
 .kt-lbl { font-size:10px; color:var(--text3); letter-spacing:.04em; margin-right:1px; }
-.kt-step button { width:20px; height:18px; border-radius:5px; border:0.5px solid var(--bd2); background:var(--bg2); color:var(--text2); font-size:8px; cursor:pointer; font-family:var(--font); line-height:1; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+.kt-step button { position:relative; width:30px; height:28px; border-radius:7px; border:0.5px solid var(--bd2); background:var(--bg2); color:var(--text2); font-size:11px; cursor:pointer; font-family:var(--font); line-height:1; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+.kt-step button::before { content:''; position:absolute; inset:-6px; }
 .kt-step button:hover { background:var(--bg3); color:var(--text); }
 .key-big { font-size: 22px; font-weight: 500; line-height: 1; color: var(--text); }
 .key-sub { font-size: 11px; color: var(--text3); margin: 2px 0 0; }
@@ -250,7 +259,7 @@ canvas { display: block; margin-left: auto; margin-right: auto; cursor: pointer;
 .empty { font-size: 13px; color: var(--text3); padding: 4px 0; }
 
 /* Quiz */
-.qo { padding: 8px 11px; border-radius: 8px; font-size: 12px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text); cursor: pointer; text-align: left; font-family: var(--font); width: 100%; display: block; margin-bottom: 4px; }
+.qo { padding: 12px 13px; min-height:44px; border-radius: 9px; font-size: 12px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text); cursor: pointer; text-align: left; font-family: var(--font); width: 100%; display: block; margin-bottom: 6px; }
 .qo:hover:not(:disabled) { background: var(--bg2); }
 .qo.correct { background: #eaf3de; border-color: #639922; color: #3B6D11; }
 .qo.wrong { background: #fcebeb; border-color: #E24B4A; color: #A32D2D; }
