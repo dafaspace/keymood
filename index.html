@@ -163,8 +163,9 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 /* Layout */
 .layout { display: grid; grid-template-columns: 1fr 256px; gap: 12px; align-items: start; }
 .panel-col { display: flex; flex-direction: column; }
-/* Mobile: lock to viewport. Circle column is JUST the canvas (same spot every tab);
-   the panel column (mode strip + panel) takes the rest, sized to fit with no scroll. */
+/* Mobile: lock to viewport. Circle region is fixed height/centred (same spot every
+   tab); the panel is a bottom SHEET that fills the rest and scrolls internally if
+   its content is taller - the page itself never scrolls. */
 @media (max-width: 620px) {
   /* Lock the app to the REAL visible height (JS sets --app-h = innerHeight, which
      accounts for the browser toolbar that 100dvh can over-estimate). overflow:hidden
@@ -172,24 +173,42 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
   html { overflow: hidden; }
   body { height: var(--app-h, 100dvh); min-height: 0; max-height: var(--app-h, 100dvh);
          overflow: hidden; display: flex; flex-direction: column; padding: 12px; }
-  .layout { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
-  .circle-col { flex: 0 0 auto; }
-  .panel-col { flex: 1 1 auto; min-height: 0; }
-  .panel { flex: 1 1 auto; min-height: 0; }
-  /* Mode strip: compact, WRAPPING (no horizontal scroll) - note + mode only, no mood. */
-  .mode-strip { flex-wrap: wrap; overflow: hidden; justify-content: center; gap: 4px; max-width: 100%; }
-  .mode-strip-wrap { margin: 0 0 6px; max-width: 100%; overflow: hidden; }
-  .mbtn { padding: 4px 7px; }
+  /* Tighten the two header rows into one compact block instead of two 10px-margin
+     rows - recovers real height for the wheel without hiding anything. */
+  .appbar { margin-bottom: 4px; }
+  .appbar h1 { font-size: 11px; }
+  .mode-switcher { margin-bottom: 6px; }
+  /* align-items:stretch is the fix for BOTH the off-centre wheel and the narrow
+     panel: the desktop rule (line ~43) sets this for itself, but the mobile
+     override below replaced `display` without also replacing `align-items`, so
+     children kept shrink-to-fit (`start`) sizing - .circle-col shrank to exactly
+     the canvas width and left-aligned, and .panel-col shrank to its content's
+     width instead of filling the screen. */
+  .layout { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0; align-items: stretch; }
+  .circle-col { flex: 0 0 auto; width: 100%; display: flex; justify-content: center; padding: 4px 0 10px; }
+  .panel-col { flex: 1 1 auto; min-height: 0; width: 100%; }
+  /* Sheet, not a floating bordered card: bleeds to the screen edges and docks to
+     the bottom, so unused space below short content reads as calm ground rather
+     than a visibly empty box. Content scrolls internally when it's taller than
+     the sheet - the page itself stays fixed (html/body overflow:hidden above). */
+  .panel { flex: 1 1 auto; min-height: 0; margin: 0 -12px -12px; border: none;
+           border-top: 0.5px solid var(--bd); border-radius: 16px 16px 0 0;
+           background: var(--bg2); }
+  .pbody { padding: 12px 16px 16px; overflow-y: auto; }
+  /* Mode strip: deterministic single row, equal columns - never wraps raggedly. */
+  .mode-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .mode-strip-wrap { margin: 0 0 6px; }
+  .mbtn { padding: 6px 2px; min-height: 40px; }
   .mbtn .mb-mood { display: none; }
   .mode-div { display: none; }
-  /* Compact mood/relation tiles + tighter sections so the Assist panel fits. */
-  .etile { padding: 3px 7px; font-size: 9px; }
-  .assist-tiles { gap: 3px; }
-  .pbody { padding: 9px 11px; }
+  /* Mood/relation tiles as an equal grid (was ragged-width wrapping chips). */
+  .assist-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .etile { padding: 7px 3px; font-size: 10px; text-align: center; min-height: 40px;
+           display: flex; align-items: center; justify-content: center; border-left-width: 2px; }
 }
 /* margin auto centers the circle when resize() shrinks it below the column width
    (e.g. Modal, where the mode strip eats height) - otherwise it left-aligns. */
-canvas { display: block; width: 100%; margin-left: auto; margin-right: auto; cursor: pointer; touch-action: none; }
+canvas { display: block; margin-left: auto; margin-right: auto; cursor: pointer; touch-action: none; }
 
 /* Panel */
 .panel { border: 0.5px solid var(--bd); border-radius: 12px; overflow: hidden; background: var(--bg); display: flex; flex-direction: column; }
@@ -532,11 +551,14 @@ function resize() {
     var lay = cv.closest('.layout');
     if (lay) {
       var avail = window.innerHeight - lay.getBoundingClientRect().top - 12;
-      // FIXED fraction so the circle is the SAME size in every tab; panels are trimmed
-      // (More toggle, fewer cards on phone) to fit the remaining space with no scroll.
-      s = Math.min(s, avail * 0.38);
+      // FIXED fraction so the circle is the SAME size in every tab regardless of that
+      // tab's panel content - the panel is a sheet that scrolls internally for any
+      // overflow (see .panel/.pbody, mobile media query), so the wheel no longer has
+      // to be starved down to whatever the tallest panel needs.
+      s = Math.min(s, Math.max(240, avail * 0.46));
     }
   }
+  s = Math.round(s);
   cv.style.width  = s + 'px';
   cv.style.height = s + 'px';
   cv.width  = s * dpr;
@@ -1153,13 +1175,17 @@ function updatePanel() {
         +(document.getElementById('cb-minor').checked?' active':'')
         +'" onclick="toggleMinorRing()" title="Show the minor (inner) ring">Minor ring</button></div>'
       : '';
+    // phead is FUNCTIONAL (swatch + the minor-ring control) - key-big right below is
+    // the single place the key's IDENTITY (name/Camelot) is printed, so it isn't said
+    // twice in a ~13px-tall strip.
     panel.innerHTML =
-    '<div class="phead"><span class="sw" style="background:'+col+'"></span>'+keyName+camLabel+minorTog+'</div>' +
+    '<div class="phead"><span class="sw" style="background:'+col+'"></span>'+minorTog+'</div>' +
     '<div class="pbody">' +
-      '<div class="key-big">'+keyName+tStepHTML()+'</div>' +
-      (isCamelot() ? '<div style="font-size:12px;color:var(--text3);margin:-2px 0 4px">Camelot <strong style="color:var(--text2)">'+CAM_MAJ[accSlice]+(MODES[modeIdx].type==='maj'?'B':'A')+'</strong></div>' : '') +
+      '<div class="key-big">'+keyName+camLabel+tStepHTML()+'</div>' +
       (!isCamelot() ? '<div class="key-sub">'+(acc?acc+' \u00b7 ':'')+mode.mood+'</div>' : '<div class="key-sub">'+mode.mood+'</div>') +
-      '<div class="ctx-line">'+ctxHTML+'</div>' +
+      // Ionian has no parent-mode context (ctxHTML is empty) - don't reserve the
+      // 31px ctx-line box for nothing.
+      (ctxHTML ? '<div class="ctx-line">'+ctxHTML+'</div>' : '') +
 
       '<div class="slabel">Scale</div>' +
       '<div class="scale-row">'+scaleHTML+'</div>' +
