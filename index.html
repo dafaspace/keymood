@@ -108,18 +108,48 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
    key" result is always visible with no scroll and no "More" cut. Expands into
    the valence x arousal pad (our long-planned 2D picker) only on tap, and
    auto-collapses the instant a mood is picked. */
+/* Persistent header - present in BOTH collapsed and open states so the picker is
+   always closable by tapping it again (chevron flips). */
 .mood-summary { display:flex; align-items:center; gap:8px; width:100%; height:40px; padding:0 12px; margin-bottom:6px; border-radius:10px; border:0.5px solid var(--bd2); background:var(--bg2); cursor:pointer; font-family:var(--font); font-size:12px; color:var(--text2); text-align:left; }
+.mood-summary.open { border-color:var(--bd); background:var(--bg3); }
 .mood-summary .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 .mood-summary .chev { margin-left:auto; color:var(--text3); font-size:10px; }
+/* Dry-logic list (names) - the precise pick, complements the spatial pad. */
+.mood-list { max-height:132px; overflow-y:auto; margin-bottom:6px; border-radius:10px; border:0.5px solid var(--bd2); background:var(--bg2); display:grid; grid-template-columns:1fr 1fr; gap:1px; padding:3px; }
+.mood-li { display:flex; align-items:center; gap:7px; height:32px; padding:0 9px; border:none; border-radius:7px; background:none; color:var(--text2); font-family:var(--font); font-size:12px; cursor:pointer; text-align:left; }
+.mood-li:hover { background:var(--bg3); }
+.mood-li.active { background:var(--text); color:var(--bg); font-weight:600; }
+.mood-li .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 /* Pure colour+position map - no permanent text labels (19 dots at close arousal
    spacing WILL collide if every one carries a name). Names come from: the title=
    tooltip (hover/long-press), and the collapsed summary row showing the picked
    name immediately after tap. */
-.mood-pad { position:relative; width:100%; height:150px; margin-bottom:6px; border-radius:12px; border:0.5px solid var(--bd2); background:var(--bg2); overflow:hidden; }
-.mood-pad-axis { position:absolute; font-size:9px; color:var(--text3); letter-spacing:.03em; text-transform:uppercase; pointer-events:none; }
-.mood-pad .etile-dot { position:absolute; transform:translate(-50%,50%); width:26px; height:26px; display:flex; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; padding:0; }
-.mood-pad .etile-dot .dot { width:13px; height:13px; border-radius:50%; border:1.5px solid var(--bg2); box-shadow:0 0 0 1px var(--bd2); transition:transform .1s; }
-.mood-pad .etile-dot.active .dot { width:16px; height:16px; border-color:#fff; box-shadow:0 0 0 2px hsl(var(--eh) 60% 45%); }
+/* Spatial pad: a quadrant FIELD, not a blank card. Four soft corner washes
+   (transparent hue tints that work in both themes) make the valence x arousal
+   space legible even between dots; a faint centre crosshair anchors the quadrants.
+   Corner washes: bottom-left dark/calm (blue), bottom-right bright/calm (warm),
+   top-left dark/intense (red), top-right bright/intense (green). */
+.mood-pad { position:relative; width:100%; height:150px; margin-bottom:6px; border-radius:12px; border:0.5px solid var(--bd2); overflow:hidden;
+  background:
+    radial-gradient(ellipse at 12% 88%, hsla(210,55%,50%,.13), transparent 58%),
+    radial-gradient(ellipse at 88% 88%, hsla(45,65%,52%,.13), transparent 58%),
+    radial-gradient(ellipse at 12% 12%, hsla(0,65%,52%,.13), transparent 58%),
+    radial-gradient(ellipse at 88% 12%, hsla(140,52%,48%,.13), transparent 58%),
+    var(--bg2); }
+/* Faint crosshair through the centre - the circumplex convention that turns
+   "dots in a box" into "a coordinate map". */
+.mood-pad::before, .mood-pad::after { content:''; position:absolute; background:var(--bd2); pointer-events:none; }
+.mood-pad::before { left:0; right:0; top:50%; height:0.5px; }
+.mood-pad::after { top:0; bottom:0; left:50%; width:0.5px; }
+/* Axis labels sit UNDER the dots (z-index) so dots are never hidden, but carry a
+   faint frosted backing chip (theme-scoped rgba - avoids color-mix for wider
+   browser support) so the label stays readable even when a dot overlaps it in a
+   corner on a narrow pad. */
+.mood-pad-axis { position:absolute; font-size:9px; color:var(--text2); letter-spacing:.03em; text-transform:uppercase; pointer-events:none; z-index:2; padding:1px 4px; border-radius:5px; background:rgba(37,37,34,.72); }
+:root.light .mood-pad-axis { background:rgba(241,238,231,.75); }
+.mood-pad .etile-dot { position:absolute; transform:translate(-50%,50%); width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; padding:0; z-index:3; }
+.mood-pad .etile-dot .dot { width:13px; height:13px; border-radius:50%; border:1.5px solid var(--bg2); box-shadow:0 0 0 1px rgba(0,0,0,.35); transition:transform .1s; }
+.mood-pad .etile-dot.active .dot { width:17px; height:17px; border-color:#fff; box-shadow:0 0 0 2px hsl(var(--eh) 60% 45%); }
 /* Relation tiles (Assist > Relations lens) - no hue, neutral active state */
 .etile.rel { border-left-color:var(--bd2); }
 .etile.rel.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:600; }
@@ -1945,26 +1975,38 @@ function renderAssistPanel(){
         +'onclick="setAssistMove('+i+')" title="'+DJMOVES[i].sub+'">'+DJMOVES[i].name+'</button>';
     }
     h+='</div>';
-  }else if(assistPadOpen){
-    // Expanded valence(x) x arousal(y) pad - the only state that costs real
-    // height, and only while the user is actively choosing a mood.
-    var pts = moodPadPositions();
-    h+='<div class="mood-pad">'
-      +'<span class="mood-pad-axis" style="top:5px;left:8px">Intense</span>'
-      +'<span class="mood-pad-axis" style="bottom:5px;left:8px">Calm</span>';
-    for(var i=0;i<pts.length;i++){ var pt=pts[i];
-      h+='<button class="etile-dot'+(assistEmotion===pt.i?' active':'')+'" style="--eh:'+pt.e.hue+';left:'+pt.x+'%;bottom:'+pt.y+'%" '
-        +'onclick="setAssistEmotion('+pt.i+')" title="'+pt.e.name+'"><span class="dot" style="background:hsl(var(--eh) 60% 50%)"></span></button>';
-    }
-    h+='</div>';
   }else{
-    // Collapsed by default: one summary row (current mood, or a prompt) so the
-    // ranked "Next key" result below is always visible with no scroll. Tap to
-    // open the pad; picking a mood auto-collapses it again (see setAssistEmotion).
+    // Persistent header row - rendered in BOTH collapsed and open states so the
+    // picker is ALWAYS closable by tapping it again (the earlier bug: the header
+    // vanished when open, leaving no way back except picking a dot). Collapsed by
+    // default so the ranked "Next key" result shows with no scroll; tap to open.
     var cur = assistEmotion!==null ? EMOTIONS[assistEmotion] : null;
-    h+='<button class="mood-summary" onclick="toggleMoodPad()">'
+    h+='<button class="mood-summary'+(assistPadOpen?' open':'')+'" onclick="toggleMoodPad()">'
       +(cur?'<span class="dot" style="background:hsl('+cur.hue+' 60% 50%)"></span><span>'+cur.name+'</span>':'<span>Pick a mood…</span>')
-      +'<span class="chev">▾ '+(cur?'Change':'Choose')+'</span></button>';
+      +'<span class="chev">'+(assistPadOpen?'▴ Close':'▾ '+(cur?'Change':'Choose'))+'</span></button>';
+    if(assistPadOpen){
+      // Owner asked for BOTH: a name list (dry logic - precise pick, and the
+      // reliable target on a dense pad) AND the spatial pad (intuition - see where
+      // a mood sits, current pick highlighted). Both drive the same
+      // setAssistEmotion, so list-row and pad-dot are two views of one state.
+      h+='<div class="mood-list">';
+      for(var i=0;i<EMOTIONS.length;i++){ var e=EMOTIONS[i];
+        h+='<button class="mood-li'+(assistEmotion===i?' active':'')+'" onclick="setAssistEmotion('+i+')">'
+          +'<span class="dot" style="background:hsl('+e.hue+' 60% 50%)"></span>'+e.name+'</button>';
+      }
+      h+='</div>';
+      var pts = moodPadPositions();
+      h+='<div class="mood-pad">'
+        +'<span class="mood-pad-axis" style="top:4px;left:50%;transform:translateX(-50%)">Intense</span>'
+        +'<span class="mood-pad-axis" style="bottom:4px;left:50%;transform:translateX(-50%)">Calm</span>'
+        +'<span class="mood-pad-axis" style="left:6px;top:50%;transform:translateY(-50%)">Dark</span>'
+        +'<span class="mood-pad-axis" style="right:6px;top:50%;transform:translateY(-50%)">Bright</span>';
+      for(var i=0;i<pts.length;i++){ var pt=pts[i];
+        h+='<button class="etile-dot'+(assistEmotion===pt.i?' active':'')+'" style="--eh:'+pt.e.hue+';left:'+pt.x+'%;bottom:'+pt.y+'%" '
+          +'onclick="setAssistEmotion('+pt.i+')" title="'+pt.e.name+'"><span class="dot" style="background:hsl(var(--eh) 60% 50%)"></span></button>';
+      }
+      h+='</div>';
+    }
   }
   if(assistStyle==='moods' && assistEmotion!==null){
     var re=EMOTIONS[assistEmotion];
