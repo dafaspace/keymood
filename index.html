@@ -354,6 +354,22 @@ function accStr(i) {
   if (!n) return '';
   return n > 0 ? n + '\u266f' : Math.abs(n) + '\u266d';
 }
+// The wheel's accidentals RING already shows the COUNT (e.g. "3\u266f"); this names
+// WHICH notes those are, in standard order-of-sharps/flats (each new key just adds
+// the next letter in the sequence). A design review noted this must live in the
+// panel, not the wheel's centre hole - a key with 6-7 accidentals wouldn't fit the
+// small centre circle legibly, but the panel line always has room.
+var SHARP_ORDER = ['F','C','G','D','A','E','B'];
+var FLAT_ORDER  = ['B','E','A','D','G','C','F'];
+function accNotesStr(i) {
+  var n = ACC[i];
+  if (!n) return '';
+  var order = n > 0 ? SHARP_ORDER : FLAT_ORDER;
+  var sym = n > 0 ? '\u266f' : '\u266d';
+  var out = [];
+  for (var k=0; k<Math.abs(n); k++) out.push(order[k]+sym);
+  return out.join(' ');
+}
 
 // 7 modes: off = semitones above parent major tonic
 var MODES = [
@@ -1105,6 +1121,7 @@ function updatePanel() {
 
   var col     = SYNTH[actualSlice];
   var acc     = accStr(accSlice);
+  var accNotes = accNotesStr(accSlice);
   var keyName = (isSol() ? solName(MROOT[actualSlice]) : MAJSHORT[actualSlice]) + ' ' + mode.name;
   var camLabel = isCamelot() ? ' <span style="font-size:11px;opacity:.55;font-weight:400;margin-left:4px">' + CAM_MAJ[accSlice] + (mode.type==='maj'?'B':'A') + '</span>' : '';
   var data    = getModeChords(actualSlice, modeIdx, accSlice);
@@ -1188,7 +1205,9 @@ function updatePanel() {
     '<div class="phead"><span class="sw" style="background:'+col+'"></span>'+minorTog+'</div>' +
     '<div class="pbody">' +
       '<div class="key-big">'+keyName+camLabel+tStepHTML()+'</div>' +
-      (!isCamelot() ? '<div class="key-sub">'+(acc?acc+' \u00b7 ':'')+mode.mood+'</div>' : '<div class="key-sub">'+mode.mood+'</div>') +
+      // Naming which notes the accidentals ARE (the ring only shows the count) -
+      // C major shows nothing here, which itself teaches ("no accidentals").
+      (!isCamelot() ? '<div class="key-sub">'+(acc?acc+' ('+accNotes+') \u00b7 ':'')+mode.mood+'</div>' : '<div class="key-sub">'+mode.mood+'</div>') +
       // Ionian has no parent-mode context (ctxHTML is empty) - don't reserve the
       // 31px ctx-line box for nothing.
       (ctxHTML ? '<div class="ctx-line">'+ctxHTML+'</div>' : '') +
