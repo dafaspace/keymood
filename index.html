@@ -107,6 +107,9 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .sugg-list { display:flex; flex-direction:column; gap:4px; }
 /* Fixed-height single-row card so switching suggestions never resizes it. */
 .sugg-card { display:grid; grid-template-columns:auto auto 1fr auto; align-items:center; gap:8px; width:100%; height:34px; text-align:left; padding:0 10px; border-radius:8px; border:0.5px solid var(--bd); background:var(--bg2); cursor:pointer; font-family:var(--font); transition:background .12s; }
+/* Camelot hidden by default (see showCamHere) - 3 columns instead of 4 so bright/hard
+   don't get squeezed into the column meant for the (now absent) Camelot chip. */
+.sugg-card.no-cam { grid-template-columns:auto 1fr auto; }
 .sugg-card:hover { background:var(--bg3); }
 .sugg-key { font-size:13px; font-weight:500; color:var(--text); }
 .sugg-cam { font-size:10px; color:var(--text3); }
@@ -814,15 +817,18 @@ function render() {
       ctx.restore();
     }
 
-    // Accidentals (skip C=0, hide in Camelot mode)
+    // Accidentals (skip C=0, hide in Camelot mode). Dark theme was sub-perceptual
+    // (.34 alpha at an 8px floor - all three design reviews flagged this); raised to
+    // match light theme's visibility, and the selected key's own label lights up in
+    // its key colour - a quiet ring at rest, a teaching moment on tap.
     if (!showCam) {
       var acc = accStr(i);
       if (acc) {
         ctx.save();
         ctx.translate(CX + Math.cos(midA)*accLabelR, CY + Math.sin(midA)*accLabelR);
-        ctx.font = '400 ' + Math.max(8, R*0.042) + 'px ' + ff;
+        ctx.font = (isSel?'600 ':'400 ') + Math.max(9, R*0.042) + 'px ' + ff;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = dark ? 'rgba(255,255,255,.34)' : 'rgba(0,0,0,.55)';
+        ctx.fillStyle = isSel ? col : (dark ? 'rgba(255,255,255,.52)' : 'rgba(0,0,0,.55)');
         ctx.fillText(acc, 0, 0);
         ctx.restore();
       }
@@ -1794,12 +1800,16 @@ function renderAssistPanel(){
     +'<button class="ta-seg'+(assistStyle==='dj'?' active':'')+'" onclick="setAssistStyle(\'dj\')" title="Camelot mixing moves - for DJs">DJ</button>'
     +'</div>';
   var h='<div class="phead">Transition Assistant'+tog+'</div><div class="pbody">';
+  // Camelot is hidden by default everywhere in Assist (unexplained alphanumeric
+  // noise for 4 of 5 personas) EXCEPT the DJ lens, which speaks Camelot natively -
+  // it always shows it regardless of the global notation setting.
+  var showCamHere = isCamelot() || assistStyle==='dj';
   if(cs===null){
     h+='<div class="empty">Tap a key on the circle - that’s what’s playing now.</div>';
   }else{
     h+='<div class="slabel">Now playing</div><div class="key-big" style="margin-bottom:9px">'
       +(cm?MINNAMES[cs]:MAJSHORT[cs])
-      +' <span style="font-size:12px;color:var(--text3);font-weight:400">'+camelot(cs,cm)+'</span>'
+      +(showCamHere?' <span style="font-size:12px;color:var(--text3);font-weight:400">'+camelot(cs,cm)+'</span>':'')
       +tStepHTML()+'</div>';
   }
   // Intent picker - Moods (mood tiles), DJ moves, or Relations (harmonic relations).
@@ -1846,8 +1856,9 @@ function renderAssistPanel(){
       var cap = (assistStyle==='dj') ? sg.length : (assistShowMore ? sg.length : Math.min(defN, sg.length));
       h+='<div class="slabel" style="margin-top:11px">'+lbl+'</div><div class="sugg-list">';
       for(var j=0;j<cap;j++){ var s=sg[j];
-        h+='<button class="sugg-card" title="'+s.tip+'" onclick="assistPick('+s.slice+','+(s.min?1:0)+','+s.modeIdx+')">'
-          +'<span class="sugg-key">'+s.name+'</span><span class="sugg-cam">'+s.cam+'</span>'
+        h+='<button class="sugg-card'+(showCamHere?'':' no-cam')+'" title="'+s.tip+'" onclick="assistPick('+s.slice+','+(s.min?1:0)+','+s.modeIdx+')">'
+          +'<span class="sugg-key">'+s.name+'</span>'
+          +(showCamHere?'<span class="sugg-cam">'+s.cam+'</span>':'')
           +'<span class="sugg-bright">'+s.bright+'</span>'
           +'<span class="sugg-hard">'+s.hard+'</span></button>';
       }
