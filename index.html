@@ -114,12 +114,16 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .mood-summary.open { border-color:var(--bd); background:var(--bg3); }
 .mood-summary .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
 .mood-summary .chev { margin-left:auto; color:var(--text3); font-size:10px; }
-/* Dry-logic list (names) - the precise pick, complements the spatial pad. */
-.mood-list { max-height:132px; overflow-y:auto; margin-bottom:6px; border-radius:10px; border:0.5px solid var(--bd2); background:var(--bg2); display:grid; grid-template-columns:1fr 1fr; gap:1px; padding:3px; }
-.mood-li { display:flex; align-items:center; gap:7px; height:32px; padding:0 9px; border:none; border-radius:7px; background:none; color:var(--text2); font-family:var(--font); font-size:12px; cursor:pointer; text-align:left; }
+/* Dry-logic list (names) - the precise pick, complements the spatial pad.
+   Single column, menu-style (like a native picker): one row per mood, colour dot
+   left, checkmark right on the active row. Scrolls; the active row is scrolled
+   into view on open. */
+.mood-list { max-height:158px; overflow-y:auto; margin-bottom:6px; border-radius:10px; border:0.5px solid var(--bd2); background:var(--bg2); padding:3px; }
+.mood-li { display:flex; align-items:center; gap:8px; width:100%; height:36px; padding:0 11px; border:none; border-radius:7px; background:none; color:var(--text2); font-family:var(--font); font-size:12px; cursor:pointer; text-align:left; }
 .mood-li:hover { background:var(--bg3); }
-.mood-li.active { background:var(--text); color:var(--bg); font-weight:600; }
+.mood-li.active { background:var(--bg3); color:var(--text); font-weight:600; }
 .mood-li .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.mood-li .check { margin-left:auto; font-size:12px; color:var(--text); }
 /* Pure colour+position map - no permanent text labels (19 dots at close arousal
    spacing WILL collide if every one carries a name). Names come from: the title=
    tooltip (hover/long-press), and the collapsed summary row showing the picked
@@ -129,7 +133,7 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
    space legible even between dots; a faint centre crosshair anchors the quadrants.
    Corner washes: bottom-left dark/calm (blue), bottom-right bright/calm (warm),
    top-left dark/intense (red), top-right bright/intense (green). */
-.mood-pad { position:relative; width:100%; height:150px; margin-bottom:6px; border-radius:12px; border:0.5px solid var(--bd2); overflow:hidden;
+.mood-pad { position:relative; width:100%; height:176px; margin-bottom:6px; border-radius:12px; border:0.5px solid var(--bd2); overflow:hidden;
   background:
     radial-gradient(ellipse at 12% 88%, hsla(210,55%,50%,.13), transparent 58%),
     radial-gradient(ellipse at 88% 88%, hsla(45,65%,52%,.13), transparent 58%),
@@ -1758,21 +1762,46 @@ var assistShowMore = false;  // Moods: show 6 closely-related by default, More r
 // (tap to open) costs real height, and only while the user is actively choosing.
 var assistPadOpen = false;
 
-// Position every emotion on the valence(x) x arousal(y) pad, with a simple
-// anti-collision nudge for the few pairs that share near-identical (vl,ar) - e.g.
-// Mysterious/Nostalgic both sit at vl:0, ar:0.3.
+// Position every emotion on the valence(x) x arousal(y) pad. Then run a small
+// iterative RELAXATION that guarantees a minimum finger-safe distance between
+// every pair of dots. (The previous single-pass pairwise nudge CASCADED: pushing
+// Romantic away from Hopeful shoved it straight onto Nostalgic - measured 12px
+// apart, unhittable. Relaxation resolves every pair simultaneously and re-checks
+// until stable, so fixing one collision can't silently create another.)
 function moodPadPositions(){
   var pts = EMOTIONS.map(function(e,i){
     var x = ((e.vl+1)/2)*70 + 15;   // vl -1..1 -> 15%..85% (keep off the edges)
     var y = e.ar*76 + 10;           // ar 0..1 -> 10%..86% from the bottom
     return {e:e, i:i, x:x, y:y};
   });
-  for(var a=0;a<pts.length;a++){
-    for(var b=0;b<a;b++){
-      if(Math.abs(pts[a].x-pts[b].x)<6 && Math.abs(pts[a].y-pts[b].y)<9){
-        pts[a].x += 7; pts[b].x -= 7;
+  // Minimum separation, in pad-percent units. Calibrated for the mobile pad
+  // (~343px wide, 176px tall): rx ~ 34px, ry ~ 34px - matches the 32px hit
+  // target plus a small margin. Elliptical metric because 1% of width and 1%
+  // of height are different real distances.
+  var rx = 10, ry = 19;
+  for(var pass=0; pass<40; pass++){
+    var moved = false;
+    for(var a=0;a<pts.length;a++){
+      for(var b=0;b<a;b++){
+        var dx=(pts[a].x-pts[b].x)/rx, dy=(pts[a].y-pts[b].y)/ry;
+        var d=Math.sqrt(dx*dx+dy*dy);
+        if(d<1){
+          moved = true;
+          // Degenerate exact-overlap: split horizontally.
+          if(d<0.001){ dx=1; dy=0; d=1e-3; }
+          var push=(1-d)/2;
+          var ux=dx/d, uy=dy/d;
+          pts[a].x += ux*push*rx; pts[a].y += uy*push*ry;
+          pts[b].x -= ux*push*rx; pts[b].y -= uy*push*ry;
+        }
       }
     }
+    // Keep everything inside the pad (label rows live at the very edges).
+    for(var k=0;k<pts.length;k++){
+      pts[k].x = Math.max(7, Math.min(93, pts[k].x));
+      pts[k].y = Math.max(9, Math.min(87, pts[k].y));
+    }
+    if(!moved) break;
   }
   return pts;
 }
@@ -1989,10 +2018,11 @@ function renderAssistPanel(){
       // reliable target on a dense pad) AND the spatial pad (intuition - see where
       // a mood sits, current pick highlighted). Both drive the same
       // setAssistEmotion, so list-row and pad-dot are two views of one state.
-      h+='<div class="mood-list">';
+      h+='<div class="mood-list" id="moodList">';
       for(var i=0;i<EMOTIONS.length;i++){ var e=EMOTIONS[i];
         h+='<button class="mood-li'+(assistEmotion===i?' active':'')+'" onclick="setAssistEmotion('+i+')">'
-          +'<span class="dot" style="background:hsl('+e.hue+' 60% 50%)"></span>'+e.name+'</button>';
+          +'<span class="dot" style="background:hsl('+e.hue+' 60% 50%)"></span>'+e.name
+          +(assistEmotion===i?'<span class="check">✓</span>':'')+'</button>';
       }
       h+='</div>';
       var pts = moodPadPositions();
@@ -2049,6 +2079,10 @@ function renderAssistPanel(){
   }
   h+='</div>';
   panel.innerHTML=h;
+  // When the picker opens with a mood already chosen, bring its row into view in
+  // the scrollable list (menu convention: the current choice is where you land).
+  var _al = document.querySelector('#moodList .mood-li.active');
+  if (_al && _al.scrollIntoView) _al.scrollIntoView({block:'nearest'});
   // Panel content just changed - on mobile re-fit the circle so the (now-measured)
   // panel fits without scrolling. Safe: resize()->render() never calls back here.
   if(window.innerWidth<=620 && typeof resize==='function') resize();
