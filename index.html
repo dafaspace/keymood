@@ -464,7 +464,12 @@ var RELS = {
   majmed:      { label:'Major mediant', desc:'Major third relation',                      get: function(i){ return [(i+4)%12,(i+8)%12]; } },
   tritone:     { label:'Tritone',       desc:'Tritone substitution',                      get: function(i){ return [(i+6)%12]; } },
   dim7:        { label:'Dim7',          desc:'Diminished 7th pivot',                      get: function(i){ return [(i+3)%12,(i+6)%12,(i+9)%12]; } },
-  neapolitan:  { label:'Neapolitan',    desc:'\u266dII semitone above root',              get: function(i){ return [(i+7)%12]; } },
+  // \u266dII is ALWAYS a major chord - in minor keys as much as major ones (it is in fact
+  // most characteristic in minor). So unlike the quality-preserving relations above,
+  // this one does NOT commute with the major\u2194relative-minor shift: from a minor
+  // tonic the target sits at a different sector AND stays major. getMin covers that.
+  neapolitan:  { label:'Neapolitan',    desc:'\u266dII semitone above root',              get: function(i){ return [(i+7)%12]; },
+                 getMin: function(i){ return [(i+10)%12]; }, targetAlwaysMaj: true },
   // Neo-Riemannian: operate on the TONAL SLICE, show target slice
   // P: parallel - same slice (visual no-op on circle, shown in panel)
   // P: Parallel - same root, major↔minor → same sector on circle
@@ -728,10 +733,13 @@ function render() {
       var _pt = _gt(selected.slice, _fi, _as);
       if (_pt) { relHL[_pt.sector] = true; prlTargetInner = _pt.inner; }
     } else {
-      var relFn = RELS[activeRel].get;
+      var _rl = RELS[activeRel];
+      // ♭II is always major, so from a minor tonic it maps to a different sector
+      // AND highlights the outer ring - see RELS.neapolitan.
+      var relFn = (selected.fromInner && _rl.getMin) ? _rl.getMin : _rl.get;
       var relArr = relFn ? relFn(selected.slice) : [];
       for (var k=0; k<relArr.length; k++) relHL[relArr[k]] = true;
-      relHLIsMinor = !!selected.fromInner;
+      relHLIsMinor = !!selected.fromInner && !_rl.targetAlwaysMaj;
     }
     var scArr = getScaleSlices(selected.slice, 0);
     for (var k=0; k<scArr.length; k++) scaleHL[scArr[k]] = true;
@@ -1197,7 +1205,8 @@ function updatePanel() {
     // Relation highlights
   var rel    = RELS[activeRel];
   var _pgt   = rel.getTarget ? rel.getTarget(slice, fromInner, actualSlice) : null;
-  var relArr = _pgt ? [_pgt.sector] : (rel.get ? rel.get(slice) : []);
+  var _relGet = (fromInner && rel.getMin) ? rel.getMin : rel.get;   // ♭II needs its own map from a minor tonic
+  var relArr = _pgt ? [_pgt.sector] : (_relGet ? _relGet(slice) : []);
 
   // Scale HTML
   var scaleHTML = '';
@@ -1227,13 +1236,15 @@ function updatePanel() {
     hlHTML += '<span class="hl-pill" style="background:'+SYNTH[actualSlice]+'">'+curLabel+'</span>';
     hlHTML += '<span class="hl-pill" style="background:'+SYNTH[_pgt.sector]+'">'+tgtLabel+'</span>';
   } else {
-    // These relations are computed as a fixed SECTOR offset (e.g. neighbours = ±1),
-    // which is the same interval whether read on the major or the relative-minor
-    // ring (major↔minor is always a constant -3 semitones, so it commutes with any
-    // fixed interval). When the current key is minor (fromInner), the targets are
-    // therefore that SAME sector's minor, not its major.
+    // Most of these relations are a fixed SECTOR offset (e.g. neighbours = ±1) and
+    // read the same from a major key or its relative minor (major↔minor is a
+    // constant -3 semitones, which commutes with any fixed interval) - so from a
+    // minor key the targets are that same sector's MINOR. The Neapolitan is the
+    // exception: ♭II is always a major chord, so it declares its own getMin and
+    // targetAlwaysMaj (see RELS).
+    var _tgtMin = fromInner && !rel.targetAlwaysMaj;
     for (var i=0; i<relArr.length; i++) {
-      var _lbl = fromInner ? MINNAMES[relArr[i]] : MAJSHORT[relArr[i]];
+      var _lbl = _tgtMin ? MINNAMES[relArr[i]] : MAJSHORT[relArr[i]];
       hlHTML += '<span class="hl-pill" style="background:'+SYNTH[relArr[i]]+'">'+_lbl+'</span>';
     }
   }
@@ -1441,24 +1452,38 @@ function renderQuizPanel() {
       '<button class="quiz-next" id="qnext" onclick="startQuiz()">Next \u2192</button>' +
       '<div class="quiz-hint" id="qhint"></div>' +
     '</div>';
+  // An ALREADY-ANSWERED question must come back answered. updatePanel() re-renders
+  // this panel whenever the tab/notation/palette changes, so without this the
+  // question would redraw as fresh: options live again but answerQuiz() refusing
+  // to act (quizState.answered), and no Next button - a dead end.
+  if (quizState.answered) _paintQuizAnswer();
 }
 
-function answerQuiz(idx) {
-  if (!quizState||quizState.answered) return;
-  quizState.answered = true; quizTotal++;
-  var ok = quizState.opts[idx].isCorrect;
-  if (ok) quizScore++;
+// Paint the answered state onto the freshly-rendered options (used both when the
+// user answers and when the panel is re-rendered after answering).
+function _paintQuizAnswer() {
+  var ok = quizState.pickedIdx !== undefined && quizState.opts[quizState.pickedIdx].isCorrect;
   for (var i=0;i<quizState.opts.length;i++) {
     var b=document.getElementById('qo'+i); if(!b) continue;
     b.disabled=true;
     if (quizState.opts[i].isCorrect) b.classList.add('correct');
-    else if (i===idx) b.classList.add('wrong');
+    else if (i===quizState.pickedIdx) b.classList.add('wrong');
   }
+  var n=document.getElementById('qnext'); if(n) n.style.display='inline-block';
+  var h=document.getElementById('qhint');
+  if (h) {
+    h.style.display='block';
+    h.textContent = ok ? '\u2713 Correct!' : (quizState.noWheel ? '\u2717 Correct answer shown above' : '\u2717 Correct answer highlighted on the wheel');
+  }
+}
+
+function answerQuiz(idx) {
+  if (!quizState||quizState.answered) return;
+  quizState.answered = true; quizState.pickedIdx = idx; quizTotal++;
+  if (quizState.opts[idx].isCorrect) quizScore++;
+  _paintQuizAnswer();
   // Conceptual questions have no meaningful key - don't paint a random highlight.
   if (!quizState.noWheel) { selected = { slice:quizState.targetSlice, modeIdx:0, fromInner:false }; render(); }
-  document.getElementById('qnext').style.display='inline-block';
-  var h=document.getElementById('qhint'); h.style.display='block';
-  h.textContent = ok ? '\u2713 Correct!' : (quizState.noWheel ? '\u2717 Correct answer shown above' : '\u2717 Correct answer highlighted on the wheel');
 }
 window.answerQuiz = answerQuiz;
 
@@ -1484,13 +1509,18 @@ buildModeStrip();
 var _audioCtx = null;
 var _soundOn  = loadPref('sound', true); // was hardcoded true - reset itself every load unlike every other setting
 
+// One definition each - the load-time pref sync (further down) reuses these rather
+// than carrying its own copy of the markup.
+var _ICON_SOUND_ON  = '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+var _ICON_SOUND_OFF = '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="9.5" y1="5" x2="12" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="12" y1="5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+
 function toggleSound() {
   _soundOn = !_soundOn;
   savePref('sound', _soundOn);
-  var btn = document.getElementById('btn-sound');
-  btn.innerHTML = _soundOn
-    ? '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'
-    : '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="9.5" y1="5" x2="12" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="12" y1="5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+  // Muting must silence a RUNNING metronome too - it's the one audio path that
+  // keeps producing sound on its own after the tap that started it.
+  if (!_soundOn) _stopMetronome();
+  document.getElementById('btn-sound').innerHTML = _soundOn ? _ICON_SOUND_ON : _ICON_SOUND_OFF;
 }
 
 function _getCtx() {
@@ -1544,7 +1574,11 @@ function _playArp(semis, oct) {
 // not living in the wheel's centre - "the recipe made audible", not a bolted-on
 // tool). Simple lookahead scheduler on the existing WebAudio context - no mic,
 // no permissions.
-var _metroTimer = null, _metroBeat = 0;
+// _metroOn is the SYNCHRONOUS state; _metroTimer is the handle, which only appears
+// after _withCtx resolves (the AudioContext usually needs an async resume() on its
+// first use). Keeping them separate is what stops a fast double-tap from starting
+// two schedulers and orphaning the first (an un-killable click track).
+var _metroTimer = null, _metroBeat = 0, _metroOn = false;
 function _playClick(when, accent) {
   var ctx = _getCtx();
   var osc = ctx.createOscillator(), gain = ctx.createGain();
@@ -1556,13 +1590,16 @@ function _playClick(when, accent) {
   osc.start(when); osc.stop(when + 0.06);
 }
 function toggleMetronome(bpm, btn) {
-  if (_metroTimer) {
-    clearInterval(_metroTimer); _metroTimer = null;
+  if (_metroOn) {                      // flips synchronously - see _metroOn above
+    _stopMetronome();
     if (btn) btn.classList.remove('active');
     return;
   }
+  if (!_soundOn) return;               // honour the global mute, like every other audio path
+  _metroOn = true;
   if (btn) btn.classList.add('active');
   _withCtx(function() {
+    if (!_metroOn || _metroTimer) return;  // stopped (or already started) while the context resumed
     var ctx = _getCtx();
     var interval = 60 / bpm;
     var nextTime = ctx.currentTime + 0.05;
@@ -1639,6 +1676,7 @@ function playNotePill(semi) {
 function setAppMode(mode) {
   _stopMetronome(); // leaving Assist (or switching within it) shouldn't leave a click track running
   appMode = mode;
+  savePref('appMode', mode); // reopen on the tab you left (the loader reads this)
   // Update switcher buttons
   document.getElementById('ms-tonal').classList.toggle('active', mode === 'tonal');
   document.getElementById('ms-modal').classList.toggle('active', mode === 'modal');
@@ -1930,7 +1968,7 @@ function djSuggest(cs,cm,moveIdx){
 }
 // Stop the metronome whenever its BPM context changes underneath it (switching
 // mood/lens/tab) - otherwise it silently keeps clicking at a now-unrelated tempo.
-function _stopMetronome(){ if(_metroTimer){ clearInterval(_metroTimer); _metroTimer=null; } }
+function _stopMetronome(){ _metroOn=false; if(_metroTimer){ clearInterval(_metroTimer); _metroTimer=null; } }
 function setAssistEmotion(i){
   _stopMetronome(); assistEmotion=(assistEmotion===i?null:i); assistShowMore=false;
   assistPadOpen=false; // picking a mood (from the pad) auto-collapses it back to the summary row
@@ -2160,10 +2198,7 @@ function _flashShare(msg) {
   document.getElementById('cb-minor').checked = minorPref;
   // Sound icon markup is hardcoded to "on" in the HTML; sync it to the loaded pref
   // (was resetting to on every load regardless of the user's last choice).
-  if (!_soundOn) {
-    document.getElementById('btn-sound').innerHTML =
-      '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="9.5" y1="5" x2="12" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="12" y1="5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
-  }
+  if (!_soundOn) document.getElementById('btn-sound').innerHTML = _ICON_SOUND_OFF;
 })();
 
 // Read URL params on load
