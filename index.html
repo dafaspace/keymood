@@ -269,7 +269,11 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 }
 /* margin auto centers the circle when resize() shrinks it below the column width
    (e.g. Modal, where the mode strip eats height) - otherwise it left-aligns. */
-canvas { display: block; margin-left: auto; margin-right: auto; cursor: pointer; touch-action: none; }
+canvas { display: block; margin-left: auto; margin-right: auto; cursor: pointer; touch-action: none; border-radius: 50%; }
+/* Keyboard focus must be visible (the wheel is focusable now) - but only for
+   keyboard users, so a mouse click doesn't leave a ring behind. */
+canvas:focus { outline: none; }
+canvas:focus-visible { outline: 2px solid var(--text2); outline-offset: 3px; }
 
 /* Panel */
 .panel { border: 0.5px solid var(--bd); border-radius: 12px; overflow: hidden; background: var(--bg); display: flex; flex-direction: column; }
@@ -312,8 +316,13 @@ canvas { display: block; margin-left: auto; margin-right: auto; cursor: pointer;
 /* Quiz */
 .qo { padding: 12px 13px; min-height:44px; border-radius: 9px; font-size: 12px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text); cursor: pointer; text-align: left; font-family: var(--font); width: 100%; display: block; margin-bottom: 6px; }
 .qo:hover:not(:disabled) { background: var(--bg2); }
-.qo.correct { background: #eaf3de; border-color: #639922; color: #3B6D11; }
-.qo.wrong { background: #fcebeb; border-color: #E24B4A; color: #A32D2D; }
+/* Dark theme is the default, so these are the dark pairs; the light overrides below
+   restore the original pale tints. (They used to be light-only, which made the two
+   answer rows glare as bright panels in an otherwise dark UI.) */
+.qo.correct { background: #1e2a15; border-color: #6faa2a; color: #b6e07a; }
+.qo.wrong { background: #2c1616; border-color: #c94a49; color: #f0a3a2; }
+:root.light .qo.correct { background: #eaf3de; border-color: #639922; color: #3B6D11; }
+:root.light .qo.wrong { background: #fcebeb; border-color: #E24B4A; color: #A32D2D; }
 .qo:disabled { cursor: default; }
 .quiz-next { margin-top: 9px; padding: 7px 16px; border-radius: 20px; font-size: 12px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text2); cursor: pointer; display: none; font-family: var(--font); }
 .quiz-next:hover { background: var(--bg2); }
@@ -325,7 +334,7 @@ canvas { display: block; margin-left: auto; margin-right: auto; cursor: pointer;
   <h1 style="pointer-events:none">Another Circle Of Fifths <span style="font-size:10px;color:var(--text3);font-weight:400">v0.0.2</span></h1>
   <div style="flex:1"></div>
   <div class="util">
-    <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz"><svg width="15" height="15" viewBox="0 0 16 16" style="vertical-align:middle"><path d="M8 2.5 1.5 5 8 7.5 14.5 5 8 2.5z" fill="currentColor"/><path d="M4 6.4V9.5c0 1 8 1 8 0V6.4M14 5.2v3.3" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></button>
+    <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz" aria-pressed="false"><svg width="15" height="15" viewBox="0 0 16 16" style="vertical-align:middle"><path d="M8 2.5 1.5 5 8 7.5 14.5 5 8 2.5z" fill="currentColor"/><path d="M4 6.4V9.5c0 1 8 1 8 0V6.4M14 5.2v3.3" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></button>
     <button class="util-btn" id="btn-share" onclick="shareLink()" title="Copy link to this key" aria-label="Share"><svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><path d="M5.5 8.5a3 3 0 0 0 4.2 0l1.5-1.5a3 3 0 0 0-4.2-4.2L6 3.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 5.5a3 3 0 0 0-4.2 0L2.8 7a3 3 0 0 0 4.2 4.2L8 10.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
     <button class="util-btn" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark" aria-label="Theme">&#9790;</button>
     <button class="util-btn" id="btn-sound" onclick="toggleSound()" title="Toggle sound" aria-label="Sound"><svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
@@ -356,17 +365,21 @@ canvas { display: block; margin-left: auto; margin-right: auto; cursor: pointer;
 <input type="checkbox" id="cb-camelot" style="display:none">
 <input type="checkbox" id="cb-sol" style="display:none">
 
-<div class="mode-switcher">
-  <button class="ms-btn active" id="ms-tonal" onclick="setAppMode('tonal')">Tonal</button>
-  <button class="ms-btn" id="ms-modal" onclick="setAppMode('modal')">Modal</button>
-  <button class="ms-btn" id="ms-assist" onclick="setAppMode('assist')">Assist</button>
+<div class="mode-switcher" role="tablist" aria-label="View">
+  <button class="ms-btn active" id="ms-tonal" role="tab" aria-selected="true" onclick="setAppMode('tonal')">Tonal</button>
+  <button class="ms-btn" id="ms-modal" role="tab" aria-selected="false" onclick="setAppMode('modal')">Modal</button>
+  <button class="ms-btn" id="ms-assist" role="tab" aria-selected="false" onclick="setAppMode('assist')">Assist</button>
 </div>
 
 <input type="checkbox" id="cb-minor" checked style="display:none">
 
 <div class="layout">
   <div class="circle-col">
-    <canvas id="c"></canvas>
+    <!-- The wheel is the app's primary control, so it has to be reachable and
+         announced without a pointer: arrows step round the circle, up/down cross
+         between the major and minor rings, Enter/Space picks. aria-label is kept in
+         sync with the selection by render(). -->
+    <canvas id="c" tabindex="0" role="application" aria-label="Circle of fifths"></canvas>
   </div>
   <div class="panel-col">
     <!-- Modes (лады) live in the PANEL column (above the panel), not the circle's
@@ -450,12 +463,22 @@ var ROM_MAJ = ['I','II','III','IV','V','VI','VII'];
 var ROM_MIN = ['i','ii','iii','iv','v','vi','vii'];
 
 // Temperature tracks mood: major = warm (bright), minor = cool (darker), dim = red
-// (most unstable/tense). Lightness kept close to the old values so both themes hold.
-var CCOL = {
+// (most unstable/tense). The INK has to flip with the theme - the dark inks below
+// were the only set for a while and sat at roughly 3:1 on the dark background.
+var CCOL_LIGHT = {
   maj: { bg:'rgba(205,140,20,.14)', tx:'#9a6410' },
   min: { bg:'rgba(0,110,210,.12)',  tx:'#1a5a96' },
   dim: { bg:'rgba(190,40,30,.11)',  tx:'#861810' },
 };
+var CCOL_DARK = {
+  maj: { bg:'rgba(205,140,20,.16)', tx:'#e2a94e' },
+  min: { bg:'rgba(0,110,210,.16)',  tx:'#6db1e8' },
+  dim: { bg:'rgba(190,40,30,.15)',  tx:'#e07068' },
+};
+function chordCol(type) {
+  var set = isDark() ? CCOL_DARK : CCOL_LIGHT;
+  return set[type] || set.maj;
+}
 
 // Relations: get(slice) returns array of highlighted slices
 var RELS = {
@@ -584,6 +607,9 @@ function toggleTheme() {
   // The canvas reads `dark` + per-theme alpha, so it must be repainted now -
   // otherwise colours/lines stay stale until the next mouseover triggers render().
   render();
+  // The panel carries theme-dependent INLINE colours too (chord pills via
+  // chordCol()), which CSS can't restyle - rebuild it.
+  updatePanel();
 }
 function _updateThemeBtn() {
   var isLight = document.documentElement.classList.contains('light');
@@ -591,6 +617,11 @@ function _updateThemeBtn() {
   // ︎ forces monochrome text rendering (not a colour emoji) for consistency.
   btn.textContent = isLight ? '☀︎' : '☽︎';
   btn.style.color  = '';
+  btn.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+  // Keep the OS/browser chrome (iOS status bar, Android toolbar) in step with the
+  // theme - it was pinned to the dark colour, so light theme showed a dark seam.
+  var mt = document.querySelector('meta[name="theme-color"]');
+  if (mt) mt.setAttribute('content', isLight ? '#e7e3da' : '#1c1c1a');
 }
 window.addEventListener('load', _updateThemeBtn);
 
@@ -667,6 +698,19 @@ function lightenHex(hex, t) {
   return '#'+up(r)+up(g)+up(b);
 }
 function isDark() { return !document.documentElement.classList.contains('light'); }
+// Relative luminance (sRGB) of a sector as ACTUALLY DRAWN: the fill blended over the
+// page background at the alpha it's painted with. Label colour has to follow the
+// sector's own lightness rather than the theme - measured white-on-yellow (Itten,
+// Scriabin) and white-on-#DCDCE4 (Zebra) at 1.3:1, far under the 3:1 floor for
+// large text. Crossover where black beats white for contrast is L ≈ 0.18.
+function sectorLum(hex, alpha) {
+  var bg = isDark() ? [28,28,26] : [231,227,218];
+  var a  = (alpha === undefined) ? 1 : alpha;
+  function ch(i){ return parseInt(hex.slice(1+i*2, 3+i*2),16)*a + bg[i]*(1-a); }
+  function f(v){ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }
+  return 0.2126*f(ch(0)) + 0.7152*f(ch(1)) + 0.0722*f(ch(2));
+}
+var LUM_FLIP = 0.18;   // above this the sector is light -> use dark ink
 
 // Which circle slices belong to the current tonal family (7 notes of the parent major)
 function getScaleSlices(slice, modeIdx) {
@@ -692,6 +736,11 @@ function getParentSlice(slice, modeIdx) {
 }
 
 function render() {
+  // Nothing to draw until resize() has measured the canvas. Without this the very
+  // first paint can run with R=0 (outerR = -4) and throw on ctx.arc, aborting the
+  // rest of the load - reachable whenever something calls render() before the first
+  // resize(), e.g. the URL/pref loader restoring a non-Tonal tab via setAppMode().
+  if (!R || R <= 8) return;
   ctx.clearRect(0, 0, W, H);
   var dark      = isDark();
   var showMinor = appMode === 'assist' || (appMode === 'tonal' && (document.getElementById('cb-minor').checked
@@ -745,6 +794,14 @@ function render() {
     for (var k=0; k<scArr.length; k++) scaleHL[scArr[k]] = true;
   }
   var parentSl = selected ? getParentSlice(selected.slice, selected.modeIdx) : null;
+  // Which accidental label the ring should light up: the key signature ACTUALLY in
+  // force, which for a mode is its parent's (A Dorian works from G's 1♯, and the
+  // panel says so) - not the selected sector's own major signature, which used to
+  // be highlighted and contradicted the panel (panel "1♯ (F♯)" vs ring "3♯").
+  var accSel = !selected ? null
+             : selected.fromInner ? selected.slice
+             : (parentSl !== null && parentSl !== undefined) ? parentSl
+             : selected.slice;
 
   for (var i = 0; i < 12; i++) {
     var a0 = (-Math.PI/2) + i*slA - slA/2;
@@ -772,12 +829,18 @@ function render() {
     ctx.closePath();
     // High opacity = TRUE colour in BOTH themes. Colours stay bright after a pick:
     // faded sectors only step down slightly (no muddy dimming).
-    var aOuter = (isSel && !selIsInner) ? 1.0
-               : outerIsPRL             ? 0.97
+    // A minor key selected while the minor ring is HIDDEN (share link with inner=1,
+    // or the ring switched off after picking) has nowhere to draw its marker, so the
+    // wheel used to show nothing selected while the panel named a key. Fall back to
+    // marking the parent sector on the outer ring.
+    var hiddenMinorSel = selIsInner && !showMinor;
+    var markOuter = (isSel && !selIsInner) || hiddenMinorSel;
+    var aOuter = markOuter               ? 1.0
+               : outerIsPRL              ? 0.97
                : hovOuter ? 1.0 : inScale ? 0.95 : faded ? 0.85 : 0.95;
     ctx.fillStyle = ha(col, aOuter);
     ctx.fill();
-    if (isSel && !selIsInner) {
+    if (markOuter) {
       // Crisp double outline (dark halo + white line) - reads cleanly on any palette
       // and theme, no fuzzy glow, even edges.
       ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 3.6; ctx.stroke();
@@ -883,7 +946,11 @@ function render() {
     ctx.save();
     ctx.translate(CX + Math.cos(midA)*lR, CY + Math.sin(midA)*lR);
     var mainLabel = showCam ? camelot(i, false) : (isSol() ? solName(MROOT[i]) : MAJSHORT[i]);
-    var selFill   = (isSel && !selIsInner) ? '#fff' : dark ? 'rgba(255,255,255,.72)' : 'rgba(0,0,0,.82)';
+    // Ink follows the SECTOR's lightness, not the theme (see sectorLum).
+    var onLightOut = sectorLum(col, aOuter) > LUM_FLIP;
+    var selFill   = (isSel && !selIsInner)
+                  ? (onLightOut ? '#000' : '#fff')
+                  : (onLightOut ? 'rgba(0,0,0,.82)' : 'rgba(255,255,255,.82)');
     ctx.font = (isSel ? '500' : '400') + ' ' + Math.max(12, R*0.072) + 'px ' + ff;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = selFill;
@@ -898,23 +965,29 @@ function render() {
       var minMain = showCam ? camelot(i, true) : (isSol() ? solName(MROOT[i]+9) + 'm' : MINNAMES[i]);
       ctx.font = '400 ' + Math.max(9, R*0.052) + 'px ' + ff;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = selIsInner ? '#fff' : dark ? 'rgba(255,255,255,.48)' : 'rgba(0,0,0,.55)';
+      // Same luminance rule, at the inner ring's own (lower) alpha.
+      var onLightIn = sectorLum(col, aInner) > LUM_FLIP;
+      ctx.fillStyle = selIsInner
+                    ? (onLightIn ? '#000' : '#fff')
+                    : (onLightIn ? 'rgba(0,0,0,.6)' : 'rgba(255,255,255,.55)');
       ctx.fillText(minMain, 0, 0);
       ctx.restore();
     }
 
     // Accidentals (skip C=0, hide in Camelot mode). Dark theme was sub-perceptual
     // (.34 alpha at an 8px floor - all three design reviews flagged this); raised to
-    // match light theme's visibility, and the selected key's own label lights up in
-    // its key colour - a quiet ring at rest, a teaching moment on tap.
+    // match light theme's visibility. The lit label is the signature IN FORCE (accSel
+    // - the parent's for a mode), so the ring always agrees with the panel.
     if (!showCam) {
       var acc = accStr(i);
       if (acc) {
+        var accLit = (accSel !== null && accSel === i);
         ctx.save();
         ctx.translate(CX + Math.cos(midA)*accLabelR, CY + Math.sin(midA)*accLabelR);
-        ctx.font = (isSel?'600 ':'400 ') + Math.max(9, R*0.042) + 'px ' + ff;
+        ctx.font = (accLit?'600 ':'400 ') + Math.max(9, R*0.042) + 'px ' + ff;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = isSel ? col : (dark ? 'rgba(255,255,255,.52)' : 'rgba(0,0,0,.55)');
+        ctx.fillStyle = accLit ? (dark ? lightenHex(SYNTH[i],0.3) : SYNTH[i])
+                               : (dark ? 'rgba(255,255,255,.52)' : 'rgba(0,0,0,.55)');
         ctx.fillText(acc, 0, 0);
         ctx.restore();
       }
@@ -925,6 +998,16 @@ function render() {
   ctx.beginPath(); ctx.arc(CX,CY,R*0.17,0,Math.PI*2);
   ctx.strokeStyle= dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
   ctx.lineWidth  = 0.5; ctx.stroke();
+
+  // Canvas pixels say nothing to a screen reader - keep an accessible name that
+  // reports the current selection, plus how to drive it from the keyboard.
+  cv.setAttribute('aria-label',
+    (selected
+      ? 'Circle of fifths. Selected: ' +
+        (selected.fromInner ? MINNAMES[selected.slice] : MAJSHORT[selected.slice]) +
+        ' ' + MODES[selected.modeIdx].name
+      : 'Circle of fifths. No key selected') +
+    '. Arrow keys change key, up and down switch major and minor, Enter replays it.');
 }
 
 // ── Input ─────────────────────────────────────────────────────────────────────
@@ -981,12 +1064,42 @@ function handlePick(h) {
 }
 
 cv.addEventListener('mousemove', function(e) {
-  var c=evCoords(e); hovered=getSlice(c.x,c.y); render();
+  var c=evCoords(e), h=getSlice(c.x,c.y);
+  // Only repaint when the hovered sector/ring actually CHANGES - this fired a full
+  // wheel redraw on every pixel of movement before.
+  var same = (h===hovered) || (h && hovered && h.slice===hovered.slice && h.isInner===hovered.isInner);
+  if (same) return;
+  hovered = h; render();
   cv.style.cursor = hovered ? 'pointer' : 'default';
 });
 cv.addEventListener('mouseleave', function() { hovered=null; render(); });
 cv.addEventListener('click', function(e) {
   var c=evCoords(e); handlePick(getSlice(c.x,c.y));
+});
+// Keyboard control of the wheel: left/right step round the circle of fifths,
+// up/down cross between the major and minor rings, Enter/Space re-picks (replays
+// the tonic). Without this the app's main control was pointer-only.
+cv.addEventListener('keydown', function(e) {
+  var k = e.key, step = 0;
+  if (k === 'ArrowRight') step = 1;
+  else if (k === 'ArrowLeft') step = -1;
+  else if (k === 'ArrowUp' || k === 'ArrowDown') {
+    // Only Tonal/Assist have an inner ring to cross to.
+    if (appMode === 'modal') return;
+    e.preventDefault();
+    var base = selected || { slice:0, tonicSlice:0, modeIdx:0, fromInner:false };
+    handlePick({ slice: base.slice, isInner: k === 'ArrowDown' });
+    return;
+  } else if (k === 'Enter' || k === ' ') {
+    if (!selected) return;
+    e.preventDefault();
+    playTonic(selected.slice, selected.modeIdx, selected.fromInner);
+    return;
+  } else return;
+  e.preventDefault();
+  var cur = selected ? selected.slice : 0;
+  var next = ((cur + step) % 12 + 12) % 12;
+  handlePick({ slice: next, isInner: selected ? !!selected.fromInner : false });
 });
 var _touchDown = null;
 cv.addEventListener('touchstart', function(e) {
@@ -1010,24 +1123,8 @@ cv.addEventListener('touchcancel', function() {
 });
 
 // ── Mode strip ────────────────────────────────────────────────────────────────
-function getModeDataForSlice(slice, modeIdx) {
-  // The smart strip shows the 7 modes of the parent tonal centre
-  // Each button = a specific note + mode
-  var parentSlice = getParentSlice(slice, modeIdx);
-  if (parentSlice === null) parentSlice = slice;
-  var parentRoot = MROOT[parentSlice];
-  var modes = MODES;
-  var result = [];
-  // All 7 modes from parent major, ordered as in MODES array
-  for (var m=0; m<7; m++) {
-    var noteRoot = (parentRoot + modes[m].off) % 12;
-    var noteSlice = MROOT.indexOf(noteRoot);
-    var noteName = MAJSHORT[noteSlice];
-    result.push({ modeIdx:m, noteName:noteName, noteSlice:noteSlice });
-  }
-  return result;
-}
-
+// (getModeDataForSlice lived here to feed the unreachable "Tonal: relative modes"
+// strip branch; both are gone.)
 function buildModeStrip() {
   var strip = document.getElementById('modestrip');
   var wrap  = document.getElementById('modestripwrap');
@@ -1051,35 +1148,21 @@ function buildModeStrip() {
     return;
   }
 
+  // Only Modal reaches here (the guard above returns for every other tab), so this
+  // is always the parallel-mode strip: same tonic note, all 7 modes. (A second
+  // "Tonal: relative modes" branch used to sit here, unreachable behind that same
+  // guard - removed rather than left to rot.)
   var html = '';
-  if (appMode === 'modal') {
-    // Modal: parallel modes - same tonic note, all 7 modes
-    var tonicName = MAJSHORT[selected.slice];
-    for (var m=0; m<7; m++) {
-      var mode = MODES[m];
-      var isActive = m === selected.modeIdx;
-      if (m === 3) html += '<div class="mode-div"></div>';
-      html += '<button class="mbtn'+(isActive?' active':'') + '" onclick="setModeByBtn('+m+')" title="'+mode.mood+'">'
-        + '<span class="mb-note">'+tonicName+'</span>'
-        + '<span class="mb-mode">'+mode.name+'</span>'
-        + '<span class="mb-mood">'+mode.mood+'</span>'
-        + '</button>';
-    }
-  } else {
-    // Tonal: relative modes - 7 different notes of parent major
-    var tSlice = selected.tonicSlice !== undefined ? selected.tonicSlice : selected.slice;
-    var modeData = getModeDataForSlice(tSlice, 0);
-    for (var m=0; m<7; m++) {
-      var md = modeData[m];
-      var mode = MODES[md.modeIdx];
-      var isActive = md.modeIdx === selected.modeIdx;
-      if (m === 3) html += '<div class="mode-div"></div>';
-      html += '<button class="mbtn'+(isActive?' active':'') + '" onclick="setModeByBtn('+md.modeIdx+')" title="'+mode.mood+'">'
-        + '<span class="mb-note">'+md.noteName+'</span>'
-        + '<span class="mb-mode">'+mode.name+'</span>'
-        + '<span class="mb-mood">'+mode.mood+'</span>'
-        + '</button>';
-    }
+  var tonicName = MAJSHORT[selected.slice];
+  for (var m=0; m<7; m++) {
+    var mode = MODES[m];
+    var isActive = m === selected.modeIdx;
+    if (m === 3) html += '<div class="mode-div"></div>';
+    html += '<button class="mbtn'+(isActive?' active':'') + '" onclick="setModeByBtn('+m+')" title="'+mode.mood+'">'
+      + '<span class="mb-note">'+tonicName+'</span>'
+      + '<span class="mb-mode">'+mode.name+'</span>'
+      + '<span class="mb-mood">'+mode.mood+'</span>'
+      + '</button>';
   }
   strip.innerHTML = html;
 }
@@ -1144,8 +1227,10 @@ function getSecondaryDominants(slice, tSlice) {
     if (target === 'dim') continue;
     var targetRoot = (root + iv[i]) % 12;
     var secDomRoot = (targetRoot + 7) % 12;
-    // Secondary dominant uses sharp names (it's chromatic)
-    var secDomName = NOTES_SHARP[secDomRoot];
+    // Spell the secondary dominant with the KEY's own accidental convention, not
+    // always sharps: in D♭ major the V/ii is B♭7, never "A♯7". (nn is the flat or
+    // sharp table chosen for this key signature.)
+    var secDomName = nn[secDomRoot];
     var targetName = nn[targetRoot] + (target==='min'?'m':'');
     result.push({ chord: secDomName+'7', resolves: targetName, num: 'V/' + (ct[i]==='min'?ROM_MIN:ROM_MAJ)[i] });
   }
@@ -1198,7 +1283,9 @@ function updatePanel() {
   var notes   = data.notes;
   var chords  = data.chords;
   var ctxHTML = '';
-  if (appMode === 'tonal' && parentSlice !== null && parentSlice !== undefined && modeIdx !== 0) {
+  // Modal needs this line MOST (a guitarist checking "A Dorian" wants to know it's
+  // the II mode of G major) - it used to be suppressed there by a tonal-only guard.
+  if (parentSlice !== null && parentSlice !== undefined && modeIdx !== 0) {
     ctxHTML = MODE_NUMS[modeIdx] + ' mode of <strong>' + MAJSHORT[parentSlice] + ' major</strong>';
   }
 
@@ -1220,7 +1307,7 @@ function updatePanel() {
     // Chords HTML
   var chordsHTML = '';
   for (var i=0; i<chords.length; i++) {
-    var cc = CCOL[chords[i].type] || CCOL.maj;
+    var cc = chordCol(chords[i].type);
     var _cS = (MROOT[actualSlice] + MODES[modeIdx].iv[i]) % 12;
     var _cT = chords[i].type;
     chordsHTML += '<div class="cp" style="background:'+cc.bg+';color:'+cc.tx
@@ -1346,11 +1433,18 @@ var QUIZ = [
   },
   function(i) {
     var ps = MROOT.indexOf((MROOT[i]-2+12)%12);
+    // Only ask where the wheel's name for the tonic is the one the PARENT key
+    // actually spells. Otherwise the "correct" answer is only an enharmonic stand-in
+    // (D♭ Dorian really belongs to C♭ major, which the wheel can't name, so the app
+    // would answer "B major" - right pitch, contradictory spelling). startQuiz()
+    // re-rolls when a generator throws.
+    if (notesForSlice(ps)[MROOT[i]] !== MAJSHORT[i]) throw 0;
     return { q:qName(MAJSHORT[i])+' Dorian is the II mode of which major key?', correct:ps,
       opts:shuffled4(ps, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
   function(i) {
     var ps = MROOT.indexOf((MROOT[i]-7+12)%12);
+    if (notesForSlice(ps)[MROOT[i]] !== MAJSHORT[i]) throw 0;   // see the Dorian note above
     return { q:qName(MAJSHORT[i])+' Mixolydian is the V mode of which major key?', correct:ps,
       opts:shuffled4(ps, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
@@ -1427,14 +1521,21 @@ function shuffledText(correctLabel, wrongLabels) {
 }
 
 function startQuiz() {
-  var i    = Math.floor(Math.random()*12);
-  var type = QUIZ[Math.floor(Math.random()*QUIZ.length)];
-  try {
-    var q = type(i);
-    quizState = { q:q.q, opts:q.opts, correct:q.correct, targetSlice:q.correct, noWheel:!!q.noWheel, answered:false };
-    renderQuizPanel();
-    selected = null; render();
-  } catch(e) { startQuiz(); }
+  // Some generators deliberately reject their key (an enharmonically ambiguous
+  // tonic - see the Dorian/Mixolydian notes in QUIZ), so re-roll on failure. A
+  // bounded loop rather than the old unbounded recursion: it can't blow the stack,
+  // and the last attempt is forced onto a generator that never rejects.
+  var q = null;
+  for (var tries = 0; tries < 40 && !q; tries++) {
+    var i    = Math.floor(Math.random()*12);
+    var type = QUIZ[Math.floor(Math.random()*QUIZ.length)];
+    try { q = type(i); } catch(e) { q = null; }
+  }
+  if (!q) q = { q:'What is the relative minor of '+qName(MAJSHORT[0])+' major?', correct:0,
+                opts:shuffled4(0, function(j){ return qName(MINNAMES[j]); }) };
+  quizState = { q:q.q, opts:q.opts, correct:q.correct, targetSlice:q.correct, noWheel:!!q.noWheel, answered:false };
+  renderQuizPanel();
+  selected = null; render();
 }
 
 function renderQuizPanel() {
@@ -1494,11 +1595,23 @@ function handleQuizClick(slice) {
   }
 }
 
+// The key the user was working on before dipping into the quiz - startQuiz() clears
+// the selection to use the wheel as an answer surface, so we stash it and put it
+// back on exit instead of dumping the user back to an empty app.
+var _preQuizSelected = null;
 function toggleQuiz() {
   quizMode = !quizMode;
   document.getElementById('bm-quiz').classList.toggle('active', quizMode);
-  if (quizMode) { quizScore=0; quizTotal=0; startQuiz(); }
-  else { quizState=null; selected=null; render(); updatePanel(); }
+  var qb = document.getElementById('bm-quiz'); if (qb) qb.setAttribute('aria-pressed', quizMode ? 'true' : 'false');
+  if (quizMode) {
+    _preQuizSelected = selected;
+    quizScore=0; quizTotal=0; startQuiz();
+  } else {
+    quizState=null;
+    selected = _preQuizSelected; _preQuizSelected = null;
+    if (selected) lastModeIdx = selected.modeIdx;
+    buildModeStrip(); render(); updatePanel();
+  }
 }
 window.toggleQuiz = toggleQuiz;
 
@@ -1677,10 +1790,12 @@ function setAppMode(mode) {
   _stopMetronome(); // leaving Assist (or switching within it) shouldn't leave a click track running
   appMode = mode;
   savePref('appMode', mode); // reopen on the tab you left (the loader reads this)
-  // Update switcher buttons
-  document.getElementById('ms-tonal').classList.toggle('active', mode === 'tonal');
-  document.getElementById('ms-modal').classList.toggle('active', mode === 'modal');
-  var _msA = document.getElementById('ms-assist'); if (_msA) _msA.classList.toggle('active', mode === 'assist');
+  // Update switcher buttons (class for looks, aria-selected for assistive tech)
+  ['tonal','modal','assist'].forEach(function(m){
+    var b = document.getElementById('ms-'+m); if (!b) return;
+    b.classList.toggle('active', mode === m);
+    b.setAttribute('aria-selected', mode === m ? 'true' : 'false');
+  });
   // The mode strip's container is always present (reserves height in every tab so
   // the circle never shifts); buildModeStrip only fills it in Modal. The minor-ring
   // toggle is rendered into the Tonal panel header by updatePanel().
@@ -2166,6 +2281,10 @@ function shareLink() {
   if (isCamelot()) params.push('cam=1');
   if (isSol()) params.push('sol=1');
   if (document.documentElement.classList.contains('light')) params.push('light=1');
+  // The wheel the recipient sees should be the wheel the sender saw: palette and the
+  // minor-ring switch change it just as much as notation does.
+  if (curPalette !== 'pastel') params.push('pal=' + curPalette);
+  if (!document.getElementById('cb-minor').checked) params.push('minor=0');
   if (params.length) url += '?' + params.join('&');
   if (navigator.clipboard) {
     navigator.clipboard.writeText(url).then(function() { _flashShare('✓ Copied!'); });
@@ -2207,6 +2326,8 @@ function _flashShare(msg) {
   if (p.get('light') === '1') document.documentElement.classList.add('light');
   if (p.get('cam') === '1') { var _c=document.getElementById('cb-camelot'); if(_c){ _c.checked = true; var _s2=document.getElementById('cb-sol'); if(_s2)_s2.checked=false; } }
   if (p.get('sol') === '1') { var _s=document.getElementById('cb-sol'); if(_s){ _s.checked = true; var _c2=document.getElementById('cb-camelot'); if(_c2)_c2.checked=false; } }
+  if (p.has('pal') && PALETTES[p.get('pal')]) { curPalette = p.get('pal'); SYNTH = PALETTES[curPalette]; }
+  if (p.get('minor') === '0') document.getElementById('cb-minor').checked = false;
   if (p.has('key')) {
     var slice = parseInt(p.get('key'));
     var mode  = parseInt(p.get('mode') || '0');
