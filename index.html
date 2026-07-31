@@ -359,7 +359,7 @@ canvas:focus-visible { outline: 2px solid var(--text2); outline-offset: 3px; }
         <div class="seg" id="notation-seg" role="group" aria-label="Notation">
           <button type="button" class="seg-btn active" id="seg-notes"   onclick="setNotation('notes')"   title="Standard note names">Notes</button>
           <button type="button" class="seg-btn"        id="seg-camelot" onclick="setNotation('camelot')" title="Camelot DJ notation">Camelot</button>
-          <button type="button" class="seg-btn"        id="seg-solfege" onclick="setNotation('solfege')" title="Solfège (Do Re Mi)">Solfège</button>
+          <button type="button" class="seg-btn"        id="seg-solfege" onclick="setNotation('solfege')" title="Movable-do solfège: Do is the tonic, so the wheel and scale show degrees">Solfège</button>
         </div>
       </div>
       <div class="set-row" style="flex-direction:column;align-items:stretch;gap:7px">
@@ -413,7 +413,12 @@ var MINNAMES = ['Am','Em','Bm','F\u266fm','C\u266fm','G\u266fm','D\u266fm','B\u2
 // circle of fifths onto a 12-point colour cycle, so fifths = analogous neighbours
 // and the tritone = 180° (complementary). Switchable in Settings.
 var PALETTES = {
-  pastel:   ['#E28683','#E0AF85','#DBCC80','#A6C987','#84C299','#7BC1B3','#82C2CE','#92B5DD','#A0A1DA','#B9A2D7','#D3A1D3','#DE96B4'],
+  // A♭/E♭/B♭ (8,9,10) were near-indistinguishable: same lightness (74/74/73) and low
+  // saturation in the blue-violet region, where hue discrimination is weakest, so a
+  // 27° hue step wasn't enough - measured ΔE 8.6 and 10.1, i.e. "shades of one
+  // colour". Respread with wider hue steps plus a lightness zigzag; minimum adjacent
+  // ΔE across the whole ring is now 13.7 (was 8.6).
+  pastel:   ['#E28683','#E0AF85','#DBCC80','#A6C987','#84C299','#7BC1B3','#82C2CE','#92B5DD','#888ED7','#C5A8DC','#D392C8','#DE96B4'],
   // Itten's canonical 12-hue RYB wheel (C=red, +1 hue per fifth -> tritone = true complement).
   itten:    ['#E3000F','#EF4E1C','#F47E1B','#FBB034','#F6E500','#8DC63F','#1FA64A','#00A99D','#0061A8','#2E3192','#662D91','#A21D6B'],
   // Scriabin's described colours (verbal originals; E=sky blue, E♭=steely, B♭=rose, F=deep red).
@@ -617,9 +622,37 @@ document.addEventListener('keydown', function(e) {
   if (p && p.style.display !== 'none') { _setSettingsOpen(false); document.getElementById('btn-settings').focus(); }
 });
 // Solfège (Fixed-do): semitone 0-11
-var SOL_NAMES = ['Do','Di','Re','Me','Mi','Fa','Fi','Sol','Le','La','Te','Si'];
+// MOVABLE-do solfège: the syllable names the SCALE DEGREE, not the pitch, so Do is
+// always the tonic and every major scale reads "Do Re Mi Fa Sol La Ti" whatever key
+// it's in. That's the whole teaching value, and it makes the modes name their own
+// alterations: Dorian is "Do Re ME Fa Sol La TE", Lydian "…FI…", Phrygian "Do RA…".
+// (The previous fixed-do table was just Italian note names - no added information -
+// and it had no flat-side syllables at all, so D♭ printed as "Di" (=C♯), which
+// contradicted the wheel's own spelling.)
+var SOL_NAT   = ['Do','Re','Mi','Fa','Sol','La','Ti'];   // unaltered degree
+var SOL_LOW   = ['Do','Ra','Me','Fa','Se','Le','Te'];    // lowered degree
+var SOL_RAISE = ['Di','Ri','Mi','Fi','Si','Li','Ti'];    // raised degree
+var SOL_MAJ_IV = [0,2,4,5,7,9,11];                       // the major scale's own offsets
 function isSol() { var el=document.getElementById('cb-sol'); return el&&el.checked; }
-function solName(semi) { return SOL_NAMES[((semi%12)+12)%12]; }
+// Syllable for a scale degree. degIdx 0-6, semi = semitones above the tonic. Knowing
+// the degree is what disambiguates semitone 6: Lydian's raised 4th is Fi, Locrian's
+// lowered 5th is Se - same pitch, different degree, different syllable.
+function solDeg(degIdx, semi) {
+  var d = (((semi - SOL_MAJ_IV[degIdx]) % 12) + 18) % 12 - 6;   // -6..+5, signed
+  return d === 0 ? SOL_NAT[degIdx] : d < 0 ? SOL_LOW[degIdx] : SOL_RAISE[degIdx];
+}
+// Syllable for an arbitrary distance above the tonic - used on the wheel, where a
+// sector has no degree index. Flat-side names on the flat side of the circle, which
+// is where those sectors actually sit relative to the tonic.
+var SOL_CHROM = ['Do','Ra','Re','Me','Mi','Fa','Fi','Sol','Le','La','Te','Ti'];
+function solChrom(semiAboveTonic) { return SOL_CHROM[((semiAboveTonic%12)+12)%12]; }
+// The semitone the current selection calls "Do". Null when nothing is selected.
+function currentTonicSemi() {
+  if (!selected) return null;
+  var m  = MODES[selected.modeIdx];
+  var as = selected.fromInner ? MROOT.indexOf((MROOT[selected.slice]+m.off)%12) : selected.slice;
+  return MROOT[as];
+}
 var CAM_MIN = [8,9,10,11,12,1,2,3,4,5,6,7]; // relative minor shares its major's number (Am=8A, C=8B)
 function camelot(slice, isMinor) {
   return (isMinor ? CAM_MIN[slice] : CAM_MAJ[slice]) + (isMinor?'A':'B');
@@ -775,6 +808,7 @@ function render() {
   // draw loop marks the parent sector when the ring is off.
   var showMinor = appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
   var slA       = 2 * Math.PI / 12;
+  var _solTonic = isSol() ? currentTonicSemi() : null;   // movable-do reference pitch
   // FIXED radii so the major ring is the SAME thickness in every tab (Modal too) and
   // major = minor thickness (0.30R each). Minor band is just left empty when hidden.
   var outerR    = R - 4;             // leave a margin so the selection border (drawn
@@ -993,7 +1027,12 @@ function render() {
     var showCam = isCamelot();
     ctx.save();
     ctx.translate(CX + Math.cos(midA)*lR, CY + Math.sin(midA)*lR);
-    var mainLabel = showCam ? camelot(i, false) : (isSol() ? solName(MROOT[i]) : MAJSHORT[i]);
+    // In movable-do the wheel becomes a map of scale degrees around the current key:
+    // the neighbouring sectors read Sol and Fa, i.e. dominant and subdominant, right
+    // there on the rim. With nothing selected there's no tonic, so fall back to notes.
+    var mainLabel = showCam ? camelot(i, false)
+                  : (isSol() && _solTonic !== null) ? solChrom(MROOT[i] - _solTonic)
+                  : MAJSHORT[i];
     // Ink follows the SECTOR's lightness, not the theme (see sectorLum).
     var onLightOut = sectorLum(col, aOuter) > LUM_FLIP;
     var selFill   = (isSel && !selIsInner)
@@ -1010,7 +1049,11 @@ function render() {
       var mR2 = (innerR + accR) / 2;
       ctx.save();
       ctx.translate(CX + Math.cos(midA)*mR2, CY + Math.sin(midA)*mR2);
-      var minMain = showCam ? camelot(i, true) : (isSol() ? solName(MROOT[i]+9) + 'm' : MINNAMES[i]);
+      // Lowercase = minor, the same convention the panel's roman numerals use (I vs
+      // i). Appending "m" instead gave "Dom"/"Mim"/"Tim", which read as words.
+      var minMain = showCam ? camelot(i, true)
+                  : (isSol() && _solTonic !== null) ? solChrom(MROOT[i]+9 - _solTonic).toLowerCase()
+                  : MINNAMES[i];
       ctx.font = '400 ' + Math.max(9, R*0.052) + 'px ' + ff;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       // Same luminance rule, at the inner ring's own (lower) alpha.
@@ -1263,12 +1306,15 @@ function getModeChords(slice, modeIdx, tonicSlice) {
   var m    = MODES[modeIdx];
   var root = MROOT[slice];
   var useSol = isSol();
-  var nn   = useSol ? SOL_NAMES : notesForSlice(tonicSlice !== undefined ? tonicSlice : slice);
+  var nn   = notesForSlice(tonicSlice !== undefined ? tonicSlice : slice);
   var notes  = [];
   var chords = [];
   for (var i=0; i<7; i++) {
     var nr = (root + m.iv[i]) % 12;
-    notes.push(nn[nr]);
+    // The SCALE row carries the solfège (that's where degrees teach something);
+    // CHORDS keep note names either way, since "Dom / Rem / Me" names no chord
+    // anyone would write.
+    notes.push(useSol ? solDeg(i, m.iv[i]) : nn[nr]);
     var t   = m.ct[i];
     var num = (t==='min'||t==='dim') ? ROM_MIN[i] : ROM_MAJ[i];
     chords.push({ name: nn[nr]+(t==='min'?'m':t==='dim'?'°':''), num:num, type:t });
@@ -1340,7 +1386,9 @@ function updatePanel() {
   var col     = SYNTH[actualSlice];
   var acc     = accStr(accSlice);
   var accNotes = accNotesStr(accSlice);
-  var keyName = (isSol() ? solName(MROOT[actualSlice]) : MAJSHORT[actualSlice]) + ' ' + mode.name;
+  // The key's NAME stays a note name in movable-do - the tonic is Do by definition,
+  // so "Do Dorian" would name every key identically.
+  var keyName = MAJSHORT[actualSlice] + ' ' + mode.name;
   var camLabel = isCamelot() ? ' <span style="font-size:11px;opacity:.55;font-weight:400;margin-left:4px">' + CAM_MAJ[accSlice] + (mode.type==='maj'?'B':'A') + '</span>' : '';
   var data    = getModeChords(actualSlice, modeIdx, accSlice);
   var notes   = data.notes;
