@@ -863,6 +863,16 @@ function render() {
     var scArr = getScaleSlices(_sec, 0);
     for (var k=0; k<scArr.length; k++) scaleHL[scArr[k]] = true;
   }
+  // Modal hides the minor ring, which used to leave the whole accR→innerR band as
+  // empty background - 30% of the radius reading as a rendering failure, with the
+  // accidentals disc floating orphaned inside it. Fill it with the current scale's
+  // OWN family instead: the seven sectors that share this key signature. The band
+  // then answers "which keys share my notes" exactly where the minor ring would be.
+  var famHL = {};
+  if (!showMinor && selected) {
+    var famArr = getScaleSlices(selected.slice, selected.modeIdx);
+    for (var k=0; k<famArr.length; k++) famHL[famArr[k]] = true;
+  }
   var parentSl = selected ? getParentSlice(selected.slice, selected.modeIdx) : null;
   // Which accidental label the ring should light up: the key signature ACTUALLY in
   // force, which for a mode is its parent's (A Dorian works from G's 1♯, and the
@@ -955,6 +965,20 @@ function render() {
         ctx.strokeStyle = dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
         ctx.lineWidth = 0.8; ctx.stroke();
       }
+    } else if (famHL[i]) {
+      // Minor ring hidden (Modal): the band shows the current key's FAMILY - the
+      // seven sectors sharing its key signature - so the space carries meaning
+      // instead of reading as a hole. Quiet by design; the major ring stays the
+      // subject.
+      ctx.beginPath();
+      ctx.moveTo(CX + Math.cos(a0)*innerR, CY + Math.sin(a0)*innerR);
+      ctx.arc(CX,CY,innerR,a0,a1);
+      ctx.arc(CX,CY,accR,a1,a0,true);
+      ctx.closePath();
+      ctx.fillStyle = ha(col, 0.20);
+      ctx.fill();
+      ctx.strokeStyle = dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+      ctx.lineWidth = 0.8; ctx.stroke();
     }
 
     // Accidentals ring - outer arc boundary
@@ -1139,11 +1163,12 @@ function handlePick(h, noToggle) {
   if (appMode === 'modal') {
     // Modal: outer ring only, keep current mode (it IS the tonic)
     newModeIdx = lastModeIdx;
-  } else if (h.isInner) {
-    newModeIdx = 4; // Tonal: Aeolian for inner ring
   } else {
-    // Tonal: outer ring - keep mode only if major-type
-    newModeIdx = (MODES[lastModeIdx].type === 'maj') ? lastModeIdx : 0;
+    // Tonal/Assist are the KEY tabs: outer ring = major, inner ring = its relative
+    // minor, full stop. They must never inherit a mode from Modal - carrying
+    // lastModeIdx over meant that after looking at C Mixolydian, tapping G here
+    // produced "G Mixolydian" in a tab with no control to change it back.
+    newModeIdx = h.isInner ? 4 : 0;
   }
   // slice = sector (tonal centre) - never remap for inner ring.
   // Tapping the SAME key again deselects. The ring has to be part of that identity:
