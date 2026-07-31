@@ -868,6 +868,21 @@ function render() {
     var scArr = getScaleSlices(_sec, 0);
     for (var k=0; k<scArr.length; k++) scaleHL[scArr[k]] = true;
   }
+  // Moods and DJ used to leave the wheel completely inert - the panel did all the
+  // thinking while the app's main object just sat there. Mark the top suggestions
+  // on it, ranked, so the answer appears where the user is already looking.
+  var suggHL = [];
+  if (selected && appMode === 'assist' && assistStyle !== 'relations') {
+    var _sk = assistKeyState(selected);
+    if (_sk.cs !== null) {
+      var _sg = assistStyle === 'dj'
+        ? (assistMove === null ? null : djSuggest(_sk.cs, _sk.cm, assistMove))
+        : assistSuggest(_sk.cs, _sk.cm, assistEmotion);
+      if (_sg) for (var q = 0; q < Math.min(3, _sg.length); q++) {
+        suggHL.push({ slice:_sg[q].slice, min:!!_sg[q].min, rank:q+1 });
+      }
+    }
+  }
   // Modal hides the minor ring, which used to leave the whole accR→innerR band as
   // empty background - 30% of the radius reading as a rendering failure, with the
   // accidentals disc floating orphaned inside it. Fill it with the current scale's
@@ -1111,6 +1126,70 @@ function render() {
         ctx.fillText(acc, 0, 0);
         ctx.restore();
       }
+    }
+  }
+
+  // ── Answers drawn ON the wheel ──────────────────────────────────────────────
+  // Anchor a connector near the INNER edge of whichever ring the key lives on, not
+  // at the ring's midpoint - the midpoint is exactly where the sector's label sits,
+  // and a line ending there covers the very name it's pointing at.
+  function sectorPt(i, isMin) {
+    var a  = (-Math.PI/2) + i*slA;
+    var rr = (isMin && showMinor) ? accR   + (innerR-accR)*0.22
+                                  : innerR + (outerR-innerR)*0.22;
+    return { x: CX + Math.cos(a)*rr, y: CY + Math.sin(a)*rr };
+  }
+
+  // RELATIONS: a chord line from the current key to each target, straight across the
+  // wheel. The relationship itself becomes visible geometry - a tritone is a line
+  // through the middle, mediants are a wide V - and it uses the empty centre, which
+  // is where the eye already goes.
+  if (showRel && selected) {
+    var _cKs  = assistKeyState(selected);
+    var _cMin = _cKs.cm;
+    var from  = sectorPt(_cKs.cs, _cMin);
+    var targets = [];
+    for (var i2 = 0; i2 < 12; i2++) {
+      if (!relHL[i2]) continue;
+      var tMin = RELS[activeRel].getTarget ? prlTargetInner
+               : (relHLIsMinor && showMinor);
+      targets.push(sectorPt(i2, tMin));
+    }
+    // Neo-R "R" targets the SAME sector's other ring - the line is radial, not across.
+    if (RELS[activeRel].getTarget && !targets.length) targets.push(sectorPt(_cKs.cs, !_cMin));
+    ctx.save();
+    ctx.strokeStyle = dark ? 'rgba(255,255,255,.5)' : 'rgba(0,0,0,.42)';
+    ctx.lineWidth = 1.6;
+    ctx.lineCap = 'round';
+    for (var t2 = 0; t2 < targets.length; t2++) {
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(targets[t2].x, targets[t2].y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // MOODS / DJ: a small numbered badge on each of the top suggestions, in the panel's
+  // own order, so "where do I go next" is answered on the wheel too.
+  if (suggHL.length) {
+    var badgeR = Math.max(8, R*0.055);
+    for (var s2 = 0; s2 < suggHL.length; s2++) {
+      var sg2 = suggHL[s2];
+      var a2  = (-Math.PI/2) + sg2.slice*slA;
+      // Sit just inside the outer edge of the ring the target actually lives on.
+      var rr2 = (sg2.min && showMinor) ? accR + (innerR-accR)*0.80
+                                       : innerR + (outerR-innerR)*0.80;
+      var bx = CX + Math.cos(a2)*rr2, by = CY + Math.sin(a2)*rr2;
+      ctx.save();
+      ctx.beginPath(); ctx.arc(bx, by, badgeR, 0, Math.PI*2);
+      ctx.fillStyle = dark ? 'rgba(255,255,255,.94)' : 'rgba(20,20,18,.9)';
+      ctx.fill();
+      ctx.fillStyle = dark ? '#1c1c1a' : '#fff';
+      ctx.font = '700 ' + Math.max(9, R*0.055) + 'px ' + ff;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(String(sg2.rank), bx, by + 0.5);
+      ctx.restore();
     }
   }
 
