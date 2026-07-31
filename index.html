@@ -1418,7 +1418,15 @@ function updatePanel() {
   var accNotes = accNotesStr(accSlice);
   // The key's NAME stays a note name in movable-do - the tonic is Do by definition,
   // so "Do Dorian" would name every key identically.
-  var keyName = MAJSHORT[actualSlice] + ' ' + mode.name;
+  // Ionian and Aeolian are named the way people ask for them - "C major", "A minor"
+  // - with the modal name kept as a parenthetical. Leading with the Greek term meant
+  // a student who tapped the sector labelled "Am" got a panel headed "A Aeolian",
+  // i.e. the app renamed the thing they had just pointed at. The other five modes
+  // have no common-language name, so they stand alone.
+  var _modeLabel = modeIdx === 0 ? 'major (Ionian)'
+                 : modeIdx === 4 ? 'minor (Aeolian)'
+                 : mode.name;
+  var keyName = MAJSHORT[actualSlice] + ' ' + _modeLabel;
   var camLabel = isCamelot() ? ' <span style="font-size:11px;opacity:.55;font-weight:400;margin-left:4px">' + CAM_MAJ[accSlice] + (mode.type==='maj'?'B':'A') + '</span>' : '';
   var data    = getModeChords(actualSlice, modeIdx, accSlice);
   var notes   = data.notes;
