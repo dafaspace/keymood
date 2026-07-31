@@ -365,11 +365,16 @@ canvas:focus-visible { outline: 2px solid var(--text2); outline-offset: 3px; }
       <div class="set-row" style="flex-direction:column;align-items:stretch;gap:7px">
         <span class="set-label">Palette</span>
         <div class="pal-grid">
-          <button class="pal-btn" id="pal-pastel"   onclick="setPalette('pastel')"   title="Soft muted pastels">Pastel</button>
-          <button class="pal-btn" id="pal-itten"    onclick="setPalette('itten')"    title="Itten RYB - true complements">Itten</button>
-          <button class="pal-btn" id="pal-scriabin" onclick="setPalette('scriabin')" title="Scriabin's synesthetic keys">Scriabin</button>
-          <button class="pal-btn" id="pal-zodiac"   onclick="setPalette('zodiac')"   title="Colour by zodiac element (Fire/Earth/Air/Water)">Zodiac</button>
-          <button class="pal-btn" id="pal-zebra"    onclick="setPalette('zebra')"    title="Alternating light / dark">Zebra</button>
+          <!-- Each palette does a different job; the titles name the job, not the
+               jargon. Measured: Pastel's hue rotates with the circle (tritone lands
+               at 170° of 180°); Itten's complements are true; Zodiac's four elements
+               are the four augmented triads (ΔE 8 within a family vs 87 between);
+               Scriabin is a historical list, not a geometry; Zebra is achromatic. -->
+          <button class="pal-btn" id="pal-pastel"   onclick="setPalette('pastel')"   title="Calm default - colour follows the circle, so a fifth is a small hue step">Pastel</button>
+          <button class="pal-btn" id="pal-itten"    onclick="setPalette('itten')"    title="True complements - opposite colours are a tritone apart">Itten</button>
+          <button class="pal-btn" id="pal-scriabin" onclick="setPalette('scriabin')" title="Scriabin's own colours for each key (1910) - historical, not a geometry">Scriabin</button>
+          <button class="pal-btn" id="pal-zodiac"   onclick="setPalette('zodiac')"   title="One colour per major-third family - each shade is an augmented triad (C-E-A♭)">Zodiac</button>
+          <button class="pal-btn" id="pal-zebra"    onclick="setPalette('zebra')"    title="Greyscale - maximum label contrast, no colour coding">Zebra</button>
         </div>
       </div>
     </div>
