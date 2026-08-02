@@ -50,19 +50,9 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 
 /* Top bar */
-.topbar { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
 .mode-switcher { display:flex; gap:2px; margin-bottom:10px; background:var(--bg2); border-radius:20px; padding:2px; width:fit-content; }
 .ms-btn { padding:4px 14px; font-size:12px; border-radius:18px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; }
 .ms-btn.active { background:var(--text); color:var(--bg); font-weight:500; }
-
-/* Toggle switch (replaces "minor" checkbox) */
-.tog { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--text3); cursor:pointer; user-select:none; }
-.tog input { position:absolute; opacity:0; width:0; height:0; }
-.tog .track { position:relative; width:30px; height:17px; border-radius:999px; background:var(--bd2); transition:background .18s; flex-shrink:0; }
-.tog .track::before { content:""; position:absolute; top:2px; left:2px; width:13px; height:13px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.35); transition:transform .18s; }
-.tog input:checked + .track { background:var(--text); }
-.tog input:checked + .track::before { transform:translateX(13px); }
-.tog input:focus-visible + .track { outline:2px solid var(--text2); outline-offset:2px; }
 
 /* Segmented control (replaces camelot/solfège checkboxes - they're mutually exclusive) */
 .seg { display:inline-flex; gap:2px; background:var(--bg2); border-radius:14px; padding:2px; }
@@ -73,8 +63,6 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 /* App bar (header) + utility cluster */
 .appbar { display:flex; align-items:center; gap:7px; margin-bottom:10px; }
 .appbar h1 { font-size:15px; font-weight:500; color:var(--text2); white-space:nowrap; min-width:0; overflow:hidden; text-overflow:ellipsis; }
-.t-btn { background:none; border:1px solid var(--bd2); border-radius:50%; cursor:pointer; width:20px; height:20px; font-size:11px; line-height:1; color:var(--text2); padding:0; flex-shrink:0; }
-.t-btn:hover { background:var(--bg2); }
 /* position:relative makes this the popover's containing block, so the settings panel
    hangs off the gear instead of flying to the viewport's top-right corner (it had no
    positioned ancestor and no `top`, landing ~360px away on desktop). */
@@ -99,8 +87,6 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .pal-btn.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:500; }
 
 /* Context bar - per-mode controls, reserved height so the circle doesn't jump */
-.ctxbar { min-height:34px; margin-bottom:10px; }
-.rel-tools { display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
 
 /* Transition Assistant */
 .ta-toggle { margin-left:auto; display:inline-flex; gap:2px; background:var(--bg2); border-radius:13px; padding:2px; }
@@ -187,26 +173,10 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .metro-btn.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:600; }
 .rh-dot { opacity:0.4; }
 
-.btn {
-  padding: 5px 12px; font-size: 12px; border-radius: 20px;
-  border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text2);
-  cursor: pointer; font-family: var(--font); transition: all .15s;
-}
-.btn.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 500; }
-.btn:hover:not(.active) { background: var(--bg2); }
-.btn-quiz { border-color: #7B5EA7; color: #7B5EA7; }
-.btn-quiz.active { background: #7B5EA7; color: #fff; border-color: #7B5EA7; font-weight: 500; }
-.btn-nrl { padding: 5px 9px; font-size: 12px; border-radius: 20px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text2); cursor: pointer; font-family: var(--font); transition: all .15s; }
-.btn-nrl.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 500; }
-.btn-nrl:hover:not(.active) { background: var(--bg2); }
-.sep { width: 1px; height: 18px; background: var(--bd2); flex-shrink: 0; }
-.nrl-group { display: flex; gap: 2px; align-items: center; border: 0.5px solid var(--bd2); border-radius: 22px; padding: 2px; }
-
 /* Mode strip */
 /* Always reserves height (even empty) so the circle sits at the same spot in every
    tab. Centred so the strip lines up under the circle. */
 .mode-strip-wrap { margin-bottom: 8px; display: flex; align-items: center; justify-content: center; }
-.mode-strip-label { font-size: 10px; color: var(--text3); margin-bottom: 5px; letter-spacing: .05em; }
 .mode-strip { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; padding-bottom: 2px; }
 .mode-strip::-webkit-scrollbar { height: 3px; }
 .mode-strip::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
@@ -338,6 +308,9 @@ canvas:focus-visible { outline: 2px solid var(--text2); outline-offset: 3px; }
 .qo:disabled { cursor: default; }
 .quiz-next { margin-top: 9px; padding: 7px 16px; border-radius: 20px; font-size: 12px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text2); cursor: pointer; display: none; font-family: var(--font); }
 .quiz-next:hover { background: var(--bg2); }
+/* The quiz owns the whole panel, so it needs its own way out (see renderQuizPanel). */
+.quiz-exit { margin-left:auto; min-height:30px; padding:6px 12px; border-radius:999px; font-size:11px; border:0.5px solid var(--bd2); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); }
+.quiz-exit:hover { background: var(--bg2); color: var(--text); }
 .quiz-hint { font-size: 11px; color: var(--text3); margin-top: 7px; display: none; }
 </style>
 </head>
@@ -1793,8 +1766,14 @@ function renderQuizPanel() {
   for (var i=0;i<quizState.opts.length;i++) {
     optsHTML += '<button class="qo" id="qo'+i+'" onclick="answerQuiz('+i+')">'+quizState.opts[i].label+'</button>';
   }
+  // The quiz takes over the panel and the wheel, but used to leave no way out from
+  // inside its own surface - the only exit was the unlabelled top-bar icon that
+  // opened it. It now names itself and carries an explicit Exit, so it's an honest
+  // takeover rather than a hidden mode.
   document.getElementById('panel').innerHTML =
-    '<div class="phead" style="color:#7B5EA7">\u25b8 Quiz</div>' +
+    '<div class="phead" style="color:#7B5EA7">Quiz' +
+      '<button class="quiz-exit" onclick="toggleQuiz()" aria-label="Exit quiz">Exit</button>' +
+    '</div>' +
     '<div class="pbody">' +
       '<div style="font-size:11px;color:var(--text3);text-align:right;margin-bottom:8px">'+scoreStr+'</div>' +
       '<div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:11px;line-height:1.5">'+quizState.q+'</div>' +
@@ -2542,6 +2521,20 @@ function shareLink() {
   if (curPalette !== 'pastel') params.push('pal=' + curPalette);
   if (!document.getElementById('cb-minor').checked) params.push('minor=0');
   if (params.length) url += '?' + params.join('&');
+  // On a phone, sharing a key means sending it to someone - so offer the platform's
+  // own share sheet (Messages, Mail, AirDrop…) and fall back to the clipboard on
+  // desktop or if the user dismisses it. navigator.share needs a user gesture, which
+  // the button click provides.
+  if (navigator.share && window.innerWidth <= 620) {
+    navigator.share({ title: 'Another Circle Of Fifths', url: url })
+      .catch(function(){ /* dismissed or unsupported target - fall back quietly */
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function(){ _flashShare('✓ Copied!'); })
+            .catch(function(){ if (!_copyFallback(url)) _flashShare('✗ Copy failed'); });
+        } else if (!_copyFallback(url)) _flashShare('✗ Copy failed');
+      });
+    return;
+  }
   // The Clipboard API can EXIST and still reject (NotAllowedError when the document
   // isn't focused - routine in an iOS PWA, and on any non-secure origin). Without a
   // catch the user got no feedback at all and the execCommand path below could never
