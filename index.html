@@ -41,9 +41,11 @@ body { font-family: var(--font); background: var(--bg); color: var(--text); min-
 /* Two-column (desktop/tablet): lock to viewport height so the page never scrolls;
    the circle is fitted to the available height and the detail panel scrolls itself. */
 @media (min-width: 621px) {
+  /* 860px was leaving 56% viewport coverage at 1280x800 - a phone layout centred in
+     a desktop window. 1240 gives the wheel and panel real room without letting the
+     line lengths run away on an ultrawide. */
   body { height: 100dvh; min-height: 0; overflow: hidden; display: flex; flex-direction: column;
-         max-width: 860px; margin-left: auto; margin-right: auto; }
-  .layout { flex: 1; min-height: 0; align-items: stretch; }
+         max-width: 1240px; margin-left: auto; margin-right: auto; }
   .panel-col { min-height: 0; }
   .panel { flex: 1 1 auto; min-height: 0; }
 }
@@ -202,6 +204,36 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 /* Layout */
 .layout { display: grid; grid-template-columns: 1fr 256px; gap: 12px; align-items: start; }
 .panel-col { display: flex; flex-direction: column; }
+/* Desktop grid. Must sit AFTER the base .layout rule above: same specificity, so
+   source order decides, and the earlier min-width block was being overridden by it. */
+@media (min-width: 621px) {
+  /* The panel column FLEXES between a readable minimum and a cap instead of a hard
+     256px, which was narrow enough to wrap "Transition Assistant" onto two lines and
+     break the axis legend mid-phrase. */
+  /* grid-template-rows is load-bearing: without an explicit row the row height comes
+     from the tallest ITEM, and once the panel stopped stretching (align-self:start
+     below) that item was the circle column - so the canvas fed its own height back
+     into the measurement and the wheel shrank a little on every resize. Pinning the
+     row to the container's height breaks the loop and keeps the wheel identical in
+     every tab. */
+  /* flex:1 + min-height:0 is what gives the grid its height from the VIEWPORT rather
+     than from its own content - without it the row followed the canvas, which the
+     canvas is sized from, and the wheel shrank 8px on every resize. */
+  .layout { flex: 1; min-height: 0;
+            grid-template-columns: minmax(0,1fr) clamp(300px, 26vw, 380px); gap: 20px;
+            align-items: stretch; grid-template-rows: minmax(0, 1fr); }
+  /* Centre the wheel in the space its column actually has, vertically too - it used
+     to hang from the top with the leftover height sitting unused beneath it. */
+  .circle-col { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 0; }
+  /* The panel hugs its content instead of stretching: on mobile the panel is an
+     edge-to-edge sheet, so space beneath it reads as ground, but on desktop it's a
+     bordered card and the same space reads as a hole in it. align-self:start keeps
+     the ROW at full height (so the wheel's size never changes between tabs) while
+     letting the card end where its content does; max-height + the body's own
+     overflow rule keep a tall panel scrolling internally. */
+  .panel-col { align-self: start; max-height: 100%; }
+  .panel { flex: 0 1 auto; }
+}
 /* Mobile: lock to viewport. Circle region is fixed height/centred (same spot every
    tab); the panel is a bottom SHEET that fills the rest and scrolls internally if
    its content is taller - the page itself never scrolls. */
@@ -687,16 +719,18 @@ function resize() {
   // unreliable). Must run before measuring so the circle/panel fit the true height.
   document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
   var dpr = devicePixelRatio || 1;
-  var s   = Math.min(cv.parentElement.clientWidth, 500);
-  // On the two-column layout, also fit the circle to the available height so the
-  // page never needs to scroll. Canvas top is fixed by the elements above it;
-  // subtract whatever sits below the canvas (mode strip + legend) from the space.
+  var s   = cv.parentElement.clientWidth;
   if (window.innerWidth > 620) {
-    var top = cv.getBoundingClientRect().top;
-    var below = 0, sib = cv.nextElementSibling;
-    while (sib) { if (sib.offsetParent !== null) below += sib.getBoundingClientRect().height; sib = sib.nextElementSibling; }
-    var availH = window.innerHeight - top - below - 24;
-    if (availH > 160) s = Math.min(s, availH);
+    // Desktop: fit the largest square inside the circle column's own box. The old
+    // rule hard-capped the wheel at 500px and measured the canvas's own top, which
+    // is circular (the canvas is what we're sizing) - at 1280x800 that left the
+    // wheel pinned at exactly 500 with ~195px of height beneath it unused. The
+    // column is a flex box that stretches to the row, so measuring IT is stable.
+    var col = cv.closest('.circle-col');
+    if (col) {
+      var box = Math.min(col.clientWidth, col.clientHeight);
+      if (box > 160) s = Math.max(240, Math.min(box - 8, 720));   // 720 keeps it sane on a 4K display
+    }
   } else {
     // Mobile: size the circle so the panel below can fully show (no scroll) - BUT
     // never below a comfortable floor, so it's never "tiny". If the panel is genuinely
