@@ -812,14 +812,39 @@ function reducedMotion() {
 var selAng  = new Spring(-Math.PI/2, 1.0, 0.42);   // radians, unwrapped
 var selRing = new Spring(0, 1.0, 0.34);            // 0 = outer ring, 1 = inner ring
 var _selInit = false;
+// Relation connectors draw themselves out from the current key rather than snapping
+// into existence, so the eye is led along the relationship in the direction it goes.
+var relDraw = new Spring(1, 1.0, 0.38);
+var _relDrawKey = '';
+
+// A struck note decays, it doesn't spring - so sector pulses use an exponential
+// envelope keyed by start time rather than a Spring. Registry is slice -> the
+// timestamp the note sounded.
+var PULSE_MS = 620;
+var _pulses = {};
+function pulseSemitone(semi, delayMs) {
+  if (reducedMotion()) return;
+  var slice = MROOT.indexOf(((semi % 12) + 12) % 12);
+  if (slice < 0) return;
+  setTimeout(function(){ _pulses[slice] = performance.now(); _kickAnim(); },
+             Math.max(0, delayMs|0));
+}
+function _pulseAt(slice, now) {
+  var t0 = _pulses[slice];
+  if (t0 === undefined) return 0;
+  var k = 1 - (now - t0)/PULSE_MS;
+  if (k <= 0) { delete _pulses[slice]; return 0; }
+  return k*k;                      // eased decay - bright attack, soft tail
+}
+function _pulsesActive() { for (var k in _pulses) return true; return false; }
 
 var _animRAF = null, _animPrev = 0;
 function _animTick(ts) {
   var dt = _animPrev ? (ts - _animPrev)/1000 : 1/60;
   _animPrev = ts;
-  selAng.step(dt); selRing.step(dt);
+  selAng.step(dt); selRing.step(dt); relDraw.step(dt);
   render();
-  if (selAng.settled() && selRing.settled()) { _animRAF = null; _animPrev = 0; }
+  if (selAng.settled() && selRing.settled() && relDraw.settled() && !_pulsesActive()) { _animRAF = null; _animPrev = 0; }
   else _animRAF = requestAnimationFrame(_animTick);
 }
 function _kickAnim() {
@@ -843,6 +868,7 @@ function render() {
   // draw loop marks the parent sector when the ring is off.
   var showMinor = appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
   var slA       = 2 * Math.PI / 12;
+  var _now      = performance.now();   // one clock for every pulse envelope this frame
   // Point the dial at the current selection. The angle is kept UNWRAPPED and
   // re-targeted to whichever multiple of 2π is nearest the current position, so the
   // marker always takes the short way round (C -> B♭ swings back two steps, it
@@ -960,6 +986,7 @@ function render() {
     var hovOuter = hovered && hovered.slice === i && !hovered.isInner;
     var hovInner = hovered && hovered.slice === i && hovered.isInner;
     var faded    = selected && !isSel && !inScale && !inRel;
+    var pulse    = _pulseAt(i, _now);   // 1 at the note's attack, decaying to 0
 
     // Outer ring - annular (donut), keeps minor area visually clean
     var selIsInner  = isSel && !!selected.fromInner;
@@ -997,10 +1024,22 @@ function render() {
                    : outerIsPRL ? 0.97
                    : hovOuter ? 1.0 : inScale ? 0.95 : faded ? 0.85 : 0.95;
     var aOuter = aOuterBase + (1 - aOuterBase) * emphOuter;
-    ctx.fillStyle = ha(col, aOuter);
+    // The note itself: lift toward white on the attack so the sector visibly rings.
+    var pcol = pulse > 0 ? lightenHex(col, 0.55*pulse) : col;
+    ctx.fillStyle = ha(pcol, Math.min(1, aOuter + 0.30*pulse));
     ctx.fill();
     ctx.strokeStyle = dark ? 'rgba(255,255,255,.10)' : 'rgba(0,0,0,.12)';
     ctx.lineWidth = 1.2; ctx.stroke();
+    // A tint shift alone is nearly invisible against a 0.95 base, so the note also
+    // rings the sector's edge - a bright stroke that decays with the envelope. Reads
+    // as a struck thing, not a colour change.
+    if (pulse > 0.01) {
+      ctx.save();
+      ctx.strokeStyle = dark ? 'rgba(255,255,255,'+(0.95*pulse)+')' : 'rgba(0,0,0,'+(0.65*pulse)+')';
+      ctx.lineWidth = 1 + 3.2*pulse;
+      ctx.stroke();
+      ctx.restore();
+    }
 
     // Ring separator
     ctx.beginPath(); ctx.arc(CX,CY,innerR,a0,a1);
@@ -1022,7 +1061,7 @@ function render() {
                      : innerIsPRL ? 0.92
                      : faded ? 0.80 : 0.82;
       var aInner = aInnerBase + (1 - aInnerBase) * emphInner;   // travels with the dial
-      ctx.fillStyle = ha(col, aInner);
+      ctx.fillStyle = ha(pcol, Math.min(1, aInner + 0.30*pulse));
       ctx.fill();
       ctx.strokeStyle = dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
       ctx.lineWidth = 0.8; ctx.stroke();
@@ -1221,11 +1260,22 @@ function render() {
     }
     // Neo-R "R" targets the SAME sector's other ring - the line is radial, not across.
     if (RELS[activeRel].getTarget && !targets.length) targets.push(sectorPt(_cKs.cs, !_cMin));
+    // Restart the draw-out whenever the relation or the key changes, so the line is
+    // read in its direction of travel: out from where you are, toward where it goes.
+    var _rKey = activeRel + '|' + _cKs.cs + '|' + _cMin;
+    if (_rKey !== _relDrawKey) {
+      _relDrawKey = _rKey;
+      if (reducedMotion()) relDraw.snap(1);
+      else { relDraw.snap(0); relDraw.target = 1; _kickAnim(); }
+    }
+    var _grow = Math.max(0, Math.min(1, relDraw.x));
     ctx.save();
     ctx.strokeStyle = dark ? 'rgba(255,255,255,.5)' : 'rgba(0,0,0,.42)';
     ctx.lineWidth = 1.6;
     ctx.lineCap = 'round';
     for (var t2 = 0; t2 < targets.length; t2++) {
+      targets[t2] = { x: from.x + (targets[t2].x - from.x)*_grow,
+                      y: from.y + (targets[t2].y - from.y)*_grow };
       ctx.beginPath();
       ctx.moveTo(from.x, from.y);
       ctx.lineTo(targets[t2].x, targets[t2].y);
@@ -1998,7 +2048,14 @@ function _playArp(semis, oct) {
     var gap = 0.11;
     var dur = 1.3;
     // Play ascending, no repeated note
-    semis.forEach(function(s,i){ _playNote(s, now+i*gap, dur, oct||4); });
+    semis.forEach(function(s,i){
+      _playNote(s, now+i*gap, dur, oct||4);
+      // Light the sector this note belongs to AT THE MOMENT IT SOUNDS. The audio is
+      // scheduled ahead on the WebAudio clock, so the visual is scheduled against
+      // the same instant rather than fired now - eye and ear land on one frame,
+      // which is what makes it read as one event instead of two.
+      pulseSemitone(s, (now + i*gap - ctx.currentTime) * 1000);
+    });
   });
 }
 
