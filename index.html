@@ -771,6 +771,63 @@ function getParentSlice(slice, modeIdx) {
   return ps >= 0 ? ps : null;
 }
 
+// ── Motion ────────────────────────────────────────────────────────────────────
+// Springs, not easing curves. A spring always animates from where the value
+// CURRENTLY is and carries its velocity through a re-target, so a move can be
+// interrupted and redirected mid-flight with no visible jump - which a fixed
+// duration+curve cannot do. Parameterised the way Apple's fluid-interface work
+// does (damping ratio + response in seconds) rather than mass/stiffness/damping,
+// and integrated at a fixed substep so the motion is identical at 60Hz and 120Hz.
+// No library: every JS animation package animates DOM properties, and the wheel is
+// canvas - importing one would cost kilobytes and break offline for a number
+// sequence that is thirty lines of the documented algorithm.
+function Spring(value, damping, response) {
+  this.x = value; this.target = value; this.v = 0;
+  this.damping = damping; this.response = response;
+}
+Spring.prototype.step = function(dt) {
+  var w = 2*Math.PI/this.response, z = this.damping, SUB = 1/240;
+  var t = Math.min(dt, 0.064);            // never integrate a whole tab-switch gap
+  while (t > 0) {
+    var h = t < SUB ? t : SUB; t -= h;
+    var a = -w*w*(this.x - this.target) - 2*z*w*this.v;
+    this.v += a*h; this.x += this.v*h;
+  }
+  return this.x;
+};
+Spring.prototype.settled = function() {
+  return Math.abs(this.x - this.target) < 0.0004 && Math.abs(this.v) < 0.004;
+};
+Spring.prototype.snap = function(v) { this.x = this.target = v; this.v = 0; };
+
+function reducedMotion() {
+  return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// The selection behaves like the pointer of a real dial: it travels round the ring
+// to the key you picked instead of teleporting. Angle and radius are separate
+// springs - a single spring on 2D distance desyncs when the two axes have different
+// velocities. Damping 1.0 (critically damped, no overshoot) because these moves are
+// taps, not flicks; response 0.42s reads as weighty without feeling slow.
+var selAng  = new Spring(-Math.PI/2, 1.0, 0.42);   // radians, unwrapped
+var selRing = new Spring(0, 1.0, 0.34);            // 0 = outer ring, 1 = inner ring
+var _selInit = false;
+
+var _animRAF = null, _animPrev = 0;
+function _animTick(ts) {
+  var dt = _animPrev ? (ts - _animPrev)/1000 : 1/60;
+  _animPrev = ts;
+  selAng.step(dt); selRing.step(dt);
+  render();
+  if (selAng.settled() && selRing.settled()) { _animRAF = null; _animPrev = 0; }
+  else _animRAF = requestAnimationFrame(_animTick);
+}
+function _kickAnim() {
+  if (_animRAF || reducedMotion()) return;
+  _animPrev = 0;
+  _animRAF = requestAnimationFrame(_animTick);
+}
+
 function render() {
   // Nothing to draw until resize() has measured the canvas. Without this the very
   // first paint can run with R=0 (outerR = -4) and throw on ctx.arc, aborting the
@@ -786,6 +843,20 @@ function render() {
   // draw loop marks the parent sector when the ring is off.
   var showMinor = appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
   var slA       = 2 * Math.PI / 12;
+  // Point the dial at the current selection. The angle is kept UNWRAPPED and
+  // re-targeted to whichever multiple of 2π is nearest the current position, so the
+  // marker always takes the short way round (C -> B♭ swings back two steps, it
+  // doesn't run ten steps forward).
+  if (selected) {
+    var _tAng = (-Math.PI/2) + selected.slice*slA;
+    while (_tAng - selAng.x >  Math.PI) _tAng -= 2*Math.PI;
+    while (_tAng - selAng.x < -Math.PI) _tAng += 2*Math.PI;
+    var _tRing = (selected.fromInner && showMinor) ? 1 : 0;
+    if (!_selInit || reducedMotion()) { selAng.snap(_tAng); selRing.snap(_tRing); _selInit = true; }
+    else if (_tAng !== selAng.target || _tRing !== selRing.target) {
+      selAng.target = _tAng; selRing.target = _tRing; _kickAnim();
+    }
+  }
   var _solTonic = isSol() ? currentTonicSemi() : null;   // movable-do reference pitch
   // FIXED radii so the major ring is the SAME thickness in every tab (Modal too) and
   // major = minor thickness (0.30R each). Minor band is just left empty when hidden.
@@ -908,26 +979,28 @@ function render() {
     // marking the parent sector on the outer ring.
     var hiddenMinorSel = selIsInner && !showMinor;
     var markOuter = (isSel && !selIsInner) || hiddenMinorSel;
+    // Emphasis follows the ANIMATED dial position, not the logical selection, so the
+    // brightness travels with the marker instead of snapping to the destination
+    // while the outline is still in transit. 1 when the dial is centred on this
+    // sector's ring, falling to 0 one sector away.
+    var _dAng = Math.abs(((selAng.x - ((-Math.PI/2) + i*slA)) % (2*Math.PI) + 3*Math.PI) % (2*Math.PI) - Math.PI);
+    var _prox = selected ? Math.max(0, 1 - _dAng/slA) : 0;
+    var emphOuter = _prox * (1 - selRing.x);
+    var emphInner = _prox * selRing.x;
+    if (hiddenMinorSel) { emphOuter = _prox; emphInner = 0; }   // no inner ring to sit on
     // In the Relations lens, FOCUS means suppressing everything unrelated - the old
     // 0.95-vs-0.85 step was a 10% delta, perceptually nothing, so the highlight
     // simply didn't read. Unrelated sectors now drop right back; related ones and
     // the selection stay at full strength (and get an outline below).
     var relDim = showRel && !isSel && !inRel;
-    var aOuter = markOuter               ? 1.0
-               : relDim                  ? 0.22
-               : outerIsPRL              ? 0.97
-               : hovOuter ? 1.0 : inScale ? 0.95 : faded ? 0.85 : 0.95;
+    var aOuterBase = relDim   ? 0.22
+                   : outerIsPRL ? 0.97
+                   : hovOuter ? 1.0 : inScale ? 0.95 : faded ? 0.85 : 0.95;
+    var aOuter = aOuterBase + (1 - aOuterBase) * emphOuter;
     ctx.fillStyle = ha(col, aOuter);
     ctx.fill();
-    if (markOuter) {
-      // Crisp double outline (dark halo + white line) - reads cleanly on any palette
-      // and theme, no fuzzy glow, even edges.
-      ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 3.6; ctx.stroke();
-      ctx.strokeStyle = '#ffffff';        ctx.lineWidth = 1.6; ctx.stroke();
-    } else {
-      ctx.strokeStyle = dark ? 'rgba(255,255,255,.10)' : 'rgba(0,0,0,.12)';
-      ctx.lineWidth = 1.2; ctx.stroke();
-    }
+    ctx.strokeStyle = dark ? 'rgba(255,255,255,.10)' : 'rgba(0,0,0,.12)';
+    ctx.lineWidth = 1.2; ctx.stroke();
 
     // Ring separator
     ctx.beginPath(); ctx.arc(CX,CY,innerR,a0,a1);
@@ -944,20 +1017,15 @@ function render() {
       var innerIsPRL = isPRLTarget && prlTargetInner;
       // Minor ring sits a touch below the major ring in opacity so it reads as
       // secondary, but still shows the true colour in both themes.
-      var aInner = selIsInner  ? 1.0
-                 : hovInner    ? 0.92
-                 : sameSecR    ? 0.92
-                 : innerIsPRL  ? 0.92
-                 : faded ? 0.80 : 0.82;
+      var aInnerBase = hovInner   ? 0.92
+                     : sameSecR   ? 0.92
+                     : innerIsPRL ? 0.92
+                     : faded ? 0.80 : 0.82;
+      var aInner = aInnerBase + (1 - aInnerBase) * emphInner;   // travels with the dial
       ctx.fillStyle = ha(col, aInner);
       ctx.fill();
-      if (selIsInner) {
-        ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 3.4; ctx.stroke();
-        ctx.strokeStyle = '#ffffff';        ctx.lineWidth = 1.6; ctx.stroke();
-      } else {
-        ctx.strokeStyle = dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
-        ctx.lineWidth = 0.8; ctx.stroke();
-      }
+      ctx.strokeStyle = dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
+      ctx.lineWidth = 0.8; ctx.stroke();
     } else if (famHL[i]) {
       // Minor ring hidden (Modal): the band shows the current key's FAMILY - the
       // seven sectors sharing its key signature - so the space carries meaning
@@ -1100,6 +1168,29 @@ function render() {
         ctx.restore();
       }
     }
+  }
+
+  // ── The dial pointer ────────────────────────────────────────────────────────
+  // One marker that TRAVELS to the key you picked, rather than a highlight that
+  // blinks out here and in there. Drawn once, after the sectors, at the springs'
+  // current angle and radius - so it can be caught and redirected mid-flight simply
+  // by picking again.
+  if (selected) {
+    var mA0 = selAng.x - slA/2, mA1 = selAng.x + slA/2;
+    var t   = selRing.x;                                   // 0 outer .. 1 inner
+    var mOut = outerR + (innerR - outerR) * t;
+    var mIn  = innerR + (accR   - innerR) * t;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(CX + Math.cos(mA0)*mOut, CY + Math.sin(mA0)*mOut);
+    ctx.arc(CX, CY, mOut, mA0, mA1);
+    ctx.arc(CX, CY, mIn,  mA1, mA0, true);
+    ctx.closePath();
+    // Crisp double outline (dark halo + white line) - reads on any palette or theme,
+    // no fuzzy glow, even edges.
+    ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 3.6; ctx.stroke();
+    ctx.strokeStyle = '#ffffff';        ctx.lineWidth = 1.6; ctx.stroke();
+    ctx.restore();
   }
 
   // ── Answers drawn ON the wheel ──────────────────────────────────────────────
