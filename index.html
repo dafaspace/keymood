@@ -720,11 +720,17 @@ document.addEventListener('click', function(e) {
   if (!p.contains(e.target) && e.target.id !== 'btn-settings' && !e.target.closest('#btn-settings'))
     _setSettingsOpen(false);
 });
-// Escape closes it, like any other transient overlay.
+// Escape closes it, like any other transient overlay. The quiz is the app's one real
+// takeover - it replaces the panel AND repurposes every wheel tap as an answer - so it
+// needs the same way out. Innermost surface first: Escape in the popover closes the
+// popover, not the quiz underneath it.
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Escape') return;
   var p = document.getElementById('settings-pop');
-  if (p && p.style.display !== 'none') { _setSettingsOpen(false); document.getElementById('btn-settings').focus(); }
+  if (p && p.style.display !== 'none') {
+    _setSettingsOpen(false); document.getElementById('btn-settings').focus(); return;
+  }
+  if (quizMode) { toggleQuiz(); var q = document.getElementById('bm-quiz'); if (q) q.focus(); }
 });
 // Solfège (Fixed-do): semitone 0-11
 // MOVABLE-do solfège: the syllable names the SCALE DEGREE, not the pitch, so Do is
@@ -2194,11 +2200,19 @@ function _playNote(semi, when, dur, baseOct) {
 }
 
 function _playArp(semis, oct) {
-  if (!_soundOn) return;
+  var gap = 0.11;
+  // The pulse used to die with the sound: this function returned early when muted, and
+  // pulseSemitone was only ever called from inside it. So muting didn't just silence the
+  // app - it stopped the wheel lighting up at all, and the people most likely to mute (a
+  // DJ beside a mixer, an editor in a shared office) are exactly the ones who lost it.
+  // The sound is optional. The feedback that your tap did something is not.
+  if (!_soundOn) {
+    semis.forEach(function(s,i){ pulseSemitone(s, i*gap*1000); });
+    return;
+  }
   _withCtx(function() {
     var ctx = _getCtx();
     var now = ctx.currentTime + 0.05;
-    var gap = 0.11;
     var dur = 1.3;
     // Play ascending, no repeated note
     semis.forEach(function(s,i){
@@ -2237,7 +2251,13 @@ function toggleMetronome(bpm, btn) {
     if (btn) btn.classList.remove('active');
     return;
   }
-  if (!_soundOn) return;               // honour the global mute, like every other audio path
+  // Every other audio path has a visual half that still works when muted, so honouring
+  // the mute there costs nothing. This button has none: a metronome IS the sound. Bailing
+  // out left a control that changed no state, showed no message, and kept a tooltip
+  // promising "tap to hear this mood's tempo" - a dead control that looked alive.
+  // Pressing it is an unambiguous request to hear something, so grant it and let the
+  // speaker icon show what changed.
+  if (!_soundOn) toggleSound();
   _metroOn = true;
   if (btn) btn.classList.add('active');
   _withCtx(function() {
@@ -2267,7 +2287,8 @@ function _triad(root, type) {
 
 // Called on any tonic selection
 function playTonic(slice, modeIdx, fromInner) {
-  if (!_soundOn) return;
+  // No mute gate here: _playArp owns that decision now, because it is the one place
+  // that knows the visual pulse has to happen either way.
   var mode = MODES[modeIdx];
   var as   = fromInner ? MROOT.indexOf((MROOT[slice]+mode.off)%12) : slice;
   var root = MROOT[as];
@@ -2276,8 +2297,7 @@ function playTonic(slice, modeIdx, fromInner) {
 
 // Called when clicking a diatonic chord pill
 function playChordPill(semi, type) {
-  if (!_soundOn) return;
-  _playArp(_triad(semi, type), 4);
+  _playArp(_triad(semi, type), 4);   // mute handled in _playArp, see playTonic
 }
 
 // Play mode scale ascending - highlights characteristic note of each mode
@@ -2316,6 +2336,12 @@ function playNotePill(semi) {
 
 // ── App Mode (Tonal / Modal) ──────────────────────────────────────────────────
 function setAppMode(mode) {
+  // The quiz is a takeover: it replaces the panel and turns every wheel tap into an
+  // answer. The tab buttons stayed live-looking through all of it - they flipped their
+  // active class and aria-selected while updatePanel() short-circuited back to the quiz,
+  // so the app claimed you were in Tonal while showing you a quiz. Pressing a tab is an
+  // unambiguous "take me elsewhere", so honour it: leave the quiz, then switch.
+  if (quizMode) toggleQuiz();
   _stopMetronome(); // leaving Assist (or switching within it) shouldn't leave a click track running
   appMode = mode;
   savePref('appMode', mode); // reopen on the tab you left (the loader reads this)
