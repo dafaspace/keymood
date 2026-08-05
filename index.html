@@ -14,9 +14,34 @@
 <meta name="apple-mobile-web-app-title" content="Fifths">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* RESPONSE. Feedback belongs on the PRESS, not the release: the moment a control
+   waits for touch-up to acknowledge you, direct manipulation stops feeling direct.
+   The app had no :active state anywhere, so every tap felt dead until its result
+   appeared. Transform + background only, so it composites on the GPU and can't
+   reflow anything. iOS's own grey flash is suppressed in favour of this. */
+button { -webkit-tap-highlight-color: transparent; transition: transform .09s ease-out, background .12s; }
+button:active { transform: scale(.97); }
+/* Wide controls read better as a background shift than a scale - shrinking a
+   full-width row draws attention to the row's edges rather than to the press. */
+.sugg-card:active, .mood-li:active, .qo:active:not(:disabled) { transform: none; background: var(--bg3); }
+/* Quick-nav items, chord pills and scale notes are clickable DIVs, so the button
+   rule above doesn't reach them. */
+.ni, .cp, .sn { -webkit-tap-highlight-color: transparent; transition: transform .09s ease-out, background .12s; }
+.cp:active, .sn:active { transform: scale(.94); }
+.ni:active { background: var(--bg3); }
+@media (prefers-reduced-motion: reduce) {
+  button, .ni, .cp, .sn { transition: background .12s; }
+  button:active, .cp:active, .sn:active { transform: none; }
+}
 :root {
   --bg: #1c1c1a; --bg2: #252522; --bg3: #2e2e2a;
-  --text: #e8e6e0; --text2: #9a9890; --text3: #5a5a54;
+  /* text3 carries real content at 10-11px (accidentals, section headings, neighbour
+     names, relation blurbs), so it has to clear WCAG AA 4.5:1 like any other text.
+     It didn't: #5a5a54 measured 2.46:1 on --bg and 2.21:1 on --bg2. Measured, not
+     eyeballed - these values are the lightest/darkest that clear 4.5 on every
+     surface text3 actually lands on. */
+  --text: #e8e6e0; --text2: #9a9890; --text3: #8d8b83; /* 5.00 on bg, 4.50 on bg2 */
   --bd: rgba(255,255,255,0.08); --bd2: rgba(255,255,255,0.15);
   --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
@@ -24,7 +49,7 @@
   /* Two-surface light theme: a warm light-grey page, white elevated panels,
      pale-grey controls inside them, with strong near-black text. */
   --bg: #e7e3da; --bg2: #f1eee7; --bg3: #e4e0d6;
-  --text: #1a1917; --text2: #5c5b54; --text3: #8d8b83;
+  --text: #1a1917; --text2: #5c5b54; --text3: #656359; /* 4.71 on bg, 4.58 on bg3, 6.03 on the white panel */
   --bd: rgba(0,0,0,0.10); --bd2: rgba(0,0,0,0.16);
 }
 :root.light .panel { background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -32,142 +57,235 @@
    white surfaces + a clearer border so they read against the page. */
 :root.light .mode-switcher { background: #ffffff; border: 0.5px solid var(--bd2); }
 :root.light .ms-btn:not(.active) { color: var(--text2); }
-:root.light .mbtn { background: #ffffff; border-color: var(--bd2); }
-:root.light .pal-btn, :root.light .seg, :root.light .seg-btn { background: #ffffff; }
+/* :not(.active) matters: this rule outweighs .mbtn.active on specificity, so without
+   it the selected mode button kept the light theme's white background while its ink
+   was forced white - 1:1 contrast, the current mode invisible. */
+:root.light .mbtn:not(.active) { background: #ffffff; border-color: var(--bd2); }
+/* The same :not(.active) guard, for the same reason. Without it the selected notation
+   and the selected palette kept a white surface under their white ink - measured
+   1.28:1, so in light theme the ACTIVE chip read as the disabled one and every
+   inactive chip read as selected. State was exactly inverted. */
+:root.light .pal-btn:not(.active), :root.light .seg,
+:root.light .seg-btn:not(.active) { background: #ffffff; }
 body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; overflow-x: hidden; }
 /* Two-column (desktop/tablet): lock to viewport height so the page never scrolls;
    the circle is fitted to the available height and the detail panel scrolls itself. */
 @media (min-width: 621px) {
+  /* 860px was leaving 56% viewport coverage at 1280x800 - a phone layout centred in
+     a desktop window. 1240 gives the wheel and panel real room without letting the
+     line lengths run away on an ultrawide. */
   body { height: 100dvh; min-height: 0; overflow: hidden; display: flex; flex-direction: column;
-         max-width: 860px; margin-left: auto; margin-right: auto; }
-  .layout { flex: 1; min-height: 0; align-items: stretch; }
+         max-width: 1240px; margin-left: auto; margin-right: auto; }
   .panel-col { min-height: 0; }
   .panel { flex: 1 1 auto; min-height: 0; }
 }
 h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 
 /* Top bar */
-.topbar { display: flex; gap: 5px; flex-wrap: wrap; margin-bottom: 10px; align-items: center; }
-.mode-switcher { display:flex; gap:2px; margin-bottom:10px; background:var(--bg2); border-radius:20px; padding:2px; width:fit-content; }
-.ms-btn { padding:4px 14px; font-size:12px; border-radius:18px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; }
+.mode-switcher { display:flex; gap:2px; margin-bottom:10px; background:var(--bg2); border-radius: 999px; padding:2px; width:fit-content; }
+/* min-height 24: measured 59x22 and 52x19 at 375px, both under WCAG 2.2's 24x24 floor -
+   and .ms-btn is the app's primary navigation. */
+.ms-btn { min-height:24px; padding:4px 14px; font-size:12px; border-radius: 999px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; }
 .ms-btn.active { background:var(--text); color:var(--bg); font-weight:500; }
-
-/* Toggle switch (replaces "minor" checkbox) */
-.tog { display:inline-flex; align-items:center; gap:6px; font-size:11px; color:var(--text3); cursor:pointer; user-select:none; }
-.tog input { position:absolute; opacity:0; width:0; height:0; }
-.tog .track { position:relative; width:30px; height:17px; border-radius:999px; background:var(--bd2); transition:background .18s; flex-shrink:0; }
-.tog .track::before { content:""; position:absolute; top:2px; left:2px; width:13px; height:13px; border-radius:50%; background:#fff; box-shadow:0 1px 2px rgba(0,0,0,.35); transition:transform .18s; }
-.tog input:checked + .track { background:var(--text); }
-.tog input:checked + .track::before { transform:translateX(13px); }
-.tog input:focus-visible + .track { outline:2px solid var(--text2); outline-offset:2px; }
 
 /* Segmented control (replaces camelot/solfège checkboxes - they're mutually exclusive) */
 .seg { display:inline-flex; gap:2px; background:var(--bg2); border-radius:14px; padding:2px; }
-.seg-btn { padding:3px 11px; font-size:11px; border-radius:12px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; white-space:nowrap; }
+.seg-btn { min-height:24px; padding:3px 11px; font-size:11px; border-radius: 14px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; white-space:nowrap; }
 .seg-btn.active { background:var(--text); color:var(--bg); font-weight:500; }
 .seg-btn:hover:not(.active) { color:var(--text2); }
 
 /* App bar (header) + utility cluster */
 .appbar { display:flex; align-items:center; gap:7px; margin-bottom:10px; }
-.appbar h1 { font-size:15px; font-weight:500; color:var(--text2); white-space:nowrap; min-width:0; overflow:hidden; text-overflow:ellipsis; }
-.t-btn { background:none; border:1px solid var(--bd2); border-radius:50%; cursor:pointer; width:20px; height:20px; font-size:11px; line-height:1; color:var(--text2); padding:0; flex-shrink:0; }
-.t-btn:hover { background:var(--bg2); }
-.util { display:inline-flex; align-items:center; gap:1px; flex-shrink:0; }
-.util-btn { background:none; border:none; cursor:pointer; width:28px; height:26px; padding:0; line-height:1; color:var(--text2); font-size:15px; border-radius:7px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.appbar h1 { display:flex; align-items:center; gap:8px; min-width:0; }
+/* Small caps + tight tracking reads as a mark rather than a sentence; the ring beside
+   it is a 12-slice miniature of the wheel in the current palette. */
+.wm-txt { font-size:12px; font-weight:600; letter-spacing:.10em; text-transform:uppercase;
+          color:var(--text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#wm { width:22px; height:22px; flex-shrink:0; display:block; }
+/* position:relative makes this the popover's containing block, so the settings panel
+   hangs off the gear instead of flying to the viewport's top-right corner (it had no
+   positioned ancestor and no `top`, landing ~360px away on desktop). */
+.util { display:inline-flex; align-items:center; gap:1px; flex-shrink:0; position:relative; }
+/* Visual size stays compact (5 icons share a tight header row), but the tappable
+   area extends to ~40px via an invisible ::before - the "extend hit area, don't
+   grow the icon" pattern all three design reviews recommended. */
+.util-btn { position:relative; background:none; border:none; cursor:pointer; width:28px; height:26px; padding:0; line-height:1; color:var(--text2); font-size:15px; border-radius: 8px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.util-btn::before { content:''; position:absolute; inset:-7px; }
 .util-btn:hover { background:var(--bg2); }
 .util-btn.active { color:var(--text); background:var(--bg3); }
 #bm-quiz { color:#9b7fd4; }
 #bm-quiz.active { background:#7B5EA7; color:#fff; }
 
 /* Settings popover */
-.settings-pop { position:absolute; right:16px; z-index:30; background:var(--bg2); border:0.5px solid var(--bd2); border-radius:12px; padding:12px 14px; display:flex; flex-direction:column; gap:13px; box-shadow:0 8px 24px rgba(0,0,0,.4); min-width:215px; }
+.settings-pop { position:absolute; top:calc(100% + 8px); right:0; z-index:30; background:var(--bg2); border:0.5px solid var(--bd2); border-radius: 14px; padding:12px 14px; display:flex; flex-direction:column; gap:13px; box-shadow:0 8px 24px rgba(0,0,0,.4); min-width:215px; }
 .set-row { display:flex; align-items:center; justify-content:space-between; gap:16px; }
 .set-label { font-size:12px; color:var(--text2); }
-.pal-grid { display:flex; flex-wrap:wrap; gap:5px; }
-.pal-btn { font-size:11px; padding:4px 10px; border-radius:13px; border:0.5px solid var(--bd2); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); transition:all .12s; }
+/* Fixed columns so the strips are all the same width and read as a comparison. */
+.pal-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+/* Each palette button shows the palette itself as a 12-stop strip above its name. */
+.pal-btn { display:flex; flex-direction:column; align-items:stretch; gap:5px; font-size:11px; padding:6px; border-radius: 10px; border:0.5px solid var(--bd2); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); transition:all .12s; text-align:center; }
+.pal-strip { display:block; height:14px; border-radius: 8px; }
 .pal-btn:hover { background:var(--bg3); }
 .pal-btn.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:500; }
 
 /* Context bar - per-mode controls, reserved height so the circle doesn't jump */
-.ctxbar { min-height:34px; margin-bottom:10px; }
-.rel-tools { display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
 
 /* Transition Assistant */
-.ta-toggle { margin-left:auto; display:inline-flex; gap:2px; background:var(--bg2); border-radius:11px; padding:2px; }
-.ta-seg { font-size:10px; padding:2px 9px; border-radius:9px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); line-height:1.5; }
+.ta-toggle { margin-left:auto; display:inline-flex; gap:2px; background:var(--bg2); border-radius: 14px; padding:2px; }
+.ta-seg { font-size:11px; padding:7px 11px; min-height:30px; border-radius: 10px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); line-height:1; display:inline-flex; align-items:center; }
 .ta-seg.active { background:var(--text); color:var(--bg); font-weight:600; }
 .assist-tiles { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:4px; }
-.etile { font-size:10px; padding:4px 8px; border-radius:14px; border:0.5px solid var(--bd2); border-left:3px solid hsl(var(--eh) 60% 52%); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); transition:all .12s; }
+.etile { font-size:11px; padding:8px 10px; min-height:36px; border-radius:14px; border:0.5px solid var(--bd2); border-left:3px solid hsl(var(--eh) 60% 52%); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); transition:all .12s; display:inline-flex; align-items:center; }
 .etile:hover { background:var(--bg2); }
 .etile.active { background:hsl(var(--eh) 60% 50%); color:#fff; border-color:hsl(var(--eh) 60% 50%); font-weight:500; }
+/* Mood picker: COLLAPSED by default (a single summary row) so the ranked "Next
+   key" result is always visible with no scroll and no "More" cut. Expands into
+   the valence x arousal pad (our long-planned 2D picker) only on tap, and
+   auto-collapses the instant a mood is picked. */
+/* Persistent header - present in BOTH collapsed and open states so the picker is
+   always closable by tapping it again (chevron flips). */
+.mood-summary { display:flex; align-items:center; gap:8px; width:100%; height:40px; padding:0 12px; margin-bottom:6px; border-radius:10px; border:0.5px solid var(--bd2); background:var(--bg2); cursor:pointer; font-family:var(--font); font-size:12px; color:var(--text2); text-align:left; }
+.mood-summary.open { border-color:var(--bd); background:var(--bg3); }
+.mood-summary .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.mood-summary .chev { margin-left:auto; color:var(--text3); font-size:10px; }
+/* Dry-logic list (names) - the precise pick, complements the spatial pad.
+   Single column, menu-style (like a native picker): one row per mood, colour dot
+   left, checkmark right on the active row. Scrolls; the active row is scrolled
+   into view on open. */
+.mood-list { max-height:158px; overflow-y:auto; margin-bottom:6px; border-radius:10px; border:0.5px solid var(--bd2); background:var(--bg2); padding:3px; }
+.mood-li { display:flex; align-items:center; gap:8px; width:100%; height:36px; padding:0 11px; border:none; border-radius: 8px; background:none; color:var(--text2); font-family:var(--font); font-size:12px; cursor:pointer; text-align:left; }
+.mood-li:hover { background:var(--bg3); }
+.mood-li.active { background:var(--bg3); color:var(--text); font-weight:600; }
+.mood-li .dot { width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+.mood-li .check { margin-left:auto; font-size:12px; color:var(--text); }
+/* Pure colour+position map - no permanent text labels (19 dots at close arousal
+   spacing WILL collide if every one carries a name). Names come from: the title=
+   tooltip (hover/long-press), and the collapsed summary row showing the picked
+   name immediately after tap. */
+/* Spatial pad: a quadrant FIELD, not a blank card. Four soft corner washes
+   (transparent hue tints that work in both themes) make the valence x arousal
+   space legible even between dots; a faint centre crosshair anchors the quadrants.
+   Corner washes: bottom-left dark/calm (blue), bottom-right bright/calm (warm),
+   top-left dark/intense (red), top-right bright/intense (green). */
+.mood-pad { position:relative; width:100%; height:176px; margin-bottom:6px; border-radius: 14px; border:0.5px solid var(--bd2); overflow:hidden;
+  background:
+    radial-gradient(ellipse at 12% 88%, hsla(210,55%,50%,.13), transparent 58%),
+    radial-gradient(ellipse at 88% 88%, hsla(45,65%,52%,.13), transparent 58%),
+    radial-gradient(ellipse at 12% 12%, hsla(0,65%,52%,.13), transparent 58%),
+    radial-gradient(ellipse at 88% 12%, hsla(140,52%,48%,.13), transparent 58%),
+    var(--bg2); }
+/* Faint crosshair through the centre - the circumplex convention that turns
+   "dots in a box" into "a coordinate map". */
+.mood-pad::before, .mood-pad::after { content:''; position:absolute; background:var(--bd2); pointer-events:none; }
+.mood-pad::before { left:0; right:0; top:50%; height:0.5px; }
+.mood-pad::after { top:0; bottom:0; left:50%; width:0.5px; }
+/* Axis labels sit UNDER the dots (z-index) so dots are never hidden, but carry a
+   faint frosted backing chip (theme-scoped rgba - avoids color-mix for wider
+   browser support) so the label stays readable even when a dot overlaps it in a
+   corner on a narrow pad. */
+/* z-index above the dots: these four words are what teach the pad's meaning, and a
+   dot parked on "BRIGHT" was rendering it as "IGHT". They're pointer-events:none, so
+   sitting on top costs no tap area. */
+.mood-pad-axis { position:absolute; font-size:10px; color:var(--text2); letter-spacing:.03em; text-transform:uppercase; pointer-events:none; z-index:4; padding:1px 4px; border-radius: 8px; background:rgba(37,37,34,.72); }
+:root.light .mood-pad-axis { background:rgba(241,238,231,.75); }
+.mood-pad .etile-dot { position:absolute; transform:translate(-50%,50%); width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; padding:0; z-index:3; }
+.mood-pad .etile-dot .dot { width:13px; height:13px; border-radius:50%; border:1.5px solid var(--bg2); box-shadow:0 0 0 1px rgba(0,0,0,.35); transition:transform .1s; }
+.mood-pad .etile-dot.active .dot { width:17px; height:17px; border-color:#fff; box-shadow:0 0 0 2px hsl(var(--eh) 60% 45%); }
 /* Relation tiles (Assist > Relations lens) - no hue, neutral active state */
 .etile.rel { border-left-color:var(--bd2); }
 .etile.rel.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:600; }
-.rel-memo { font-size:11px; line-height:1.5; color:var(--text2); margin-top:8px; padding:9px 11px; background:var(--bg2); border-radius:9px; border:0.5px solid var(--bd); }
+.rel-memo { font-size:11px; line-height:1.5; color:var(--text2); margin-top:8px; padding:9px 11px; background:var(--bg2); border-radius: 10px; border:0.5px solid var(--bd); }
+.axis-legend { font-size:10px; color:var(--text3); margin:2px 0 6px; }
 .sugg-list { display:flex; flex-direction:column; gap:4px; }
-/* Fixed-height single-row card so switching suggestions never resizes it. */
-.sugg-card { display:grid; grid-template-columns:auto auto 1fr auto; align-items:center; gap:8px; width:100%; height:34px; text-align:left; padding:0 10px; border-radius:8px; border:0.5px solid var(--bd); background:var(--bg2); cursor:pointer; font-family:var(--font); transition:background .12s; }
+/* Fixed-height single-row card so switching suggestions never resizes it.
+   44px = a real tap target (was 34px, flagged by every design review). */
+.sugg-card { display:grid; grid-template-columns:auto auto 1fr auto; align-items:center; gap:8px; width:100%; height:44px; text-align:left; padding:0 12px; border-radius: 10px; border:0.5px solid var(--bd); background:var(--bg2); cursor:pointer; font-family:var(--font); transition:background .12s; }
+/* Camelot hidden by default (see showCamHere) - 3 columns instead of 4 so bright/hard
+   don't get squeezed into the column meant for the (now absent) Camelot chip. */
+.sugg-card.no-cam { grid-template-columns:auto 1fr auto; }
 .sugg-card:hover { background:var(--bg3); }
 .sugg-key { font-size:13px; font-weight:500; color:var(--text); }
 .sugg-cam { font-size:10px; color:var(--text3); }
 .sugg-bright { font-size:10px; color:var(--text2); overflow:hidden; white-space:nowrap; text-overflow:ellipsis; }
-.sugg-hard { font-size:9px; font-weight:600; color:var(--text2); padding:1px 7px; border-radius:10px; background:var(--bg); border:0.5px solid var(--bd2); justify-self:end; white-space:nowrap; }
+.sugg-hard { font-size:10px; font-weight:600; color:var(--text2); padding:1px 7px; border-radius:10px; background:var(--bg); border:0.5px solid var(--bd2); justify-self:end; white-space:nowrap; }
 .more-btn { width:100%; margin-top:5px; padding:6px; font-size:11px; color:var(--text3); background:none; border:0.5px dashed var(--bd2); border-radius:8px; cursor:pointer; font-family:var(--font); transition:all .12s; }
 .more-btn:hover { color:var(--text2); background:var(--bg2); }
 .recipe-hint { font-size:10px; color:var(--text3); padding:6px 2px 2px; display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
+.metro-btn { font-size:10px; color:var(--text3); background:none; border:0.5px solid var(--bd2); border-radius: 10px; padding:2px 7px; cursor:pointer; font-family:var(--font); }
+.metro-btn.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:600; }
 .rh-dot { opacity:0.4; }
-
-.btn {
-  padding: 5px 12px; font-size: 12px; border-radius: 20px;
-  border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text2);
-  cursor: pointer; font-family: var(--font); transition: all .15s;
-}
-.btn.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 500; }
-.btn:hover:not(.active) { background: var(--bg2); }
-.btn-quiz { border-color: #7B5EA7; color: #7B5EA7; }
-.btn-quiz.active { background: #7B5EA7; color: #fff; border-color: #7B5EA7; font-weight: 500; }
-.btn-nrl { padding: 5px 9px; font-size: 12px; border-radius: 20px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text2); cursor: pointer; font-family: var(--font); transition: all .15s; }
-.btn-nrl.active { background: var(--text); color: var(--bg); border-color: var(--text); font-weight: 500; }
-.btn-nrl:hover:not(.active) { background: var(--bg2); }
-.sep { width: 1px; height: 18px; background: var(--bd2); flex-shrink: 0; }
-.nrl-group { display: flex; gap: 2px; align-items: center; border: 0.5px solid var(--bd2); border-radius: 22px; padding: 2px; }
 
 /* Mode strip */
 /* Always reserves height (even empty) so the circle sits at the same spot in every
    tab. Centred so the strip lines up under the circle. */
 .mode-strip-wrap { margin-bottom: 8px; display: flex; align-items: center; justify-content: center; }
-.mode-strip-label { font-size: 10px; color: var(--text3); margin-bottom: 5px; letter-spacing: .05em; }
 .mode-strip { display: flex; gap: 3px; flex-wrap: wrap; justify-content: center; padding-bottom: 2px; }
 .mode-strip::-webkit-scrollbar { height: 3px; }
-.mode-strip::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 2px; }
+.mode-strip::-webkit-scrollbar-thumb { background: var(--bd2); border-radius: 8px; }
 .mbtn {
   display: flex; flex-direction: column; align-items: center; gap: 1px;
-  padding: 6px 9px; border-radius: 9px; cursor: pointer; flex-shrink: 0;
+  padding: 6px 9px; border-radius: 10px; cursor: pointer; flex-shrink: 0;
   border: 0.5px solid var(--bd); background: var(--bg);
   font-family: var(--font); transition: all .15s; min-width: 0;
 }
 .mbtn:hover { background: var(--bg2); }
-.mbtn.active { background: #404040; border-color: #404040; }
+/* One selected-state treatment, token-driven, matching .ms-btn / .ta-seg / .pal-btn:
+   inverted pill. The old #404040 + `!important` white inks were a third dialect and
+   broke outright in light theme. */
+.mbtn.active { background: var(--text); border-color: var(--text); }
 .mbtn.active .mb-note { color: var(--bg); }
-.mbtn.active .mb-note { color: #fff; }
-.mbtn.active .mb-mode { color: rgba(255,255,255,0.9); }
-.mbtn.active .mb-mood { color: rgba(255,255,255,0.7); }
+.mbtn.active .mb-mode { color: var(--bg); opacity: .9; }
+.mbtn.active .mb-mood { color: var(--bg); opacity: .7; }
 .mb-note { font-size: 12px; font-weight: 500; color: var(--text); white-space: nowrap; }
 .mb-mode { font-size: 10px; color: var(--text2); white-space: nowrap; }
-.mb-mood { font-size: 9px; color: var(--text3); white-space: nowrap; }
-.mbtn.active .mb-note { color: #fff !important; }
-.mbtn.active .mb-mode { color: #fff !important; }
-.mbtn.active .mb-mood { color: rgba(255,255,255,0.8) !important; }
+.mb-mood { font-size:10px; color: var(--text3); white-space: nowrap; }
 .mode-div { width: 1px; background: var(--bd2); align-self: stretch; flex-shrink: 0; margin: 2px 2px; }
 
 /* Layout */
 .layout { display: grid; grid-template-columns: 1fr 256px; gap: 12px; align-items: start; }
 .panel-col { display: flex; flex-direction: column; }
-/* Circle column fills its width and centres the canvas (it was shrinking to the
-   canvas size and sitting on the left). */
-.circle-col { display: flex; justify-content: center; align-items: flex-start; min-width: 0; }
-/* Mobile: lock to viewport. Circle column is JUST the canvas (same spot every tab);
-   the panel column (mode strip + panel) takes the rest, sized to fit with no scroll. */
+/* Desktop grid. Must sit AFTER the base .layout rule above: same specificity, so
+   source order decides, and the earlier min-width block was being overridden by it. */
+@media (min-width: 621px) {
+  /* The panel column FLEXES between a readable minimum and a cap instead of a hard
+     256px, which was narrow enough to wrap "Transition Assistant" onto two lines and
+     break the axis legend mid-phrase. */
+  /* grid-template-rows is load-bearing: without an explicit row the row height comes
+     from the tallest ITEM, and once the panel stopped stretching (align-self:start
+     below) that item was the circle column - so the canvas fed its own height back
+     into the measurement and the wheel shrank a little on every resize. Pinning the
+     row to the container's height breaks the loop and keeps the wheel identical in
+     every tab. */
+  /* flex:1 + min-height:0 is what gives the grid its height from the VIEWPORT rather
+     than from its own content - without it the row followed the canvas, which the
+     canvas is sized from, and the wheel shrank 8px on every resize. */
+  .layout { flex: 1; min-height: 0;
+            grid-template-columns: minmax(0,1fr) clamp(300px, 26vw, 380px); gap: 20px;
+            align-items: stretch; grid-template-rows: minmax(0, 1fr); }
+  /* Centre the wheel in the space its column actually has, vertically too - it used
+     to hang from the top with the leftover height sitting unused beneath it. */
+  /* Top, not centre. The wheel is a square sized by min(column width, column height),
+     so on a tall-but-narrow window it is WIDTH-bound and cannot use the leftover
+     height - at 772x998 the column is 420x891 and the wheel 412. Centring split that
+     479px of slack into two ~240px gaps, one above the wheel and one below, while the
+     panel beside it was top-aligned: two columns aligned differently, and the wheel
+     read as floating loose in the middle of nothing. Sharing one top edge with the
+     panel (and with the app bar and the tab switcher above) collects the slack into a
+     single margin at the bottom. When the window is wide enough for the wheel to be
+     height-bound it fills the row and this changes nothing. */
+  .circle-col { display: flex; align-items: flex-start; justify-content: center; min-width: 0; min-height: 0; }
+  /* The panel hugs its content instead of stretching: on mobile the panel is an
+     edge-to-edge sheet, so space beneath it reads as ground, but on desktop it's a
+     bordered card and the same space reads as a hole in it. align-self:start keeps
+     the ROW at full height (so the wheel's size never changes between tabs) while
+     letting the card end where its content does; max-height + the body's own
+     overflow rule keep a tall panel scrolling internally. */
+  .panel-col { align-self: start; max-height: 100%; }
+  .panel { flex: 0 1 auto; }
+}
+/* Mobile: lock to viewport. Circle region is fixed height/centred (same spot every
+   tab); the panel is a bottom SHEET that fills the rest and scrolls internally if
+   its content is taller - the page itself never scrolls. */
 @media (max-width: 620px) {
   /* Lock the app to the REAL visible height (JS sets --app-h = innerHeight, which
      accounts for the browser toolbar that 100dvh can over-estimate). overflow:hidden
@@ -175,117 +293,206 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
   html { overflow: hidden; }
   body { height: var(--app-h, 100dvh); min-height: 0; max-height: var(--app-h, 100dvh);
          overflow: hidden; display: flex; flex-direction: column; padding: 12px; }
-  .layout { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 8px; }
-  .circle-col { flex: 0 0 auto; width: 100%; }
-  .panel-col { flex: 1 1 auto; min-height: 0; }
-  .panel { flex: 1 1 auto; min-height: 0; }
-  /* Mode strip: compact, WRAPPING (no horizontal scroll) - note + mode only, no mood. */
-  .mode-strip { flex-wrap: wrap; overflow: hidden; justify-content: center; gap: 4px; max-width: 100%; }
-  .mode-strip-wrap { margin: 0 0 6px; max-width: 100%; overflow: hidden; }
-  .mbtn { padding: 4px 7px; }
+  /* Tighten the two header rows into one compact block instead of two 10px-margin
+     rows - recovers real height for the wheel without hiding anything. */
+  .appbar { margin-bottom: 4px; }
+  /* On a phone the name doesn't fit beside five utility buttons - it was being
+     ellipsised to "ANOTHER CIRCLE OF FIF…", which reads as a bug, and shrinking the
+     type further would drop back under the legibility floor we just raised. So the
+     MARK carries the identity here and the words step aside: that's what an app icon
+     does, and the screen belongs to the content. The full name returns on desktop,
+     where there's room for it. Hidden visually, NOT removed: display:none took the
+     words out of the accessibility tree too, leaving the page's only h1 announcing
+     as an empty heading. */
+  .wm-txt { position: absolute; width: 1px; height: 1px; overflow: hidden;
+            clip-path: inset(50%); white-space: nowrap; }   /* = .sr-only */
+  #wm { width: 26px; height: 26px; }
+  .mode-switcher { margin-bottom: 6px; }
+  /* align-items:stretch is the fix for BOTH the off-centre wheel and the narrow
+     panel: the desktop rule (line ~43) sets this for itself, but the mobile
+     override below replaced `display` without also replacing `align-items`, so
+     children kept shrink-to-fit (`start`) sizing - .circle-col shrank to exactly
+     the canvas width and left-aligned, and .panel-col shrank to its content's
+     width instead of filling the screen. */
+  .layout { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0; align-items: stretch; }
+  .circle-col { flex: 0 0 auto; width: 100%; display: flex; justify-content: center; padding: 4px 0 10px; }
+  .panel-col { flex: 1 1 auto; min-height: 0; width: 100%; }
+  /* Sheet, not a floating bordered card: bleeds to the screen edges and docks to
+     the bottom, so unused space below short content reads as calm ground rather
+     than a visibly empty box. Content scrolls internally when it's taller than
+     the sheet - the page itself stays fixed (html/body overflow:hidden above). */
+  .panel { flex: 1 1 auto; min-height: 0; margin: 0 -12px -12px; border: none;
+           border-top: 0.5px solid var(--bd); border-radius: 14px 16px 0 0;
+           background: var(--bg2); }
+  .pbody { padding: 12px 16px 16px; overflow-y: auto; }
+  /* Mode strip: deterministic single row, equal columns - never wraps raggedly. */
+  .mode-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
+  .mode-strip-wrap { margin: 0 0 6px; }
+  .mbtn { padding: 6px 2px; min-height: 44px; }
   .mbtn .mb-mood { display: none; }
   .mode-div { display: none; }
-  /* Compact mood/relation tiles + tighter sections so the Assist panel fits. */
-  .etile { padding: 3px 7px; font-size: 9px; }
-  .assist-tiles { gap: 3px; }
-  .pbody { padding: 9px 11px; }
+  /* Mood/relation tiles as an equal grid (was ragged-width wrapping chips). */
+  .assist-tiles { display: grid; grid-template-columns: repeat(4, 1fr); gap: 5px; }
+  .etile { padding: 7px 3px; font-size: 10px; text-align: center; min-height: 44px;
+           display: flex; align-items: center; justify-content: center; border-left-width: 2px; }
 }
 /* margin auto centers the circle when resize() shrinks it below the column width
    (e.g. Modal, where the mode strip eats height) - otherwise it left-aligns. */
-canvas { display: block; width: 100%; margin-left: auto; margin-right: auto; cursor: pointer; touch-action: none; }
+canvas { display: block; margin-left: auto; margin-right: auto; cursor: pointer; touch-action: none; border-radius: 50%; }
+/* Keyboard focus must be visible (the wheel is focusable now) - but only for
+   keyboard users, so a mouse click doesn't leave a ring behind. */
+/* Visually gone, still in the accessibility tree - the opposite of display:none. */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden;
+           clip-path: inset(50%); white-space: nowrap; }
+canvas:focus { outline: none; }
+/* One focus ring for everything focusable, matching the canvas's. :focus-visible only,
+   so it appears for keyboard users and never after a tap. Offset 2px rather than the
+   canvas's 3 because the panel's controls sit in tight 3px grids. */
+canvas:focus-visible,
+button:focus-visible, [tabindex]:focus-visible, input:focus-visible {
+  outline: 2px solid var(--text2); outline-offset: 2px; border-radius: 8px;
+}
+canvas:focus-visible { outline-offset: 3px; }
 
 /* Panel */
-.panel { border: 0.5px solid var(--bd); border-radius: 12px; overflow: hidden; background: var(--bg); display: flex; flex-direction: column; }
+.panel { border: 0.5px solid var(--bd); border-radius: 14px; overflow: hidden; background: var(--bg); display: flex; flex-direction: column; }
 .phead { padding: 9px 13px; border-bottom: 0.5px solid var(--bd); font-size: 12px; font-weight: 500; color: var(--text2); display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .pbody { padding: 11px 13px; overflow-y: auto; }
-/* Transpose stepper - lives next to the key name (pitch-shift is core to Assist) */
-.kt-step { display:inline-flex; align-items:center; gap:3px; vertical-align:middle; margin-left:10px; }
+/* Transpose stepper - lives next to the key name (pitch-shift is core to Assist).
+   Was 20x18px - flagged by every design review as the smallest tap target in the
+   app despite being one of the most-used controls. Grown to a real tap size, with
+   an extended invisible hit area on top of that. */
+.kt-step { display:inline-flex; align-items:center; gap:4px; vertical-align:middle; margin-left:10px; }
 .kt-lbl { font-size:10px; color:var(--text3); letter-spacing:.04em; margin-right:1px; }
-.kt-step button { width:20px; height:18px; border-radius:5px; border:0.5px solid var(--bd2); background:var(--bg2); color:var(--text2); font-size:8px; cursor:pointer; font-family:var(--font); line-height:1; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+.kt-step button { position:relative; width:30px; height:28px; border-radius: 8px; border:0.5px solid var(--bd2); background:var(--bg2); color:var(--text2); font-size:11px; cursor:pointer; font-family:var(--font); line-height:1; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+.kt-step button::before { content:''; position:absolute; inset:-6px; }
 .kt-step button:hover { background:var(--bg3); color:var(--text); }
 .key-big { font-size: 22px; font-weight: 500; line-height: 1; color: var(--text); }
-.key-sub { font-size: 11px; color: var(--text3); margin: 2px 0 0; }
+/* margin-bottom matters: with 0 here and no margin-top on .slabel, "3♭ (B♭ E♭ A♭) ·
+   Bright" sat flush against "SCALE" and the two read as one broken line. */
+.key-sub { font-size: 11px; color: var(--text3); margin: 3px 0 14px; }
 .ctx-line { font-size: 11px; color: var(--text2); height: 17px; margin: 4px 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ctx-line strong { color: var(--text); font-weight: 500; }
 .slabel { font-size: 10px; font-weight: 500; color: var(--text3); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 5px; }
+/* These three are <button> now (they were divs with onclick, so no tab stop, no role,
+   no Enter/Space, no focus ring). A button brings its own font, centring and 2px
+   border, so hand those back to the rules below - the only visual change should be
+   that they can now be reached and focused. */
+.sn, .cp, .ni { font: inherit; border: 0; margin: 0;
+                text-align: inherit; -webkit-appearance: none; appearance: none; }
 .scale-row { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 11px; }
-.sn { width: 26px; height: 24px; border-radius: 5px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; border: 0.5px solid var(--bd); background: var(--bg2); color: var(--text2); }
-.sn.root { border: none; color: #fff; }
+.sn { width: 26px; height: 24px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; border: 0.5px solid var(--bd); background: var(--bg2); color: var(--text2); }
+/* colour is set inline from sectorLum() alongside the background - a fixed #fff was
+   1.2:1 on Scriabin's yellow, the same bug the wheel labels already fixed. */
+.sn.root { border: none; }
 .chord-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 3px; margin-bottom: 11px; }
-.cp { border-radius: 6px; padding: 4px 2px; text-align: center; font-size: 11px; font-weight: 500; }
-.cp span { font-size: 9px; display: block; opacity: .6; }
+.cp { border-radius: 8px; padding: 4px 2px; text-align: center; font-size: 11px; font-weight: 500; }
+/* .6 opacity on top of already-coloured ink measured 2.69:1 on the vii pill - the
+   roman numeral is the chord's NAME, not decoration, so it has to stay readable. */
+.cp span { font-size:10px; display: block; opacity: 1; }
 .rel-desc { font-size: 10px; color: var(--text3); margin-bottom: 6px; line-height: 1.4; }
 .hl-list { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 11px; }
-.hl-pill { padding: 3px 8px; border-radius: 20px; font-size: 11px; font-weight: 500; color: #fff; }
+.hl-pill { padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; } /* ink set inline via sectorLum() */
 .nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 11px; }
-.ni { border-radius: 7px; padding: 6px 8px; cursor: pointer; border: 0.5px solid var(--bd); background: var(--bg2); transition: background .12s; }
+.ni { border-radius: 8px; padding: 6px 8px; cursor: pointer; border: 0.5px solid var(--bd); background: var(--bg2); transition: background .12s; }
 .ni:hover { background: var(--bg3); }
 .nl { font-size: 10px; color: var(--text3); }
 .nk { font-size: 11px; font-weight: 500; color: var(--text); }
 .sec-dom { margin-bottom: 11px; }
 .sd-list { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
-.sd-item { font-size: 10px; padding: 3px 7px; border-radius: 6px; background: var(--bg2); border: 0.5px solid var(--bd); color: var(--text2); }
+.sd-item { font-size: 10px; padding: 3px 7px; border-radius: 8px; background: var(--bg2); border: 0.5px solid var(--bd); color: var(--text2); }
 .empty { font-size: 13px; color: var(--text3); padding: 4px 0; }
 
 /* Quiz */
-.qo { padding: 8px 11px; border-radius: 8px; font-size: 12px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text); cursor: pointer; text-align: left; font-family: var(--font); width: 100%; display: block; margin-bottom: 4px; }
+.qo { padding: 12px 13px; min-height:44px; border-radius: 10px; font-size: 12px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text); cursor: pointer; text-align: left; font-family: var(--font); width: 100%; display: block; margin-bottom: 6px; }
 .qo:hover:not(:disabled) { background: var(--bg2); }
-.qo.correct { background: #eaf3de; border-color: #639922; color: #3B6D11; }
-.qo.wrong { background: #fcebeb; border-color: #E24B4A; color: #A32D2D; }
+/* Dark theme is the default, so these are the dark pairs; the light overrides below
+   restore the original pale tints. (They used to be light-only, which made the two
+   answer rows glare as bright panels in an otherwise dark UI.) */
+.qo.correct { background: #1e2a15; border-color: #6faa2a; color: #b6e07a; }
+.qo.wrong { background: #2c1616; border-color: #c94a49; color: #f0a3a2; }
+:root.light .qo.correct { background: #eaf3de; border-color: #639922; color: #3B6D11; }
+:root.light .qo.wrong { background: #fcebeb; border-color: #E24B4A; color: #A32D2D; }
 .qo:disabled { cursor: default; }
-.quiz-next { margin-top: 9px; padding: 7px 16px; border-radius: 20px; font-size: 12px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text2); cursor: pointer; display: none; font-family: var(--font); }
+.quiz-next { margin-top: 9px; padding: 7px 16px; border-radius: 999px; font-size: 12px; border: 0.5px solid var(--bd2); background: var(--bg); color: var(--text2); cursor: pointer; display: none; font-family: var(--font); }
 .quiz-next:hover { background: var(--bg2); }
+/* The quiz owns the whole panel, so it needs its own way out (see renderQuizPanel). */
+.quiz-exit { margin-left:auto; min-height:30px; padding:6px 12px; border-radius:999px; font-size:11px; border:0.5px solid var(--bd2); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); }
+.quiz-exit:hover { background: var(--bg2); color: var(--text); }
 .quiz-hint { font-size: 11px; color: var(--text3); margin-top: 7px; display: none; }
 </style>
 </head>
 <body>
+<!-- The app had no live region at all, so nothing it did was ever announced. The wheel
+     rewrites its own aria-label on every pick, but mutating aria-label on an element
+     that already has focus is not reliably re-announced by VoiceOver or NVDA - so the
+     wheel was operable and silent. Picking a mood and answering a quiz question said
+     nothing either: a blind user got no signal whether they were right. -->
+<div id="sr" role="status" aria-live="polite" class="sr-only"></div>
 <div class="appbar">
-  <h1 style="pointer-events:none">Another Circle Of Fifths <span style="font-size:10px;color:var(--text3);font-weight:400">v0.0.2</span></h1>
+  <!-- The mark is drawn from the LIVE palette (see paintWordmark), so the app's own
+       identity changes colour with the wheel it draws. Version moved into Settings -
+       a build number doesn't belong in a product's name. -->
+  <h1 style="pointer-events:none"><canvas id="wm" width="44" height="44" aria-hidden="true"></canvas><span class="wm-txt">Another Circle Of Fifths</span></h1>
   <div style="flex:1"></div>
   <div class="util">
-    <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz"><svg width="15" height="15" viewBox="0 0 16 16" style="vertical-align:middle"><path d="M8 2.5 1.5 5 8 7.5 14.5 5 8 2.5z" fill="currentColor"/><path d="M4 6.4V9.5c0 1 8 1 8 0V6.4M14 5.2v3.3" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></button>
+    <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz" aria-pressed="false"><svg width="15" height="15" viewBox="0 0 16 16" style="vertical-align:middle"><path d="M8 2.5 1.5 5 8 7.5 14.5 5 8 2.5z" fill="currentColor"/><path d="M4 6.4V9.5c0 1 8 1 8 0V6.4M14 5.2v3.3" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></button>
     <button class="util-btn" id="btn-share" onclick="shareLink()" title="Copy link to this key" aria-label="Share"><svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><path d="M5.5 8.5a3 3 0 0 0 4.2 0l1.5-1.5a3 3 0 0 0-4.2-4.2L6 3.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 5.5a3 3 0 0 0-4.2 0L2.8 7a3 3 0 0 0 4.2 4.2L8 10.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
     <button class="util-btn" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark" aria-label="Theme">&#9790;</button>
     <button class="util-btn" id="btn-sound" onclick="toggleSound()" title="Toggle sound" aria-label="Sound"><svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
-    <button class="util-btn" id="btn-settings" onclick="toggleSettings()" title="Settings" aria-label="Settings">&#9881;</button>
-  </div>
-</div>
-
-<div id="settings-pop" class="settings-pop" style="display:none">
-  <div class="set-row">
-    <span class="set-label">Notation</span>
-    <div class="seg" id="notation-seg" role="group" aria-label="Notation">
-      <button type="button" class="seg-btn active" id="seg-notes"   onclick="setNotation('notes')"   title="Standard note names">Notes</button>
-      <button type="button" class="seg-btn"        id="seg-camelot" onclick="setNotation('camelot')" title="Camelot DJ notation">Camelot</button>
-      <button type="button" class="seg-btn"        id="seg-solfege" onclick="setNotation('solfege')" title="Solfège (Do Re Mi)">Solfège</button>
-    </div>
-  </div>
-  <div class="set-row" style="flex-direction:column;align-items:stretch;gap:7px">
-    <span class="set-label">Palette</span>
-    <div class="pal-grid">
-      <button class="pal-btn" id="pal-pastel"   onclick="setPalette('pastel')"   title="Soft muted pastels">Pastel</button>
-      <button class="pal-btn" id="pal-itten"    onclick="setPalette('itten')"    title="Itten RYB - true complements">Itten</button>
-      <button class="pal-btn" id="pal-scriabin" onclick="setPalette('scriabin')" title="Scriabin's synesthetic keys">Scriabin</button>
-      <button class="pal-btn" id="pal-zodiac"   onclick="setPalette('zodiac')"   title="Colour by zodiac element (Fire/Earth/Air/Water)">Zodiac</button>
-      <button class="pal-btn" id="pal-zebra"    onclick="setPalette('zebra')"    title="Alternating light / dark">Zebra</button>
+    <button class="util-btn" id="btn-settings" onclick="toggleSettings()" title="Settings" aria-label="Settings" aria-expanded="false" aria-controls="settings-pop">&#9881;</button>
+    <!-- Inside .util (which is position:relative) so the popover anchors to the gear
+         at every width instead of floating to the viewport corner. -->
+    <div id="settings-pop" class="settings-pop" style="display:none">
+      <div class="set-row">
+        <span class="set-label">Notation</span>
+        <div class="seg" id="notation-seg" role="group" aria-label="Notation">
+          <button type="button" class="seg-btn active" id="seg-notes"   onclick="setNotation('notes')"   title="Standard note names">Notes</button>
+          <button type="button" class="seg-btn"        id="seg-camelot" onclick="setNotation('camelot')" title="Camelot DJ notation">Camelot</button>
+          <button type="button" class="seg-btn"        id="seg-solfege" onclick="setNotation('solfege')" title="Movable-do solfège: Do is the tonic, so the wheel and scale show degrees">Solfège</button>
+        </div>
+      </div>
+      <div class="set-row" style="border-top:0.5px solid var(--bd);padding-top:11px">
+        <span class="set-label">Version</span>
+        <span style="font-size:11px;color:var(--text3)">v0.0.2</span>
+      </div>
+      <div class="set-row" style="flex-direction:column;align-items:stretch;gap:7px">
+        <span class="set-label">Palette</span>
+        <div class="pal-grid">
+          <!-- Each palette does a different job; the titles name the job, not the
+               jargon. Measured: Pastel's hue rotates with the circle (tritone lands
+               at 170° of 180°); Itten's complements are true; Zodiac's four elements
+               are the four augmented triads (ΔE 8 within a family vs 87 between);
+               Scriabin is a historical list, not a geometry; Zebra is achromatic. -->
+          <button class="pal-btn" id="pal-pastel"   onclick="setPalette('pastel')"   title="Calm default - colour follows the circle, so a fifth is a small hue step">Pastel</button>
+          <button class="pal-btn" id="pal-itten"    onclick="setPalette('itten')"    title="True complements - opposite colours are a tritone apart">Itten</button>
+          <button class="pal-btn" id="pal-scriabin" onclick="setPalette('scriabin')" title="Scriabin's own colours for each key (1910) - historical, not a geometry">Scriabin</button>
+          <button class="pal-btn" id="pal-zodiac"   onclick="setPalette('zodiac')"   title="One colour per major-third family - each shade is an augmented triad (C-E-A♭)">Zodiac</button>
+          <button class="pal-btn" id="pal-zebra"    onclick="setPalette('zebra')"    title="Greyscale - maximum label contrast, no colour coding">Zebra</button>
+        </div>
+      </div>
     </div>
   </div>
 </div>
 <input type="checkbox" id="cb-camelot" style="display:none">
 <input type="checkbox" id="cb-sol" style="display:none">
 
-<div class="mode-switcher">
-  <button class="ms-btn active" id="ms-tonal" onclick="setAppMode('tonal')">Tonal</button>
-  <button class="ms-btn" id="ms-modal" onclick="setAppMode('modal')">Modal</button>
-  <button class="ms-btn" id="ms-assist" onclick="setAppMode('assist')">Assist</button>
+<div class="mode-switcher" role="tablist" aria-label="View">
+  <button class="ms-btn active" id="ms-tonal" role="tab" aria-selected="true" onclick="setAppMode('tonal')">Tonal</button>
+  <button class="ms-btn" id="ms-modal" role="tab" aria-selected="false" onclick="setAppMode('modal')">Modal</button>
+  <button class="ms-btn" id="ms-assist" role="tab" aria-selected="false" onclick="setAppMode('assist')">Assist</button>
 </div>
 
 <input type="checkbox" id="cb-minor" checked style="display:none">
 
 <div class="layout">
   <div class="circle-col">
-    <canvas id="c"></canvas>
+    <!-- The wheel is the app's primary control, so it has to be reachable and
+         announced without a pointer: arrows step round the circle, up/down cross
+         between the major and minor rings, Enter/Space picks. aria-label is kept in
+         sync with the selection by render(). -->
+    <canvas id="c" tabindex="0" role="application" aria-label="Circle of fifths"></canvas>
   </div>
   <div class="panel-col">
     <!-- Modes (лады) live in the PANEL column (above the panel), not the circle's
@@ -306,7 +513,12 @@ var MINNAMES = ['Am','Em','Bm','F\u266fm','C\u266fm','G\u266fm','D\u266fm','B\u2
 // circle of fifths onto a 12-point colour cycle, so fifths = analogous neighbours
 // and the tritone = 180° (complementary). Switchable in Settings.
 var PALETTES = {
-  pastel:   ['#E28683','#E0AF85','#DBCC80','#A6C987','#84C299','#7BC1B3','#82C2CE','#92B5DD','#A0A1DA','#B9A2D7','#D3A1D3','#DE96B4'],
+  // A♭/E♭/B♭ (8,9,10) were near-indistinguishable: same lightness (74/74/73) and low
+  // saturation in the blue-violet region, where hue discrimination is weakest, so a
+  // 27° hue step wasn't enough - measured ΔE 8.6 and 10.1, i.e. "shades of one
+  // colour". Respread with wider hue steps plus a lightness zigzag; minimum adjacent
+  // ΔE across the whole ring is now 13.7 (was 8.6).
+  pastel:   ['#E28683','#E0AF85','#DBCC80','#A6C987','#84C299','#7BC1B3','#82C2CE','#92B5DD','#888ED7','#C5A8DC','#D392C8','#DE96B4'],
   // Itten's canonical 12-hue RYB wheel (C=red, +1 hue per fifth -> tritone = true complement).
   itten:    ['#E3000F','#EF4E1C','#F47E1B','#FBB034','#F6E500','#8DC63F','#1FA64A','#00A99D','#0061A8','#2E3192','#662D91','#A21D6B'],
   // Scriabin's described colours (verbal originals; E=sky blue, E♭=steely, B♭=rose, F=deep red).
@@ -319,22 +531,141 @@ var PALETTES = {
 };
 var PALETTE_NAMES = ['pastel','itten','scriabin','zodiac','zebra'];
 var GREY_PALETTES = { zebra:1 };   // skip the dark-theme white-lift for the greyscale one
+// SYNTH used to fall back on its own while curPalette kept the bad name, so a stale or
+// hand-edited value left the wheel correct but NO palette button marked active - the
+// settings popover simply couldn't say which palette was live. Clamp the name itself.
 var curPalette = loadPref('palette','pastel');
-var SYNTH = PALETTES[curPalette] || PALETTES.pastel;
+if (!Object.prototype.hasOwnProperty.call(PALETTES, curPalette)) curPalette = 'pastel';
+var SYNTH = PALETTES[curPalette];
 // Root in semitones for each circle position
 var MROOT    = [0,7,2,9,4,11,6,1,8,3,10,5];
 var NOTES_SHARP = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
 var NOTES_FLAT  = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
 var FLAT_SLICES = {7:1, 8:1, 9:1, 10:1, 11:1};
 function notesForSlice(s) { return FLAT_SLICES[s] ? NOTES_FLAT : NOTES_SHARP; }
-// Accidentals per slice
+// ── The line of fifths ────────────────────────────────────────────────────────
+// ACC is not just "how many accidentals this sector has". It is each sector's
+// POSITION ON THE LINE OF FIFTHS, and that turns out to be the one number the whole
+// spelling problem needs. tonal, music21 and teoria all independently encode a note
+// exactly this way, and we already had it here without using it.
+//
+//   … Cb -7 · Gb -6 · Db -5 · Ab -4 · Eb -3 · Bb -2 · F -1 · C 0 · G 1 · D 2 · A 3 · E 4 · B 5 · F# 6 · C# 7 …
+//
+// The line is infinite in both directions - that is the whole difference from the
+// circle. The circle glues F# and Gb into one sector; the line keeps them apart as 6
+// and -6. From that single integer everything follows: the letter, the accidentals,
+// the key signature (the number IS the signature), and the enharmonic respelling
+// (f +/- 12).
+//
+// A pitch CLASS (0-11, what MROOT holds) cannot do this: F# and Gb are both 6 there,
+// so spelling had to be recovered from a per-sector lookup (NOTES_SHARP/NOTES_FLAT
+// chosen by FLAT_SLICES). That lookup is right for a sector's major and its relative
+// minor and cannot be right for anything else, because a MODE's key signature belongs
+// to a different place on the circle. 16 of the 84 sector x mode combinations
+// disagreed - 10 naming the wrong parent ("Db Dorian, II mode of B major", when B
+// major has five sharps and no flats at all), and 6 needing the tonic itself respelt
+// (Db Aeolian's parent would be Fb major, eight flats; the key is C# Aeolian).
 var ACC      = [0,1,2,3,4,5,6,-5,-4,-3,-2,-1]; // F#=6#, Db=5b...F=1b
 
-function accStr(i) {
-  var n = ACC[i];
+// A mode's tonic, in fifths, relative to its parent major's tonic. Seven integers in
+// place of every per-mode spelling table. Index order matches MODES below:
+// Ionian, Lydian, Mixolydian, Dorian, Aeolian, Phrygian, Locrian.
+var MODE_ALT = [0, -1, 1, 2, 3, 4, 5];
+
+// Letter + accidentals from a position on the line. The remainder mod 7 picks the
+// letter, the quotient gives how many sharps or flats - so it keeps working past the
+// ends of the wheel and names Cb, Fb and B# correctly instead of guessing.
+var _F2S = [3,0,4,1,5,2,6], _LTR = 'CDEFGAB';   // fifths order F C G D A E B -> letters
+function nameOfFifth(f) {
+  var i = ((f + 1) % 7 + 7) % 7, alt = Math.floor((f + 1) / 7);
+  var s = _LTR[_F2S[i]];
+  for (var k = 0; k < Math.abs(alt); k++) s += (alt < 0 ? '♭' : '♯');
+  return s;
+}
+// Signatures past 7 accidentals exist in theory but not in practice, so when a mode
+// lands there we respell the tonic the other way round the line (f +/- 12) and take
+// the reachable spelling. This is the step that turns "Db Aeolian" into "C# Aeolian".
+var MAX_SIG = 7;
+// THE resolver: given a sector and a mode, what is this key actually called?
+// Returns the tonic and parent as both a fifths position and a name, plus the key
+// signature. Everything user-facing about spelling should come from here.
+function keySpelling(slice, modeIdx) {
+  var tf = ACC[slice], pf = tf - MODE_ALT[modeIdx], respelt = false;
+  if (Math.abs(pf) > MAX_SIG) {
+    tf += (pf > 0 ? -12 : 12); pf = tf - MODE_ALT[modeIdx]; respelt = true;
+  }
+  return { tonicFifths: tf, parentFifths: pf, respelt: respelt,
+           tonic: nameOfFifth(tf), parent: nameOfFifth(pf), sig: pf };
+}
+// Announce something to a screen reader. The blank-then-set is deliberate: setting the
+// same text twice in a row is a no-op for assistive tech (nothing "changed"), and
+// picking the same key twice really should be announced twice.
+var _srTimer = null;
+function say(msg) {
+  var e = document.getElementById('sr');
+  if (!e || !msg) return;
+  e.textContent = '';
+  clearTimeout(_srTimer);
+  _srTimer = setTimeout(function(){ e.textContent = msg; }, 40);
+}
+
+// Which sector actually carries the tonic for a selection. Mirrors updatePanel's
+// actualSlice so the wheel and the panel can never name the key differently.
+function tonicSliceOf(sel) {
+  if (!sel) return null;
+  var m = MODES[sel.modeIdx];
+  return sel.fromInner ? MROOT.indexOf((MROOT[sel.slice] + m.off) % 12) : sel.slice;
+}
+// When the selected key respells its tonic, that sector's LABEL has to follow -
+// otherwise the panel reads "C# Aeolian" while the wheel underneath it still says Db,
+// which is the exact incoherence this model exists to remove.
+//
+// Deliberately narrow: the label of the ring the tonic sits on, and nothing else.
+// - Not all twelve labels (Rand Scullard's circle does recompute them all, and it is
+//   the most correct thing in the field, but the wheel is also this app's spatial map
+//   and moving every label under the user trades one confusion for another).
+// - Not the accidentals ring. That ring is a stable reference to the twelve WRITABLE
+//   major signatures; under a respelt name the sector's own major would read 8# or 9#,
+//   which is true and useless - G# major and D# major are exactly the keys nobody
+//   writes, which is WHY the tonic gets respelt in the first place. The signature
+//   actually in force is already highlighted at the parent's sector.
+// - Not the relative-minor label, for the same reason (G#'s relative minor is E# minor,
+//   eight sharps).
+// In practice this only ever fires in Modal, on the outer ring: Tonal and Assist reach
+// only Ionian and Aeolian, and neither ever needs a respelling.
+function respellForSelection(sel) {
+  if (!sel) return null;
+  var ts = tonicSliceOf(sel);
+  if (ts === null || ts < 0) return null;
+  var k = keySpelling(ts, sel.modeIdx);
+  if (k.tonic === MAJSHORT[ts]) return null;
+  return { slice: ts, onInner: !!sel.fromInner, label: k.tonic };
+}
+
+// Both of these now take a SIGNED FIFTHS COUNT, because that is what a key signature
+// is. The slice-indexed wrappers stay for the wheel's reference ring, which shows each
+// sector's own major signature.
+function accStrF(n) {
   if (!n) return '';
   return n > 0 ? n + '\u266f' : Math.abs(n) + '\u266d';
 }
+function accStr(i) { return accStrF(ACC[i]); }
+// The wheel's accidentals RING already shows the COUNT (e.g. "3\u266f"); this names
+// WHICH notes those are, in standard order-of-sharps/flats (each new key just adds
+// the next letter in the sequence). A design review noted this must live in the
+// panel, not the wheel's centre hole - a key with 6-7 accidentals wouldn't fit the
+// small centre circle legibly, but the panel line always has room.
+var SHARP_ORDER = ['F','C','G','D','A','E','B'];
+var FLAT_ORDER  = ['B','E','A','D','G','C','F'];
+function accNotesStrF(n) {
+  if (!n) return '';
+  var order = n > 0 ? SHARP_ORDER : FLAT_ORDER;
+  var sym = n > 0 ? '\u266f' : '\u266d';
+  var out = [];
+  for (var k=0; k<Math.abs(n); k++) out.push(order[k]+sym);
+  return out.join(' ');
+}
+function accNotesStr(i) { return accNotesStrF(ACC[i]); }
 
 // 7 modes: off = semitones above parent major tonic
 var MODES = [
@@ -353,12 +684,24 @@ var ROM_MAJ = ['I','II','III','IV','V','VI','VII'];
 var ROM_MIN = ['i','ii','iii','iv','v','vi','vii'];
 
 // Temperature tracks mood: major = warm (bright), minor = cool (darker), dim = red
-// (most unstable/tense). Lightness kept close to the old values so both themes hold.
-var CCOL = {
-  maj: { bg:'rgba(205,140,20,.14)', tx:'#9a6410' },
+// (most unstable/tense). The INK has to flip with the theme - the dark inks below
+// were the only set for a while and sat at roughly 3:1 on the dark background.
+var CCOL_LIGHT = {
+  /* #9a6410 measured 4.37:1 on the pill's own tint - the only one of the three that
+     missed AA, and the odd one out anyway (min 6.02, dim 8.18). Now 5.93. */
+  maj: { bg:'rgba(205,140,20,.14)', tx:'#80510c' },
   min: { bg:'rgba(0,110,210,.12)',  tx:'#1a5a96' },
   dim: { bg:'rgba(190,40,30,.11)',  tx:'#861810' },
 };
+var CCOL_DARK = {
+  maj: { bg:'rgba(205,140,20,.16)', tx:'#e2a94e' },
+  min: { bg:'rgba(0,110,210,.16)',  tx:'#6db1e8' },
+  dim: { bg:'rgba(190,40,30,.15)',  tx:'#e07068' },
+};
+function chordCol(type) {
+  var set = isDark() ? CCOL_DARK : CCOL_LIGHT;
+  return set[type] || set.maj;
+}
 
 // Relations: get(slice) returns array of highlighted slices
 var RELS = {
@@ -367,7 +710,12 @@ var RELS = {
   majmed:      { label:'Major mediant', desc:'Major third relation',                      get: function(i){ return [(i+4)%12,(i+8)%12]; } },
   tritone:     { label:'Tritone',       desc:'Tritone substitution',                      get: function(i){ return [(i+6)%12]; } },
   dim7:        { label:'Dim7',          desc:'Diminished 7th pivot',                      get: function(i){ return [(i+3)%12,(i+6)%12,(i+9)%12]; } },
-  neapolitan:  { label:'Neapolitan',    desc:'\u266dII semitone above root',              get: function(i){ return [(i+7)%12]; } },
+  // \u266dII is ALWAYS a major chord - in minor keys as much as major ones (it is in fact
+  // most characteristic in minor). So unlike the quality-preserving relations above,
+  // this one does NOT commute with the major\u2194relative-minor shift: from a minor
+  // tonic the target sits at a different sector AND stays major. getMin covers that.
+  neapolitan:  { label:'Neapolitan',    desc:'\u266dII semitone above root',              get: function(i){ return [(i+7)%12]; },
+                 getMin: function(i){ return [(i+10)%12]; }, targetAlwaysMaj: true },
   // Neo-Riemannian: operate on the TONAL SLICE, show target slice
   // P: parallel - same slice (visual no-op on circle, shown in panel)
   // P: Parallel - same root, major↔minor → same sector on circle
@@ -418,7 +766,10 @@ function updateNotationSeg() {
   var mode = isCamelot() ? 'camelot' : isSol() ? 'solfege' : 'notes';
   ['notes','camelot','solfege'].forEach(function(m) {
     var b = document.getElementById('seg-' + m);
-    if (b) b.classList.toggle('active', m === mode);
+    // Selection was signalled by a CSS class alone, which assistive tech cannot see -
+    // every one of these read as an ordinary button with no state.
+    if (b) { b.classList.toggle('active', m === mode);
+             b.setAttribute('aria-pressed', m === mode ? 'true' : 'false'); }
   });
 }
 window.setNotation = setNotation;
@@ -430,13 +781,53 @@ function setPalette(name) {
   curPalette = name;
   savePref('palette', name);
   updatePaletteSeg();
-  render(); updatePanel();
+  render(); updatePanel(); paintWordmark();
+}
+// The wordmark is a 12-slice miniature of the wheel, drawn from the LIVE palette, so
+// the app's identity carries whichever colour system the user chose.
+function paintWordmark() {
+  var c = document.getElementById('wm'); if (!c) return;
+  // Read the CSS size rather than assuming it - the mark is larger on mobile, where
+  // it stands in for the whole wordmark, and a fixed backing store would blur it.
+  var dpr = devicePixelRatio || 1;
+  var S = Math.round(c.getBoundingClientRect().width) || 22;
+  c.width = S*dpr; c.height = S*dpr;
+  var g = c.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0);
+  g.clearRect(0,0,S,S);
+  var cx=S/2, cy=S/2, rOut=S/2-0.5, rIn=S*0.30, slA=2*Math.PI/12;
+  for (var i=0;i<12;i++) {
+    var a0=(-Math.PI/2)+i*slA-slA/2, a1=a0+slA;
+    var col = (isDark() && !GREY_PALETTES[curPalette]) ? lightenHex(SYNTH[i],0.16) : SYNTH[i];
+    g.beginPath();
+    g.moveTo(cx+Math.cos(a0)*rOut, cy+Math.sin(a0)*rOut);
+    g.arc(cx,cy,rOut,a0,a1);
+    g.arc(cx,cy,rIn,a1,a0,true);
+    g.closePath();
+    g.fillStyle = col; g.fill();
+  }
 }
 function updatePaletteSeg() {
-  var cur = loadPref('palette', 'pastel');
+  // Read the LIVE palette, not the stored pref - a shared ?pal= link sets curPalette
+  // without saving, so the popover used to highlight the wrong (saved) palette while
+  // the wheel rendered the shared one.
+  var cur = curPalette;
   PALETTE_NAMES.forEach(function(n) {
     var b = document.getElementById('pal-' + n);
-    if (b) b.classList.toggle('active', n === cur);
+    if (!b) return;
+    b.classList.toggle('active', n === cur);
+    b.setAttribute('aria-pressed', n === cur ? 'true' : 'false');
+    // Show each palette AS ITSELF: a 12-stop strip of its own colours. Five grey
+    // text chips made the most identity-defining control in the app unreadable as a
+    // choice - "Itten" and "Scriabin" mean nothing until you can see them.
+    if (!b.querySelector('.pal-strip')) {
+      var strip = document.createElement('span');
+      strip.className = 'pal-strip';
+      b.insertBefore(strip, b.firstChild);
+    }
+    var stops = PALETTES[n].map(function(c,i){
+      return c+' '+(i*100/12).toFixed(2)+'%,'+c+' '+((i+1)*100/12).toFixed(2)+'%';
+    }).join(',');
+    b.querySelector('.pal-strip').style.background = 'linear-gradient(90deg,'+stops+')';
   });
 }
 window.setPalette = setPalette;
@@ -455,21 +846,64 @@ function toggleMinorRing() {
 }
 window.toggleMinorRing = toggleMinorRing;
 window.onToggleMinor = onToggleMinor;
+function _setSettingsOpen(open) {
+  document.getElementById('settings-pop').style.display = open ? 'flex' : 'none';
+  document.getElementById('btn-settings').setAttribute('aria-expanded', open ? 'true' : 'false');
+}
 function toggleSettings() {
-  var p = document.getElementById('settings-pop');
-  p.style.display = p.style.display === 'none' ? 'flex' : 'none';
+  _setSettingsOpen(document.getElementById('settings-pop').style.display === 'none');
 }
 window.toggleSettings = toggleSettings;
 document.addEventListener('click', function(e) {
   var p = document.getElementById('settings-pop');
   if (!p || p.style.display === 'none') return;
   if (!p.contains(e.target) && e.target.id !== 'btn-settings' && !e.target.closest('#btn-settings'))
-    p.style.display = 'none';
+    _setSettingsOpen(false);
+});
+// Escape closes it, like any other transient overlay. The quiz is the app's one real
+// takeover - it replaces the panel AND repurposes every wheel tap as an answer - so it
+// needs the same way out. Innermost surface first: Escape in the popover closes the
+// popover, not the quiz underneath it.
+document.addEventListener('keydown', function(e) {
+  if (e.key !== 'Escape') return;
+  var p = document.getElementById('settings-pop');
+  if (p && p.style.display !== 'none') {
+    _setSettingsOpen(false); document.getElementById('btn-settings').focus(); return;
+  }
+  if (quizMode) { toggleQuiz(); var q = document.getElementById('bm-quiz'); if (q) q.focus(); }
 });
 // Solfège (Fixed-do): semitone 0-11
-var SOL_NAMES = ['Do','Di','Re','Me','Mi','Fa','Fi','Sol','Le','La','Te','Si'];
+// MOVABLE-do solfège: the syllable names the SCALE DEGREE, not the pitch, so Do is
+// always the tonic and every major scale reads "Do Re Mi Fa Sol La Ti" whatever key
+// it's in. That's the whole teaching value, and it makes the modes name their own
+// alterations: Dorian is "Do Re ME Fa Sol La TE", Lydian "…FI…", Phrygian "Do RA…".
+// (The previous fixed-do table was just Italian note names - no added information -
+// and it had no flat-side syllables at all, so D♭ printed as "Di" (=C♯), which
+// contradicted the wheel's own spelling.)
+var SOL_NAT   = ['Do','Re','Mi','Fa','Sol','La','Ti'];   // unaltered degree
+var SOL_LOW   = ['Do','Ra','Me','Fa','Se','Le','Te'];    // lowered degree
+var SOL_RAISE = ['Di','Ri','Mi','Fi','Si','Li','Ti'];    // raised degree
+var SOL_MAJ_IV = [0,2,4,5,7,9,11];                       // the major scale's own offsets
 function isSol() { var el=document.getElementById('cb-sol'); return el&&el.checked; }
-function solName(semi) { return SOL_NAMES[((semi%12)+12)%12]; }
+// Syllable for a scale degree. degIdx 0-6, semi = semitones above the tonic. Knowing
+// the degree is what disambiguates semitone 6: Lydian's raised 4th is Fi, Locrian's
+// lowered 5th is Se - same pitch, different degree, different syllable.
+function solDeg(degIdx, semi) {
+  var d = (((semi - SOL_MAJ_IV[degIdx]) % 12) + 18) % 12 - 6;   // -6..+5, signed
+  return d === 0 ? SOL_NAT[degIdx] : d < 0 ? SOL_LOW[degIdx] : SOL_RAISE[degIdx];
+}
+// Syllable for an arbitrary distance above the tonic - used on the wheel, where a
+// sector has no degree index. Flat-side names on the flat side of the circle, which
+// is where those sectors actually sit relative to the tonic.
+var SOL_CHROM = ['Do','Ra','Re','Me','Mi','Fa','Fi','Sol','Le','La','Te','Ti'];
+function solChrom(semiAboveTonic) { return SOL_CHROM[((semiAboveTonic%12)+12)%12]; }
+// The semitone the current selection calls "Do". Null when nothing is selected.
+function currentTonicSemi() {
+  if (!selected) return null;
+  var m  = MODES[selected.modeIdx];
+  var as = selected.fromInner ? MROOT.indexOf((MROOT[selected.slice]+m.off)%12) : selected.slice;
+  return MROOT[as];
+}
 var CAM_MIN = [8,9,10,11,12,1,2,3,4,5,6,7]; // relative minor shares its major's number (Am=8A, C=8B)
 function camelot(slice, isMinor) {
   return (isMinor ? CAM_MIN[slice] : CAM_MAJ[slice]) + (isMinor?'A':'B');
@@ -482,6 +916,9 @@ function toggleTheme() {
   // The canvas reads `dark` + per-theme alpha, so it must be repainted now -
   // otherwise colours/lines stay stale until the next mouseover triggers render().
   render();
+  // The panel carries theme-dependent INLINE colours too (chord pills via
+  // chordCol()), which CSS can't restyle - rebuild it.
+  updatePanel();
 }
 function _updateThemeBtn() {
   var isLight = document.documentElement.classList.contains('light');
@@ -489,6 +926,12 @@ function _updateThemeBtn() {
   // ︎ forces monochrome text rendering (not a colour emoji) for consistency.
   btn.textContent = isLight ? '☀︎' : '☽︎';
   btn.style.color  = '';
+  btn.setAttribute('aria-pressed', isLight ? 'true' : 'false');
+  // Keep the OS/browser chrome (iOS status bar, Android toolbar) in step with the
+  // theme - it was pinned to the dark colour, so light theme showed a dark seam.
+  var mt = document.querySelector('meta[name="theme-color"]');
+  if (mt) mt.setAttribute('content', isLight ? '#e7e3da' : '#1c1c1a');
+  paintWordmark();   // the mark uses the theme's lifted palette colours
 }
 window.addEventListener('load', _updateThemeBtn);
 
@@ -518,16 +961,18 @@ function resize() {
   // unreliable). Must run before measuring so the circle/panel fit the true height.
   document.documentElement.style.setProperty('--app-h', window.innerHeight + 'px');
   var dpr = devicePixelRatio || 1;
-  var s   = Math.min(cv.parentElement.clientWidth, 500);
-  // On the two-column layout, also fit the circle to the available height so the
-  // page never needs to scroll. Canvas top is fixed by the elements above it;
-  // subtract whatever sits below the canvas (mode strip + legend) from the space.
+  var s   = cv.parentElement.clientWidth;
   if (window.innerWidth > 620) {
-    var top = cv.getBoundingClientRect().top;
-    var below = 0, sib = cv.nextElementSibling;
-    while (sib) { if (sib.offsetParent !== null) below += sib.getBoundingClientRect().height; sib = sib.nextElementSibling; }
-    var availH = window.innerHeight - top - below - 24;
-    if (availH > 160) s = Math.min(s, availH);
+    // Desktop: fit the largest square inside the circle column's own box. The old
+    // rule hard-capped the wheel at 500px and measured the canvas's own top, which
+    // is circular (the canvas is what we're sizing) - at 1280x800 that left the
+    // wheel pinned at exactly 500 with ~195px of height beneath it unused. The
+    // column is a flex box that stretches to the row, so measuring IT is stable.
+    var col = cv.closest('.circle-col');
+    if (col) {
+      var box = Math.min(col.clientWidth, col.clientHeight);
+      if (box > 160) s = Math.max(240, Math.min(box - 8, 720));   // 720 keeps it sane on a 4K display
+    }
   } else {
     // Mobile: size the circle so the panel below can fully show (no scroll) - BUT
     // never below a comfortable floor, so it's never "tiny". If the panel is genuinely
@@ -535,11 +980,14 @@ function resize() {
     var lay = cv.closest('.layout');
     if (lay) {
       var avail = window.innerHeight - lay.getBoundingClientRect().top - 12;
-      // FIXED fraction so the circle is the SAME size in every tab; panels are trimmed
-      // (More toggle, fewer cards on phone) to fit the remaining space with no scroll.
-      s = Math.min(s, avail * 0.38);
+      // FIXED fraction so the circle is the SAME size in every tab regardless of that
+      // tab's panel content - the panel is a sheet that scrolls internally for any
+      // overflow (see .panel/.pbody, mobile media query), so the wheel no longer has
+      // to be starved down to whatever the tallest panel needs.
+      s = Math.min(s, Math.max(240, avail * 0.46));
     }
   }
+  s = Math.round(s);
   cv.style.width  = s + 'px';
   cv.style.height = s + 'px';
   cv.width  = s * dpr;
@@ -547,6 +995,10 @@ function resize() {
   ctx.scale(dpr, dpr);
   W = H = s; CX = CY = s/2; R = s * 0.50;
   render();
+  // The mark is larger on mobile, so its backing store has to follow the breakpoint.
+  // Doing it here rather than only in a resize listener covers every path that
+  // re-fits the layout, whatever triggered it.
+  if (typeof paintWordmark === 'function') paintWordmark();
 }
 
 function ha(hex, a) {
@@ -562,6 +1014,38 @@ function lightenHex(hex, t) {
   return '#'+up(r)+up(g)+up(b);
 }
 function isDark() { return !document.documentElement.classList.contains('light'); }
+// Relative luminance (sRGB) of a sector as ACTUALLY DRAWN: the fill blended over the
+// page background at the alpha it's painted with. Label colour has to follow the
+// sector's own lightness rather than the theme - measured white-on-yellow (Itten,
+// Scriabin) and white-on-#DCDCE4 (Zebra) at 1.3:1, far under the 3:1 floor for
+// large text. Crossover where black beats white for contrast is L ≈ 0.18.
+function sectorLum(hex, alpha) {
+  var bg = isDark() ? [28,28,26] : [231,227,218];
+  var a  = (alpha === undefined) ? 1 : alpha;
+  function ch(i){ return parseInt(hex.slice(1+i*2, 3+i*2),16)*a + bg[i]*(1-a); }
+  function f(v){ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }
+  return 0.2126*f(ch(0)) + 0.7152*f(ch(1)) + 0.0722*f(ch(2));
+}
+function darkenHex(hex, t) {
+  var r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  function dn(v){ return ('0'+Math.round(v*(1-t)).toString(16)).slice(-2); }
+  return '#'+dn(r)+dn(g)+dn(b);
+}
+// sectorLum answers "is this sector light or dark". This answers a different question:
+// a palette colour used as INK directly on the page - the quiz header, for one - has to
+// clear AA by itself, and a mid-tone purple doesn't on either background (#7B5EA7 measured
+// 3.25:1 on the dark page). Walk it toward the theme's far end until it does.
+function inkOn(hex, need) {
+  need = need || 4.5;
+  var bgL = sectorLum(isDark() ? '#1c1c1a' : '#e7e3da');
+  for (var t = 0; t <= 1.0001; t += 0.04) {
+    var c = isDark() ? lightenHex(hex, t) : darkenHex(hex, t);
+    var l = sectorLum(c);
+    if ((Math.max(l,bgL)+0.05)/(Math.min(l,bgL)+0.05) >= need) return c;
+  }
+  return isDark() ? '#ffffff' : '#000000';
+}
+var LUM_FLIP = 0.18;   // above this the sector is light -> use dark ink
 
 // Which circle slices belong to the current tonal family (7 notes of the parent major)
 function getScaleSlices(slice, modeIdx) {
@@ -586,11 +1070,180 @@ function getParentSlice(slice, modeIdx) {
   return ps >= 0 ? ps : null;
 }
 
+// ── Motion ────────────────────────────────────────────────────────────────────
+// Springs, not easing curves. A spring always animates from where the value
+// CURRENTLY is and carries its velocity through a re-target, so a move can be
+// interrupted and redirected mid-flight with no visible jump - which a fixed
+// duration+curve cannot do. Parameterised the way Apple's fluid-interface work
+// does (damping ratio + response in seconds) rather than mass/stiffness/damping,
+// and integrated at a fixed substep so the motion is identical at 60Hz and 120Hz.
+// No library: every JS animation package animates DOM properties, and the wheel is
+// canvas - importing one would cost kilobytes and break offline for a number
+// sequence that is thirty lines of the documented algorithm.
+function Spring(value, damping, response) {
+  this.x = value; this.target = value; this.v = 0;
+  this.damping = damping; this.response = response;
+}
+Spring.prototype.step = function(dt) {
+  var w = 2*Math.PI/this.response, z = this.damping, SUB = 1/240;
+  var t = Math.min(dt, 0.064);            // never integrate a whole tab-switch gap
+  while (t > 0) {
+    var h = t < SUB ? t : SUB; t -= h;
+    var a = -w*w*(this.x - this.target) - 2*z*w*this.v;
+    this.v += a*h; this.x += this.v*h;
+  }
+  return this.x;
+};
+Spring.prototype.settled = function() {
+  return Math.abs(this.x - this.target) < 0.0004 && Math.abs(this.v) < 0.004;
+};
+Spring.prototype.snap = function(v) { this.x = this.target = v; this.v = 0; };
+
+function reducedMotion() {
+  return window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+}
+
+// The selection behaves like the pointer of a real dial: it travels round the ring
+// to the key you picked instead of teleporting. Angle and radius are separate
+// springs - a single spring on 2D distance desyncs when the two axes have different
+// velocities. Damping 1.0 (critically damped, no overshoot) because these moves are
+// taps, not flicks; response 0.42s reads as weighty without feeling slow.
+var selAng  = new Spring(-Math.PI/2, 1.0, 0.42);   // radians, unwrapped
+var selRing = new Spring(0, 1.0, 0.34);            // 0 = outer ring, 1 = inner ring
+var _selInit = false;
+// Relation connectors draw themselves out from the current key rather than snapping
+// into existence, so the eye is led along the relationship in the direction it goes.
+var relDraw = new Spring(1, 1.0, 0.38);
+var _relDrawKey = '';
+
+// A struck note decays, it doesn't spring - so sector pulses use an exponential
+// envelope keyed by start time rather than a Spring. Registry is slice -> the
+// timestamp the note sounded.
+var PULSE_MS = 620;
+var _pulses = {};
+// Pulses waiting for their moment: {slice, due} in the performance.now() domain.
+// They used to be setTimeout callbacks, which is the wrong clock twice over. First,
+// a timer doesn't land on a frame: the flash becomes visible on the first rAF frame
+// AFTER an unaligned timer fires, so each note of an arpeggio picked up its own
+// helping of timer slop plus up to a frame of quantisation - while the audio side is
+// sample-accurate. Second, the visual was scheduled against the moment the sample is
+// SUBMITTED, but the sound leaves the speaker ctx.outputLatency later - measured 16ms
+// on a wired output here, and routinely 100-200ms over Bluetooth. So the flash led the
+// note by an amount that changed when you plugged in headphones. Now the queue is
+// drained inside the frame loop and the latency is added up front, which is what makes
+// "eye and ear land together" actually true rather than merely intended.
+var _pulseQueue = [];
+function pulseSemitone(semi, delayMs) {
+  if (reducedMotion()) return;
+  var slice = MROOT.indexOf(((semi % 12) + 12) % 12);
+  if (slice < 0) return;
+  var _n = performance.now();
+  // Drop anything whose moment has been and gone by more than one pulse's lifetime. The
+  // frame loop is the only thing that drains this queue, and rAF does not run in a
+  // hidden tab - so without this, a backgrounded PWA that keeps receiving taps grows the
+  // queue without bound and then, on return, flashes every sector it missed at once.
+  // A pulse that late has nothing to be in sync WITH; the note it belonged to is over.
+  for (var _i = _pulseQueue.length - 1; _i >= 0; _i--)
+    if (_n - _pulseQueue[_i].due > PULSE_MS) _pulseQueue.splice(_i, 1);
+  _pulseQueue.push({ slice: slice, due: _n + Math.max(0, delayMs || 0) });
+  // And a hard ceiling, because the sweep above is time-based and time barely moves
+  // inside a tight synchronous burst. Nothing legitimate queues more than a scale's
+  // worth (8); 64 is far past any real use and keeps this bounded whatever happens.
+  if (_pulseQueue.length > 64) _pulseQueue.splice(0, _pulseQueue.length - 64);
+  _kickAnim();
+}
+// Called once per frame, before render(), with that frame's timestamp - rAF's argument
+// and performance.now() share a timebase, so `due` and `_pulses[slice]` agree.
+function _drainPulses(ts) {
+  for (var i = _pulseQueue.length - 1; i >= 0; i--) {
+    if (ts >= _pulseQueue[i].due) { _pulses[_pulseQueue[i].slice] = ts; _pulseQueue.splice(i, 1); }
+  }
+}
+function _pulseAt(slice, now) {
+  var t0 = _pulses[slice];
+  if (t0 === undefined) return 0;
+  var k = 1 - (now - t0)/PULSE_MS;
+  if (k <= 0) { delete _pulses[slice]; return 0; }
+  return k*k;                      // eased decay - bright attack, soft tail
+}
+function _pulsesActive() {
+  if (_pulseQueue.length) return true;
+  for (var k in _pulses) return true;
+  return false;
+}
+
+// +1 forces the next dial move clockwise, -1 anticlockwise, 0 = take the short way.
+// Consumed and reset by the next render(), so it only ever steers one move.
+var _angDirHint = 0;
+var _animRAF = null, _animPrev = 0;
+// Backgrounding a tab freezes rAF, so a move in flight stops wherever the last frame
+// left it and _animRAF keeps a stale handle that makes _kickAnim a no-op. Come back and
+// the dial is parked on a key you never chose while the panel names the right one - in
+// a PWA, backgrounding is the normal case, not the edge case. On return, drop the dead
+// handle and let the loop restart from where the springs actually are.
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) return;
+  _animRAF = null; _animPrev = 0;
+  _kickAnim();
+});
+function _animTick(ts) {
+  var dt = _animPrev ? (ts - _animPrev)/1000 : 1/60;
+  _animPrev = ts;
+  selAng.step(dt); selRing.step(dt); relDraw.step(dt);
+  _drainPulses(ts);            // light every note that has come due, on THIS frame
+  render();
+  if (selAng.settled() && selRing.settled() && relDraw.settled() && !_pulsesActive()) { _animRAF = null; _animPrev = 0; }
+  else _animRAF = requestAnimationFrame(_animTick);
+}
+function _kickAnim() {
+  if (_animRAF || reducedMotion()) return;
+  _animPrev = 0;
+  _animRAF = requestAnimationFrame(_animTick);
+}
+
 function render() {
+  // Nothing to draw until resize() has measured the canvas. Without this the very
+  // first paint can run with R=0 (outerR = -4) and throw on ctx.arc, aborting the
+  // rest of the load - reachable whenever something calls render() before the first
+  // resize(), e.g. the URL/pref loader restoring a non-Tonal tab via setAppMode().
+  if (!R || R <= 8) return;
   ctx.clearRect(0, 0, W, H);
+  var _rs       = respellForSelection(selected);   // null unless the key demands it
   var dark      = isDark();
+  // The toggle is the only authority here. It used to be OR'd with
+  // `selected.fromInner` to keep a minor selection visible, but that made the
+  // control dead exactly when a minor was selected (tap it and the ring stayed,
+  // still clickable). The selection stays visible anyway: hiddenMinorSel in the
+  // draw loop marks the parent sector when the ring is off.
   var showMinor = appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
   var slA       = 2 * Math.PI / 12;
+  var _now      = performance.now();   // one clock for every pulse envelope this frame
+  // Point the dial at the current selection. The angle is kept UNWRAPPED and
+  // re-targeted to whichever multiple of 2π is nearest the current position, so the
+  // marker always takes the short way round (C -> B♭ swings back two steps, it
+  // doesn't run ten steps forward).
+  if (selected) {
+    var _tAng = (-Math.PI/2) + selected.slice*slA;
+    // Shortest path is right for a TAP - you pointed at a sector, the marker goes the
+    // near way. It is wrong for Transpose, where the control itself states a direction:
+    // up a semitone is seven sectors clockwise, but shortest-path took the five-sector
+    // shortcut anticlockwise, so pressing the UP arrow visibly swung the dial DOWN the
+    // circle. The frames contradicted the button. _angDirHint lets transpose() say
+    // which way it meant, for that one move only.
+    if (_angDirHint > 0)      { while (_tAng <= selAng.x) _tAng += 2*Math.PI; }
+    else if (_angDirHint < 0) { while (_tAng >= selAng.x) _tAng -= 2*Math.PI; }
+    else {
+      while (_tAng - selAng.x >  Math.PI) _tAng -= 2*Math.PI;
+      while (_tAng - selAng.x < -Math.PI) _tAng += 2*Math.PI;
+    }
+    _angDirHint = 0;
+    var _tRing = (selected.fromInner && showMinor) ? 1 : 0;
+    if (!_selInit || reducedMotion()) { selAng.snap(_tAng); selRing.snap(_tRing); _selInit = true; }
+    else if (_tAng !== selAng.target || _tRing !== selRing.target) {
+      selAng.target = _tAng; selRing.target = _tRing; _kickAnim();
+    }
+  }
+  var _solTonic = isSol() ? currentTonicSemi() : null;   // movable-do reference pitch
   // FIXED radii so the major ring is the SAME thickness in every tab (Modal too) and
   // major = minor thickness (0.30R each). Minor band is just left empty when hidden.
   var outerR    = R - 4;             // leave a margin so the selection border (drawn
@@ -604,6 +1257,13 @@ function render() {
   // Build sets for highlighting
   var relHL  = {};
   var prlTargetInner = false;
+  // Fixed-interval relations (neighbours, mediants, tritone, dim7, Neapolitan) are
+  // computed as a SECTOR offset that is identical whether the current key is a
+  // sector's major or its relative minor (major<->minor is always a constant -3
+  // semitones, which commutes with any fixed interval). So when the current key IS
+  // the minor (fromInner), the targets are that same sector's MINOR - highlight the
+  // inner ring, not the outer one.
+  var relHLIsMinor = false;
   var scaleHL = {};
   // tonic = the actual tonal centre (parent for non-Ionian modes)
   // Relation highlights live ONLY in the Assist THEORY lens now (Feelings/DJ stay
@@ -611,23 +1271,74 @@ function render() {
   // so minor related keys highlight correctly.
   var showRel = selected && appMode === 'assist' && assistStyle === 'relations';
   if (showRel) {
-    // Tonal centre is always selected.slice - use it for scale and relation highlights
+    // Relations must run on the key's CANONICAL (sector, isMinor) pair, not on the
+    // raw fromInner flag: a minor can also arrive as fromInner:false carrying a
+    // minor-type mode (Quick Nav's "Parallel minor", or anything picked in Modal),
+    // and reading fromInner then computed every relation for the relative MAJOR -
+    // the panel said "Cm" while the pills said C/G/F. assistKeyState() is the same
+    // resolver the Assist engine already uses.
+    var _ks  = assistKeyState(selected);
+    var _fi  = _ks.cm;                                   // is the current key minor?
+    var _sec = _ks.cs;                                   // sector carrying its key signature
+    var _as  = _fi ? MROOT.indexOf((MROOT[_sec]+9)%12)   // its actual tonic sector
+                   : _sec;
     var _gt = RELS[activeRel].getTarget;
     if (_gt) {
-      var _fi = !!selected.fromInner;
-      var _m  = MODES[selected.modeIdx];
-      var _as = _fi ? MROOT.indexOf((MROOT[selected.slice]+_m.off)%12) : selected.slice;
-      var _pt = _gt(selected.slice, _fi, _as);
+      var _pt = _gt(_sec, _fi, _as);
       if (_pt) { relHL[_pt.sector] = true; prlTargetInner = _pt.inner; }
     } else {
-      var relFn = RELS[activeRel].get;
-      var relArr = relFn ? relFn(selected.slice) : [];
+      var _rl = RELS[activeRel];
+      // ♭II is always major, so from a minor tonic it maps to a different sector
+      // AND highlights the outer ring - see RELS.neapolitan.
+      var relFn = (_fi && _rl.getMin) ? _rl.getMin : _rl.get;
+      var relArr = relFn ? relFn(_sec) : [];
       for (var k=0; k<relArr.length; k++) relHL[relArr[k]] = true;
+      relHLIsMinor = _fi && !_rl.targetAlwaysMaj;
     }
-    var scArr = getScaleSlices(selected.slice, 0);
+    var scArr = getScaleSlices(_sec, 0);
     for (var k=0; k<scArr.length; k++) scaleHL[scArr[k]] = true;
   }
+  // Moods and DJ used to leave the wheel completely inert - the panel did all the
+  // thinking while the app's main object just sat there. Mark the top suggestions
+  // on it, ranked, so the answer appears where the user is already looking.
+  var suggHL = [];
+  if (selected && appMode === 'assist' && assistStyle !== 'relations') {
+    var _sk = assistKeyState(selected);
+    if (_sk.cs !== null) {
+      var _sg = assistStyle === 'dj'
+        ? (assistMove === null ? null : djSuggest(_sk.cs, _sk.cm, assistMove))
+        : assistSuggest(_sk.cs, _sk.cm, assistEmotion);
+      if (_sg) for (var q = 0; q < Math.min(3, _sg.length); q++) {
+        suggHL.push({ slice:_sg[q].slice, min:!!_sg[q].min, rank:q+1 });
+      }
+    }
+  }
+  // Modal hides the minor ring, which used to leave the whole accR→innerR band as
+  // empty background - 30% of the radius reading as a rendering failure, with the
+  // accidentals disc floating orphaned inside it. Fill it with the current scale's
+  // OWN family instead: the seven sectors that share this key signature. The band
+  // then answers "which keys share my notes" exactly where the minor ring would be.
+  var famHL = {};
+  if (!showMinor && selected) {
+    // Go through assistKeyState, the canonical resolver, rather than deriving the key
+    // by hand - this was the last place still doing it. For a fromInner selection
+    // `selected.slice` is ALREADY the sector holding the key signature and modeIdx is
+    // Aeolian, so passing both made getParentSlice subtract Aeolian's offset a second
+    // time and land three sectors away: pick Am, switch the minor ring off, and the
+    // band painted Eb major's family while the panel still said "A minor".
+    var _fk = assistKeyState(selected);
+    var famArr = getScaleSlices(_fk.cs, 0);
+    for (var k=0; k<famArr.length; k++) famHL[famArr[k]] = true;
+  }
   var parentSl = selected ? getParentSlice(selected.slice, selected.modeIdx) : null;
+  // Which accidental label the ring should light up: the key signature ACTUALLY in
+  // force, which for a mode is its parent's (A Dorian works from G's 1♯, and the
+  // panel says so) - not the selected sector's own major signature, which used to
+  // be highlighted and contradicted the panel (panel "1♯ (F♯)" vs ring "3♯").
+  var accSel = !selected ? null
+             : selected.fromInner ? selected.slice
+             : (parentSl !== null && parentSl !== undefined) ? parentSl
+             : selected.slice;
 
   for (var i = 0; i < 12; i++) {
     var a0 = (-Math.PI/2) + i*slA - slA/2;
@@ -642,6 +1353,7 @@ function render() {
     var hovOuter = hovered && hovered.slice === i && !hovered.isInner;
     var hovInner = hovered && hovered.slice === i && hovered.isInner;
     var faded    = selected && !isSel && !inScale && !inRel;
+    var pulse    = _pulseAt(i, _now);   // 1 at the note's attack, decaying to 0
 
     // Outer ring - annular (donut), keeps minor area visually clean
     var selIsInner  = isSel && !!selected.fromInner;
@@ -655,19 +1367,45 @@ function render() {
     ctx.closePath();
     // High opacity = TRUE colour in BOTH themes. Colours stay bright after a pick:
     // faded sectors only step down slightly (no muddy dimming).
-    var aOuter = (isSel && !selIsInner) ? 1.0
-               : outerIsPRL             ? 0.97
-               : hovOuter ? 1.0 : inScale ? 0.95 : faded ? 0.85 : 0.95;
-    ctx.fillStyle = ha(col, aOuter);
+    // A minor key selected while the minor ring is HIDDEN (share link with inner=1,
+    // or the ring switched off after picking) has nowhere to draw its marker, so the
+    // wheel used to show nothing selected while the panel named a key. Fall back to
+    // marking the parent sector on the outer ring.
+    var hiddenMinorSel = selIsInner && !showMinor;
+    var markOuter = (isSel && !selIsInner) || hiddenMinorSel;
+    // Emphasis follows the ANIMATED dial position, not the logical selection, so the
+    // brightness travels with the marker instead of snapping to the destination
+    // while the outline is still in transit. 1 when the dial is centred on this
+    // sector's ring, falling to 0 one sector away.
+    var _dAng = Math.abs(((selAng.x - ((-Math.PI/2) + i*slA)) % (2*Math.PI) + 3*Math.PI) % (2*Math.PI) - Math.PI);
+    var _prox = selected ? Math.max(0, 1 - _dAng/slA) : 0;
+    var emphOuter = _prox * (1 - selRing.x);
+    var emphInner = _prox * selRing.x;
+    if (hiddenMinorSel) { emphOuter = _prox; emphInner = 0; }   // no inner ring to sit on
+    // In the Relations lens, FOCUS means suppressing everything unrelated - the old
+    // 0.95-vs-0.85 step was a 10% delta, perceptually nothing, so the highlight
+    // simply didn't read. Unrelated sectors now drop right back; related ones and
+    // the selection stay at full strength (and get an outline below).
+    var relDim = showRel && !isSel && !inRel;
+    var aOuterBase = relDim   ? 0.22
+                   : outerIsPRL ? 0.97
+                   : hovOuter ? 1.0 : inScale ? 0.95 : faded ? 0.85 : 0.95;
+    var aOuter = aOuterBase + (1 - aOuterBase) * emphOuter;
+    // The note itself: lift toward white on the attack so the sector visibly rings.
+    var pcol = pulse > 0 ? lightenHex(col, 0.55*pulse) : col;
+    ctx.fillStyle = ha(pcol, Math.min(1, aOuter + 0.30*pulse));
     ctx.fill();
-    if (isSel && !selIsInner) {
-      // Crisp double outline (dark halo + white line) - reads cleanly on any palette
-      // and theme, no fuzzy glow, even edges.
-      ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 3.6; ctx.stroke();
-      ctx.strokeStyle = '#ffffff';        ctx.lineWidth = 1.6; ctx.stroke();
-    } else {
-      ctx.strokeStyle = dark ? 'rgba(255,255,255,.10)' : 'rgba(0,0,0,.12)';
-      ctx.lineWidth = 1.2; ctx.stroke();
+    ctx.strokeStyle = dark ? 'rgba(255,255,255,.10)' : 'rgba(0,0,0,.12)';
+    ctx.lineWidth = 1.2; ctx.stroke();
+    // A tint shift alone is nearly invisible against a 0.95 base, so the note also
+    // rings the sector's edge - a bright stroke that decays with the envelope. Reads
+    // as a struck thing, not a colour change.
+    if (pulse > 0.01) {
+      ctx.save();
+      ctx.strokeStyle = dark ? 'rgba(255,255,255,'+(0.95*pulse)+')' : 'rgba(0,0,0,'+(0.65*pulse)+')';
+      ctx.lineWidth = 1 + 3.2*pulse;
+      ctx.stroke();
+      ctx.restore();
     }
 
     // Ring separator
@@ -685,20 +1423,29 @@ function render() {
       var innerIsPRL = isPRLTarget && prlTargetInner;
       // Minor ring sits a touch below the major ring in opacity so it reads as
       // secondary, but still shows the true colour in both themes.
-      var aInner = selIsInner  ? 1.0
-                 : hovInner    ? 0.92
-                 : sameSecR    ? 0.92
-                 : innerIsPRL  ? 0.92
-                 : faded ? 0.80 : 0.82;
-      ctx.fillStyle = ha(col, aInner);
+      var aInnerBase = hovInner   ? 0.92
+                     : sameSecR   ? 0.92
+                     : innerIsPRL ? 0.92
+                     : faded ? 0.80 : 0.82;
+      var aInner = aInnerBase + (1 - aInnerBase) * emphInner;   // travels with the dial
+      ctx.fillStyle = ha(pcol, Math.min(1, aInner + 0.30*pulse));
       ctx.fill();
-      if (selIsInner) {
-        ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 3.4; ctx.stroke();
-        ctx.strokeStyle = '#ffffff';        ctx.lineWidth = 1.6; ctx.stroke();
-      } else {
-        ctx.strokeStyle = dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
-        ctx.lineWidth = 0.8; ctx.stroke();
-      }
+      ctx.strokeStyle = dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
+      ctx.lineWidth = 0.8; ctx.stroke();
+    } else if (famHL[i]) {
+      // Minor ring hidden (Modal): the band shows the current key's FAMILY - the
+      // seven sectors sharing its key signature - so the space carries meaning
+      // instead of reading as a hole. Quiet by design; the major ring stays the
+      // subject.
+      ctx.beginPath();
+      ctx.moveTo(CX + Math.cos(a0)*innerR, CY + Math.sin(a0)*innerR);
+      ctx.arc(CX,CY,innerR,a0,a1);
+      ctx.arc(CX,CY,accR,a1,a0,true);
+      ctx.closePath();
+      ctx.fillStyle = ha(col, 0.20);
+      ctx.fill();
+      ctx.strokeStyle = dark ? 'rgba(255,255,255,.06)' : 'rgba(0,0,0,.06)';
+      ctx.lineWidth = 0.8; ctx.stroke();
     }
 
     // Accidentals ring - outer arc boundary
@@ -716,8 +1463,11 @@ function render() {
     ctx.lineWidth = 0.7; ctx.stroke();
 
     // Relation pulsing dashes on outer edge
-    // R same-sector: dash on opposite ring of selected sector
-    if (isSel && activeRel==='nrlR' && showMinor) {
+    // R same-sector: dash on opposite ring of selected sector.
+    // Must be gated on showRel like every other relation mark - without it, once the
+    // user had ever tapped "Relative (R)", activeRel stayed 'nrlR' and this dash was
+    // painted in Tonal, Modal and Assist>Moods too, with no relations UI to explain it.
+    if (showRel && isSel && activeRel==='nrlR' && showMinor) {
       ctx.save();
       ctx.setLineDash([4,3]);
       ctx.strokeStyle = dark ? 'rgba(255,255,255,0.85)' : 'rgba(0,0,0,0.6)';
@@ -742,16 +1492,23 @@ function render() {
       ctx.setLineDash([]);
       ctx.restore();
     }
-    // Other relation modes
+    // Other relation modes - draw on the inner (minor) ring when the current key
+    // IS a minor tonic (relHLIsMinor), since the target is that sector's minor too.
+    // Stroked in the theme's INK, not in the sector's own colour: the old
+    // `ha(col, .8)` drew each target's edge in that target's own hue, which is
+    // invisible by construction, so the whole lens rendered nothing.
     if (inRel && !isSel && !isPRLTarget) {
-      ctx.save();
-      ctx.beginPath(); ctx.arc(CX,CY,outerR-1.5,a0,a1);
-      ctx.strokeStyle = ha(col, 0.8);
-      ctx.lineWidth = 2.5;
-      ctx.setLineDash([5,3]);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.restore();
+      var relOnInner = relHLIsMinor && showMinor;
+      if (!relHLIsMinor || showMinor) {
+        ctx.save();
+        ctx.beginPath(); ctx.arc(CX,CY,(relOnInner?innerR:outerR)-1.5,a0,a1);
+        ctx.strokeStyle = dark ? 'rgba(255,255,255,0.9)' : 'rgba(0,0,0,0.7)';
+        ctx.lineWidth = 2.5;
+        ctx.setLineDash([5,3]);
+        ctx.stroke();
+        ctx.setLineDash([]);
+        ctx.restore();
+      }
     }
 
     var midA = (-Math.PI/2) + i*slA;
@@ -761,8 +1518,18 @@ function render() {
     var showCam = isCamelot();
     ctx.save();
     ctx.translate(CX + Math.cos(midA)*lR, CY + Math.sin(midA)*lR);
-    var mainLabel = showCam ? camelot(i, false) : (isSol() ? solName(MROOT[i]) : MAJSHORT[i]);
-    var selFill   = (isSel && !selIsInner) ? '#fff' : dark ? 'rgba(255,255,255,.72)' : 'rgba(0,0,0,.82)';
+    // In movable-do the wheel becomes a map of scale degrees around the current key:
+    // the neighbouring sectors read Sol and Fa, i.e. dominant and subdominant, right
+    // there on the rim. With nothing selected there's no tonic, so fall back to notes.
+    var mainLabel = showCam ? camelot(i, false)
+                  : (isSol() && _solTonic !== null) ? solChrom(MROOT[i] - _solTonic)
+                  : (_rs && !_rs.onInner && _rs.slice === i) ? _rs.label
+                  : MAJSHORT[i];
+    // Ink follows the SECTOR's lightness, not the theme (see sectorLum).
+    var onLightOut = sectorLum(col, aOuter) > LUM_FLIP;
+    var selFill   = (isSel && !selIsInner)
+                  ? (onLightOut ? '#000' : '#fff')
+                  : (onLightOut ? 'rgba(0,0,0,.82)' : 'rgba(255,255,255,.82)');
     ctx.font = (isSel ? '500' : '400') + ' ' + Math.max(12, R*0.072) + 'px ' + ff;
     ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
     ctx.fillStyle = selFill;
@@ -774,26 +1541,138 @@ function render() {
       var mR2 = (innerR + accR) / 2;
       ctx.save();
       ctx.translate(CX + Math.cos(midA)*mR2, CY + Math.sin(midA)*mR2);
-      var minMain = showCam ? camelot(i, true) : (isSol() ? solName(MROOT[i]+9) + 'm' : MINNAMES[i]);
+      // Lowercase = minor, the same convention the panel's roman numerals use (I vs
+      // i). Appending "m" instead gave "Dom"/"Mim"/"Tim", which read as words.
+      var minMain = showCam ? camelot(i, true)
+                  : (isSol() && _solTonic !== null) ? solChrom(MROOT[i]+9 - _solTonic).toLowerCase()
+                  : (_rs && _rs.onInner && _rs.slice === i) ? _rs.label + 'm'
+                  : MINNAMES[i];
       ctx.font = '400 ' + Math.max(9, R*0.052) + 'px ' + ff;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-      ctx.fillStyle = selIsInner ? '#fff' : dark ? 'rgba(255,255,255,.48)' : 'rgba(0,0,0,.55)';
+      // Same luminance rule, at the inner ring's own (lower) alpha.
+      var onLightIn = sectorLum(col, aInner) > LUM_FLIP;
+      ctx.fillStyle = selIsInner
+                    ? (onLightIn ? '#000' : '#fff')
+                    : (onLightIn ? 'rgba(0,0,0,.6)' : 'rgba(255,255,255,.55)');
       ctx.fillText(minMain, 0, 0);
       ctx.restore();
     }
 
-    // Accidentals (skip C=0, hide in Camelot mode)
+    // Accidentals (skip C=0, hide in Camelot mode). Dark theme was sub-perceptual
+    // (.34 alpha at an 8px floor - all three design reviews flagged this); raised to
+    // match light theme's visibility. The lit label is the signature IN FORCE (accSel
+    // - the parent's for a mode), so the ring always agrees with the panel.
     if (!showCam) {
-      var acc = accStr(i);
+      var acc = accStr(i);   // reference data, never respelt - see respellForSelection
       if (acc) {
+        var accLit = (accSel !== null && accSel === i);
         ctx.save();
         ctx.translate(CX + Math.cos(midA)*accLabelR, CY + Math.sin(midA)*accLabelR);
-        ctx.font = '400 ' + Math.max(8, R*0.042) + 'px ' + ff;
+        ctx.font = (accLit?'600 ':'400 ') + Math.max(9, R*0.042) + 'px ' + ff;
         ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-        ctx.fillStyle = dark ? 'rgba(255,255,255,.34)' : 'rgba(0,0,0,.55)';
+        ctx.fillStyle = accLit ? (dark ? lightenHex(SYNTH[i],0.3) : SYNTH[i])
+                               : (dark ? 'rgba(255,255,255,.52)' : 'rgba(0,0,0,.55)');
         ctx.fillText(acc, 0, 0);
         ctx.restore();
       }
+    }
+  }
+
+  // ── The dial pointer ────────────────────────────────────────────────────────
+  // One marker that TRAVELS to the key you picked, rather than a highlight that
+  // blinks out here and in there. Drawn once, after the sectors, at the springs'
+  // current angle and radius - so it can be caught and redirected mid-flight simply
+  // by picking again.
+  if (selected) {
+    var mA0 = selAng.x - slA/2, mA1 = selAng.x + slA/2;
+    var t   = selRing.x;                                   // 0 outer .. 1 inner
+    var mOut = outerR + (innerR - outerR) * t;
+    var mIn  = innerR + (accR   - innerR) * t;
+    ctx.save();
+    ctx.beginPath();
+    ctx.moveTo(CX + Math.cos(mA0)*mOut, CY + Math.sin(mA0)*mOut);
+    ctx.arc(CX, CY, mOut, mA0, mA1);
+    ctx.arc(CX, CY, mIn,  mA1, mA0, true);
+    ctx.closePath();
+    // Crisp double outline (dark halo + white line) - reads on any palette or theme,
+    // no fuzzy glow, even edges.
+    ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 3.6; ctx.stroke();
+    ctx.strokeStyle = '#ffffff';        ctx.lineWidth = 1.6; ctx.stroke();
+    ctx.restore();
+  }
+
+  // ── Answers drawn ON the wheel ──────────────────────────────────────────────
+  // Anchor a connector near the INNER edge of whichever ring the key lives on, not
+  // at the ring's midpoint - the midpoint is exactly where the sector's label sits,
+  // and a line ending there covers the very name it's pointing at.
+  function sectorPt(i, isMin) {
+    var a  = (-Math.PI/2) + i*slA;
+    var rr = (isMin && showMinor) ? accR   + (innerR-accR)*0.22
+                                  : innerR + (outerR-innerR)*0.22;
+    return { x: CX + Math.cos(a)*rr, y: CY + Math.sin(a)*rr };
+  }
+
+  // RELATIONS: a chord line from the current key to each target, straight across the
+  // wheel. The relationship itself becomes visible geometry - a tritone is a line
+  // through the middle, mediants are a wide V - and it uses the empty centre, which
+  // is where the eye already goes.
+  if (showRel && selected) {
+    var _cKs  = assistKeyState(selected);
+    var _cMin = _cKs.cm;
+    var from  = sectorPt(_cKs.cs, _cMin);
+    var targets = [];
+    for (var i2 = 0; i2 < 12; i2++) {
+      if (!relHL[i2]) continue;
+      var tMin = RELS[activeRel].getTarget ? prlTargetInner
+               : (relHLIsMinor && showMinor);
+      targets.push(sectorPt(i2, tMin));
+    }
+    // Neo-R "R" targets the SAME sector's other ring - the line is radial, not across.
+    if (RELS[activeRel].getTarget && !targets.length) targets.push(sectorPt(_cKs.cs, !_cMin));
+    // Restart the draw-out whenever the relation or the key changes, so the line is
+    // read in its direction of travel: out from where you are, toward where it goes.
+    var _rKey = activeRel + '|' + _cKs.cs + '|' + _cMin;
+    if (_rKey !== _relDrawKey) {
+      _relDrawKey = _rKey;
+      if (reducedMotion()) relDraw.snap(1);
+      else { relDraw.snap(0); relDraw.target = 1; _kickAnim(); }
+    }
+    var _grow = Math.max(0, Math.min(1, relDraw.x));
+    ctx.save();
+    ctx.strokeStyle = dark ? 'rgba(255,255,255,.5)' : 'rgba(0,0,0,.42)';
+    ctx.lineWidth = 1.6;
+    ctx.lineCap = 'round';
+    for (var t2 = 0; t2 < targets.length; t2++) {
+      targets[t2] = { x: from.x + (targets[t2].x - from.x)*_grow,
+                      y: from.y + (targets[t2].y - from.y)*_grow };
+      ctx.beginPath();
+      ctx.moveTo(from.x, from.y);
+      ctx.lineTo(targets[t2].x, targets[t2].y);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // MOODS / DJ: a small numbered badge on each of the top suggestions, in the panel's
+  // own order, so "where do I go next" is answered on the wheel too.
+  if (suggHL.length) {
+    var badgeR = Math.max(8, R*0.055);
+    for (var s2 = 0; s2 < suggHL.length; s2++) {
+      var sg2 = suggHL[s2];
+      var a2  = (-Math.PI/2) + sg2.slice*slA;
+      // Sit just inside the outer edge of the ring the target actually lives on.
+      var rr2 = (sg2.min && showMinor) ? accR + (innerR-accR)*0.80
+                                       : innerR + (outerR-innerR)*0.80;
+      var bx = CX + Math.cos(a2)*rr2, by = CY + Math.sin(a2)*rr2;
+      ctx.save();
+      ctx.beginPath(); ctx.arc(bx, by, badgeR, 0, Math.PI*2);
+      ctx.fillStyle = dark ? 'rgba(255,255,255,.94)' : 'rgba(20,20,18,.9)';
+      ctx.fill();
+      ctx.fillStyle = dark ? '#1c1c1a' : '#fff';
+      ctx.font = '700 ' + Math.max(9, R*0.055) + 'px ' + ff;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillText(String(sg2.rank), bx, by + 0.5);
+      ctx.restore();
     }
   }
 
@@ -801,11 +1680,29 @@ function render() {
   ctx.beginPath(); ctx.arc(CX,CY,R*0.17,0,Math.PI*2);
   ctx.strokeStyle= dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
   ctx.lineWidth  = 0.5; ctx.stroke();
+
+  // Canvas pixels say nothing to a screen reader - keep an accessible name that
+  // reports the current selection, plus how to drive it from the keyboard.
+  // Named from the same resolver as the panel and the wheel, so a respelt key is
+  // announced as C# Aeolian rather than the sector's stale Db.
+  var _sk = selected ? keySpelling(tonicSliceOf(selected), selected.modeIdx) : null;
+  cv.setAttribute('aria-label',
+    (_sk
+      ? 'Circle of fifths. Selected: ' +
+        _sk.tonic + (selected.fromInner ? 'm' : '') +
+        ' ' + MODES[selected.modeIdx].name
+      : 'Circle of fifths. No key selected') +
+    '. Arrow keys change key, up and down switch major and minor, Enter replays it.');
 }
 
 // ── Input ─────────────────────────────────────────────────────────────────────
 function getSlice(x, y) {
   var dx=x-CX, dy=y-CY, dist=Math.sqrt(dx*dx+dy*dy);
+  // The toggle is the only authority here. It used to be OR'd with
+  // `selected.fromInner` to keep a minor selection visible, but that made the
+  // control dead exactly when a minor was selected (tap it and the ring stayed,
+  // still clickable). The selection stays visible anyway: hiddenMinorSel in the
+  // draw loop marks the parent sector when the ring is off.
   var showMinor = appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
   var innerR = R * 0.70;            // FIXED - matches render() (major/minor boundary)
   if (dist > R * 1.04 || dist < R * 0.40) return null;
@@ -828,7 +1725,7 @@ function evCoords(e) {
   return { x:(src.clientX-r.left)*sx, y:(src.clientY-r.top)*sy };
 }
 
-function handlePick(h) {
+function handlePick(h, noToggle) {
   if (!h) return;
   if (quizMode) { handleQuizClick(h.slice); return; }
 
@@ -836,73 +1733,148 @@ function handlePick(h) {
   if (appMode === 'modal') {
     // Modal: outer ring only, keep current mode (it IS the tonic)
     newModeIdx = lastModeIdx;
-  } else if (h.isInner) {
-    newModeIdx = 4; // Tonal: Aeolian for inner ring
   } else {
-    // Tonal: outer ring - keep mode only if major-type
-    newModeIdx = (MODES[lastModeIdx].type === 'maj') ? lastModeIdx : 0;
+    // Tonal/Assist are the KEY tabs: outer ring = major, inner ring = its relative
+    // minor, full stop. They must never inherit a mode from Modal - carrying
+    // lastModeIdx over meant that after looking at C Mixolydian, tapping G here
+    // produced "G Mixolydian" in a tab with no control to change it back.
+    newModeIdx = h.isInner ? 4 : 0;
   }
-  // slice = sector (tonal centre) - never remap for inner ring
-  if (selected && selected.slice === h.slice && selected.modeIdx === newModeIdx) {
+  // slice = sector (tonal centre) - never remap for inner ring.
+  // Tapping the SAME key again deselects. The ring has to be part of that identity:
+  // "C Aeolian" (outer, modeIdx 4) and "Am" (inner, modeIdx 4) share a sector and a
+  // mode index but are different keys, so without the fromInner check, picking Am
+  // right after Quick Nav's "Parallel minor" silently blanked the app instead.
+  var _newFromInner = (appMode === 'tonal' || appMode === 'assist') ? !!h.isInner : false;
+  // noToggle: keyboard navigation must never land on "nothing selected" - arrowing
+  // onto the key you're already on should be a no-op, not a deselect.
+  if (!noToggle && selected && selected.slice === h.slice && selected.modeIdx === newModeIdx
+      && !!selected.fromInner === _newFromInner) {
     selected = null;
   } else {
-    selected = { slice: h.slice, tonicSlice: h.slice, modeIdx: newModeIdx, fromInner: (appMode === 'tonal' || appMode === 'assist') ? h.isInner : false };
+    selected = { slice: h.slice, tonicSlice: h.slice, modeIdx: newModeIdx, fromInner: _newFromInner };
     lastModeIdx = newModeIdx;
     buildModeStrip();
   }
   render();
   updatePanel();
-  if (selected) playTonic(selected.slice, selected.modeIdx, selected.fromInner);
+  if (selected) {
+    playTonic(selected.slice, selected.modeIdx, selected.fromInner);
+    // Same resolver as everything else, so the announcement can't drift from the panel.
+    var _a = keySpelling(tonicSliceOf(selected), selected.modeIdx);
+    // Say it the way the panel writes it: "G major", not "G Ionian".
+    var _mi = selected.modeIdx;
+    say(_a.tonic + ' ' + (_mi === 0 ? 'major' : _mi === 4 ? 'minor' : MODES[_mi].name)
+        + ', ' + (accStrF(_a.sig) || 'no accidentals'));
+  } else {
+    say('Nothing selected');
+  }
 }
 
-cv.addEventListener('mousemove', function(e) {
-  var c=evCoords(e); hovered=getSlice(c.x,c.y); render();
-  cv.style.cursor = hovered ? 'pointer' : 'default';
-});
-cv.addEventListener('mouseleave', function() { hovered=null; render(); });
-cv.addEventListener('click', function(e) {
-  var c=evCoords(e); handlePick(getSlice(c.x,c.y));
-});
-var _touchDown = null;
-cv.addEventListener('touchstart', function(e) {
+// ONE pointer path for mouse, touch and pen. There were two before, and each was
+// missing something the other had:
+//   - Mouse had no press feedback at all. There was no mousedown handler, so the only
+//     thing on screen when you pressed was the hover tint that had been there since
+//     before you pressed. Nothing acknowledged the press itself.
+//   - Touch committed the coordinate of the PRESS, not the release, and touchmove did
+//     nothing but preventDefault. Press C, slide the finger right across the wheel to
+//     F#, let go there - and it still selected C. On 30-degree wedges that makes a
+//     fat-finger miss uncorrectable, and it means a tap can never be called off once
+//     begun, which every other control on the platform allows.
+//   - Pen and hybrid input (iPad + Pencil, Surface) fell between the two paths and got
+//     neither hover nor press.
+// Now the press marks a sector, the mark FOLLOWS the finger, and release commits
+// wherever you actually let go - so sliding off the wheel and releasing cancels.
+var _pressing = false;
+function _samePick(a, b) {
+  return (a === b) || (a && b && a.slice === b.slice && a.isInner === b.isInner);
+}
+cv.addEventListener('pointerdown', function(e) {
   e.preventDefault();
+  _pressing = true;
+  // Capture so a finger that wanders off the canvas keeps reporting to us - that's what
+  // lets "drag away to cancel" and "drag back to re-aim" both work.
+  if (cv.setPointerCapture) { try { cv.setPointerCapture(e.pointerId); } catch (_e) {} }
   var c = evCoords(e);
-  _touchDown = c;
   hovered = getSlice(c.x, c.y);
-  render(); // immediate visual feedback on touchdown
-}, {passive:false});
-cv.addEventListener('touchmove', function(e) { e.preventDefault(); }, {passive:false});
-cv.addEventListener('touchend', function(e) {
+  render();
+});
+cv.addEventListener('pointermove', function(e) {
+  var c = evCoords(e), h = getSlice(c.x, c.y);
+  // Repaint only when the sector actually changes - this used to redraw the whole wheel
+  // on every pixel of movement.
+  if (_samePick(h, hovered)) return;
+  hovered = h;
+  render();
+  if (!_pressing) cv.style.cursor = hovered ? 'pointer' : 'default';
+});
+cv.addEventListener('pointerup', function(e) {
   e.preventDefault();
-  if (_touchDown) {
-    hovered = null;
-    handlePick(getSlice(_touchDown.x, _touchDown.y));
-    _touchDown = null;
+  if (!_pressing) return;
+  _pressing = false;
+  var c = evCoords(e);
+  hovered = null;
+  handlePick(getSlice(c.x, c.y));   // null (released off the wheel) is a no-op = cancelled
+});
+cv.addEventListener('pointercancel', function() {
+  _pressing = false; hovered = null; render();
+});
+cv.addEventListener('pointerleave', function() {
+  if (_pressing) return;   // dragging past the rim mid-press isn't leaving
+  hovered = null; render();
+});
+// Keyboard control of the wheel: left/right step round the circle of fifths,
+// up/down cross between the major and minor rings, Enter/Space re-picks (replays
+// the tonic). Without this the app's main control was pointer-only.
+cv.addEventListener('keydown', function(e) {
+  var k = e.key, step = 0;
+  // In the quiz every wheel pick IS an answer, and handlePick routes straight to
+  // handleQuizClick - so a keyboard user pressing Right just to look around
+  // irrevocably submitted whatever sector they landed on. Here the arrows move a
+  // survey cursor and only Enter/Space commits, which is how the pointer already
+  // behaves (press to highlight, release to answer).
+  if (quizMode) {
+    if (k === 'ArrowRight' || k === 'ArrowLeft') {
+      e.preventDefault();
+      var _c = hovered ? hovered.slice : (selected ? selected.slice : 0);
+      hovered = { slice: ((_c + (k === 'ArrowRight' ? 1 : -1)) % 12 + 12) % 12, isInner: false };
+      render();
+      say(MAJSHORT[hovered.slice]);
+      return;
+    }
+    if (k === 'Enter' || k === ' ') {
+      e.preventDefault();
+      if (hovered) handleQuizClick(hovered.slice);
+      return;
+    }
+    return;
   }
+  if (k === 'ArrowRight') step = 1;
+  else if (k === 'ArrowLeft') step = -1;
+  else if (k === 'ArrowUp' || k === 'ArrowDown') {
+    // Only Tonal/Assist have an inner ring to cross to.
+    if (appMode === 'modal') return;
+    e.preventDefault();
+    var base = selected || { slice:0, tonicSlice:0, modeIdx:0, fromInner:false };
+    handlePick({ slice: base.slice, isInner: k === 'ArrowDown' }, true);
+    return;
+  } else if (k === 'Enter' || k === ' ') {
+    if (!selected) return;
+    e.preventDefault();
+    playTonic(selected.slice, selected.modeIdx, selected.fromInner);
+    return;
+  } else return;
+  e.preventDefault();
+  var cur = selected ? selected.slice : 0;
+  var next = ((cur + step) % 12 + 12) % 12;
+  handlePick({ slice: next, isInner: selected ? !!selected.fromInner : false }, true);
 });
-cv.addEventListener('touchcancel', function() {
-  _touchDown = null; hovered = null; render();
-});
+// (The mouse and touch listeners that used to live here are gone - see the single
+// pointer path above, which covers mouse, touch and pen together.)
 
 // ── Mode strip ────────────────────────────────────────────────────────────────
-function getModeDataForSlice(slice, modeIdx) {
-  // The smart strip shows the 7 modes of the parent tonal centre
-  // Each button = a specific note + mode
-  var parentSlice = getParentSlice(slice, modeIdx);
-  if (parentSlice === null) parentSlice = slice;
-  var parentRoot = MROOT[parentSlice];
-  var modes = MODES;
-  var result = [];
-  // All 7 modes from parent major, ordered as in MODES array
-  for (var m=0; m<7; m++) {
-    var noteRoot = (parentRoot + modes[m].off) % 12;
-    var noteSlice = MROOT.indexOf(noteRoot);
-    var noteName = MAJSHORT[noteSlice];
-    result.push({ modeIdx:m, noteName:noteName, noteSlice:noteSlice });
-  }
-  return result;
-}
-
+// (getModeDataForSlice lived here to feed the unreachable "Tonal: relative modes"
+// strip branch; both are gone.)
 function buildModeStrip() {
   var strip = document.getElementById('modestrip');
   var wrap  = document.getElementById('modestripwrap');
@@ -926,35 +1898,26 @@ function buildModeStrip() {
     return;
   }
 
+  // Only Modal reaches here (the guard above returns for every other tab), so this
+  // is always the parallel-mode strip: same tonic note, all 7 modes. (A second
+  // "Tonal: relative modes" branch used to sit here, unreachable behind that same
+  // guard - removed rather than left to rot.)
   var html = '';
-  if (appMode === 'modal') {
-    // Modal: parallel modes - same tonic note, all 7 modes
-    var tonicName = MAJSHORT[selected.slice];
-    for (var m=0; m<7; m++) {
-      var mode = MODES[m];
-      var isActive = m === selected.modeIdx;
-      if (m === 3) html += '<div class="mode-div"></div>';
-      html += '<button class="mbtn'+(isActive?' active':'') + '" onclick="setModeByBtn('+m+')" title="'+mode.mood+'">'
-        + '<span class="mb-note">'+tonicName+'</span>'
-        + '<span class="mb-mode">'+mode.name+'</span>'
-        + '<span class="mb-mood">'+mode.mood+'</span>'
-        + '</button>';
-    }
-  } else {
-    // Tonal: relative modes - 7 different notes of parent major
-    var tSlice = selected.tonicSlice !== undefined ? selected.tonicSlice : selected.slice;
-    var modeData = getModeDataForSlice(tSlice, 0);
-    for (var m=0; m<7; m++) {
-      var md = modeData[m];
-      var mode = MODES[md.modeIdx];
-      var isActive = md.modeIdx === selected.modeIdx;
-      if (m === 3) html += '<div class="mode-div"></div>';
-      html += '<button class="mbtn'+(isActive?' active':'') + '" onclick="setModeByBtn('+md.modeIdx+')" title="'+mode.mood+'">'
-        + '<span class="mb-note">'+md.noteName+'</span>'
-        + '<span class="mb-mode">'+mode.name+'</span>'
-        + '<span class="mb-mood">'+mode.mood+'</span>'
-        + '</button>';
-    }
+  for (var m=0; m<7; m++) {
+    var mode = MODES[m];
+    var isActive = m === selected.modeIdx;
+    // Per mode, not one name for all seven: these are the same TONIC but they are not
+    // all spelt the same way. Db Ionian/Mixolydian/Dorian really are Db, but Db
+    // Aeolian's parent would be Fb major (eight flats), so that button is C# Aeolian.
+    // A single tonicName printed Db on all seven and disagreed with the panel the
+    // moment you pressed one of the last three.
+    var tonicName = keySpelling(selected.slice, m).tonic;
+    if (m === 3) html += '<div class="mode-div"></div>';
+    html += '<button class="mbtn'+(isActive?' active':'') + '" onclick="setModeByBtn('+m+')" title="'+mode.mood+'">'
+      + '<span class="mb-note">'+tonicName+'</span>'
+      + '<span class="mb-mode">'+mode.name+'</span>'
+      + '<span class="mb-mood">'+mode.mood+'</span>'
+      + '</button>';
   }
   strip.innerHTML = html;
 }
@@ -995,12 +1958,15 @@ function getModeChords(slice, modeIdx, tonicSlice) {
   var m    = MODES[modeIdx];
   var root = MROOT[slice];
   var useSol = isSol();
-  var nn   = useSol ? SOL_NAMES : notesForSlice(tonicSlice !== undefined ? tonicSlice : slice);
+  var nn   = notesForSlice(tonicSlice !== undefined ? tonicSlice : slice);
   var notes  = [];
   var chords = [];
   for (var i=0; i<7; i++) {
     var nr = (root + m.iv[i]) % 12;
-    notes.push(nn[nr]);
+    // The SCALE row carries the solfège (that's where degrees teach something);
+    // CHORDS keep note names either way, since "Dom / Rem / Me" names no chord
+    // anyone would write.
+    notes.push(useSol ? solDeg(i, m.iv[i]) : nn[nr]);
     var t   = m.ct[i];
     var num = (t==='min'||t==='dim') ? ROM_MIN[i] : ROM_MAJ[i];
     chords.push({ name: nn[nr]+(t==='min'?'m':t==='dim'?'°':''), num:num, type:t });
@@ -1008,30 +1974,39 @@ function getModeChords(slice, modeIdx, tonicSlice) {
   return { notes:notes, chords:chords };
 }
 
-function getSecondaryDominants(slice, tSlice) {
+// Secondary dominants of the CURRENTLY SELECTED mode. This used to hardcode
+// MODES[0] (Ionian) while being called with a modal tonic, so A Dorian was given
+// A major's set - chords like G♯7 "resolving to C♯m", a chord that doesn't exist in
+// A Dorian. Degree 0 is skipped too: V/I is just the dominant, not a SECONDARY one.
+function getSecondaryDominants(slice, tSlice, modeIdx) {
+  var m    = MODES[modeIdx || 0];
   var root = MROOT[slice];
   var nn = notesForSlice(tSlice !== undefined ? tSlice : slice);
-  var iv = MODES[0].iv;
-  var ct = MODES[0].ct;
   var result = [];
-  for (var i=0; i<7; i++) {
-    var target = ct[i];
-    if (target === 'dim') continue;
-    var targetRoot = (root + iv[i]) % 12;
+  for (var i=1; i<7; i++) {
+    var target = m.ct[i];
+    if (target === 'dim') continue;   // a diminished degree has no functional dominant
+    var targetRoot = (root + m.iv[i]) % 12;
     var secDomRoot = (targetRoot + 7) % 12;
-    // Secondary dominant uses sharp names (it's chromatic)
-    var secDomName = NOTES_SHARP[secDomRoot];
+    // Spell the secondary dominant with the KEY's own accidental convention, not
+    // always sharps: in D♭ major the V/ii is B♭7, never "A♯7". (nn is the flat or
+    // sharp table chosen for this key signature.)
+    var secDomName = nn[secDomRoot];
     var targetName = nn[targetRoot] + (target==='min'?'m':'');
-    result.push({ chord: secDomName+'7', resolves: targetName, num: 'V/' + (ct[i]==='min'?ROM_MIN:ROM_MAJ)[i] });
+    result.push({ chord: secDomName+'7', resolves: targetName, num: 'V/' + (target==='min'?ROM_MIN:ROM_MAJ)[i] });
   }
   return result;
 }
 
 function updatePanel() {
   var panel = document.getElementById('panel');
+  // Quiz owns the panel while active - anything that repaints the panel mid-question
+  // (tab/notation/palette changes) used to destroy it while quizMode stayed true,
+  // leaving wheel clicks routed to a dead quiz (TypeError on #qnext).
+  if (quizMode) { renderQuizPanel(); return; }
   if (appMode === 'assist') { renderAssistPanel(); return; }
   if (!selected) {
-    panel.innerHTML = '<div class="phead">Info</div><div class="pbody"><div class="empty">Click a key on the circle</div></div>';
+    panel.innerHTML = '<div class="phead">Info</div><div class="pbody"><div class="empty">Tap a key on the circle</div></div>';
     return;
   }
 
@@ -1061,65 +2036,113 @@ function updatePanel() {
   }
 
   var col     = SYNTH[actualSlice];
-  var acc     = accStr(accSlice);
-  var keyName = (isSol() ? solName(MROOT[actualSlice]) : MAJSHORT[actualSlice]) + ' ' + mode.name;
+  // Spelling comes from the line of fifths, not from a per-sector table. accSlice is
+  // the sector whose MAJOR signature happens to sit nearest on the wheel; for 16 of the
+  // 84 sector x mode pairs that is the enharmonic twin of the real parent, so reading
+  // the signature off it printed "Db Dorian, II mode of B major" - five sharps, no
+  // flats, for a key spelt with flats.
+  var _ks     = keySpelling(actualSlice, modeIdx);
+  var acc     = accStrF(_ks.sig);
+  var accNotes = accNotesStrF(_ks.sig);
+  // The key's NAME stays a note name in movable-do - the tonic is Do by definition,
+  // so "Do Dorian" would name every key identically.
+  // Ionian and Aeolian are named the way people ask for them - "C major", "A minor"
+  // - with the modal name kept as a parenthetical. Leading with the Greek term meant
+  // a student who tapped the sector labelled "Am" got a panel headed "A Aeolian",
+  // i.e. the app renamed the thing they had just pointed at. The other five modes
+  // have no common-language name, so they stand alone.
+  var _modeLabel = modeIdx === 0 ? 'major (Ionian)'
+                 : modeIdx === 4 ? 'minor (Aeolian)'
+                 : mode.name;
+  // _ks.tonic, not MAJSHORT[actualSlice]: on six of the 84 pairs the sector's own label
+  // is unusable as a tonic name (Db Aeolian's parent would be Fb major, eight flats),
+  // and the line respells it to the reachable one - C# Aeolian, parent E major.
+  var keyName = _ks.tonic + ' ' + _modeLabel;
   var camLabel = isCamelot() ? ' <span style="font-size:11px;opacity:.55;font-weight:400;margin-left:4px">' + CAM_MAJ[accSlice] + (mode.type==='maj'?'B':'A') + '</span>' : '';
   var data    = getModeChords(actualSlice, modeIdx, accSlice);
   var notes   = data.notes;
   var chords  = data.chords;
   var ctxHTML = '';
-  if (appMode === 'tonal' && parentSlice !== null && parentSlice !== undefined && modeIdx !== 0) {
-    ctxHTML = MODE_NUMS[modeIdx] + ' mode of <strong>' + MAJSHORT[parentSlice] + ' major</strong>';
+  // Modal needs this line MOST (a guitarist checking "A Dorian" wants to know it's
+  // the II mode of G major) - it used to be suppressed there by a tonal-only guard.
+  if (parentSlice !== null && parentSlice !== undefined && modeIdx !== 0) {
+    ctxHTML = MODE_NUMS[modeIdx] + ' mode of <strong>' + _ks.parent + ' major</strong>';
   }
 
-    // Relation highlights
+    // Relation highlights - on the key's CANONICAL (sector, isMinor) pair. Reading
+    // `fromInner` alone was wrong for a minor that arrives as fromInner:false with a
+    // minor-type mode (Quick Nav's "Parallel minor", or a pick made in Modal): every
+    // relation was then computed for the relative MAJOR. Same resolver as render().
   var rel    = RELS[activeRel];
-  var _pgt   = rel.getTarget ? rel.getTarget(slice, fromInner, actualSlice) : null;
-  var relArr = _pgt ? [_pgt.sector] : (rel.get ? rel.get(slice) : []);
+  var _rks   = assistKeyState(selected);
+  var _rMin  = _rks.cm, _rSec = _rks.cs;
+  var _rTon  = _rMin ? MROOT.indexOf((MROOT[_rSec]+9)%12) : _rSec;
+  var _pgt   = rel.getTarget ? rel.getTarget(_rSec, _rMin, _rTon) : null;
+  var _relGet = (_rMin && rel.getMin) ? rel.getMin : rel.get;   // ♭II needs its own map from a minor tonic
+  var relArr = _pgt ? [_pgt.sector] : (_relGet ? _relGet(_rSec) : []);
 
   // Scale HTML
   var scaleHTML = '';
   for (var i=0; i<notes.length; i++) {
     var _nSemi = MROOT[actualSlice] + MODES[modeIdx].iv[i]; // no %12 - _playNote handles octave
-    scaleHTML += '<div class="sn'+(i===0?' root':'')
-      +'" onclick="playNotePill('+_nSemi+')" style="cursor:pointer'
-      +(i===0?';background:'+col:'')+'">'+notes[i]+'</div>';
+    // <button>, not <div>: these are controls that make a sound, and as divs they had
+    // no tab stop, no role, no Enter/Space and no focus ring - the app's second core
+    // interaction was pointer-only. A button gets all four for free.
+    scaleHTML += '<button type="button" class="sn'+(i===0?' root':'')
+      +'" onclick="playNotePill('+_nSemi+')" aria-label="Play '+notes[i]
+      +(i===0?', the tonic':'')+'" style="cursor:pointer'
+      +(i===0?';background:'+col+';color:'+(sectorLum(col,1)>LUM_FLIP?'#000':'#fff'):'')+'">'+notes[i]+'</button>';
   }
 
     // Chords HTML
   var chordsHTML = '';
   for (var i=0; i<chords.length; i++) {
-    var cc = CCOL[chords[i].type] || CCOL.maj;
+    var cc = chordCol(chords[i].type);
     var _cS = (MROOT[actualSlice] + MODES[modeIdx].iv[i]) % 12;
     var _cT = chords[i].type;
-    chordsHTML += '<div class="cp" style="background:'+cc.bg+';color:'+cc.tx
-      +';cursor:pointer" onclick="playChordPill('+_cS+',\'' + _cT + '\')"><span>'
-      +chords[i].num+'</span>'+chords[i].name+'</div>';
+    chordsHTML += '<button type="button" class="cp" style="background:'+cc.bg+';color:'+cc.tx
+      +';cursor:pointer" onclick="playChordPill('+_cS+',\'' + _cT + '\')"'
+      +' aria-label="Play '+chords[i].name+', the '+chords[i].num+' chord"><span>'
+      +chords[i].num+'</span>'+chords[i].name+'</button>';
   }
 
     // Highlights HTML
   var hlHTML = '';
+  function _pill(sliceIdx, label) {
+    var bg = SYNTH[sliceIdx];
+    return '<span class="hl-pill" style="background:'+bg+';color:'
+      +(sectorLum(bg,1)>LUM_FLIP?'#000':'#fff')+'">'+label+'</span>';
+  }
   if (_pgt) {
-    var curLabel = fromInner ? MINNAMES[slice] : MAJSHORT[slice];
+    var curLabel = _rMin ? MINNAMES[_rSec] : MAJSHORT[_rSec];
     var tgtLabel = _pgt.inner ? MINNAMES[_pgt.sector] : MAJSHORT[_pgt.sector];
-    hlHTML += '<span class="hl-pill" style="background:'+SYNTH[actualSlice]+'">'+curLabel+'</span>';
-    hlHTML += '<span class="hl-pill" style="background:'+SYNTH[_pgt.sector]+'">'+tgtLabel+'</span>';
+    hlHTML += _pill(_rTon, curLabel);
+    hlHTML += _pill(_pgt.sector, tgtLabel);
   } else {
+    // Most of these relations are a fixed SECTOR offset (e.g. neighbours = ±1) and
+    // read the same from a major key or its relative minor (major↔minor is a
+    // constant -3 semitones, which commutes with any fixed interval) - so from a
+    // minor key the targets are that same sector's MINOR. The Neapolitan is the
+    // exception: ♭II is always a major chord, so it declares its own getMin and
+    // targetAlwaysMaj (see RELS).
+    var _tgtMin = _rMin && !rel.targetAlwaysMaj;
     for (var i=0; i<relArr.length; i++) {
-      hlHTML += '<span class="hl-pill" style="background:'+SYNTH[relArr[i]]+'">'+MAJSHORT[relArr[i]]+'</span>';
+      hlHTML += _pill(relArr[i], _tgtMin ? MINNAMES[relArr[i]] : MAJSHORT[relArr[i]]);
     }
   }
 
-  // Quick nav
-  var domSlice   = (accSlice+1)%12;
-  var subSlice   = (accSlice+11)%12;
+  // Quick nav. Step a fifth from the ACTUAL TONIC, not from the parent's sector -
+  // reading accSlice meant A Dorian was offered "D Dorian" as its dominant (that's
+  // the subdominant; the dominant is E Dorian), and Am got G/F instead of Em/Dm.
+  var domSlice   = (actualSlice+1)%12;
+  var subSlice   = (actualSlice+11)%12;
   var parIonian  = MAJSHORT[actualSlice] + ' major';
   var parAeolian = MAJSHORT[actualSlice] + ' minor';
   var domName    = MAJSHORT[domSlice] + ' ' + mode.name;
   var subName    = MAJSHORT[subSlice] + ' ' + mode.name;
 
   // Secondary dominants
-  var sdList = getSecondaryDominants(actualSlice, accSlice);
+  var sdList = getSecondaryDominants(actualSlice, accSlice, modeIdx);
   var sdHTML = '';
   for (var i=0; i<sdList.length; i++) {
     sdHTML += '<span class="sd-item" title="'+sdList[i].num+' resolves to '+sdList[i].resolves+'">'+sdList[i].chord+'</span>';
@@ -1132,13 +2155,19 @@ function updatePanel() {
         +(document.getElementById('cb-minor').checked?' active':'')
         +'" onclick="toggleMinorRing()" title="Show the minor (inner) ring">Minor ring</button></div>'
       : '';
+    // phead is FUNCTIONAL (swatch + the minor-ring control) - key-big right below is
+    // the single place the key's IDENTITY (name/Camelot) is printed, so it isn't said
+    // twice in a ~13px-tall strip.
     panel.innerHTML =
-    '<div class="phead"><span class="sw" style="background:'+col+'"></span>'+keyName+camLabel+minorTog+'</div>' +
+    '<div class="phead"><span class="sw" style="background:'+col+'"></span>'+minorTog+'</div>' +
     '<div class="pbody">' +
-      '<div class="key-big">'+keyName+tStepHTML()+'</div>' +
-      (isCamelot() ? '<div style="font-size:12px;color:var(--text3);margin:-2px 0 4px">Camelot <strong style="color:var(--text2)">'+CAM_MAJ[accSlice]+(MODES[modeIdx].type==='maj'?'B':'A')+'</strong></div>' : '') +
-      (!isCamelot() ? '<div class="key-sub">'+(acc?acc+' \u00b7 ':'')+mode.mood+'</div>' : '<div class="key-sub">'+mode.mood+'</div>') +
-      '<div class="ctx-line">'+ctxHTML+'</div>' +
+      '<div class="key-big">'+keyName+camLabel+tStepHTML()+'</div>' +
+      // Naming which notes the accidentals ARE (the ring only shows the count) -
+      // C major shows nothing here, which itself teaches ("no accidentals").
+      (!isCamelot() ? '<div class="key-sub">'+(acc?acc+' ('+accNotes+') \u00b7 ':'')+mode.mood+'</div>' : '<div class="key-sub">'+mode.mood+'</div>') +
+      // Ionian has no parent-mode context (ctxHTML is empty) - don't reserve the
+      // 31px ctx-line box for nothing.
+      (ctxHTML ? '<div class="ctx-line">'+ctxHTML+'</div>' : '') +
 
       '<div class="slabel">Scale</div>' +
       '<div class="scale-row">'+scaleHTML+'</div>' +
@@ -1156,10 +2185,10 @@ function updatePanel() {
 
         '<div class="slabel">Quick nav</div>' +
         '<div class="nav-grid">' +
-          '<div class="ni" onclick="goKey('+actualSlice+',0)"><div class="nl">Parallel major</div><div class="nk">'+parIonian+'</div></div>' +
-          '<div class="ni" onclick="goKey('+actualSlice+',4)"><div class="nl">Parallel minor</div><div class="nk">'+parAeolian+'</div></div>' +
-          '<div class="ni" onclick="goKey('+domSlice+','+modeIdx+')"><div class="nl">Dominant</div><div class="nk">'+domName+'</div></div>' +
-          '<div class="ni" onclick="goKey('+subSlice+','+modeIdx+')"><div class="nl">Subdominant</div><div class="nk">'+subName+'</div></div>' +
+          '<button type="button" class="ni" onclick="goKey('+actualSlice+',0)"><div class="nl">Parallel major</div><div class="nk">'+parIonian+'</div></button>' +
+          '<button type="button" class="ni" onclick="goKey('+actualSlice+',4)"><div class="nl">Parallel minor</div><div class="nk">'+parAeolian+'</div></button>' +
+          '<button type="button" class="ni" onclick="goKey('+domSlice+','+modeIdx+')"><div class="nl">Dominant</div><div class="nk">'+domName+'</div></button>' +
+          '<button type="button" class="ni" onclick="goKey('+subSlice+','+modeIdx+')"><div class="nl">Subdominant</div><div class="nk">'+subName+'</div></button>' +
         '</div>' +
 
         '<div class="slabel">Secondary dominants</div>' +
@@ -1201,11 +2230,18 @@ var QUIZ = [
   },
   function(i) {
     var ps = MROOT.indexOf((MROOT[i]-2+12)%12);
+    // Only ask where the wheel's name for the tonic is the one the PARENT key
+    // actually spells. Otherwise the "correct" answer is only an enharmonic stand-in
+    // (D♭ Dorian really belongs to C♭ major, which the wheel can't name, so the app
+    // would answer "B major" - right pitch, contradictory spelling). startQuiz()
+    // re-rolls when a generator throws.
+    if (notesForSlice(ps)[MROOT[i]] !== MAJSHORT[i]) throw 0;
     return { q:qName(MAJSHORT[i])+' Dorian is the II mode of which major key?', correct:ps,
       opts:shuffled4(ps, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
   function(i) {
     var ps = MROOT.indexOf((MROOT[i]-7+12)%12);
+    if (notesForSlice(ps)[MROOT[i]] !== MAJSHORT[i]) throw 0;   // see the Dorian note above
     return { q:qName(MAJSHORT[i])+' Mixolydian is the V mode of which major key?', correct:ps,
       opts:shuffled4(ps, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
@@ -1222,54 +2258,46 @@ var QUIZ = [
     return { q:'Name the diatonic V chord in '+qName(MAJSHORT[i])+' major.', correct:(i+1)%12,
       opts:shuffled4((i+1)%12, function(j){ return qName(MAJSHORT[j]); }) };
   },
-  // Parallel minor
+  // Parallel minor: SAME ROOT NOTE, different key signature (C major -> Cm). These two
+  // said correct:i, which points at MINNAMES[i] - the RELATIVE minor. That made both
+  // questions byte-identical to the relative-major/minor pair below AND marked the right
+  // answer wrong: "parallel minor of C major" accepted Am and rejected Cm. Two of
+  // seventeen generators, so roughly one question in eight was teaching the wrong
+  // definition and failing students who knew it.
   function(i) {
-    return { q:'What is the parallel minor of '+qName(MAJSHORT[i])+' major?', correct:i,
-      opts:shuffled4(i, function(j){ return qName(MINNAMES[j]); }) };
+    var pm = MROOT.indexOf((MROOT[i]+3)%12);          // the minor whose ROOT is MROOT[i]
+    // Same enharmonic discipline as the mode questions above: if the wheel spells that
+    // minor's root differently from this major's (Db major vs C#m), don't ask.
+    if (MINNAMES[pm].slice(0,-1) !== MAJSHORT[i]) throw 0;
+    return { q:'What is the parallel minor of '+qName(MAJSHORT[i])+' major?', correct:pm,
+      opts:shuffled4(pm, function(j){ return qName(MINNAMES[j]); }) };
   },
-  // Parallel major
+  // Parallel major (Am -> A major)
   function(i) {
-    return { q:'What is the parallel major of '+qName(MINNAMES[i])+'?', correct:i,
-      opts:shuffled4(i, function(j){ return qName(MAJSHORT[j])+' major'; }) };
-  },
-  // Relative minor - same sector (same key signature)
-  function(i) {
-    return { q:'Relative minor of '+qName(MAJSHORT[i])+' major?', correct:i,
-      opts:shuffled4(i, function(j){ return qName(MINNAMES[j]); }) };
+    var pM = MROOT.indexOf((MROOT[i]+9)%12);          // the major whose ROOT is MINNAMES[i]'s
+    if (MAJSHORT[pM] !== MINNAMES[i].slice(0,-1)) throw 0;
+    return { q:'What is the parallel major of '+qName(MINNAMES[i])+'?', correct:pM,
+      opts:shuffled4(pM, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
   // Relative major - same sector (same key signature)
   function(i) {
     return { q:'Relative major of '+qName(MINNAMES[i])+'?', correct:i,
       opts:shuffled4(i, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
-  // How many sharps (uses i, works for all keys)
+  // Conceptual (non-key) questions: text-only answers, shuffled, no wheel
+  // interaction (noWheel) - random wheel taps used to answer them via meaningless
+  // fake slices, and the "correct answer" highlight landed on a random key.
   function(i) {
-    var ACC=[0,1,2,3,4,5,6,-5,-4,-3,-2,-1];
-    var n = ACC[i];
-    var label = n===0 ? 'none' : n>0 ? n+'♯' : Math.abs(n)+'♭';
-    return { q:'How many accidentals in '+qName(MAJSHORT[i])+' major?', correct:i,
-      opts:shuffled4(i, function(j){
-        var a=ACC[j];
-        return a===0?'none':a>0?a+'♯':Math.abs(a)+'♭';
-      }) };
+    return { q:'Which degree is raised in Lydian compared to major?',
+      noWheel:1, opts:shuffledText('4', ['2','6','7']) };
   },
-  // Lydian: raised degree
   function(i) {
-    return { q:'Which degree is raised in Lydian compared to major?', correct:i,
-      opts:[ {slice:i,label:'4',isCorrect:true},{slice:(i+1)%12,label:'2',isCorrect:false},
-             {slice:(i+2)%12,label:'6',isCorrect:false},{slice:(i+3)%12,label:'7',isCorrect:false}] };
+    return { q:'Which degree is lowered in Mixolydian compared to major?',
+      noWheel:1, opts:shuffledText('7', ['3','6','2']) };
   },
-  // Mixolydian: lowered degree
   function(i) {
-    return { q:'Which degree is lowered in Mixolydian compared to major?', correct:i,
-      opts:[ {slice:i,label:'7',isCorrect:true},{slice:(i+1)%12,label:'3',isCorrect:false},
-             {slice:(i+2)%12,label:'6',isCorrect:false},{slice:(i+3)%12,label:'2',isCorrect:false}] };
-  },
-  // Phrygian: characteristic lowered degree
-  function(i) {
-    return { q:'What makes Phrygian darker than Aeolian?', correct:i,
-      opts:[ {slice:i,label:'Lowered 2nd (b2)',isCorrect:true},{slice:(i+1)%12,label:'Lowered 4th (b4)',isCorrect:false},
-             {slice:(i+2)%12,label:'Lowered 5th (b5)',isCorrect:false},{slice:(i+3)%12,label:'Lowered 6th (b6)',isCorrect:false}] };
+    return { q:'What makes Phrygian darker than Aeolian?',
+      noWheel:1, opts:shuffledText('Lowered 2nd (b2)', ['Lowered 4th (b4)','Lowered 5th (b5)','Lowered 6th (b6)']) };
   },
   function(i) {
     var target = (i+7)%12; // neapolitan = -5 steps = +7 steps
@@ -1278,6 +2306,16 @@ var QUIZ = [
   },
 ];
 
+// Fisher-Yates. `sort(() => Math.random()-0.5)` is NOT a fair shuffle - measured over
+// 200k rolls it placed the correct answer first 28.2% of the time and last only
+// 18.7%, which a student can learn to exploit.
+function _shuffle(a) {
+  for (var i=a.length-1; i>0; i--) {
+    var j = Math.floor(Math.random()*(i+1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
 function shuffled4(correct, label) {
   var pool = [correct];
   while (pool.length < 4) {
@@ -1286,21 +2324,35 @@ function shuffled4(correct, label) {
     for (var k=0;k<pool.length;k++) { if(pool[k]===r){found=true;break;} }
     if (!found) pool.push(r);
   }
-  pool.sort(function(){ return Math.random()-0.5; });
+  _shuffle(pool);
   var out = [];
   for (var i=0;i<pool.length;i++) out.push({ slice:pool[i], label:label(pool[i]), isCorrect:pool[i]===correct });
   return out;
 }
+// Text-only options for conceptual (non-key) questions - no slice/wheel mapping,
+// shuffled so the correct answer isn't always first.
+function shuffledText(correctLabel, wrongLabels) {
+  var out = [{label:correctLabel, isCorrect:true}];
+  for (var i=0;i<wrongLabels.length;i++) out.push({label:wrongLabels[i], isCorrect:false});
+  return _shuffle(out);
+}
 
 function startQuiz() {
-  var i    = Math.floor(Math.random()*12);
-  var type = QUIZ[Math.floor(Math.random()*QUIZ.length)];
-  try {
-    var q = type(i);
-    quizState = { q:q.q, opts:q.opts, correct:q.correct, targetSlice:q.correct, answered:false };
-    renderQuizPanel();
-    selected = null; render();
-  } catch(e) { startQuiz(); }
+  // Some generators deliberately reject their key (an enharmonically ambiguous
+  // tonic - see the Dorian/Mixolydian notes in QUIZ), so re-roll on failure. A
+  // bounded loop rather than the old unbounded recursion: it can't blow the stack,
+  // and the last attempt is forced onto a generator that never rejects.
+  var q = null;
+  for (var tries = 0; tries < 40 && !q; tries++) {
+    var i    = Math.floor(Math.random()*12);
+    var type = QUIZ[Math.floor(Math.random()*QUIZ.length)];
+    try { q = type(i); } catch(e) { q = null; }
+  }
+  if (!q) q = { q:'What is the relative minor of '+qName(MAJSHORT[0])+' major?', correct:0,
+                opts:shuffled4(0, function(j){ return qName(MINNAMES[j]); }) };
+  quizState = { q:q.q, opts:q.opts, correct:q.correct, targetSlice:q.correct, noWheel:!!q.noWheel, answered:false };
+  renderQuizPanel();
+  selected = null; render();
 }
 
 function renderQuizPanel() {
@@ -1309,8 +2361,14 @@ function renderQuizPanel() {
   for (var i=0;i<quizState.opts.length;i++) {
     optsHTML += '<button class="qo" id="qo'+i+'" onclick="answerQuiz('+i+')">'+quizState.opts[i].label+'</button>';
   }
+  // The quiz takes over the panel and the wheel, but used to leave no way out from
+  // inside its own surface - the only exit was the unlabelled top-bar icon that
+  // opened it. It now names itself and carries an explicit Exit, so it's an honest
+  // takeover rather than a hidden mode.
   document.getElementById('panel').innerHTML =
-    '<div class="phead" style="color:#7B5EA7">\u25b8 Quiz</div>' +
+    '<div class="phead" style="color:'+inkOn('#7B5EA7')+'">Quiz' +
+      '<button class="quiz-exit" onclick="toggleQuiz()" aria-label="Exit quiz">Exit</button>' +
+    '</div>' +
     '<div class="pbody">' +
       '<div style="font-size:11px;color:var(--text3);text-align:right;margin-bottom:8px">'+scoreStr+'</div>' +
       '<div style="font-size:13px;font-weight:500;color:var(--text);margin-bottom:11px;line-height:1.5">'+quizState.q+'</div>' +
@@ -1318,39 +2376,83 @@ function renderQuizPanel() {
       '<button class="quiz-next" id="qnext" onclick="startQuiz()">Next \u2192</button>' +
       '<div class="quiz-hint" id="qhint"></div>' +
     '</div>';
+  // An ALREADY-ANSWERED question must come back answered. updatePanel() re-renders
+  // this panel whenever the tab/notation/palette changes, so without this the
+  // question would redraw as fresh: options live again but answerQuiz() refusing
+  // to act (quizState.answered), and no Next button - a dead end.
+  if (quizState.answered) _paintQuizAnswer();
 }
 
-function answerQuiz(idx) {
-  if (!quizState||quizState.answered) return;
-  quizState.answered = true; quizTotal++;
-  var ok = quizState.opts[idx].isCorrect;
-  if (ok) quizScore++;
+// Paint the answered state onto the freshly-rendered options (used both when the
+// user answers and when the panel is re-rendered after answering).
+function _paintQuizAnswer() {
+  var ok = quizState.pickedIdx !== undefined && quizState.opts[quizState.pickedIdx].isCorrect;
   for (var i=0;i<quizState.opts.length;i++) {
     var b=document.getElementById('qo'+i); if(!b) continue;
     b.disabled=true;
     if (quizState.opts[i].isCorrect) b.classList.add('correct');
-    else if (i===idx) b.classList.add('wrong');
+    else if (i===quizState.pickedIdx) b.classList.add('wrong');
   }
-  selected = { slice:quizState.targetSlice, modeIdx:0, fromInner:false };
-  render();
-  document.getElementById('qnext').style.display='inline-block';
-  var h=document.getElementById('qhint'); h.style.display='block';
-  h.textContent = ok ? '\u2713 Correct!' : '\u2717 Correct answer highlighted above';
+  // Move focus BEFORE the disabling above can strand it: every option gets disabled,
+  // including the one the keyboard user is standing on, and focus then falls to <body>
+  // - so the next Tab restarts from the top of the page.
+  var n=document.getElementById('qnext');
+  if(n) { n.style.display='inline-block'; if (document.activeElement && document.activeElement.disabled) n.focus(); }
+  var h=document.getElementById('qhint');
+  if (h) {
+    h.style.display='block';
+    h.textContent = ok ? '\u2713 Correct!' : (quizState.noWheel ? '\u2717 Correct answer shown above' : '\u2717 Correct answer highlighted on the wheel');
+  }
+}
+
+function answerQuiz(idx) {
+  if (!quizState||quizState.answered) return;
+  quizState.answered = true; quizState.pickedIdx = idx; quizTotal++;
+  var _right = quizState.opts[idx].isCorrect;
+  if (_right) quizScore++;
+  _paintQuizAnswer();
+  // The verdict was only ever painted. Say it, with the right answer when it's wrong -
+  // otherwise a blind user learns nothing from getting it wrong, which is the whole
+  // point of an ear-training quiz.
+  var _corr = '';
+  for (var _i=0; _i<quizState.opts.length; _i++)
+    if (quizState.opts[_i].isCorrect) _corr = quizState.opts[_i].label || quizState.opts[_i].text || '';
+  say((_right ? 'Correct.' : 'Not quite. The answer is ' + _corr + '.')
+      + ' Score ' + quizScore + ' of ' + quizTotal + '.');
+  // Conceptual questions have no meaningful key - don't paint a random highlight.
+  if (!quizState.noWheel) { selected = { slice:quizState.targetSlice, modeIdx:0, fromInner:false }; render(); }
 }
 window.answerQuiz = answerQuiz;
 
 function handleQuizClick(slice) {
-  if (!quizState||quizState.answered) return;
+  if (!quizState||quizState.answered||quizState.noWheel) return;
   for (var i=0;i<quizState.opts.length;i++) {
     if (quizState.opts[i].slice===slice) { answerQuiz(i); return; }
   }
 }
 
+// The key the user was working on before dipping into the quiz - startQuiz() clears
+// the selection to use the wheel as an answer surface, so we stash it and put it
+// back on exit instead of dumping the user back to an empty app.
+var _preQuizSelected = null;
 function toggleQuiz() {
+  // The quiz replaces the whole panel, and the metronome button lives in that panel -
+  // so a click track started in Assist survived into the quiz with no control left to
+  // stop it. setAppMode, setAssistStyle, setAssistEmotion and toggleSound all stop it;
+  // this was the one entry point that didn't.
+  _stopMetronome();
   quizMode = !quizMode;
   document.getElementById('bm-quiz').classList.toggle('active', quizMode);
-  if (quizMode) { quizScore=0; quizTotal=0; startQuiz(); }
-  else { quizState=null; selected=null; render(); updatePanel(); }
+  var qb = document.getElementById('bm-quiz'); if (qb) qb.setAttribute('aria-pressed', quizMode ? 'true' : 'false');
+  if (quizMode) {
+    _preQuizSelected = selected;
+    quizScore=0; quizTotal=0; startQuiz();
+  } else {
+    quizState=null;
+    selected = _preQuizSelected; _preQuizSelected = null;
+    if (selected) lastModeIdx = selected.modeIdx;
+    buildModeStrip(); render(); updatePanel();
+  }
 }
 window.toggleQuiz = toggleQuiz;
 
@@ -1359,14 +2461,20 @@ buildModeStrip();
 
 // ── Audio ─────────────────────────────────────────────────────────────────────
 var _audioCtx = null;
-var _soundOn  = true;
+var _soundOn  = loadPref('sound', true); // was hardcoded true - reset itself every load unlike every other setting
+
+// One definition each - the load-time pref sync (further down) reuses these rather
+// than carrying its own copy of the markup.
+var _ICON_SOUND_ON  = '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+var _ICON_SOUND_OFF = '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="9.5" y1="5" x2="12" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="12" y1="5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
 
 function toggleSound() {
   _soundOn = !_soundOn;
-  var btn = document.getElementById('btn-sound');
-  btn.innerHTML = _soundOn
-    ? '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>'
-    : '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="9.5" y1="5" x2="12" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="12" y1="5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+  savePref('sound', _soundOn);
+  // Muting must silence a RUNNING metronome too - it's the one audio path that
+  // keeps producing sound on its own after the tap that started it.
+  if (!_soundOn) _stopMetronome();
+  document.getElementById('btn-sound').innerHTML = _soundOn ? _ICON_SOUND_ON : _ICON_SOUND_OFF;
 }
 
 function _getCtx() {
@@ -1405,16 +2513,90 @@ function _playNote(semi, when, dur, baseOct) {
 }
 
 function _playArp(semis, oct) {
-  if (!_soundOn) return;
+  var gap = 0.11;
+  // The pulse used to die with the sound: this function returned early when muted, and
+  // pulseSemitone was only ever called from inside it. So muting didn't just silence the
+  // app - it stopped the wheel lighting up at all, and the people most likely to mute (a
+  // DJ beside a mixer, an editor in a shared office) are exactly the ones who lost it.
+  // The sound is optional. The feedback that your tap did something is not.
+  if (!_soundOn) {
+    semis.forEach(function(s,i){ pulseSemitone(s, i*gap*1000); });
+    return;
+  }
   _withCtx(function() {
     var ctx = _getCtx();
     var now = ctx.currentTime + 0.05;
-    var gap = 0.11;
     var dur = 1.3;
+    // Read the clock and the latency ONCE, outside the loop. Reading ctx.currentTime
+    // per note meant it advanced by a render quantum between iterations, so each note's
+    // lead drifted a few ms differently - the audio spacing was exact and the visual
+    // spacing was not, which is the one thing this pairing cannot afford.
+    var _t0  = ctx.currentTime;
+    var _lat = (ctx.outputLatency || ctx.baseLatency || 0) * 1000;
     // Play ascending, no repeated note
-    semis.forEach(function(s,i){ _playNote(s, now+i*gap, dur, oct||4); });
+    semis.forEach(function(s,i){
+      _playNote(s, now+i*gap, dur, oct||4);
+      // Light the sector this note belongs to AT THE MOMENT IT SOUNDS. The audio is
+      // scheduled ahead on the WebAudio clock, so the visual is scheduled against
+      // the same instant rather than fired now - eye and ear land on one frame,
+      // which is what makes it read as one event instead of two.
+      // + outputLatency: `now` is when the sample is SUBMITTED, not when it reaches the
+      // speaker. Without this the flash consistently leads the note, by 16ms wired and
+      // by 100-200ms over Bluetooth - i.e. by an amount that changes with the headphones.
+      pulseSemitone(s, (now + i*gap - _t0) * 1000 + _lat);
+    });
   });
 }
+
+// ── Metronome (design-review consensus: yes, but tied to the recipe hint's BPM,
+// not living in the wheel's centre - "the recipe made audible", not a bolted-on
+// tool). Simple lookahead scheduler on the existing WebAudio context - no mic,
+// no permissions.
+// _metroOn is the SYNCHRONOUS state; _metroTimer is the handle, which only appears
+// after _withCtx resolves (the AudioContext usually needs an async resume() on its
+// first use). Keeping them separate is what stops a fast double-tap from starting
+// two schedulers and orphaning the first (an un-killable click track).
+var _metroTimer = null, _metroBeat = 0, _metroOn = false;
+function _playClick(when, accent) {
+  var ctx = _getCtx();
+  var osc = ctx.createOscillator(), gain = ctx.createGain();
+  osc.type = 'sine';
+  osc.frequency.value = accent ? 1600 : 1000;
+  gain.gain.setValueAtTime(0.20, when);
+  gain.gain.exponentialRampToValueAtTime(0.001, when + 0.05);
+  osc.connect(gain); gain.connect(ctx.destination);
+  osc.start(when); osc.stop(when + 0.06);
+}
+function toggleMetronome(bpm, btn) {
+  if (_metroOn) {                      // flips synchronously - see _metroOn above
+    _stopMetronome();
+    if (btn) btn.classList.remove('active');
+    return;
+  }
+  // Every other audio path has a visual half that still works when muted, so honouring
+  // the mute there costs nothing. This button has none: a metronome IS the sound. Bailing
+  // out left a control that changed no state, showed no message, and kept a tooltip
+  // promising "tap to hear this mood's tempo" - a dead control that looked alive.
+  // Pressing it is an unambiguous request to hear something, so grant it and let the
+  // speaker icon show what changed.
+  if (!_soundOn) toggleSound();
+  _metroOn = true;
+  if (btn) btn.classList.add('active');
+  _withCtx(function() {
+    if (!_metroOn || _metroTimer) return;  // stopped (or already started) while the context resumed
+    var ctx = _getCtx();
+    var interval = 60 / bpm;
+    var nextTime = ctx.currentTime + 0.05;
+    _metroBeat = 0;
+    _metroTimer = setInterval(function() {
+      while (nextTime < ctx.currentTime + 0.1) {
+        _playClick(nextTime, _metroBeat % 4 === 0);
+        nextTime += interval; _metroBeat++;
+      }
+    }, 25);
+  });
+}
+window.toggleMetronome = toggleMetronome;
 
 function _triad(root, type) {
   // root is 0-11 (semitone within octave)
@@ -1427,7 +2609,8 @@ function _triad(root, type) {
 
 // Called on any tonic selection
 function playTonic(slice, modeIdx, fromInner) {
-  if (!_soundOn) return;
+  // No mute gate here: _playArp owns that decision now, because it is the one place
+  // that knows the visual pulse has to happen either way.
   var mode = MODES[modeIdx];
   var as   = fromInner ? MROOT.indexOf((MROOT[slice]+mode.off)%12) : slice;
   var root = MROOT[as];
@@ -1436,8 +2619,7 @@ function playTonic(slice, modeIdx, fromInner) {
 
 // Called when clicking a diatonic chord pill
 function playChordPill(semi, type) {
-  if (!_soundOn) return;
-  _playArp(_triad(semi, type), 4);
+  _playArp(_triad(semi, type), 4);   // mute handled in _playArp, see playTonic
 }
 
 // Play mode scale ascending - highlights characteristic note of each mode
@@ -1476,16 +2658,37 @@ function playNotePill(semi) {
 
 // ── App Mode (Tonal / Modal) ──────────────────────────────────────────────────
 function setAppMode(mode) {
+  // The quiz is a takeover: it replaces the panel and turns every wheel tap into an
+  // answer. The tab buttons stayed live-looking through all of it - they flipped their
+  // active class and aria-selected while updatePanel() short-circuited back to the quiz,
+  // so the app claimed you were in Tonal while showing you a quiz. Pressing a tab is an
+  // unambiguous "take me elsewhere", so honour it: leave the quiz, then switch.
+  if (quizMode) toggleQuiz();
+  _stopMetronome(); // leaving Assist (or switching within it) shouldn't leave a click track running
   appMode = mode;
-  // Update switcher buttons
-  document.getElementById('ms-tonal').classList.toggle('active', mode === 'tonal');
-  document.getElementById('ms-modal').classList.toggle('active', mode === 'modal');
-  var _msA = document.getElementById('ms-assist'); if (_msA) _msA.classList.toggle('active', mode === 'assist');
+  savePref('appMode', mode); // reopen on the tab you left (the loader reads this)
+  // Update switcher buttons (class for looks, aria-selected for assistive tech)
+  ['tonal','modal','assist'].forEach(function(m){
+    var b = document.getElementById('ms-'+m); if (!b) return;
+    b.classList.toggle('active', mode === m);
+    b.setAttribute('aria-selected', mode === m ? 'true' : 'false');
+  });
   // The mode strip's container is always present (reserves height in every tab so
   // the circle never shifts); buildModeStrip only fills it in Modal. The minor-ring
   // toggle is rendered into the Tonal panel header by updatePanel().
-  // Reset selection to avoid stale fromInner state
-  if (selected) { selected.fromInner = false; }
+  // KEEP the key's identity across tabs. Tonal and Assist both support the inner
+  // (minor) ring, so fromInner is preserved. Only Modal has no inner ring: there we
+  // REMAP the selection to its actual tonic sector (same key, outer ring) instead of
+  // clearing fromInner - clearing it silently turned Am into "C Aeolian" (a
+  // different key!) on every tab switch.
+  if (selected && selected.fromInner && mode === 'modal') {
+    var _m = MODES[selected.modeIdx];
+    var _tonicSemi = (MROOT[selected.slice] + _m.off) % 12;
+    var _tonicSlice = MROOT.indexOf(_tonicSemi);
+    selected.slice = _tonicSlice;
+    selected.tonicSlice = _tonicSlice;
+    selected.fromInner = false;   // same tonic, now addressed on the outer ring
+  }
   lastModeIdx = mode === 'modal' ? lastModeIdx : (MODES[lastModeIdx].type === 'maj' ? lastModeIdx : 0);
   buildModeStrip();
   render();
@@ -1508,56 +2711,65 @@ function setAppMode(mode) {
 // mode = index into MODES (Ionian0 Lydian1 Mixo2 Dorian3 Aeolian4 Phrygian5 Locrian6)
 var EMOTIONS = [
   // Dark / negative valence — high to low arousal
-  {name:'Action',    hue:0,   quality:'min', mode:5, ar:0.95, vl:-1,
+  {name:'Action',    hue:0,   quality:'min', mode:5, ar:0.95, vl:-0.75,
    roman:'i - ♭II - ♭VII',          device:'fast ostinato, irregular meter changes',
    rhythm:'fast 16ths, 5/8 & 7/8',  bpmLo:140, bpmHi:185, traj:'maximum energy explosion'},
-  {name:'Tension',   hue:12,  quality:'min', mode:6, ar:0.9,  vl:-1,
+  {name:'Tension',   hue:12,  quality:'min', mode:6, ar:0.9,  vl:-0.7,
    roman:'i° - ♭II',                device:'constant ostinato, cluster sustain',
    rhythm:'relentless static motor', bpmLo:80,  bpmHi:135, traj:'holds at peak, never releases'},
-  {name:'Suspense',  hue:265, quality:'min', mode:5, ar:0.7,  vl:-1,
+  {name:'Suspense',  hue:265, quality:'min', mode:5, ar:0.7,  vl:-0.55,
    roman:'i - ♭VI - ♭VII',          device:'pedal point, wide dynamics arc',
    rhythm:'sparse, no constant motor',bpmLo:65, bpmHi:110, traj:'builds slowly toward dramatic peak'},
-  {name:'Horror',    hue:330, quality:'min', mode:6, ar:0.85, vl:-1,
+  {name:'Horror',    hue:330, quality:'min', mode:6, ar:0.85, vl:-0.95,
    roman:'dim7 - tritone - clusters',device:'atonal clusters, extended techniques, stingers',
    rhythm:'no stable pulse, sudden shocks', bpmLo:40, bpmHi:100, traj:'sudden terror, unpredictable'},
-  {name:'Detective', hue:220, quality:'min', mode:3, ar:0.5,  vl:0,
+  {name:'Detective', hue:220, quality:'min', mode:3, ar:0.5,  vl:-0.15,
    roman:'im7 - ♭II7 - v7',         device:'walking bass, brushes, muted brass',
    rhythm:'steady swing or latin groove', bpmLo:60, bpmHi:130, traj:'active search - dramatic reveal'},
-  {name:'Sneaky',    hue:285, quality:'min', mode:3, ar:0.55, vl:-1,
+  {name:'Sneaky',    hue:285, quality:'min', mode:3, ar:0.55, vl:-0.45,
    roman:'i - ♭VII - ♭VI',          device:'pizzicato strings, staccato hits',
    rhythm:'tiptoeing staccato, sparse', bpmLo:70, bpmHi:110, traj:'cautious stealth, no climax'},
-  {name:'Mysterious',hue:195, quality:'min', mode:4, ar:0.3,  vl:0,
+  {name:'Mysterious',hue:195, quality:'min', mode:4, ar:0.3,  vl:-0.05,
    roman:'aug - sus4 - add9',        device:'sustained pads, celeste or bell motifs',
    rhythm:'floating, near-pulseless', bpmLo:50, bpmHi:90,  traj:'static unanswered question'},
-  {name:'Sad',       hue:210, quality:'min', mode:4, ar:0.2,  vl:-1,
+  {name:'Sad',       hue:210, quality:'min', mode:4, ar:0.2,  vl:-0.6,
    roman:'i - ♭VI - ♭III - ♭VII',   device:'descending melodic lines, sparse texture',
    rhythm:'slow, minimal energy',    bpmLo:50,  bpmHi:80,  traj:'sustained grief, descending arc'},
-  {name:'Nostalgic', hue:250, quality:'min', mode:3, ar:0.3,  vl:0, flex:1,
+  {name:'Nostalgic', hue:250, quality:'min', mode:3, ar:0.3,  vl:0.1, flex:1,
    roman:'i - IV - ♭VII - i',        device:'acoustic piano or guitar, major IV over minor i',
    rhythm:'gentle and flowing, 3/4', bpmLo:55,  bpmHi:85,  traj:'reflective, unresolved longing'},
   // Neutral valence — high arousal
-  {name:'Running',   hue:185, quality:'min', mode:4, ar:0.9,  vl:0, flex:1,
+  {name:'Running',   hue:185, quality:'min', mode:4, ar:0.9,  vl:0.05, flex:1,
    roman:'i - ♭VII - ♭VI - v',       device:'driving 8th-note motor, full rhythm section',
    rhythm:'constant energetic groove', bpmLo:130, bpmHi:165, traj:'sustained neutral energy, no narrative peak'},
   // Positive valence — low to high arousal
-  {name:'Romantic',  hue:340, quality:'maj', mode:0, ar:0.3,  vl:1, flex:1,
+  {name:'Peaceful',  hue:100, quality:'maj', mode:0, ar:0.1,  vl:0.55,
+   roman:'I - IV - I (pedal)',       device:'sustained drones, soft piano or guitar, pentatonic colour',
+   rhythm:'no motor, gentle and sparse', bpmLo:50, bpmHi:75, traj:'restful stillness, no build'},
+  {name:'Romantic',  hue:340, quality:'maj', mode:0, ar:0.3,  vl:0.6, flex:1,
    roman:'I - V - vi - IV',          device:'lyrical strings or piano, legato phrasing',
    rhythm:'flowing moderate, rubato', bpmLo:55,  bpmHi:90,  traj:'yearning rise and fall, tender'},
-  {name:'Hopeful',   hue:158, quality:'maj', mode:1, ar:0.35, vl:1, flex:1,
+  {name:'Hopeful',   hue:158, quality:'maj', mode:1, ar:0.35, vl:0.7, flex:1,
    roman:'I - V - II - I',           device:'ascending phrases, gradual swell',
    rhythm:'sparse to fuller, building', bpmLo:70, bpmHi:100, traj:'forward-looking, builds toward light'},
-  {name:'Quirky',    hue:48,  quality:'maj', mode:1, ar:0.6,  vl:1, flex:1,
+  {name:'Quirky',    hue:48,  quality:'maj', mode:1, ar:0.6,  vl:0.65, flex:1,
    roman:'I - ♭VII - IV - II',       device:'pizzicato, woodwinds, unexpected turns',
    rhythm:'syncopation, odd accents', bpmLo:100, bpmHi:145, traj:'unpredictable, playful'},
-  {name:'Happy',     hue:45,  quality:'maj', mode:0, ar:0.25, vl:1,
+  {name:'Magical',   hue:130, quality:'maj', mode:1, ar:0.5,  vl:0.78, flex:1,
+   roman:'I - III - ♭III (parallel 3rds)', device:'celesta, glockenspiel, harp + pizzicato, tremolo strings',
+   rhythm:'lilting 3/4 or shimmering 16ths', bpmLo:60, bpmHi:150, traj:'curiosity opening into wonder'},
+  {name:'Happy',     hue:45,  quality:'maj', mode:0, ar:0.25, vl:0.85,
    roman:'I - IV - V - I',           device:'bright staccato, brass or woodwinds',
    rhythm:'energetic staccato 8ths', bpmLo:120, bpmHi:165, traj:'bright celebratory energy, sustained'},
-  {name:'Heroic',    hue:28,  quality:'maj', mode:2, ar:0.8,  vl:1,
+  {name:'Heroic',    hue:28,  quality:'maj', mode:2, ar:0.8,  vl:0.88,
    roman:'I - IV - ♭VII - I',        device:'brass fanfare, open perfect 4ths and 5ths',
    rhythm:'driving march, building', bpmLo:100, bpmHi:140, traj:'struggle rising, striving not yet won'},
-  {name:'Triumph',   hue:36,  quality:'maj', mode:0, ar:0.85, vl:1,
+  {name:'Triumph',   hue:36,  quality:'maj', mode:0, ar:0.85, vl:1.0,
    roman:'IV - I - V - I',           device:'full tutti, sustained brass chords, choir',
-   rhythm:'broad declarative, slow harmonic rhythm', bpmLo:80, bpmHi:120, traj:'victory achieved, held at summit'}
+   rhythm:'broad declarative, slow harmonic rhythm', bpmLo:80, bpmHi:120, traj:'victory achieved, held at summit'},
+  {name:'Epic',      hue:60,  quality:'maj', mode:0, ar:0.75, vl:0.82, flex:1,
+   roman:'I - ♭VI - ♭III (sus4, stacked 5ths)', device:'high brass melody + choir, open 5ths, timpani and tam-tam',
+   rhythm:'slow homophonic, half-note pace', bpmLo:60, bpmHi:100, traj:'vast presence, grandeur held'}
 ];
 // DJ mixing moves - each maps current key→target using the Camelot grid. On the
 // circle of fifths a step of +1 slice = up a perfect fifth = +1 Camelot hour.
@@ -1572,9 +2784,62 @@ var DJMOVES = [
   {name:'Switch mood', hue:288, sub:'major / minor flip', fn:function(cs,cm){ return [{slice:cs, min:!cm}]; }}
 ];
 var assistStyle   = loadPref('assist_style','moods'); // 'moods' | 'relations' | 'dj'
+// Same clamp as curPalette: an unrecognised value left every lens button inactive while
+// the panel silently fell through to Moods.
+if (['moods','relations','dj'].indexOf(assistStyle) < 0) assistStyle = 'moods';
 var assistEmotion = null;
 var assistMove    = null;
 var assistShowMore = false;  // Moods: show 6 closely-related by default, More reveals bolder ones
+// Mood picker: COLLAPSED by default (a one-line summary) so the ranked "Next key"
+// result is always visible with no scroll - only the 2D valence x arousal pad
+// (tap to open) costs real height, and only while the user is actively choosing.
+var assistPadOpen = false;
+
+// Position every emotion on the valence(x) x arousal(y) pad. Then run a small
+// iterative RELAXATION that guarantees a minimum finger-safe distance between
+// every pair of dots. (The previous single-pass pairwise nudge CASCADED: pushing
+// Romantic away from Hopeful shoved it straight onto Nostalgic - measured 12px
+// apart, unhittable. Relaxation resolves every pair simultaneously and re-checks
+// until stable, so fixing one collision can't silently create another.)
+function moodPadPositions(){
+  var pts = EMOTIONS.map(function(e,i){
+    var x = ((e.vl+1)/2)*70 + 15;   // vl -1..1 -> 15%..85% (keep off the edges)
+    var y = e.ar*76 + 10;           // ar 0..1 -> 10%..86% from the bottom
+    return {e:e, i:i, x:x, y:y};
+  });
+  // Minimum separation, in pad-percent units. Calibrated for the mobile pad
+  // (~343px wide, 176px tall): rx ~ 34px, ry ~ 34px - matches the 32px hit
+  // target plus a small margin. Elliptical metric because 1% of width and 1%
+  // of height are different real distances.
+  var rx = 10, ry = 19;
+  for(var pass=0; pass<40; pass++){
+    var moved = false;
+    for(var a=0;a<pts.length;a++){
+      for(var b=0;b<a;b++){
+        var dx=(pts[a].x-pts[b].x)/rx, dy=(pts[a].y-pts[b].y)/ry;
+        var d=Math.sqrt(dx*dx+dy*dy);
+        if(d<1){
+          moved = true;
+          // Degenerate exact-overlap: split horizontally.
+          if(d<0.001){ dx=1; dy=0; d=1e-3; }
+          var push=(1-d)/2;
+          var ux=dx/d, uy=dy/d;
+          pts[a].x += ux*push*rx; pts[a].y += uy*push*ry;
+          pts[b].x -= ux*push*rx; pts[b].y -= uy*push*ry;
+        }
+      }
+    }
+    // Keep everything inside the pad (label rows live at the very edges).
+    for(var k=0;k<pts.length;k++){
+      pts[k].x = Math.max(7, Math.min(93, pts[k].x));
+      pts[k].y = Math.max(9, Math.min(87, pts[k].y));
+    }
+    if(!moved) break;
+  }
+  return pts;
+}
+function toggleMoodPad(){ assistPadOpen = !assistPadOpen; renderAssistPanel(); }
+window.toggleMoodPad = toggleMoodPad;
 
 function smoothScore(cs,cm,ts,tm){
   var d=Math.min((ts-cs+12)%12,(cs-ts+12)%12); // circle-of-fifths distance 0..6
@@ -1600,7 +2865,16 @@ function smoothWhy(cs,cm,ts,tm){
 // AXIS 1 - brightness: how the light shifts. Sharp side = brighter, flat = darker;
 // major brighter than minor. Signed delta -> one word, no good/bad colouring.
 function brightShift(cs,cm,ts,tm){
-  var f=((ts-cs+6)%12)-6;                 // signed fifths: + sharp/bright, - flat/dark
+  // Signed fifths: + sharp/bright, - flat/dark. This was ((ts-cs+6)%12)-6, which is
+  // right only while ts-cs >= -6: JS % keeps the sign of its LEFT operand, so once
+  // ts-cs <= -7 the remainder came back negative and the result landed a full 12 too
+  // low. 15 of the 144 key pairs were wrong, every one of them with the current key on
+  // the flat side (Db Ab Eb Bb F). Concretely: sitting in F, the move to C - its
+  // dominant, one accidental BRIGHTER - scored -11 and was labelled "much darker". And
+  // because assistSuggest's bMatch is computed from this same number it corrupted the
+  // RANKING, not just the wording: a bright mood in F was recommended the darkest keys
+  // available. Normalise into 0..11 first, then fold to the signed half.
+  var d=((ts-cs)%12+12)%12, f = d>6 ? d-12 : d;
   return ((tm?-1:1)+f) - (cm?-1:1);       // brightness delta
 }
 function moveMood(cs,cm,ts,tm){
@@ -1660,11 +2934,18 @@ function assistSuggest(cs,cm,emoIdx){
       if(emo){
         // Target brightness from valence (bright emotion pulls toward brighter
         // keys, dark toward darker) + preferred travel distance from arousal.
-        // Both are soft nudges, blended with splice smoothness.
+        // WEIGHTS: splice used to carry 0.40, and since it depends only on circle
+        // distance the four nearest keys won every time - so arousal never survived
+        // into the top 3 and 19 moods produced only 5 distinct answers on a phone
+        // (Horror and Sad indistinguishable). Arousal now leads, which is the design
+        // intent: a high-arousal mood SHOULD travel further. Measured across the
+        // weight space; 0.20/0.35/0.45 peaks at 14 distinct sets and falls back to 12
+        // if splice is weakened further, so this is a real optimum rather than
+        // "less splice is always better".
         var bWant=(emo.vl||0)*3;                       // -3 dark .. +3 bright
         var bMatch=100-Math.abs(brightShift(cs,cm,ts,tm)-bWant)*12;
-        var dMatch=100-Math.abs(dCirc-emo.ar*4)*16;    // arousal -> distance
-        score = splice*0.4 + bMatch*0.35 + dMatch*0.25;
+        var dMatch=100-Math.abs(dCirc-emo.ar*4)*22;    // arousal -> distance
+        score = splice*0.20 + bMatch*0.35 + dMatch*0.45;
       }
       rows.push({slice:ts,min:tm,score:score});
     }
@@ -1677,7 +2958,11 @@ function assistSuggest(cs,cm,emoIdx){
       bright:moveMood(cs,cm,s.slice,s.min),       // axis 1: brighter / darker
       hard:hardLabel(cs,s.slice),                  // axis 2: Seamless .. Cut
       tip:moveTip(cs,cm,s.slice,s.min,ml),
-      modeIdx: emo?emo.mode:(s.min?4:0), modeLabel: ml};
+      // The card must select EXACTLY the key it names: plain major (Ionian) or plain
+      // minor (Aeolian). The emotion's characteristic mode is a recipe HINT, not the
+      // selection - passing it here made an "Am" card resolve to a different tonic
+      // via the fromInner+mode.off convention (e.g. E Phrygian under Action).
+      modeIdx: (s.min?4:0), modeLabel: ml};
   });
 }
 // DJ mixing-move suggestions: run the move's mapping from the current key.
@@ -1692,13 +2977,24 @@ function djSuggest(cs,cm,moveIdx){
       modeIdx:(tg.min?4:0), modeLabel:''};
   });
 }
-function setAssistEmotion(i){ assistEmotion=(assistEmotion===i?null:i); assistShowMore=false; renderAssistPanel(); }
+// Stop the metronome whenever its BPM context changes underneath it (switching
+// mood/lens/tab) - otherwise it silently keeps clicking at a now-unrelated tempo.
+function _stopMetronome(){ _metroOn=false; if(_metroTimer){ clearInterval(_metroTimer); _metroTimer=null; } }
+function setAssistEmotion(i){
+  _stopMetronome(); assistEmotion=(assistEmotion===i?null:i); assistShowMore=false;
+  assistPadOpen=false; // picking a mood (from the pad) auto-collapses it back to the summary row
+  renderAssistPanel();
+  say(assistEmotion===null ? 'Mood cleared'
+      : EMOTIONS[assistEmotion].name + ' selected. Suggestions updated.');
+}
 function setAssistMove(i){ assistMove=(assistMove===i?null:i); renderAssistPanel(); }
 function toggleAssistMore(){ assistShowMore=!assistShowMore; renderAssistPanel(); }
 window.toggleAssistMore=toggleAssistMore;
 function setAssistStyle(s){
+  if (s === assistStyle) return;   // re-tapping the lens you're already on shouldn't wipe your pick
+  _stopMetronome();
   assistStyle=s; savePref('assist_style',s);
-  assistEmotion=null; assistMove=null; assistShowMore=false;
+  assistEmotion=null; assistMove=null; assistShowMore=false; assistPadOpen=false;
   if(appMode==='assist') renderAssistPanel(); // toggle redrawn with active state
 }
 function assistPick(slice,min,modeIdx){
@@ -1708,21 +3004,42 @@ function assistPick(slice,min,modeIdx){
   render(); renderAssistPanel();
   playTonic(slice,selected.modeIdx,selected.fromInner);
 }
+// The Assist engine (assistSuggest/camelot/MINNAMES/moveMood/notesChanged) only
+// understands the SECTOR-based (slice, isMinor) pair, where isMinor means "this
+// sector's relative minor" - the same convention as fromInner:true. But a selection
+// can also arrive as fromInner:false with a minor-type mode (Aeolian via the
+// "Parallel minor" Quick Nav, or Dorian/Phrygian/Locrian via Modal) - there the
+// slice IS the actual tonic and the mode carries the minor-ness instead. Convert
+// that form to the equivalent sector pair (relative-major sector, isMinor:true) so
+// every Assist computation sees a consistent, correct key.
+function assistKeyState(sel) {
+  if (!sel) return { cs:null, cm:false };
+  if (sel.fromInner) return { cs:sel.slice, cm:true };
+  var isMinor = MODES[sel.modeIdx].type !== 'maj';
+  if (!isMinor) return { cs:sel.slice, cm:false };
+  var relMajorSemi = (MROOT[sel.slice] + 3) % 12;
+  return { cs: MROOT.indexOf(relMajorSemi), cm:true };
+}
 function renderAssistPanel(){
   var panel=document.getElementById('panel');
-  var cs=selected?selected.slice:null, cm=selected?!!selected.fromInner:false;
+  var _ks = assistKeyState(selected);
+  var cs=_ks.cs, cm=_ks.cm;
   var tog='<div class="ta-toggle">'
     +'<button class="ta-seg'+(assistStyle==='moods'?' active':'')+'" onclick="setAssistStyle(\'moods\')" title="Mood tags - for video / non-musicians">Moods</button>'
     +'<button class="ta-seg'+(assistStyle==='relations'?' active':'')+'" onclick="setAssistStyle(\'relations\')" title="Named harmonic relations - for composers">Relations</button>'
     +'<button class="ta-seg'+(assistStyle==='dj'?' active':'')+'" onclick="setAssistStyle(\'dj\')" title="Camelot mixing moves - for DJs">DJ</button>'
     +'</div>';
   var h='<div class="phead">Transition Assistant'+tog+'</div><div class="pbody">';
+  // Camelot is hidden by default everywhere in Assist (unexplained alphanumeric
+  // noise for 4 of 5 personas) EXCEPT the DJ lens, which speaks Camelot natively -
+  // it always shows it regardless of the global notation setting.
+  var showCamHere = isCamelot() || assistStyle==='dj';
   if(cs===null){
     h+='<div class="empty">Tap a key on the circle - that’s what’s playing now.</div>';
   }else{
     h+='<div class="slabel">Now playing</div><div class="key-big" style="margin-bottom:9px">'
       +(cm?MINNAMES[cs]:MAJSHORT[cs])
-      +' <span style="font-size:12px;color:var(--text3);font-weight:400">'+camelot(cs,cm)+'</span>'
+      +(showCamHere?' <span style="font-size:12px;color:var(--text3);font-weight:400">'+camelot(cs,cm)+'</span>':'')
       +tStepHTML()+'</div>';
   }
   // Intent picker - Moods (mood tiles), DJ moves, or Relations (harmonic relations).
@@ -1740,18 +3057,49 @@ function renderAssistPanel(){
     }
     h+='</div>';
   }else{
-    h+='<div class="slabel">Next mood</div><div class="assist-tiles">';
-    for(var i=0;i<EMOTIONS.length;i++){
-      h+='<button class="etile'+(assistEmotion===i?' active':'')+'" style="--eh:'+EMOTIONS[i].hue
-        +'" onclick="setAssistEmotion('+i+')">'+EMOTIONS[i].name+'</button>';
+    // Persistent header row - rendered in BOTH collapsed and open states so the
+    // picker is ALWAYS closable by tapping it again (the earlier bug: the header
+    // vanished when open, leaving no way back except picking a dot). Collapsed by
+    // default so the ranked "Next key" result shows with no scroll; tap to open.
+    var cur = assistEmotion!==null ? EMOTIONS[assistEmotion] : null;
+    h+='<button class="mood-summary'+(assistPadOpen?' open':'')+'" onclick="toggleMoodPad()">'
+      +(cur?'<span class="dot" style="background:hsl('+cur.hue+' 60% 50%)"></span><span>'+cur.name+'</span>':'<span>Pick a mood…</span>')
+      +'<span class="chev">'+(assistPadOpen?'▴ Close':'▾ '+(cur?'Change':'Choose'))+'</span></button>';
+    if(assistPadOpen){
+      // Owner asked for BOTH: a name list (dry logic - precise pick, and the
+      // reliable target on a dense pad) AND the spatial pad (intuition - see where
+      // a mood sits, current pick highlighted). Both drive the same
+      // setAssistEmotion, so list-row and pad-dot are two views of one state.
+      h+='<div class="mood-list" id="moodList">';
+      for(var i=0;i<EMOTIONS.length;i++){ var e=EMOTIONS[i];
+        h+='<button class="mood-li'+(assistEmotion===i?' active':'')+'" onclick="setAssistEmotion('+i+')">'
+          +'<span class="dot" style="background:hsl('+e.hue+' 60% 50%)"></span>'+e.name
+          +(assistEmotion===i?'<span class="check">✓</span>':'')+'</button>';
+      }
+      h+='</div>';
+      var pts = moodPadPositions();
+      h+='<div class="mood-pad">'
+        +'<span class="mood-pad-axis" style="top:4px;left:50%;transform:translateX(-50%)">Intense</span>'
+        +'<span class="mood-pad-axis" style="bottom:4px;left:50%;transform:translateX(-50%)">Calm</span>'
+        +'<span class="mood-pad-axis" style="left:6px;top:50%;transform:translateY(-50%)">Dark</span>'
+        +'<span class="mood-pad-axis" style="right:6px;top:50%;transform:translateY(-50%)">Bright</span>';
+      for(var i=0;i<pts.length;i++){ var pt=pts[i];
+        h+='<button class="etile-dot'+(assistEmotion===pt.i?' active':'')+'" style="--eh:'+pt.e.hue+';left:'+pt.x+'%;bottom:'+pt.y+'%" '
+          +'onclick="setAssistEmotion('+pt.i+')" title="'+pt.e.name+'"><span class="dot" style="background:hsl(var(--eh) 60% 50%)"></span></button>';
+      }
+      h+='</div>';
     }
-    h+='</div>';
   }
   if(assistStyle==='moods' && assistEmotion!==null){
     var re=EMOTIONS[assistEmotion];
+    var re_bpm = Math.round((re.bpmLo+re.bpmHi)/2);
     h+='<div class="recipe-hint">'
       +'<span>'+MODES[re.mode].name+'</span><span class="rh-dot">·</span>'
-      +'<span>'+re.bpmLo+'-'+re.bpmHi+' BPM</span><span class="rh-dot">·</span>'
+      // Reflect the LIVE metronome state - the panel is rebuilt by many actions
+      // (picking a card, changing theme/notation/palette, transposing) and the button
+      // used to come back un-lit while the click track was still running, so it read
+      // as off and tapping it seemed to do nothing (it was actually stopping it).
+      +'<button class="metro-btn'+(_metroOn?' active':'')+'" onclick="toggleMetronome('+re_bpm+',this)" title="Tap to hear this mood\'s tempo">▸ '+re.bpmLo+'-'+re.bpmHi+' BPM</button><span class="rh-dot">·</span>'
       +'<span>'+re.traj+'</span></div>';
   }
   // Relations highlights the wheel + shows a memo instead of suggestion cards.
@@ -1767,10 +3115,17 @@ function renderAssistPanel(){
       // - bolder/distant keys - hide behind "More". DJ shows all its move targets.
       var defN = window.innerWidth <= 620 ? 3 : 6;   // fewer on a phone so it fits with no scroll
       var cap = (assistStyle==='dj') ? sg.length : (assistShowMore ? sg.length : Math.min(defN, sg.length));
-      h+='<div class="slabel" style="margin-top:11px">'+lbl+'</div><div class="sugg-list">';
+      h+='<div class="slabel" style="margin-top:11px">'+lbl+'</div>'
+        // On-screen legend for the two card axes - previously explained only via a
+        // hover title, invisible on the touch-first primary platform.
+        +'<div class="axis-legend">brighter/darker = tone shift &nbsp;·&nbsp; Seamless→Cut = how big the jump</div>'
+        +'<div class="sugg-list">';
       for(var j=0;j<cap;j++){ var s=sg[j];
-        h+='<button class="sugg-card" title="'+s.tip+'" onclick="assistPick('+s.slice+','+(s.min?1:0)+','+s.modeIdx+')">'
-          +'<span class="sugg-key">'+s.name+'</span><span class="sugg-cam">'+s.cam+'</span>'
+        // A rail in the target key's own colour ties the card to its sector on the
+        // wheel - the panel was entirely grey next to a saturated colour object.
+        h+='<button class="sugg-card'+(showCamHere?'':' no-cam')+'" title="'+s.tip+'" style="border-left:3px solid '+SYNTH[s.slice]+'" onclick="assistPick('+s.slice+','+(s.min?1:0)+','+s.modeIdx+')">'
+          +'<span class="sugg-key">'+s.name+'</span>'
+          +(showCamHere?'<span class="sugg-cam">'+s.cam+'</span>':'')
           +'<span class="sugg-bright">'+s.bright+'</span>'
           +'<span class="sugg-hard">'+s.hard+'</span></button>';
       }
@@ -1782,6 +3137,10 @@ function renderAssistPanel(){
   }
   h+='</div>';
   panel.innerHTML=h;
+  // When the picker opens with a mood already chosen, bring its row into view in
+  // the scrollable list (menu convention: the current choice is where you land).
+  var _al = document.querySelector('#moodList .mood-li.active');
+  if (_al && _al.scrollIntoView) _al.scrollIntoView({block:'nearest'});
   // Panel content just changed - on mobile re-fit the circle so the (now-measured)
   // panel fits without scrolling. Safe: resize()->render() never calls back here.
   if(window.innerWidth<=620 && typeof resize==='function') resize();
@@ -1804,6 +3163,9 @@ function transpose(dir) {
   selected.slice      = newSlice;
   selected.tonicSlice = newSlice;
   lastModeIdx = selected.modeIdx;
+  // Up a semitone is seven sectors clockwise; make the dial travel that way rather
+  // than take the five-sector shortcut back, which read as "up" moving down.
+  _angDirHint = dir > 0 ? 1 : -1;
   buildModeStrip();
   render();
   updatePanel();
@@ -1818,28 +3180,76 @@ function shareLink() {
     params.push('mode=' + selected.modeIdx);
     if (selected.fromInner) params.push('inner=1');
   }
-  if (appMode === 'modal') params.push('app=modal');
+  // Always state the tab. Omitting it for Tonal meant a Tonal link opened in
+  // whatever tab the RECIPIENT last used (the saved appMode pref wins when there's
+  // no app= param).
+  params.push('app=' + appMode);
+  if (appMode === 'assist') {
+    params.push('lens=' + assistStyle);
+    if (assistStyle === 'moods' && assistEmotion !== null) params.push('emo=' + assistEmotion);
+  }
   if (isCamelot()) params.push('cam=1');
   if (isSol()) params.push('sol=1');
   if (document.documentElement.classList.contains('light')) params.push('light=1');
+  // The wheel the recipient sees should be the wheel the sender saw: palette and the
+  // minor-ring switch change it just as much as notation does.
+  if (curPalette !== 'pastel') params.push('pal=' + curPalette);
+  if (!document.getElementById('cb-minor').checked) params.push('minor=0');
   if (params.length) url += '?' + params.join('&');
-  if (navigator.clipboard) {
-    navigator.clipboard.writeText(url).then(function() { _flashShare('✓ Copied!'); });
-  } else {
-    var ta = document.createElement('textarea');
-    ta.value = url; document.body.appendChild(ta);
-    ta.select(); document.execCommand('copy');
-    document.body.removeChild(ta);
-    _flashShare('✓ Copied!');
+  // On a phone, sharing a key means sending it to someone - so offer the platform's
+  // own share sheet (Messages, Mail, AirDrop…) and fall back to the clipboard on
+  // desktop or if the user dismisses it. navigator.share needs a user gesture, which
+  // the button click provides.
+  if (navigator.share && window.innerWidth <= 620) {
+    navigator.share({ title: 'Another Circle Of Fifths', url: url })
+      .catch(function(){ /* dismissed or unsupported target - fall back quietly */
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+          navigator.clipboard.writeText(url).then(function(){ _flashShare('✓ Copied!'); })
+            .catch(function(){ if (!_copyFallback(url)) _flashShare('✗ Copy failed'); });
+        } else if (!_copyFallback(url)) _flashShare('✗ Copy failed');
+      });
+    return;
+  }
+  // The Clipboard API can EXIST and still reject (NotAllowedError when the document
+  // isn't focused - routine in an iOS PWA, and on any non-secure origin). Without a
+  // catch the user got no feedback at all and the execCommand path below could never
+  // run, because it was gated on the API being absent rather than on it failing.
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(url)
+      .then(function(){ _flashShare('✓ Copied!'); })
+      .catch(function(){ if (!_copyFallback(url)) _flashShare('✗ Copy failed'); });
+  } else if (!_copyFallback(url)) {
+    _flashShare('✗ Copy failed');
   }
 }
+// Legacy copy path. Returns whether it worked, so the caller can report honestly.
+function _copyFallback(url) {
+  try {
+    var ta = document.createElement('textarea');
+    ta.value = url;
+    ta.setAttribute('readonly','');
+    ta.style.position='fixed'; ta.style.top='-1000px';   // keep it off-screen, no scroll jump
+    document.body.appendChild(ta);
+    ta.select();
+    var ok = document.execCommand('copy');
+    document.body.removeChild(ta);
+    if (ok) _flashShare('✓ Copied!');
+    return ok;
+  } catch(e) { return false; }
+}
 
+// Pristine icon markup + a single timer, so repeated taps can't capture the flash
+// text as the "original" and leave the button permanently reading "✓ Copied!".
+var _shareIconHTML = null, _shareTimer = null;
 function _flashShare(msg) {
   var btn = document.getElementById('btn-share');
-  var orig = btn.innerHTML;
+  if (_shareIconHTML === null) _shareIconHTML = btn.innerHTML;
+  if (_shareTimer) clearTimeout(_shareTimer);
   btn.innerHTML = msg;
   btn.style.fontSize = '10px';
-  setTimeout(function(){ btn.innerHTML = orig; btn.style.fontSize = '13px'; }, 1500);
+  _shareTimer = setTimeout(function(){
+    btn.innerHTML = _shareIconHTML; btn.style.fontSize = ''; _shareTimer = null;
+  }, 1500);
 }
 
 // Apply sticky preferences first (defaults); a share-link URL param overrides below.
@@ -1850,6 +3260,9 @@ function _flashShare(msg) {
   else if (notation === 'solfege') document.getElementById('cb-sol').checked = true;
   var minorPref = loadPref('minor', true);
   document.getElementById('cb-minor').checked = minorPref;
+  // Sound icon markup is hardcoded to "on" in the HTML; sync it to the loaded pref
+  // (was resetting to on every load regardless of the user's last choice).
+  if (!_soundOn) document.getElementById('btn-sound').innerHTML = _ICON_SOUND_OFF;
 })();
 
 // Read URL params on load
@@ -1858,21 +3271,56 @@ function _flashShare(msg) {
   if (p.get('light') === '1') document.documentElement.classList.add('light');
   if (p.get('cam') === '1') { var _c=document.getElementById('cb-camelot'); if(_c){ _c.checked = true; var _s2=document.getElementById('cb-sol'); if(_s2)_s2.checked=false; } }
   if (p.get('sol') === '1') { var _s=document.getElementById('cb-sol'); if(_s){ _s.checked = true; var _c2=document.getElementById('cb-camelot'); if(_c2)_c2.checked=false; } }
+  // hasOwnProperty, not truthiness: PALETTES['constructor'] and PALETTES['__proto__']
+  // are truthy via the prototype chain, so ?pal=constructor passed this test, set SYNTH
+  // to a function, and made SYNTH[i] undefined - lightenHex then threw inside render()
+  // and took the whole load down. Blank wheel, panel stuck on its placeholder, and every
+  // later tap throwing too. A pasted link was enough to brick the app unrecoverably.
+  if (p.has('pal') && Object.prototype.hasOwnProperty.call(PALETTES, p.get('pal'))) {
+    curPalette = p.get('pal'); SYNTH = PALETTES[curPalette];
+  }
+  if (p.get('minor') === '0') document.getElementById('cb-minor').checked = false;
+  // The app should never open doing nothing ("Shazam-simple": always populated,
+  // never an empty wheel + "tap a key" as the first thing a new visitor sees).
+  // Silent - no auto-playing audio on load. A malformed ?key= falls back here too,
+  // rather than leaving the app blank.
+  selected = { slice: 0, tonicSlice: 0, modeIdx: 0, fromInner: false };
   if (p.has('key')) {
     var slice = parseInt(p.get('key'));
     var mode  = parseInt(p.get('mode') || '0');
-    var inner = p.get('inner') === '1';
+    // inner=1 only means anything on a minor-type mode: the inner ring IS the relative
+    // minor. A hand-edited ?key=0&mode=0&inner=1 gave three different answers to "what
+    // key am I in" at once - panel said "C major (Ionian)", assistKeyState resolved Am,
+    // and the screen reader announced "Am Ionian". The app never emits such a link, but
+    // it must not honour one either.
+    var inner = p.get('inner') === '1' && MODES[mode] && MODES[mode].type !== 'maj';
     if (slice >= 0 && slice < 12 && mode >= 0 && mode < 7) {
       selected    = { slice: slice, tonicSlice: slice, modeIdx: mode, fromInner: inner };
       lastModeIdx = mode;
     }
   }
-  if (p.get('app') === 'modal') setAppMode('modal');
+  // A share link's `app=` always wins; otherwise resume the tab the user was last
+  // on (was resetting to Tonal on every reopen, unlike every other preference).
+  var appParam = p.get('app');
+  if (appParam === 'tonal') setAppMode('tonal');
+  else if (appParam === 'modal') setAppMode('modal');
+  else if (appParam === 'assist') {
+    var lens = p.get('lens');
+    if (lens === 'moods' || lens === 'relations' || lens === 'dj') assistStyle = lens;
+    if (p.has('emo')) {
+      var emoIdx = parseInt(p.get('emo'));
+      if (emoIdx >= 0 && emoIdx < EMOTIONS.length) assistEmotion = emoIdx;
+    }
+    setAppMode('assist');
+  } else {
+    var savedMode = loadPref('appMode', 'tonal');
+    if (savedMode === 'modal' || savedMode === 'assist') setAppMode(savedMode);
+  }
   updateNotationSeg();
   updatePaletteSeg();
 })();
 
-window.addEventListener('resize', resize);
+window.addEventListener('resize', resize);   // resize() repaints the wordmark too
 window.addEventListener('orientationchange', resize);
 // visualViewport reflects the real height when the mobile toolbar shows/hides.
 if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
