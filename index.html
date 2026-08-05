@@ -83,12 +83,14 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 
 /* Top bar */
 .mode-switcher { display:flex; gap:2px; margin-bottom:10px; background:var(--bg2); border-radius: 999px; padding:2px; width:fit-content; }
-.ms-btn { padding:4px 14px; font-size:12px; border-radius: 999px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; }
+/* min-height 24: measured 59x22 and 52x19 at 375px, both under WCAG 2.2's 24x24 floor -
+   and .ms-btn is the app's primary navigation. */
+.ms-btn { min-height:24px; padding:4px 14px; font-size:12px; border-radius: 999px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; }
 .ms-btn.active { background:var(--text); color:var(--bg); font-weight:500; }
 
 /* Segmented control (replaces camelot/solfège checkboxes - they're mutually exclusive) */
 .seg { display:inline-flex; gap:2px; background:var(--bg2); border-radius:14px; padding:2px; }
-.seg-btn { padding:3px 11px; font-size:11px; border-radius: 14px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; white-space:nowrap; }
+.seg-btn { min-height:24px; padding:3px 11px; font-size:11px; border-radius: 14px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; white-space:nowrap; }
 .seg-btn.active { background:var(--text); color:var(--bg); font-weight:500; }
 .seg-btn:hover:not(.active) { color:var(--text2); }
 
@@ -294,7 +296,7 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
      words out of the accessibility tree too, leaving the page's only h1 announcing
      as an empty heading. */
   .wm-txt { position: absolute; width: 1px; height: 1px; overflow: hidden;
-            clip-path: inset(50%); white-space: nowrap; }
+            clip-path: inset(50%); white-space: nowrap; }   /* = .sr-only */
   #wm { width: 26px; height: 26px; }
   .mode-switcher { margin-bottom: 6px; }
   /* align-items:stretch is the fix for BOTH the off-centre wheel and the narrow
@@ -330,8 +332,18 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 canvas { display: block; margin-left: auto; margin-right: auto; cursor: pointer; touch-action: none; border-radius: 50%; }
 /* Keyboard focus must be visible (the wheel is focusable now) - but only for
    keyboard users, so a mouse click doesn't leave a ring behind. */
+/* Visually gone, still in the accessibility tree - the opposite of display:none. */
+.sr-only { position: absolute; width: 1px; height: 1px; overflow: hidden;
+           clip-path: inset(50%); white-space: nowrap; }
 canvas:focus { outline: none; }
-canvas:focus-visible { outline: 2px solid var(--text2); outline-offset: 3px; }
+/* One focus ring for everything focusable, matching the canvas's. :focus-visible only,
+   so it appears for keyboard users and never after a tap. Offset 2px rather than the
+   canvas's 3 because the panel's controls sit in tight 3px grids. */
+canvas:focus-visible,
+button:focus-visible, [tabindex]:focus-visible, input:focus-visible {
+  outline: 2px solid var(--text2); outline-offset: 2px; border-radius: 8px;
+}
+canvas:focus-visible { outline-offset: 3px; }
 
 /* Panel */
 .panel { border: 0.5px solid var(--bd); border-radius: 14px; overflow: hidden; background: var(--bg); display: flex; flex-direction: column; }
@@ -354,6 +366,12 @@ canvas:focus-visible { outline: 2px solid var(--text2); outline-offset: 3px; }
 .ctx-line { font-size: 11px; color: var(--text2); height: 17px; margin: 4px 0 10px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
 .ctx-line strong { color: var(--text); font-weight: 500; }
 .slabel { font-size: 10px; font-weight: 500; color: var(--text3); letter-spacing: .07em; text-transform: uppercase; margin-bottom: 5px; }
+/* These three are <button> now (they were divs with onclick, so no tab stop, no role,
+   no Enter/Space, no focus ring). A button brings its own font, centring and 2px
+   border, so hand those back to the rules below - the only visual change should be
+   that they can now be reached and focused. */
+.sn, .cp, .ni { font: inherit; border: 0; margin: 0;
+                text-align: inherit; -webkit-appearance: none; appearance: none; }
 .scale-row { display: flex; gap: 3px; flex-wrap: wrap; margin-bottom: 11px; }
 .sn { width: 26px; height: 24px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 10px; font-weight: 500; border: 0.5px solid var(--bd); background: var(--bg2); color: var(--text2); }
 /* colour is set inline from sectorLum() alongside the background - a fixed #fff was
@@ -397,6 +415,12 @@ canvas:focus-visible { outline: 2px solid var(--text2); outline-offset: 3px; }
 </style>
 </head>
 <body>
+<!-- The app had no live region at all, so nothing it did was ever announced. The wheel
+     rewrites its own aria-label on every pick, but mutating aria-label on an element
+     that already has focus is not reliably re-announced by VoiceOver or NVDA - so the
+     wheel was operable and silent. Picking a mood and answering a quiz question said
+     nothing either: a blind user got no signal whether they were right. -->
+<div id="sr" role="status" aria-live="polite" class="sr-only"></div>
 <div class="appbar">
   <!-- The mark is drawn from the LIVE palette (see paintWordmark), so the app's own
        identity changes colour with the wheel it draws. Version moved into Settings -
@@ -564,6 +588,18 @@ function keySpelling(slice, modeIdx) {
   return { tonicFifths: tf, parentFifths: pf, respelt: respelt,
            tonic: nameOfFifth(tf), parent: nameOfFifth(pf), sig: pf };
 }
+// Announce something to a screen reader. The blank-then-set is deliberate: setting the
+// same text twice in a row is a no-op for assistive tech (nothing "changed"), and
+// picking the same key twice really should be announced twice.
+var _srTimer = null;
+function say(msg) {
+  var e = document.getElementById('sr');
+  if (!e || !msg) return;
+  e.textContent = '';
+  clearTimeout(_srTimer);
+  _srTimer = setTimeout(function(){ e.textContent = msg; }, 40);
+}
+
 // Which sector actually carries the tonic for a selection. Mirrors updatePanel's
 // actualSlice so the wheel and the panel can never name the key differently.
 function tonicSliceOf(sel) {
@@ -721,7 +757,10 @@ function updateNotationSeg() {
   var mode = isCamelot() ? 'camelot' : isSol() ? 'solfege' : 'notes';
   ['notes','camelot','solfege'].forEach(function(m) {
     var b = document.getElementById('seg-' + m);
-    if (b) b.classList.toggle('active', m === mode);
+    // Selection was signalled by a CSS class alone, which assistive tech cannot see -
+    // every one of these read as an ordinary button with no state.
+    if (b) { b.classList.toggle('active', m === mode);
+             b.setAttribute('aria-pressed', m === mode ? 'true' : 'false'); }
   });
 }
 window.setNotation = setNotation;
@@ -767,6 +806,7 @@ function updatePaletteSeg() {
     var b = document.getElementById('pal-' + n);
     if (!b) return;
     b.classList.toggle('active', n === cur);
+    b.setAttribute('aria-pressed', n === cur ? 'true' : 'false');
     // Show each palette AS ITSELF: a 12-stop strip of its own colours. Five grey
     // text chips made the most identity-defining control in the app unreadable as a
     // choice - "Itten" and "Scriabin" mean nothing until you can see them.
@@ -1659,7 +1699,17 @@ function handlePick(h, noToggle) {
   }
   render();
   updatePanel();
-  if (selected) playTonic(selected.slice, selected.modeIdx, selected.fromInner);
+  if (selected) {
+    playTonic(selected.slice, selected.modeIdx, selected.fromInner);
+    // Same resolver as everything else, so the announcement can't drift from the panel.
+    var _a = keySpelling(tonicSliceOf(selected), selected.modeIdx);
+    // Say it the way the panel writes it: "G major", not "G Ionian".
+    var _mi = selected.modeIdx;
+    say(_a.tonic + ' ' + (_mi === 0 ? 'major' : _mi === 4 ? 'minor' : MODES[_mi].name)
+        + ', ' + (accStrF(_a.sig) || 'no accidentals'));
+  } else {
+    say('Nothing selected');
+  }
 }
 
 // ONE pointer path for mouse, touch and pen. There were two before, and each was
@@ -1719,6 +1769,27 @@ cv.addEventListener('pointerleave', function() {
 // the tonic). Without this the app's main control was pointer-only.
 cv.addEventListener('keydown', function(e) {
   var k = e.key, step = 0;
+  // In the quiz every wheel pick IS an answer, and handlePick routes straight to
+  // handleQuizClick - so a keyboard user pressing Right just to look around
+  // irrevocably submitted whatever sector they landed on. Here the arrows move a
+  // survey cursor and only Enter/Space commits, which is how the pointer already
+  // behaves (press to highlight, release to answer).
+  if (quizMode) {
+    if (k === 'ArrowRight' || k === 'ArrowLeft') {
+      e.preventDefault();
+      var _c = hovered ? hovered.slice : (selected ? selected.slice : 0);
+      hovered = { slice: ((_c + (k === 'ArrowRight' ? 1 : -1)) % 12 + 12) % 12, isInner: false };
+      render();
+      say(MAJSHORT[hovered.slice]);
+      return;
+    }
+    if (k === 'Enter' || k === ' ') {
+      e.preventDefault();
+      if (hovered) handleQuizClick(hovered.slice);
+      return;
+    }
+    return;
+  }
   if (k === 'ArrowRight') step = 1;
   else if (k === 'ArrowLeft') step = -1;
   else if (k === 'ArrowUp' || k === 'ArrowDown') {
@@ -1955,9 +2026,13 @@ function updatePanel() {
   var scaleHTML = '';
   for (var i=0; i<notes.length; i++) {
     var _nSemi = MROOT[actualSlice] + MODES[modeIdx].iv[i]; // no %12 - _playNote handles octave
-    scaleHTML += '<div class="sn'+(i===0?' root':'')
-      +'" onclick="playNotePill('+_nSemi+')" style="cursor:pointer'
-      +(i===0?';background:'+col+';color:'+(sectorLum(col,1)>LUM_FLIP?'#000':'#fff'):'')+'">'+notes[i]+'</div>';
+    // <button>, not <div>: these are controls that make a sound, and as divs they had
+    // no tab stop, no role, no Enter/Space and no focus ring - the app's second core
+    // interaction was pointer-only. A button gets all four for free.
+    scaleHTML += '<button type="button" class="sn'+(i===0?' root':'')
+      +'" onclick="playNotePill('+_nSemi+')" aria-label="Play '+notes[i]
+      +(i===0?', the tonic':'')+'" style="cursor:pointer'
+      +(i===0?';background:'+col+';color:'+(sectorLum(col,1)>LUM_FLIP?'#000':'#fff'):'')+'">'+notes[i]+'</button>';
   }
 
     // Chords HTML
@@ -1966,9 +2041,10 @@ function updatePanel() {
     var cc = chordCol(chords[i].type);
     var _cS = (MROOT[actualSlice] + MODES[modeIdx].iv[i]) % 12;
     var _cT = chords[i].type;
-    chordsHTML += '<div class="cp" style="background:'+cc.bg+';color:'+cc.tx
-      +';cursor:pointer" onclick="playChordPill('+_cS+',\'' + _cT + '\')"><span>'
-      +chords[i].num+'</span>'+chords[i].name+'</div>';
+    chordsHTML += '<button type="button" class="cp" style="background:'+cc.bg+';color:'+cc.tx
+      +';cursor:pointer" onclick="playChordPill('+_cS+',\'' + _cT + '\')"'
+      +' aria-label="Play '+chords[i].name+', the '+chords[i].num+' chord"><span>'
+      +chords[i].num+'</span>'+chords[i].name+'</button>';
   }
 
     // Highlights HTML
@@ -2050,10 +2126,10 @@ function updatePanel() {
 
         '<div class="slabel">Quick nav</div>' +
         '<div class="nav-grid">' +
-          '<div class="ni" onclick="goKey('+actualSlice+',0)"><div class="nl">Parallel major</div><div class="nk">'+parIonian+'</div></div>' +
-          '<div class="ni" onclick="goKey('+actualSlice+',4)"><div class="nl">Parallel minor</div><div class="nk">'+parAeolian+'</div></div>' +
-          '<div class="ni" onclick="goKey('+domSlice+','+modeIdx+')"><div class="nl">Dominant</div><div class="nk">'+domName+'</div></div>' +
-          '<div class="ni" onclick="goKey('+subSlice+','+modeIdx+')"><div class="nl">Subdominant</div><div class="nk">'+subName+'</div></div>' +
+          '<button type="button" class="ni" onclick="goKey('+actualSlice+',0)"><div class="nl">Parallel major</div><div class="nk">'+parIonian+'</div></button>' +
+          '<button type="button" class="ni" onclick="goKey('+actualSlice+',4)"><div class="nl">Parallel minor</div><div class="nk">'+parAeolian+'</div></button>' +
+          '<button type="button" class="ni" onclick="goKey('+domSlice+','+modeIdx+')"><div class="nl">Dominant</div><div class="nk">'+domName+'</div></button>' +
+          '<button type="button" class="ni" onclick="goKey('+subSlice+','+modeIdx+')"><div class="nl">Subdominant</div><div class="nk">'+subName+'</div></button>' +
         '</div>' +
 
         '<div class="slabel">Secondary dominants</div>' +
@@ -2258,7 +2334,11 @@ function _paintQuizAnswer() {
     if (quizState.opts[i].isCorrect) b.classList.add('correct');
     else if (i===quizState.pickedIdx) b.classList.add('wrong');
   }
-  var n=document.getElementById('qnext'); if(n) n.style.display='inline-block';
+  // Move focus BEFORE the disabling above can strand it: every option gets disabled,
+  // including the one the keyboard user is standing on, and focus then falls to <body>
+  // - so the next Tab restarts from the top of the page.
+  var n=document.getElementById('qnext');
+  if(n) { n.style.display='inline-block'; if (document.activeElement && document.activeElement.disabled) n.focus(); }
   var h=document.getElementById('qhint');
   if (h) {
     h.style.display='block';
@@ -2269,8 +2349,17 @@ function _paintQuizAnswer() {
 function answerQuiz(idx) {
   if (!quizState||quizState.answered) return;
   quizState.answered = true; quizState.pickedIdx = idx; quizTotal++;
-  if (quizState.opts[idx].isCorrect) quizScore++;
+  var _right = quizState.opts[idx].isCorrect;
+  if (_right) quizScore++;
   _paintQuizAnswer();
+  // The verdict was only ever painted. Say it, with the right answer when it's wrong -
+  // otherwise a blind user learns nothing from getting it wrong, which is the whole
+  // point of an ear-training quiz.
+  var _corr = '';
+  for (var _i=0; _i<quizState.opts.length; _i++)
+    if (quizState.opts[_i].isCorrect) _corr = quizState.opts[_i].label || quizState.opts[_i].text || '';
+  say((_right ? 'Correct.' : 'Not quite. The answer is ' + _corr + '.')
+      + ' Score ' + quizScore + ' of ' + quizTotal + '.');
   // Conceptual questions have no meaningful key - don't paint a random highlight.
   if (!quizState.noWheel) { selected = { slice:quizState.targetSlice, modeIdx:0, fromInner:false }; render(); }
 }
@@ -2827,6 +2916,8 @@ function setAssistEmotion(i){
   _stopMetronome(); assistEmotion=(assistEmotion===i?null:i); assistShowMore=false;
   assistPadOpen=false; // picking a mood (from the pad) auto-collapses it back to the summary row
   renderAssistPanel();
+  say(assistEmotion===null ? 'Mood cleared'
+      : EMOTIONS[assistEmotion].name + ' selected. Suggestions updated.');
 }
 function setAssistMove(i){ assistMove=(assistMove===i?null:i); renderAssistPanel(); }
 function toggleAssistMore(){ assistShowMore=!assistShowMore; renderAssistPanel(); }
