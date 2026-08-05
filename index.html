@@ -498,8 +498,12 @@ var PALETTES = {
 };
 var PALETTE_NAMES = ['pastel','itten','scriabin','zodiac','zebra'];
 var GREY_PALETTES = { zebra:1 };   // skip the dark-theme white-lift for the greyscale one
+// SYNTH used to fall back on its own while curPalette kept the bad name, so a stale or
+// hand-edited value left the wheel correct but NO palette button marked active - the
+// settings popover simply couldn't say which palette was live. Clamp the name itself.
 var curPalette = loadPref('palette','pastel');
-var SYNTH = PALETTES[curPalette] || PALETTES.pastel;
+if (!Object.prototype.hasOwnProperty.call(PALETTES, curPalette)) curPalette = 'pastel';
+var SYNTH = PALETTES[curPalette];
 // Root in semitones for each circle position
 var MROOT    = [0,7,2,9,4,11,6,1,8,3,10,5];
 var NOTES_SHARP = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
@@ -1119,7 +1123,14 @@ function render() {
   // then answers "which keys share my notes" exactly where the minor ring would be.
   var famHL = {};
   if (!showMinor && selected) {
-    var famArr = getScaleSlices(selected.slice, selected.modeIdx);
+    // Go through assistKeyState, the canonical resolver, rather than deriving the key
+    // by hand - this was the last place still doing it. For a fromInner selection
+    // `selected.slice` is ALREADY the sector holding the key signature and modeIdx is
+    // Aeolian, so passing both made getParentSlice subtract Aeolian's offset a second
+    // time and land three sectors away: pick Am, switch the minor ring off, and the
+    // band painted Eb major's family while the panel still said "A minor".
+    var _fk = assistKeyState(selected);
+    var famArr = getScaleSlices(_fk.cs, 0);
     for (var k=0; k<famArr.length; k++) famHL[famArr[k]] = true;
   }
   var parentSl = selected ? getParentSlice(selected.slice, selected.modeIdx) : null;
@@ -1995,15 +2006,26 @@ var QUIZ = [
     return { q:'Name the diatonic V chord in '+qName(MAJSHORT[i])+' major.', correct:(i+1)%12,
       opts:shuffled4((i+1)%12, function(j){ return qName(MAJSHORT[j]); }) };
   },
-  // Parallel minor
+  // Parallel minor: SAME ROOT NOTE, different key signature (C major -> Cm). These two
+  // said correct:i, which points at MINNAMES[i] - the RELATIVE minor. That made both
+  // questions byte-identical to the relative-major/minor pair below AND marked the right
+  // answer wrong: "parallel minor of C major" accepted Am and rejected Cm. Two of
+  // seventeen generators, so roughly one question in eight was teaching the wrong
+  // definition and failing students who knew it.
   function(i) {
-    return { q:'What is the parallel minor of '+qName(MAJSHORT[i])+' major?', correct:i,
-      opts:shuffled4(i, function(j){ return qName(MINNAMES[j]); }) };
+    var pm = MROOT.indexOf((MROOT[i]+3)%12);          // the minor whose ROOT is MROOT[i]
+    // Same enharmonic discipline as the mode questions above: if the wheel spells that
+    // minor's root differently from this major's (Db major vs C#m), don't ask.
+    if (MINNAMES[pm].slice(0,-1) !== MAJSHORT[i]) throw 0;
+    return { q:'What is the parallel minor of '+qName(MAJSHORT[i])+' major?', correct:pm,
+      opts:shuffled4(pm, function(j){ return qName(MINNAMES[j]); }) };
   },
-  // Parallel major
+  // Parallel major (Am -> A major)
   function(i) {
-    return { q:'What is the parallel major of '+qName(MINNAMES[i])+'?', correct:i,
-      opts:shuffled4(i, function(j){ return qName(MAJSHORT[j])+' major'; }) };
+    var pM = MROOT.indexOf((MROOT[i]+9)%12);          // the major whose ROOT is MINNAMES[i]'s
+    if (MAJSHORT[pM] !== MINNAMES[i].slice(0,-1)) throw 0;
+    return { q:'What is the parallel major of '+qName(MINNAMES[i])+'?', correct:pM,
+      opts:shuffled4(pM, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
   // Relative major - same sector (same key signature)
   function(i) {
@@ -2149,6 +2171,11 @@ function handleQuizClick(slice) {
 // back on exit instead of dumping the user back to an empty app.
 var _preQuizSelected = null;
 function toggleQuiz() {
+  // The quiz replaces the whole panel, and the metronome button lives in that panel -
+  // so a click track started in Assist survived into the quiz with no control left to
+  // stop it. setAppMode, setAssistStyle, setAssistEmotion and toggleSound all stop it;
+  // this was the one entry point that didn't.
+  _stopMetronome();
   quizMode = !quizMode;
   document.getElementById('bm-quiz').classList.toggle('active', quizMode);
   var qb = document.getElementById('bm-quiz'); if (qb) qb.setAttribute('aria-pressed', quizMode ? 'true' : 'false');
@@ -2483,6 +2510,9 @@ var DJMOVES = [
   {name:'Switch mood', hue:288, sub:'major / minor flip', fn:function(cs,cm){ return [{slice:cs, min:!cm}]; }}
 ];
 var assistStyle   = loadPref('assist_style','moods'); // 'moods' | 'relations' | 'dj'
+// Same clamp as curPalette: an unrecognised value left every lens button inactive while
+// the panel silently fell through to Moods.
+if (['moods','relations','dj'].indexOf(assistStyle) < 0) assistStyle = 'moods';
 var assistEmotion = null;
 var assistMove    = null;
 var assistShowMore = false;  // Moods: show 6 closely-related by default, More reveals bolder ones
@@ -2561,7 +2591,16 @@ function smoothWhy(cs,cm,ts,tm){
 // AXIS 1 - brightness: how the light shifts. Sharp side = brighter, flat = darker;
 // major brighter than minor. Signed delta -> one word, no good/bad colouring.
 function brightShift(cs,cm,ts,tm){
-  var f=((ts-cs+6)%12)-6;                 // signed fifths: + sharp/bright, - flat/dark
+  // Signed fifths: + sharp/bright, - flat/dark. This was ((ts-cs+6)%12)-6, which is
+  // right only while ts-cs >= -6: JS % keeps the sign of its LEFT operand, so once
+  // ts-cs <= -7 the remainder came back negative and the result landed a full 12 too
+  // low. 15 of the 144 key pairs were wrong, every one of them with the current key on
+  // the flat side (Db Ab Eb Bb F). Concretely: sitting in F, the move to C - its
+  // dominant, one accidental BRIGHTER - scored -11 and was labelled "much darker". And
+  // because assistSuggest's bMatch is computed from this same number it corrupted the
+  // RANKING, not just the wording: a bright mood in F was recommended the darkest keys
+  // available. Normalise into 0..11 first, then fold to the signed half.
+  var d=((ts-cs)%12+12)%12, f = d>6 ? d-12 : d;
   return ((tm?-1:1)+f) - (cm?-1:1);       // brightness delta
 }
 function moveMood(cs,cm,ts,tm){
@@ -2953,7 +2992,14 @@ function _flashShare(msg) {
   if (p.get('light') === '1') document.documentElement.classList.add('light');
   if (p.get('cam') === '1') { var _c=document.getElementById('cb-camelot'); if(_c){ _c.checked = true; var _s2=document.getElementById('cb-sol'); if(_s2)_s2.checked=false; } }
   if (p.get('sol') === '1') { var _s=document.getElementById('cb-sol'); if(_s){ _s.checked = true; var _c2=document.getElementById('cb-camelot'); if(_c2)_c2.checked=false; } }
-  if (p.has('pal') && PALETTES[p.get('pal')]) { curPalette = p.get('pal'); SYNTH = PALETTES[curPalette]; }
+  // hasOwnProperty, not truthiness: PALETTES['constructor'] and PALETTES['__proto__']
+  // are truthy via the prototype chain, so ?pal=constructor passed this test, set SYNTH
+  // to a function, and made SYNTH[i] undefined - lightenHex then threw inside render()
+  // and took the whole load down. Blank wheel, panel stuck on its placeholder, and every
+  // later tap throwing too. A pasted link was enough to brick the app unrecoverably.
+  if (p.has('pal') && Object.prototype.hasOwnProperty.call(PALETTES, p.get('pal'))) {
+    curPalette = p.get('pal'); SYNTH = PALETTES[curPalette];
+  }
   if (p.get('minor') === '0') document.getElementById('cb-minor').checked = false;
   // The app should never open doing nothing ("Shazam-simple": always populated,
   // never an empty wheel + "tap a key" as the first thing a new visitor sees).
@@ -2963,7 +3009,12 @@ function _flashShare(msg) {
   if (p.has('key')) {
     var slice = parseInt(p.get('key'));
     var mode  = parseInt(p.get('mode') || '0');
-    var inner = p.get('inner') === '1';
+    // inner=1 only means anything on a minor-type mode: the inner ring IS the relative
+    // minor. A hand-edited ?key=0&mode=0&inner=1 gave three different answers to "what
+    // key am I in" at once - panel said "C major (Ionian)", assistKeyState resolved Am,
+    // and the screen reader announced "Am Ionian". The app never emits such a link, but
+    // it must not honour one either.
+    var inner = p.get('inner') === '1' && MODES[mode] && MODES[mode].type !== 'maj';
     if (slice >= 0 && slice < 12 && mode >= 0 && mode < 7) {
       selected    = { slice: slice, tonicSlice: slice, modeIdx: mode, fromInner: inner };
       lastModeIdx = mode;
