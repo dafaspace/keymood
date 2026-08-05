@@ -510,14 +510,101 @@ var NOTES_SHARP = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B
 var NOTES_FLAT  = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
 var FLAT_SLICES = {7:1, 8:1, 9:1, 10:1, 11:1};
 function notesForSlice(s) { return FLAT_SLICES[s] ? NOTES_FLAT : NOTES_SHARP; }
-// Accidentals per slice
+// ── The line of fifths ────────────────────────────────────────────────────────
+// ACC is not just "how many accidentals this sector has". It is each sector's
+// POSITION ON THE LINE OF FIFTHS, and that turns out to be the one number the whole
+// spelling problem needs. tonal, music21 and teoria all independently encode a note
+// exactly this way, and we already had it here without using it.
+//
+//   … Cb -7 · Gb -6 · Db -5 · Ab -4 · Eb -3 · Bb -2 · F -1 · C 0 · G 1 · D 2 · A 3 · E 4 · B 5 · F# 6 · C# 7 …
+//
+// The line is infinite in both directions - that is the whole difference from the
+// circle. The circle glues F# and Gb into one sector; the line keeps them apart as 6
+// and -6. From that single integer everything follows: the letter, the accidentals,
+// the key signature (the number IS the signature), and the enharmonic respelling
+// (f +/- 12).
+//
+// A pitch CLASS (0-11, what MROOT holds) cannot do this: F# and Gb are both 6 there,
+// so spelling had to be recovered from a per-sector lookup (NOTES_SHARP/NOTES_FLAT
+// chosen by FLAT_SLICES). That lookup is right for a sector's major and its relative
+// minor and cannot be right for anything else, because a MODE's key signature belongs
+// to a different place on the circle. 16 of the 84 sector x mode combinations
+// disagreed - 10 naming the wrong parent ("Db Dorian, II mode of B major", when B
+// major has five sharps and no flats at all), and 6 needing the tonic itself respelt
+// (Db Aeolian's parent would be Fb major, eight flats; the key is C# Aeolian).
 var ACC      = [0,1,2,3,4,5,6,-5,-4,-3,-2,-1]; // F#=6#, Db=5b...F=1b
 
-function accStr(i) {
-  var n = ACC[i];
+// A mode's tonic, in fifths, relative to its parent major's tonic. Seven integers in
+// place of every per-mode spelling table. Index order matches MODES below:
+// Ionian, Lydian, Mixolydian, Dorian, Aeolian, Phrygian, Locrian.
+var MODE_ALT = [0, -1, 1, 2, 3, 4, 5];
+
+// Letter + accidentals from a position on the line. The remainder mod 7 picks the
+// letter, the quotient gives how many sharps or flats - so it keeps working past the
+// ends of the wheel and names Cb, Fb and B# correctly instead of guessing.
+var _F2S = [3,0,4,1,5,2,6], _LTR = 'CDEFGAB';   // fifths order F C G D A E B -> letters
+function nameOfFifth(f) {
+  var i = ((f + 1) % 7 + 7) % 7, alt = Math.floor((f + 1) / 7);
+  var s = _LTR[_F2S[i]];
+  for (var k = 0; k < Math.abs(alt); k++) s += (alt < 0 ? '♭' : '♯');
+  return s;
+}
+// Signatures past 7 accidentals exist in theory but not in practice, so when a mode
+// lands there we respell the tonic the other way round the line (f +/- 12) and take
+// the reachable spelling. This is the step that turns "Db Aeolian" into "C# Aeolian".
+var MAX_SIG = 7;
+// THE resolver: given a sector and a mode, what is this key actually called?
+// Returns the tonic and parent as both a fifths position and a name, plus the key
+// signature. Everything user-facing about spelling should come from here.
+function keySpelling(slice, modeIdx) {
+  var tf = ACC[slice], pf = tf - MODE_ALT[modeIdx], respelt = false;
+  if (Math.abs(pf) > MAX_SIG) {
+    tf += (pf > 0 ? -12 : 12); pf = tf - MODE_ALT[modeIdx]; respelt = true;
+  }
+  return { tonicFifths: tf, parentFifths: pf, respelt: respelt,
+           tonic: nameOfFifth(tf), parent: nameOfFifth(pf), sig: pf };
+}
+// Which sector actually carries the tonic for a selection. Mirrors updatePanel's
+// actualSlice so the wheel and the panel can never name the key differently.
+function tonicSliceOf(sel) {
+  if (!sel) return null;
+  var m = MODES[sel.modeIdx];
+  return sel.fromInner ? MROOT.indexOf((MROOT[sel.slice] + m.off) % 12) : sel.slice;
+}
+// When the selected key respells its tonic, that sector's LABEL has to follow -
+// otherwise the panel reads "C# Aeolian" while the wheel underneath it still says Db,
+// which is the exact incoherence this model exists to remove.
+//
+// Deliberately narrow: the label of the ring the tonic sits on, and nothing else.
+// - Not all twelve labels (Rand Scullard's circle does recompute them all, and it is
+//   the most correct thing in the field, but the wheel is also this app's spatial map
+//   and moving every label under the user trades one confusion for another).
+// - Not the accidentals ring. That ring is a stable reference to the twelve WRITABLE
+//   major signatures; under a respelt name the sector's own major would read 8# or 9#,
+//   which is true and useless - G# major and D# major are exactly the keys nobody
+//   writes, which is WHY the tonic gets respelt in the first place. The signature
+//   actually in force is already highlighted at the parent's sector.
+// - Not the relative-minor label, for the same reason (G#'s relative minor is E# minor,
+//   eight sharps).
+// In practice this only ever fires in Modal, on the outer ring: Tonal and Assist reach
+// only Ionian and Aeolian, and neither ever needs a respelling.
+function respellForSelection(sel) {
+  if (!sel) return null;
+  var ts = tonicSliceOf(sel);
+  if (ts === null || ts < 0) return null;
+  var k = keySpelling(ts, sel.modeIdx);
+  if (k.tonic === MAJSHORT[ts]) return null;
+  return { slice: ts, onInner: !!sel.fromInner, label: k.tonic };
+}
+
+// Both of these now take a SIGNED FIFTHS COUNT, because that is what a key signature
+// is. The slice-indexed wrappers stay for the wheel's reference ring, which shows each
+// sector's own major signature.
+function accStrF(n) {
   if (!n) return '';
   return n > 0 ? n + '\u266f' : Math.abs(n) + '\u266d';
 }
+function accStr(i) { return accStrF(ACC[i]); }
 // The wheel's accidentals RING already shows the COUNT (e.g. "3\u266f"); this names
 // WHICH notes those are, in standard order-of-sharps/flats (each new key just adds
 // the next letter in the sequence). A design review noted this must live in the
@@ -525,8 +612,7 @@ function accStr(i) {
 // small centre circle legibly, but the panel line always has room.
 var SHARP_ORDER = ['F','C','G','D','A','E','B'];
 var FLAT_ORDER  = ['B','E','A','D','G','C','F'];
-function accNotesStr(i) {
-  var n = ACC[i];
+function accNotesStrF(n) {
   if (!n) return '';
   var order = n > 0 ? SHARP_ORDER : FLAT_ORDER;
   var sym = n > 0 ? '\u266f' : '\u266d';
@@ -534,6 +620,7 @@ function accNotesStr(i) {
   for (var k=0; k<Math.abs(n); k++) out.push(order[k]+sym);
   return out.join(' ');
 }
+function accNotesStr(i) { return accNotesStrF(ACC[i]); }
 
 // 7 modes: off = semitones above parent major tonic
 var MODES = [
@@ -1002,6 +1089,16 @@ function _pulseAt(slice, now) {
 function _pulsesActive() { for (var k in _pulses) return true; return false; }
 
 var _animRAF = null, _animPrev = 0;
+// Backgrounding a tab freezes rAF, so a move in flight stops wherever the last frame
+// left it and _animRAF keeps a stale handle that makes _kickAnim a no-op. Come back and
+// the dial is parked on a key you never chose while the panel names the right one - in
+// a PWA, backgrounding is the normal case, not the edge case. On return, drop the dead
+// handle and let the loop restart from where the springs actually are.
+document.addEventListener('visibilitychange', function() {
+  if (document.hidden) return;
+  _animRAF = null; _animPrev = 0;
+  _kickAnim();
+});
 function _animTick(ts) {
   var dt = _animPrev ? (ts - _animPrev)/1000 : 1/60;
   _animPrev = ts;
@@ -1023,6 +1120,7 @@ function render() {
   // resize(), e.g. the URL/pref loader restoring a non-Tonal tab via setAppMode().
   if (!R || R <= 8) return;
   ctx.clearRect(0, 0, W, H);
+  var _rs       = respellForSelection(selected);   // null unless the key demands it
   var dark      = isDark();
   // The toggle is the only authority here. It used to be OR'd with
   // `selected.fromInner` to keep a minor selection visible, but that made the
@@ -1326,6 +1424,7 @@ function render() {
     // there on the rim. With nothing selected there's no tonic, so fall back to notes.
     var mainLabel = showCam ? camelot(i, false)
                   : (isSol() && _solTonic !== null) ? solChrom(MROOT[i] - _solTonic)
+                  : (_rs && !_rs.onInner && _rs.slice === i) ? _rs.label
                   : MAJSHORT[i];
     // Ink follows the SECTOR's lightness, not the theme (see sectorLum).
     var onLightOut = sectorLum(col, aOuter) > LUM_FLIP;
@@ -1347,6 +1446,7 @@ function render() {
       // i). Appending "m" instead gave "Dom"/"Mim"/"Tim", which read as words.
       var minMain = showCam ? camelot(i, true)
                   : (isSol() && _solTonic !== null) ? solChrom(MROOT[i]+9 - _solTonic).toLowerCase()
+                  : (_rs && _rs.onInner && _rs.slice === i) ? _rs.label + 'm'
                   : MINNAMES[i];
       ctx.font = '400 ' + Math.max(9, R*0.052) + 'px ' + ff;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
@@ -1364,7 +1464,7 @@ function render() {
     // match light theme's visibility. The lit label is the signature IN FORCE (accSel
     // - the parent's for a mode), so the ring always agrees with the panel.
     if (!showCam) {
-      var acc = accStr(i);
+      var acc = accStr(i);   // reference data, never respelt - see respellForSelection
       if (acc) {
         var accLit = (accSel !== null && accSel === i);
         ctx.save();
@@ -1484,10 +1584,13 @@ function render() {
 
   // Canvas pixels say nothing to a screen reader - keep an accessible name that
   // reports the current selection, plus how to drive it from the keyboard.
+  // Named from the same resolver as the panel and the wheel, so a respelt key is
+  // announced as C# Aeolian rather than the sector's stale Db.
+  var _sk = selected ? keySpelling(tonicSliceOf(selected), selected.modeIdx) : null;
   cv.setAttribute('aria-label',
-    (selected
+    (_sk
       ? 'Circle of fifths. Selected: ' +
-        (selected.fromInner ? MINNAMES[selected.slice] : MAJSHORT[selected.slice]) +
+        _sk.tonic + (selected.fromInner ? 'm' : '') +
         ' ' + MODES[selected.modeIdx].name
       : 'Circle of fifths. No key selected') +
     '. Arrow keys change key, up and down switch major and minor, Enter replays it.');
@@ -1670,10 +1773,15 @@ function buildModeStrip() {
   // "Tonal: relative modes" branch used to sit here, unreachable behind that same
   // guard - removed rather than left to rot.)
   var html = '';
-  var tonicName = MAJSHORT[selected.slice];
   for (var m=0; m<7; m++) {
     var mode = MODES[m];
     var isActive = m === selected.modeIdx;
+    // Per mode, not one name for all seven: these are the same TONIC but they are not
+    // all spelt the same way. Db Ionian/Mixolydian/Dorian really are Db, but Db
+    // Aeolian's parent would be Fb major (eight flats), so that button is C# Aeolian.
+    // A single tonicName printed Db on all seven and disagreed with the panel the
+    // moment you pressed one of the last three.
+    var tonicName = keySpelling(selected.slice, m).tonic;
     if (m === 3) html += '<div class="mode-div"></div>';
     html += '<button class="mbtn'+(isActive?' active':'') + '" onclick="setModeByBtn('+m+')" title="'+mode.mood+'">'
       + '<span class="mb-note">'+tonicName+'</span>'
@@ -1798,8 +1906,14 @@ function updatePanel() {
   }
 
   var col     = SYNTH[actualSlice];
-  var acc     = accStr(accSlice);
-  var accNotes = accNotesStr(accSlice);
+  // Spelling comes from the line of fifths, not from a per-sector table. accSlice is
+  // the sector whose MAJOR signature happens to sit nearest on the wheel; for 16 of the
+  // 84 sector x mode pairs that is the enharmonic twin of the real parent, so reading
+  // the signature off it printed "Db Dorian, II mode of B major" - five sharps, no
+  // flats, for a key spelt with flats.
+  var _ks     = keySpelling(actualSlice, modeIdx);
+  var acc     = accStrF(_ks.sig);
+  var accNotes = accNotesStrF(_ks.sig);
   // The key's NAME stays a note name in movable-do - the tonic is Do by definition,
   // so "Do Dorian" would name every key identically.
   // Ionian and Aeolian are named the way people ask for them - "C major", "A minor"
@@ -1810,7 +1924,10 @@ function updatePanel() {
   var _modeLabel = modeIdx === 0 ? 'major (Ionian)'
                  : modeIdx === 4 ? 'minor (Aeolian)'
                  : mode.name;
-  var keyName = MAJSHORT[actualSlice] + ' ' + _modeLabel;
+  // _ks.tonic, not MAJSHORT[actualSlice]: on six of the 84 pairs the sector's own label
+  // is unusable as a tonic name (Db Aeolian's parent would be Fb major, eight flats),
+  // and the line respells it to the reachable one - C# Aeolian, parent E major.
+  var keyName = _ks.tonic + ' ' + _modeLabel;
   var camLabel = isCamelot() ? ' <span style="font-size:11px;opacity:.55;font-weight:400;margin-left:4px">' + CAM_MAJ[accSlice] + (mode.type==='maj'?'B':'A') + '</span>' : '';
   var data    = getModeChords(actualSlice, modeIdx, accSlice);
   var notes   = data.notes;
@@ -1819,7 +1936,7 @@ function updatePanel() {
   // Modal needs this line MOST (a guitarist checking "A Dorian" wants to know it's
   // the II mode of G major) - it used to be suppressed there by a tonal-only guard.
   if (parentSlice !== null && parentSlice !== undefined && modeIdx !== 0) {
-    ctxHTML = MODE_NUMS[modeIdx] + ' mode of <strong>' + MAJSHORT[parentSlice] + ' major</strong>';
+    ctxHTML = MODE_NUMS[modeIdx] + ' mode of <strong>' + _ks.parent + ' major</strong>';
   }
 
     // Relation highlights - on the key's CANONICAL (sector, isMinor) pair. Reading
