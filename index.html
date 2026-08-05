@@ -36,7 +36,12 @@ button:active { transform: scale(.97); }
 }
 :root {
   --bg: #1c1c1a; --bg2: #252522; --bg3: #2e2e2a;
-  --text: #e8e6e0; --text2: #9a9890; --text3: #5a5a54;
+  /* text3 carries real content at 10-11px (accidentals, section headings, neighbour
+     names, relation blurbs), so it has to clear WCAG AA 4.5:1 like any other text.
+     It didn't: #5a5a54 measured 2.46:1 on --bg and 2.21:1 on --bg2. Measured, not
+     eyeballed - these values are the lightest/darkest that clear 4.5 on every
+     surface text3 actually lands on. */
+  --text: #e8e6e0; --text2: #9a9890; --text3: #8d8b83; /* 5.00 on bg, 4.50 on bg2 */
   --bd: rgba(255,255,255,0.08); --bd2: rgba(255,255,255,0.15);
   --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
 }
@@ -44,7 +49,7 @@ button:active { transform: scale(.97); }
   /* Two-surface light theme: a warm light-grey page, white elevated panels,
      pale-grey controls inside them, with strong near-black text. */
   --bg: #e7e3da; --bg2: #f1eee7; --bg3: #e4e0d6;
-  --text: #1a1917; --text2: #5c5b54; --text3: #8d8b83;
+  --text: #1a1917; --text2: #5c5b54; --text3: #656359; /* 4.71 on bg, 4.58 on bg3, 6.03 on the white panel */
   --bd: rgba(0,0,0,0.10); --bd2: rgba(0,0,0,0.16);
 }
 :root.light .panel { background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
@@ -56,7 +61,12 @@ button:active { transform: scale(.97); }
    it the selected mode button kept the light theme's white background while its ink
    was forced white - 1:1 contrast, the current mode invisible. */
 :root.light .mbtn:not(.active) { background: #ffffff; border-color: var(--bd2); }
-:root.light .pal-btn, :root.light .seg, :root.light .seg-btn { background: #ffffff; }
+/* The same :not(.active) guard, for the same reason. Without it the selected notation
+   and the selected palette kept a white surface under their white ink - measured
+   1.28:1, so in light theme the ACTIVE chip read as the disabled one and every
+   inactive chip read as selected. State was exactly inverted. */
+:root.light .pal-btn:not(.active), :root.light .seg,
+:root.light .seg-btn:not(.active) { background: #ffffff; }
 body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; overflow-x: hidden; }
 /* Two-column (desktop/tablet): lock to viewport height so the page never scrolls;
    the circle is fitted to the available height and the detail panel scrolls itself. */
@@ -280,8 +290,11 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
      type further would drop back under the legibility floor we just raised. So the
      MARK carries the identity here and the words step aside: that's what an app icon
      does, and the screen belongs to the content. The full name returns on desktop,
-     where there's room for it. */
-  .wm-txt { display: none; }
+     where there's room for it. Hidden visually, NOT removed: display:none took the
+     words out of the accessibility tree too, leaving the page's only h1 announcing
+     as an empty heading. */
+  .wm-txt { position: absolute; width: 1px; height: 1px; overflow: hidden;
+            clip-path: inset(50%); white-space: nowrap; }
   #wm { width: 26px; height: 26px; }
   .mode-switcher { margin-bottom: 6px; }
   /* align-items:stretch is the fix for BOTH the off-centre wheel and the narrow
@@ -348,7 +361,9 @@ canvas:focus-visible { outline: 2px solid var(--text2); outline-offset: 3px; }
 .sn.root { border: none; }
 .chord-grid { display: grid; grid-template-columns: repeat(4,1fr); gap: 3px; margin-bottom: 11px; }
 .cp { border-radius: 8px; padding: 4px 2px; text-align: center; font-size: 11px; font-weight: 500; }
-.cp span { font-size:10px; display: block; opacity: .6; }
+/* .6 opacity on top of already-coloured ink measured 2.69:1 on the vii pill - the
+   roman numeral is the chord's NAME, not decoration, so it has to stay readable. */
+.cp span { font-size:10px; display: block; opacity: 1; }
 .rel-desc { font-size: 10px; color: var(--text3); margin-bottom: 6px; line-height: 1.4; }
 .hl-list { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 11px; }
 .hl-pill { padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; } /* ink set inline via sectorLum() */
@@ -536,7 +551,9 @@ var ROM_MIN = ['i','ii','iii','iv','v','vi','vii'];
 // (most unstable/tense). The INK has to flip with the theme - the dark inks below
 // were the only set for a while and sat at roughly 3:1 on the dark background.
 var CCOL_LIGHT = {
-  maj: { bg:'rgba(205,140,20,.14)', tx:'#9a6410' },
+  /* #9a6410 measured 4.37:1 on the pill's own tint - the only one of the three that
+     missed AA, and the odd one out anyway (min 6.02, dim 8.18). Now 5.93. */
+  maj: { bg:'rgba(205,140,20,.14)', tx:'#80510c' },
   min: { bg:'rgba(0,110,210,.12)',  tx:'#1a5a96' },
   dim: { bg:'rgba(190,40,30,.11)',  tx:'#861810' },
 };
@@ -862,6 +879,25 @@ function sectorLum(hex, alpha) {
   function ch(i){ return parseInt(hex.slice(1+i*2, 3+i*2),16)*a + bg[i]*(1-a); }
   function f(v){ v/=255; return v<=0.03928 ? v/12.92 : Math.pow((v+0.055)/1.055,2.4); }
   return 0.2126*f(ch(0)) + 0.7152*f(ch(1)) + 0.0722*f(ch(2));
+}
+function darkenHex(hex, t) {
+  var r=parseInt(hex.slice(1,3),16), g=parseInt(hex.slice(3,5),16), b=parseInt(hex.slice(5,7),16);
+  function dn(v){ return ('0'+Math.round(v*(1-t)).toString(16)).slice(-2); }
+  return '#'+dn(r)+dn(g)+dn(b);
+}
+// sectorLum answers "is this sector light or dark". This answers a different question:
+// a palette colour used as INK directly on the page - the quiz header, for one - has to
+// clear AA by itself, and a mid-tone purple doesn't on either background (#7B5EA7 measured
+// 3.25:1 on the dark page). Walk it toward the theme's far end until it does.
+function inkOn(hex, need) {
+  need = need || 4.5;
+  var bgL = sectorLum(isDark() ? '#1c1c1a' : '#e7e3da');
+  for (var t = 0; t <= 1.0001; t += 0.04) {
+    var c = isDark() ? lightenHex(hex, t) : darkenHex(hex, t);
+    var l = sectorLum(c);
+    if ((Math.max(l,bgL)+0.05)/(Math.min(l,bgL)+0.05) >= need) return c;
+  }
+  return isDark() ? '#ffffff' : '#000000';
 }
 var LUM_FLIP = 0.18;   // above this the sector is light -> use dark ink
 
@@ -2029,7 +2065,7 @@ function renderQuizPanel() {
   // opened it. It now names itself and carries an explicit Exit, so it's an honest
   // takeover rather than a hidden mode.
   document.getElementById('panel').innerHTML =
-    '<div class="phead" style="color:#7B5EA7">Quiz' +
+    '<div class="phead" style="color:'+inkOn('#7B5EA7')+'">Quiz' +
       '<button class="quiz-exit" onclick="toggleQuiz()" aria-label="Exit quiz">Exit</button>' +
     '</div>' +
     '<div class="pbody">' +
