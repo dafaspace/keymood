@@ -64,7 +64,12 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 
 /* App bar (header) + utility cluster */
 .appbar { display:flex; align-items:center; gap:7px; margin-bottom:10px; }
-.appbar h1 { font-size:15px; font-weight:500; color:var(--text2); white-space:nowrap; min-width:0; overflow:hidden; text-overflow:ellipsis; }
+.appbar h1 { display:flex; align-items:center; gap:8px; min-width:0; }
+/* Small caps + tight tracking reads as a mark rather than a sentence; the ring beside
+   it is a 12-slice miniature of the wheel in the current palette. */
+.wm-txt { font-size:12px; font-weight:600; letter-spacing:.10em; text-transform:uppercase;
+          color:var(--text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+#wm { width:22px; height:22px; flex-shrink:0; display:block; }
 /* position:relative makes this the popover's containing block, so the settings panel
    hangs off the gear instead of flying to the viewport's top-right corner (it had no
    positioned ancestor and no `top`, landing ~360px away on desktop). */
@@ -83,8 +88,11 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .settings-pop { position:absolute; top:calc(100% + 8px); right:0; z-index:30; background:var(--bg2); border:0.5px solid var(--bd2); border-radius: 14px; padding:12px 14px; display:flex; flex-direction:column; gap:13px; box-shadow:0 8px 24px rgba(0,0,0,.4); min-width:215px; }
 .set-row { display:flex; align-items:center; justify-content:space-between; gap:16px; }
 .set-label { font-size:12px; color:var(--text2); }
-.pal-grid { display:flex; flex-wrap:wrap; gap:5px; }
-.pal-btn { font-size:11px; padding:4px 10px; border-radius: 14px; border:0.5px solid var(--bd2); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); transition:all .12s; }
+/* Fixed columns so the strips are all the same width and read as a comparison. */
+.pal-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
+/* Each palette button shows the palette itself as a 12-stop strip above its name. */
+.pal-btn { display:flex; flex-direction:column; align-items:stretch; gap:5px; font-size:11px; padding:6px; border-radius: 10px; border:0.5px solid var(--bd2); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); transition:all .12s; text-align:center; }
+.pal-strip { display:block; height:14px; border-radius: 8px; }
 .pal-btn:hover { background:var(--bg3); }
 .pal-btn.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:500; }
 
@@ -348,7 +356,10 @@ canvas:focus-visible { outline: 2px solid var(--text2); outline-offset: 3px; }
 </head>
 <body>
 <div class="appbar">
-  <h1 style="pointer-events:none">Another Circle Of Fifths <span style="font-size:10px;color:var(--text3);font-weight:400">v0.0.2</span></h1>
+  <!-- The mark is drawn from the LIVE palette (see paintWordmark), so the app's own
+       identity changes colour with the wheel it draws. Version moved into Settings -
+       a build number doesn't belong in a product's name. -->
+  <h1 style="pointer-events:none"><canvas id="wm" width="44" height="44" aria-hidden="true"></canvas><span class="wm-txt">Another Circle Of Fifths</span></h1>
   <div style="flex:1"></div>
   <div class="util">
     <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz" aria-pressed="false"><svg width="15" height="15" viewBox="0 0 16 16" style="vertical-align:middle"><path d="M8 2.5 1.5 5 8 7.5 14.5 5 8 2.5z" fill="currentColor"/><path d="M4 6.4V9.5c0 1 8 1 8 0V6.4M14 5.2v3.3" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></button>
@@ -366,6 +377,10 @@ canvas:focus-visible { outline: 2px solid var(--text2); outline-offset: 3px; }
           <button type="button" class="seg-btn"        id="seg-camelot" onclick="setNotation('camelot')" title="Camelot DJ notation">Camelot</button>
           <button type="button" class="seg-btn"        id="seg-solfege" onclick="setNotation('solfege')" title="Movable-do solfège: Do is the tonic, so the wheel and scale show degrees">Solfège</button>
         </div>
+      </div>
+      <div class="set-row" style="border-top:0.5px solid var(--bd);padding-top:11px">
+        <span class="set-label">Version</span>
+        <span style="font-size:11px;color:var(--text3)">v0.0.2</span>
       </div>
       <div class="set-row" style="flex-direction:column;align-items:stretch;gap:7px">
         <span class="set-label">Palette</span>
@@ -583,7 +598,27 @@ function setPalette(name) {
   curPalette = name;
   savePref('palette', name);
   updatePaletteSeg();
-  render(); updatePanel();
+  render(); updatePanel(); paintWordmark();
+}
+// The wordmark is a 12-slice miniature of the wheel, drawn from the LIVE palette, so
+// the app's identity carries whichever colour system the user chose.
+function paintWordmark() {
+  var c = document.getElementById('wm'); if (!c) return;
+  var dpr = devicePixelRatio || 1, S = 22;
+  c.width = S*dpr; c.height = S*dpr;
+  var g = c.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0);
+  g.clearRect(0,0,S,S);
+  var cx=S/2, cy=S/2, rOut=S/2-0.5, rIn=S*0.30, slA=2*Math.PI/12;
+  for (var i=0;i<12;i++) {
+    var a0=(-Math.PI/2)+i*slA-slA/2, a1=a0+slA;
+    var col = (isDark() && !GREY_PALETTES[curPalette]) ? lightenHex(SYNTH[i],0.16) : SYNTH[i];
+    g.beginPath();
+    g.moveTo(cx+Math.cos(a0)*rOut, cy+Math.sin(a0)*rOut);
+    g.arc(cx,cy,rOut,a0,a1);
+    g.arc(cx,cy,rIn,a1,a0,true);
+    g.closePath();
+    g.fillStyle = col; g.fill();
+  }
 }
 function updatePaletteSeg() {
   // Read the LIVE palette, not the stored pref - a shared ?pal= link sets curPalette
@@ -592,7 +627,20 @@ function updatePaletteSeg() {
   var cur = curPalette;
   PALETTE_NAMES.forEach(function(n) {
     var b = document.getElementById('pal-' + n);
-    if (b) b.classList.toggle('active', n === cur);
+    if (!b) return;
+    b.classList.toggle('active', n === cur);
+    // Show each palette AS ITSELF: a 12-stop strip of its own colours. Five grey
+    // text chips made the most identity-defining control in the app unreadable as a
+    // choice - "Itten" and "Scriabin" mean nothing until you can see them.
+    if (!b.querySelector('.pal-strip')) {
+      var strip = document.createElement('span');
+      strip.className = 'pal-strip';
+      b.insertBefore(strip, b.firstChild);
+    }
+    var stops = PALETTES[n].map(function(c,i){
+      return c+' '+(i*100/12).toFixed(2)+'%,'+c+' '+((i+1)*100/12).toFixed(2)+'%';
+    }).join(',');
+    b.querySelector('.pal-strip').style.background = 'linear-gradient(90deg,'+stops+')';
   });
 }
 window.setPalette = setPalette;
@@ -690,6 +738,7 @@ function _updateThemeBtn() {
   // theme - it was pinned to the dark colour, so light theme showed a dark seam.
   var mt = document.querySelector('meta[name="theme-color"]');
   if (mt) mt.setAttribute('content', isLight ? '#e7e3da' : '#1c1c1a');
+  paintWordmark();   // the mark uses the theme's lifted palette colours
 }
 window.addEventListener('load', _updateThemeBtn);
 
@@ -2633,7 +2682,9 @@ function renderAssistPanel(){
         +'<div class="axis-legend">brighter/darker = tone shift &nbsp;·&nbsp; Seamless→Cut = how big the jump</div>'
         +'<div class="sugg-list">';
       for(var j=0;j<cap;j++){ var s=sg[j];
-        h+='<button class="sugg-card'+(showCamHere?'':' no-cam')+'" title="'+s.tip+'" onclick="assistPick('+s.slice+','+(s.min?1:0)+','+s.modeIdx+')">'
+        // A rail in the target key's own colour ties the card to its sector on the
+        // wheel - the panel was entirely grey next to a saturated colour object.
+        h+='<button class="sugg-card'+(showCamHere?'':' no-cam')+'" title="'+s.tip+'" style="border-left:3px solid '+SYNTH[s.slice]+'" onclick="assistPick('+s.slice+','+(s.min?1:0)+','+s.modeIdx+')">'
           +'<span class="sugg-key">'+s.name+'</span>'
           +(showCamHere?'<span class="sugg-cam">'+s.cam+'</span>':'')
           +'<span class="sugg-bright">'+s.bright+'</span>'
