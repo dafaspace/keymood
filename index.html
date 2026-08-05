@@ -1548,18 +1548,57 @@ function handlePick(h, noToggle) {
   if (selected) playTonic(selected.slice, selected.modeIdx, selected.fromInner);
 }
 
-cv.addEventListener('mousemove', function(e) {
-  var c=evCoords(e), h=getSlice(c.x,c.y);
-  // Only repaint when the hovered sector/ring actually CHANGES - this fired a full
-  // wheel redraw on every pixel of movement before.
-  var same = (h===hovered) || (h && hovered && h.slice===hovered.slice && h.isInner===hovered.isInner);
-  if (same) return;
-  hovered = h; render();
-  cv.style.cursor = hovered ? 'pointer' : 'default';
+// ONE pointer path for mouse, touch and pen. There were two before, and each was
+// missing something the other had:
+//   - Mouse had no press feedback at all. There was no mousedown handler, so the only
+//     thing on screen when you pressed was the hover tint that had been there since
+//     before you pressed. Nothing acknowledged the press itself.
+//   - Touch committed the coordinate of the PRESS, not the release, and touchmove did
+//     nothing but preventDefault. Press C, slide the finger right across the wheel to
+//     F#, let go there - and it still selected C. On 30-degree wedges that makes a
+//     fat-finger miss uncorrectable, and it means a tap can never be called off once
+//     begun, which every other control on the platform allows.
+//   - Pen and hybrid input (iPad + Pencil, Surface) fell between the two paths and got
+//     neither hover nor press.
+// Now the press marks a sector, the mark FOLLOWS the finger, and release commits
+// wherever you actually let go - so sliding off the wheel and releasing cancels.
+var _pressing = false;
+function _samePick(a, b) {
+  return (a === b) || (a && b && a.slice === b.slice && a.isInner === b.isInner);
+}
+cv.addEventListener('pointerdown', function(e) {
+  e.preventDefault();
+  _pressing = true;
+  // Capture so a finger that wanders off the canvas keeps reporting to us - that's what
+  // lets "drag away to cancel" and "drag back to re-aim" both work.
+  if (cv.setPointerCapture) { try { cv.setPointerCapture(e.pointerId); } catch (_e) {} }
+  var c = evCoords(e);
+  hovered = getSlice(c.x, c.y);
+  render();
 });
-cv.addEventListener('mouseleave', function() { hovered=null; render(); });
-cv.addEventListener('click', function(e) {
-  var c=evCoords(e); handlePick(getSlice(c.x,c.y));
+cv.addEventListener('pointermove', function(e) {
+  var c = evCoords(e), h = getSlice(c.x, c.y);
+  // Repaint only when the sector actually changes - this used to redraw the whole wheel
+  // on every pixel of movement.
+  if (_samePick(h, hovered)) return;
+  hovered = h;
+  render();
+  if (!_pressing) cv.style.cursor = hovered ? 'pointer' : 'default';
+});
+cv.addEventListener('pointerup', function(e) {
+  e.preventDefault();
+  if (!_pressing) return;
+  _pressing = false;
+  var c = evCoords(e);
+  hovered = null;
+  handlePick(getSlice(c.x, c.y));   // null (released off the wheel) is a no-op = cancelled
+});
+cv.addEventListener('pointercancel', function() {
+  _pressing = false; hovered = null; render();
+});
+cv.addEventListener('pointerleave', function() {
+  if (_pressing) return;   // dragging past the rim mid-press isn't leaving
+  hovered = null; render();
 });
 // Keyboard control of the wheel: left/right step round the circle of fifths,
 // up/down cross between the major and minor rings, Enter/Space re-picks (replays
@@ -1586,26 +1625,8 @@ cv.addEventListener('keydown', function(e) {
   var next = ((cur + step) % 12 + 12) % 12;
   handlePick({ slice: next, isInner: selected ? !!selected.fromInner : false }, true);
 });
-var _touchDown = null;
-cv.addEventListener('touchstart', function(e) {
-  e.preventDefault();
-  var c = evCoords(e);
-  _touchDown = c;
-  hovered = getSlice(c.x, c.y);
-  render(); // immediate visual feedback on touchdown
-}, {passive:false});
-cv.addEventListener('touchmove', function(e) { e.preventDefault(); }, {passive:false});
-cv.addEventListener('touchend', function(e) {
-  e.preventDefault();
-  if (_touchDown) {
-    hovered = null;
-    handlePick(getSlice(_touchDown.x, _touchDown.y));
-    _touchDown = null;
-  }
-});
-cv.addEventListener('touchcancel', function() {
-  _touchDown = null; hovered = null; render();
-});
+// (The mouse and touch listeners that used to live here are gone - see the single
+// pointer path above, which covers mouse, touch and pen together.)
 
 // ── Mode strip ────────────────────────────────────────────────────────────────
 // (getModeDataForSlice lived here to feed the unreachable "Tonal: relative modes"
