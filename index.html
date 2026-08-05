@@ -264,7 +264,16 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
             align-items: stretch; grid-template-rows: minmax(0, 1fr); }
   /* Centre the wheel in the space its column actually has, vertically too - it used
      to hang from the top with the leftover height sitting unused beneath it. */
-  .circle-col { display: flex; align-items: center; justify-content: center; min-width: 0; min-height: 0; }
+  /* Top, not centre. The wheel is a square sized by min(column width, column height),
+     so on a tall-but-narrow window it is WIDTH-bound and cannot use the leftover
+     height - at 772x998 the column is 420x891 and the wheel 412. Centring split that
+     479px of slack into two ~240px gaps, one above the wheel and one below, while the
+     panel beside it was top-aligned: two columns aligned differently, and the wheel
+     read as floating loose in the middle of nothing. Sharing one top edge with the
+     panel (and with the app bar and the tab switcher above) collects the slack into a
+     single margin at the bottom. When the window is wide enough for the wheel to be
+     height-bound it fills the row and this changes nothing. */
+  .circle-col { display: flex; align-items: flex-start; justify-content: center; min-width: 0; min-height: 0; }
   /* The panel hugs its content instead of stretching: on mobile the panel is an
      edge-to-edge sheet, so space beneath it reads as ground, but on desktop it's a
      bordered card and the same space reads as a hole in it. align-self:start keeps
