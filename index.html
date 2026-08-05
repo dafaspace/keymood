@@ -1121,12 +1121,43 @@ var _relDrawKey = '';
 // timestamp the note sounded.
 var PULSE_MS = 620;
 var _pulses = {};
+// Pulses waiting for their moment: {slice, due} in the performance.now() domain.
+// They used to be setTimeout callbacks, which is the wrong clock twice over. First,
+// a timer doesn't land on a frame: the flash becomes visible on the first rAF frame
+// AFTER an unaligned timer fires, so each note of an arpeggio picked up its own
+// helping of timer slop plus up to a frame of quantisation - while the audio side is
+// sample-accurate. Second, the visual was scheduled against the moment the sample is
+// SUBMITTED, but the sound leaves the speaker ctx.outputLatency later - measured 16ms
+// on a wired output here, and routinely 100-200ms over Bluetooth. So the flash led the
+// note by an amount that changed when you plugged in headphones. Now the queue is
+// drained inside the frame loop and the latency is added up front, which is what makes
+// "eye and ear land together" actually true rather than merely intended.
+var _pulseQueue = [];
 function pulseSemitone(semi, delayMs) {
   if (reducedMotion()) return;
   var slice = MROOT.indexOf(((semi % 12) + 12) % 12);
   if (slice < 0) return;
-  setTimeout(function(){ _pulses[slice] = performance.now(); _kickAnim(); },
-             Math.max(0, delayMs|0));
+  var _n = performance.now();
+  // Drop anything whose moment has been and gone by more than one pulse's lifetime. The
+  // frame loop is the only thing that drains this queue, and rAF does not run in a
+  // hidden tab - so without this, a backgrounded PWA that keeps receiving taps grows the
+  // queue without bound and then, on return, flashes every sector it missed at once.
+  // A pulse that late has nothing to be in sync WITH; the note it belonged to is over.
+  for (var _i = _pulseQueue.length - 1; _i >= 0; _i--)
+    if (_n - _pulseQueue[_i].due > PULSE_MS) _pulseQueue.splice(_i, 1);
+  _pulseQueue.push({ slice: slice, due: _n + Math.max(0, delayMs || 0) });
+  // And a hard ceiling, because the sweep above is time-based and time barely moves
+  // inside a tight synchronous burst. Nothing legitimate queues more than a scale's
+  // worth (8); 64 is far past any real use and keeps this bounded whatever happens.
+  if (_pulseQueue.length > 64) _pulseQueue.splice(0, _pulseQueue.length - 64);
+  _kickAnim();
+}
+// Called once per frame, before render(), with that frame's timestamp - rAF's argument
+// and performance.now() share a timebase, so `due` and `_pulses[slice]` agree.
+function _drainPulses(ts) {
+  for (var i = _pulseQueue.length - 1; i >= 0; i--) {
+    if (ts >= _pulseQueue[i].due) { _pulses[_pulseQueue[i].slice] = ts; _pulseQueue.splice(i, 1); }
+  }
 }
 function _pulseAt(slice, now) {
   var t0 = _pulses[slice];
@@ -1135,8 +1166,15 @@ function _pulseAt(slice, now) {
   if (k <= 0) { delete _pulses[slice]; return 0; }
   return k*k;                      // eased decay - bright attack, soft tail
 }
-function _pulsesActive() { for (var k in _pulses) return true; return false; }
+function _pulsesActive() {
+  if (_pulseQueue.length) return true;
+  for (var k in _pulses) return true;
+  return false;
+}
 
+// +1 forces the next dial move clockwise, -1 anticlockwise, 0 = take the short way.
+// Consumed and reset by the next render(), so it only ever steers one move.
+var _angDirHint = 0;
 var _animRAF = null, _animPrev = 0;
 // Backgrounding a tab freezes rAF, so a move in flight stops wherever the last frame
 // left it and _animRAF keeps a stale handle that makes _kickAnim a no-op. Come back and
@@ -1152,6 +1190,7 @@ function _animTick(ts) {
   var dt = _animPrev ? (ts - _animPrev)/1000 : 1/60;
   _animPrev = ts;
   selAng.step(dt); selRing.step(dt); relDraw.step(dt);
+  _drainPulses(ts);            // light every note that has come due, on THIS frame
   render();
   if (selAng.settled() && selRing.settled() && relDraw.settled() && !_pulsesActive()) { _animRAF = null; _animPrev = 0; }
   else _animRAF = requestAnimationFrame(_animTick);
@@ -1185,8 +1224,19 @@ function render() {
   // doesn't run ten steps forward).
   if (selected) {
     var _tAng = (-Math.PI/2) + selected.slice*slA;
-    while (_tAng - selAng.x >  Math.PI) _tAng -= 2*Math.PI;
-    while (_tAng - selAng.x < -Math.PI) _tAng += 2*Math.PI;
+    // Shortest path is right for a TAP - you pointed at a sector, the marker goes the
+    // near way. It is wrong for Transpose, where the control itself states a direction:
+    // up a semitone is seven sectors clockwise, but shortest-path took the five-sector
+    // shortcut anticlockwise, so pressing the UP arrow visibly swung the dial DOWN the
+    // circle. The frames contradicted the button. _angDirHint lets transpose() say
+    // which way it meant, for that one move only.
+    if (_angDirHint > 0)      { while (_tAng <= selAng.x) _tAng += 2*Math.PI; }
+    else if (_angDirHint < 0) { while (_tAng >= selAng.x) _tAng -= 2*Math.PI; }
+    else {
+      while (_tAng - selAng.x >  Math.PI) _tAng -= 2*Math.PI;
+      while (_tAng - selAng.x < -Math.PI) _tAng += 2*Math.PI;
+    }
+    _angDirHint = 0;
     var _tRing = (selected.fromInner && showMinor) ? 1 : 0;
     if (!_selInit || reducedMotion()) { selAng.snap(_tAng); selRing.snap(_tRing); _selInit = true; }
     else if (_tAng !== selAng.target || _tRing !== selRing.target) {
@@ -2477,6 +2527,12 @@ function _playArp(semis, oct) {
     var ctx = _getCtx();
     var now = ctx.currentTime + 0.05;
     var dur = 1.3;
+    // Read the clock and the latency ONCE, outside the loop. Reading ctx.currentTime
+    // per note meant it advanced by a render quantum between iterations, so each note's
+    // lead drifted a few ms differently - the audio spacing was exact and the visual
+    // spacing was not, which is the one thing this pairing cannot afford.
+    var _t0  = ctx.currentTime;
+    var _lat = (ctx.outputLatency || ctx.baseLatency || 0) * 1000;
     // Play ascending, no repeated note
     semis.forEach(function(s,i){
       _playNote(s, now+i*gap, dur, oct||4);
@@ -2484,7 +2540,10 @@ function _playArp(semis, oct) {
       // scheduled ahead on the WebAudio clock, so the visual is scheduled against
       // the same instant rather than fired now - eye and ear land on one frame,
       // which is what makes it read as one event instead of two.
-      pulseSemitone(s, (now + i*gap - ctx.currentTime) * 1000);
+      // + outputLatency: `now` is when the sample is SUBMITTED, not when it reaches the
+      // speaker. Without this the flash consistently leads the note, by 16ms wired and
+      // by 100-200ms over Bluetooth - i.e. by an amount that changes with the headphones.
+      pulseSemitone(s, (now + i*gap - _t0) * 1000 + _lat);
     });
   });
 }
@@ -3104,6 +3163,9 @@ function transpose(dir) {
   selected.slice      = newSlice;
   selected.tonicSlice = newSlice;
   lastModeIdx = selected.modeIdx;
+  // Up a semitone is seven sectors clockwise; make the dial travel that way rather
+  // than take the five-sector shortcut back, which read as "up" moving down.
+  _angDirHint = dir > 0 ? 1 : -1;
   buildModeStrip();
   render();
   updatePanel();
