@@ -14,6 +14,26 @@
 <meta name="apple-mobile-web-app-title" content="Fifths">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+/* RESPONSE. Feedback belongs on the PRESS, not the release: the moment a control
+   waits for touch-up to acknowledge you, direct manipulation stops feeling direct.
+   The app had no :active state anywhere, so every tap felt dead until its result
+   appeared. Transform + background only, so it composites on the GPU and can't
+   reflow anything. iOS's own grey flash is suppressed in favour of this. */
+button { -webkit-tap-highlight-color: transparent; transition: transform .09s ease-out, background .12s; }
+button:active { transform: scale(.97); }
+/* Wide controls read better as a background shift than a scale - shrinking a
+   full-width row draws attention to the row's edges rather than to the press. */
+.sugg-card:active, .mood-li:active, .qo:active:not(:disabled) { transform: none; background: var(--bg3); }
+/* Quick-nav items, chord pills and scale notes are clickable DIVs, so the button
+   rule above doesn't reach them. */
+.ni, .cp, .sn { -webkit-tap-highlight-color: transparent; transition: transform .09s ease-out, background .12s; }
+.cp:active, .sn:active { transform: scale(.94); }
+.ni:active { background: var(--bg3); }
+@media (prefers-reduced-motion: reduce) {
+  button, .ni, .cp, .sn { transition: background .12s; }
+  button:active, .cp:active, .sn:active { transform: none; }
+}
 :root {
   --bg: #1c1c1a; --bg2: #252522; --bg3: #2e2e2a;
   --text: #e8e6e0; --text2: #9a9890; --text3: #5a5a54;
