@@ -255,7 +255,14 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
   /* Tighten the two header rows into one compact block instead of two 10px-margin
      rows - recovers real height for the wheel without hiding anything. */
   .appbar { margin-bottom: 4px; }
-  .appbar h1 { font-size: 11px; }
+  /* On a phone the name doesn't fit beside five utility buttons - it was being
+     ellipsised to "ANOTHER CIRCLE OF FIF…", which reads as a bug, and shrinking the
+     type further would drop back under the legibility floor we just raised. So the
+     MARK carries the identity here and the words step aside: that's what an app icon
+     does, and the screen belongs to the content. The full name returns on desktop,
+     where there's room for it. */
+  .wm-txt { display: none; }
+  #wm { width: 26px; height: 26px; }
   .mode-switcher { margin-bottom: 6px; }
   /* align-items:stretch is the fix for BOTH the off-centre wheel and the narrow
      panel: the desktop rule (line ~43) sets this for itself, but the mobile
@@ -604,7 +611,10 @@ function setPalette(name) {
 // the app's identity carries whichever colour system the user chose.
 function paintWordmark() {
   var c = document.getElementById('wm'); if (!c) return;
-  var dpr = devicePixelRatio || 1, S = 22;
+  // Read the CSS size rather than assuming it - the mark is larger on mobile, where
+  // it stands in for the whole wordmark, and a fixed backing store would blur it.
+  var dpr = devicePixelRatio || 1;
+  var S = Math.round(c.getBoundingClientRect().width) || 22;
   c.width = S*dpr; c.height = S*dpr;
   var g = c.getContext('2d'); g.setTransform(dpr,0,0,dpr,0,0);
   g.clearRect(0,0,S,S);
@@ -802,6 +812,10 @@ function resize() {
   ctx.scale(dpr, dpr);
   W = H = s; CX = CY = s/2; R = s * 0.50;
   render();
+  // The mark is larger on mobile, so its backing store has to follow the breakpoint.
+  // Doing it here rather than only in a resize listener covers every path that
+  // re-fits the layout, whatever triggered it.
+  if (typeof paintWordmark === 'function') paintWordmark();
 }
 
 function ha(hex, a) {
@@ -2504,11 +2518,18 @@ function assistSuggest(cs,cm,emoIdx){
       if(emo){
         // Target brightness from valence (bright emotion pulls toward brighter
         // keys, dark toward darker) + preferred travel distance from arousal.
-        // Both are soft nudges, blended with splice smoothness.
+        // WEIGHTS: splice used to carry 0.40, and since it depends only on circle
+        // distance the four nearest keys won every time - so arousal never survived
+        // into the top 3 and 19 moods produced only 5 distinct answers on a phone
+        // (Horror and Sad indistinguishable). Arousal now leads, which is the design
+        // intent: a high-arousal mood SHOULD travel further. Measured across the
+        // weight space; 0.20/0.35/0.45 peaks at 14 distinct sets and falls back to 12
+        // if splice is weakened further, so this is a real optimum rather than
+        // "less splice is always better".
         var bWant=(emo.vl||0)*3;                       // -3 dark .. +3 bright
         var bMatch=100-Math.abs(brightShift(cs,cm,ts,tm)-bWant)*12;
-        var dMatch=100-Math.abs(dCirc-emo.ar*4)*16;    // arousal -> distance
-        score = splice*0.4 + bMatch*0.35 + dMatch*0.25;
+        var dMatch=100-Math.abs(dCirc-emo.ar*4)*22;    // arousal -> distance
+        score = splice*0.20 + bMatch*0.35 + dMatch*0.45;
       }
       rows.push({slice:ts,min:tm,score:score});
     }
@@ -2866,7 +2887,7 @@ function _flashShare(msg) {
   updatePaletteSeg();
 })();
 
-window.addEventListener('resize', resize);
+window.addEventListener('resize', resize);   // resize() repaints the wordmark too
 window.addEventListener('orientationchange', resize);
 // visualViewport reflects the real height when the mobile toolbar shows/hides.
 if (window.visualViewport) window.visualViewport.addEventListener('resize', resize);
