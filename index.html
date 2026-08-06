@@ -461,6 +461,10 @@ canvas:focus-visible { outline-offset: 3px; }
 .sd-item { font-size: 10px; padding: 4px 8px; border-radius: 8px; background: var(--bg2); border: 0.5px solid var(--bd); color: var(--text2);
            font-family: var(--font); cursor: pointer; display: inline-flex; align-items: baseline; gap: 5px; min-height: 24px; }
 .sd-to { color: var(--text3); font-size: 9px; white-space: nowrap; }
+.assist-back { margin-left:10px; vertical-align:middle; font-family:var(--font); font-size:11px; font-weight:400;
+               min-height:24px; padding:3px 10px; border-radius:999px; border:0.5px solid var(--bd2);
+               background:var(--bg2); color:var(--text2); cursor:pointer; white-space:nowrap; }
+.assist-back:hover { background:var(--bg3); color:var(--text); }
 .empty { font-size: 13px; color: var(--text3); padding: 4px 0; }
 
 /* Quiz */
@@ -2754,6 +2758,10 @@ function setAppMode(mode) {
   // so the app claimed you were in Tonal while showing you a quiz. Pressing a tab is an
   // unambiguous "take me elsewhere", so honour it: leave the quiz, then switch.
   if (quizMode) toggleQuiz();
+  // The Assist trail is the chain you built in THIS visit to the tab. Leaving ends it,
+  // so coming back later never offers a "back" to a key you last saw ten minutes and
+  // two tabs ago - which would be a worse lie than having no Back at all.
+  if (appMode === 'assist' && mode !== 'assist') _assistTrail.length = 0;
   _stopMetronome(); // leaving Assist (or switching within it) shouldn't leave a click track running
   appMode = mode;
   savePref('appMode', mode); // reopen on the tab you left (the loader reads this)
@@ -3087,13 +3095,36 @@ function setAssistStyle(s){
   assistEmotion=null; assistMove=null; assistShowMore=false; assistPadOpen=false;
   if(appMode==='assist') renderAssistPanel(); // toggle redrawn with active state
 }
+// Chaining is the whole point of this tab - each pick becomes the new "Now playing"
+// and the app re-ranks from there - but until now the chain only ran forwards. Go four
+// keys deep, decide the third was the good one, and there was no way back: no undo
+// anywhere in the app, and the wheel won't help because you no longer remember which
+// key you came from. An editor auditioning cues does exactly this. Keep the trail.
+var _assistTrail = [];
+var ASSIST_TRAIL_MAX = 12;
 function assistPick(slice,min,modeIdx){
   if(modeIdx===undefined||modeIdx===null) modeIdx=min?4:0;
+  if (selected) {
+    _assistTrail.push({slice:selected.slice, tonicSlice:selected.tonicSlice,
+                       modeIdx:selected.modeIdx, fromInner:!!selected.fromInner});
+    if (_assistTrail.length > ASSIST_TRAIL_MAX) _assistTrail.shift();
+  }
   selected={slice:slice,tonicSlice:slice,modeIdx:modeIdx,fromInner:!!min};
   lastModeIdx=selected.modeIdx;
   render(); renderAssistPanel();
   playTonic(slice,selected.modeIdx,selected.fromInner);
 }
+function assistBack(){
+  var prev = _assistTrail.pop();
+  if (!prev) return;
+  selected = prev;
+  lastModeIdx = prev.modeIdx;
+  render(); renderAssistPanel();
+  playTonic(prev.slice, prev.modeIdx, prev.fromInner);
+  var k = assistKeyState(prev);
+  say('Back to ' + (k.cm ? MINNAMES[k.cs] : MAJSHORT[k.cs]));
+}
+window.assistBack = assistBack;
 // The Assist engine (assistSuggest/camelot/MINNAMES/moveMood/notesChanged) only
 // understands the SECTOR-based (slice, isMinor) pair, where isMinor means "this
 // sector's relative minor" - the same convention as fromInner:true. But a selection
@@ -3127,10 +3158,19 @@ function renderAssistPanel(){
   if(cs===null){
     h+='<div class="empty">Tap a key on the circle - that’s what’s playing now.</div>';
   }else{
+    // The Back control sits ON the "Now playing" line, because that is the thing it
+    // undoes - it appears only once there is somewhere to go back to, and names the key
+    // it will return you to rather than saying a bare "Back".
+    var _backKey = _assistTrail.length ? assistKeyState(_assistTrail[_assistTrail.length-1]) : null;
     h+='<div class="slabel">Now playing</div><div class="key-big" style="margin-bottom:9px">'
       +(cm?MINNAMES[cs]:MAJSHORT[cs])
       +(showCamHere?' <span style="font-size:12px;color:var(--text3);font-weight:400">'+camelot(cs,cm)+'</span>':'')
-      +tStepHTML()+'</div>';
+      +tStepHTML()
+      +(_backKey ? '<button type="button" class="assist-back" onclick="assistBack()"'
+          +' title="Go back to '+(_backKey.cm?MINNAMES[_backKey.cs]:MAJSHORT[_backKey.cs])+'"'
+          +' aria-label="Go back to '+(_backKey.cm?MINNAMES[_backKey.cs]:MAJSHORT[_backKey.cs])+'">'
+          +'← '+(_backKey.cm?MINNAMES[_backKey.cs]:MAJSHORT[_backKey.cs])+'</button>' : '')
+      +'</div>';
   }
   // Intent picker - Moods (mood tiles), DJ moves, or Relations (harmonic relations).
   if(assistStyle==='relations'){
