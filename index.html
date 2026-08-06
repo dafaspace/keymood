@@ -611,44 +611,6 @@ canvas:focus-visible { outline-offset: 3px; }
 
 <script>
 // ── Data ─────────────────────────────────────────────────────────────────────
-var MAJSHORT = ['C','G','D','A','E','B','F\u266f','D\u266d','A\u266d','E\u266d','B\u266d','F'];
-var MINNAMES = ['Am','Em','Bm','F\u266fm','C\u266fm','G\u266fm','D\u266fm','B\u266dm','Fm','Cm','Gm','Dm'];
-// Key colours, indexed by slice (C=0 … F=11). Selectable palettes - all map the
-// circle of fifths onto a 12-point colour cycle, so fifths = analogous neighbours
-// and the tritone = 180° (complementary). Switchable in Settings.
-var PALETTES = {
-  // A♭/E♭/B♭ (8,9,10) were near-indistinguishable: same lightness (74/74/73) and low
-  // saturation in the blue-violet region, where hue discrimination is weakest, so a
-  // 27° hue step wasn't enough - measured ΔE 8.6 and 10.1, i.e. "shades of one
-  // colour". Respread with wider hue steps plus a lightness zigzag; minimum adjacent
-  // ΔE across the whole ring is now 13.7 (was 8.6).
-  pastel:   ['#E28683','#E0AF85','#DBCC80','#A6C987','#84C299','#7BC1B3','#82C2CE','#92B5DD','#888ED7','#C5A8DC','#D392C8','#DE96B4'],
-  // Itten's canonical 12-hue RYB wheel (C=red, +1 hue per fifth -> tritone = true complement).
-  itten:    ['#E3000F','#EF4E1C','#F47E1B','#FBB034','#F6E500','#8DC63F','#1FA64A','#00A99D','#0061A8','#2E3192','#662D91','#A21D6B'],
-  // Scriabin's described colours (verbal originals; E=sky blue, E♭=steely, B♭=rose, F=deep red).
-  scriabin: ['#E00000','#F08000','#F0E000','#1FAF3D','#7FC3E0','#2030C8','#3A5FE0','#7A28C0','#A850B8','#A89498','#CC7A96','#9A0000'],
-  // Zodiac: colour by ELEMENT (Steiner tone-zodiac). Fire=red, Earth=green,
-  // Air=gold, Water=blue. The 3 signs of each element are 120° apart (the trine =
-  // augmented triad), so the four colours form a visible 4-cycle around the wheel.
-  zodiac:   ['#D9433A','#4A9D5B','#D9B23D','#3D77C8','#C8362E','#3D8A4D','#C8A032','#3568B0','#E85248','#57AD68','#E8C24A','#4A86D9'],
-  zebra:    ['#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F']
-};
-var PALETTE_NAMES = ['pastel','itten','scriabin','zodiac','zebra'];
-var GREY_PALETTES = { zebra:1 };   // skip the dark-theme white-lift for the greyscale one
-// SYNTH used to fall back on its own while curPalette kept the bad name, so a stale or
-// hand-edited value left the wheel correct but NO palette button marked active - the
-// settings popover simply couldn't say which palette was live. Clamp the name itself.
-var curPalette = loadPref('palette','pastel');
-if (!Object.prototype.hasOwnProperty.call(PALETTES, curPalette)) curPalette = 'pastel';
-var SYNTH = PALETTES[curPalette];
-// Root in semitones for each circle position
-var MROOT    = [0,7,2,9,4,11,6,1,8,3,10,5];
-// (NOTES_SHARP, NOTES_FLAT, FLAT_SLICES and notesForSlice lived here. They were two
-// fixed 12-name tables and a per-sector rule for choosing between them - a model that
-// cannot express Cb or Fb at all, and there is no third table that would, because the
-// alternatives are unbounded. keyNoteNames() derives the spelling from the key's own
-// position on the line of fifths instead. Their last two users were quiz guards, now
-// asked of keySpelling directly.)
 // ── The line of fifths ────────────────────────────────────────────────────────
 // ACC is not just "how many accidentals this sector has". It is each sector's
 // POSITION ON THE LINE OF FIFTHS, and that turns out to be the one number the whole
@@ -694,6 +656,53 @@ function nameOfFifth(f) {
 var MAX_SIG = 7;
 // Pitch class of a position on the line. Seven semitones per fifth, wrapped.
 function pcOfFifth(f) { return ((f * 7) % 12 + 12) % 12; }
+
+// DERIVED, not typed out. These were three hand-maintained tables sitting alongside
+// ACC and silently duplicating it - and this app has now been bitten twice by exactly
+// that shape: a parallel table that was right when written and drifted from the model
+// afterwards. A sector's major IS its position on the line; its relative minor is three
+// fifths further along. Verified byte-identical to the literals they replace, all 36
+// values across the three arrays.
+var MAJSHORT = ACC.map(function(a){ return nameOfFifth(a); });
+var MINNAMES = ACC.map(function(a){ return nameOfFifth(a + 3) + 'm'; });
+// Key colours, indexed by slice (C=0 … F=11). Selectable palettes - all map the
+// circle of fifths onto a 12-point colour cycle, so fifths = analogous neighbours
+// and the tritone = 180° (complementary). Switchable in Settings.
+var PALETTES = {
+  // A♭/E♭/B♭ (8,9,10) were near-indistinguishable: same lightness (74/74/73) and low
+  // saturation in the blue-violet region, where hue discrimination is weakest, so a
+  // 27° hue step wasn't enough - measured ΔE 8.6 and 10.1, i.e. "shades of one
+  // colour". Respread with wider hue steps plus a lightness zigzag; minimum adjacent
+  // ΔE across the whole ring is now 13.7 (was 8.6).
+  pastel:   ['#E28683','#E0AF85','#DBCC80','#A6C987','#84C299','#7BC1B3','#82C2CE','#92B5DD','#888ED7','#C5A8DC','#D392C8','#DE96B4'],
+  // Itten's canonical 12-hue RYB wheel (C=red, +1 hue per fifth -> tritone = true complement).
+  itten:    ['#E3000F','#EF4E1C','#F47E1B','#FBB034','#F6E500','#8DC63F','#1FA64A','#00A99D','#0061A8','#2E3192','#662D91','#A21D6B'],
+  // Scriabin's described colours (verbal originals; E=sky blue, E♭=steely, B♭=rose, F=deep red).
+  scriabin: ['#E00000','#F08000','#F0E000','#1FAF3D','#7FC3E0','#2030C8','#3A5FE0','#7A28C0','#A850B8','#A89498','#CC7A96','#9A0000'],
+  // Zodiac: colour by ELEMENT (Steiner tone-zodiac). Fire=red, Earth=green,
+  // Air=gold, Water=blue. The 3 signs of each element are 120° apart (the trine =
+  // augmented triad), so the four colours form a visible 4-cycle around the wheel.
+  zodiac:   ['#D9433A','#4A9D5B','#D9B23D','#3D77C8','#C8362E','#3D8A4D','#C8A032','#3568B0','#E85248','#57AD68','#E8C24A','#4A86D9'],
+  zebra:    ['#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F']
+};
+var PALETTE_NAMES = ['pastel','itten','scriabin','zodiac','zebra'];
+var GREY_PALETTES = { zebra:1 };   // skip the dark-theme white-lift for the greyscale one
+// SYNTH used to fall back on its own while curPalette kept the bad name, so a stale or
+// hand-edited value left the wheel correct but NO palette button marked active - the
+// settings popover simply couldn't say which palette was live. Clamp the name itself.
+var curPalette = loadPref('palette','pastel');
+if (!Object.prototype.hasOwnProperty.call(PALETTES, curPalette)) curPalette = 'pastel';
+var SYNTH = PALETTES[curPalette];
+// Root in semitones for each circle position - derived too, seven semitones per fifth.
+// Kept as a materialised array rather than a call: it is read on every sector of every
+// frame, and this way the ~38 call sites don't change at all.
+var MROOT    = ACC.map(pcOfFifth);
+// (NOTES_SHARP, NOTES_FLAT, FLAT_SLICES and notesForSlice lived here. They were two
+// fixed 12-name tables and a per-sector rule for choosing between them - a model that
+// cannot express Cb or Fb at all, and there is no third table that would, because the
+// alternatives are unbounded. keyNoteNames() derives the spelling from the key's own
+// position on the line of fifths instead. Their last two users were quiz guards, now
+// asked of keySpelling directly.)
 // The seven notes of a key, as pitch class -> correctly spelt name. A major key at
 // fifths p owns exactly p-1 … p+5 (the F C G D A E B run), so this is the whole scale.
 // Replaces the two fixed 12-name tables, which could not express a key that needs Cb or
