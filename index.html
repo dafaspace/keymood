@@ -511,6 +511,13 @@ canvas:focus-visible { outline-offset: 3px; }
           <button type="button" class="seg-btn"        id="seg-solfege" onclick="setNotation('solfege')" title="Movable-do solfège: Do is the tonic, so the wheel and scale show degrees">Solfège</button>
         </div>
       </div>
+      <div class="set-row">
+        <span class="set-label">Key signatures</span>
+        <div class="seg" role="group" aria-label="Key signature ring">
+          <button type="button" class="seg-btn active" id="seg-acc-on"  onclick="setAccRing(true)"  title="Show the accidental count for every key on the inner ring">Show</button>
+          <button type="button" class="seg-btn"        id="seg-acc-off" onclick="setAccRing(false)" title="Strip the wheel back to the keys alone">Hide</button>
+        </div>
+      </div>
       <div class="set-row" style="border-top:0.5px solid var(--bd);padding-top:11px">
         <span class="set-label">Version</span>
         <span style="font-size:11px;color:var(--text3)">v2.8.0</span>
@@ -708,6 +715,31 @@ function accStrF(n) {
   return n > 0 ? n + '\u266f' : Math.abs(n) + '\u266d';
 }
 function accStr(i) { return accStrF(ACC[i]); }
+
+// Density. The two most polished implementations in this field - Musicca and Tonaly -
+// both ship a way to strip their wheel back to just the keys ("Hide key signatures" /
+// "Traditional circle of fifths"), which is a strong hint that a three-ring wheel is
+// denser than a lot of people want by default. Ours has the additional problem that the
+// signature ring is the INNERMOST one, i.e. the shortest circumference and the smallest
+// type on the wheel - the single loudest complaint about a competing iOS app is
+// literally that its inner circle can't be read on a phone. So: keep it on by default,
+// because the counts are what a student comes for, and let everyone else turn it off.
+var showAcc = loadPref('accring', true);
+function setAccRing(on) {
+  showAcc = !!on;
+  savePref('accring', showAcc);
+  updateAccSeg();
+  render();
+  say(showAcc ? 'Key signatures shown' : 'Key signatures hidden');
+}
+window.setAccRing = setAccRing;
+function updateAccSeg() {
+  [['seg-acc-on', true], ['seg-acc-off', false]].forEach(function(p) {
+    var b = document.getElementById(p[0]); if (!b) return;
+    b.classList.toggle('active', showAcc === p[1]);
+    b.setAttribute('aria-pressed', showAcc === p[1] ? 'true' : 'false');
+  });
+}
 // The wheel's accidentals RING already shows the COUNT (e.g. "3\u266f"); this names
 // WHICH notes those are, in standard order-of-sharps/flats (each new key just adds
 // the next letter in the sequence). A design review noted this must live in the
@@ -1506,19 +1538,23 @@ function render() {
       ctx.lineWidth = 0.8; ctx.stroke();
     }
 
-    // Accidentals ring - outer arc boundary
-    ctx.beginPath(); ctx.arc(CX,CY,accR,a0,a1);
-    ctx.strokeStyle = dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.07)';
-    ctx.lineWidth = 0.6; ctx.stroke();
+    // The signature ring's own furniture - its boundary arc and the twelve spokes -
+    // goes with the numbers when the ring is off, otherwise "hidden" would leave an
+    // empty grid drawn around nothing, which is busier than what it replaced.
+    if (showAcc) {
+      // Accidentals ring - outer arc boundary
+      ctx.beginPath(); ctx.arc(CX,CY,accR,a0,a1);
+      ctx.strokeStyle = dark ? 'rgba(255,255,255,.07)' : 'rgba(0,0,0,.07)';
+      ctx.lineWidth = 0.6; ctx.stroke();
 
-    // Sector spoke lines through acc ring (from accR to centre hole R*0.17)
-    var sA0 = a0; // sector start angle
-    var sA1 = a1; // sector end angle
-    ctx.beginPath();
-    ctx.moveTo(CX + Math.cos(sA0)*R*0.17, CY + Math.sin(sA0)*R*0.17);
-    ctx.lineTo(CX + Math.cos(sA0)*accR, CY + Math.sin(sA0)*accR);
-    ctx.strokeStyle = dark ? 'rgba(255,255,255,.10)' : 'rgba(0,0,0,.10)';
-    ctx.lineWidth = 0.7; ctx.stroke();
+      // Sector spoke lines through acc ring (from accR to centre hole R*0.17)
+      var sA0 = a0; // sector start angle
+      ctx.beginPath();
+      ctx.moveTo(CX + Math.cos(sA0)*R*0.17, CY + Math.sin(sA0)*R*0.17);
+      ctx.lineTo(CX + Math.cos(sA0)*accR, CY + Math.sin(sA0)*accR);
+      ctx.strokeStyle = dark ? 'rgba(255,255,255,.10)' : 'rgba(0,0,0,.10)';
+      ctx.lineWidth = 0.7; ctx.stroke();
+    }
 
     // Relation pulsing dashes on outer edge
     // R same-sector: dash on opposite ring of selected sector.
@@ -1620,7 +1656,7 @@ function render() {
     // (.34 alpha at an 8px floor - all three design reviews flagged this); raised to
     // match light theme's visibility. The lit label is the signature IN FORCE (accSel
     // - the parent's for a mode), so the ring always agrees with the panel.
-    if (!showCam) {
+    if (!showCam && showAcc) {
       var acc = accStr(i);   // reference data, never respelt - see respellForSelection
       if (acc) {
         var accLit = (accSel !== null && accSel === i);
@@ -3373,6 +3409,7 @@ function _flashShare(msg) {
   }
   updateNotationSeg();
   updatePaletteSeg();
+  updateAccSeg();      // restore the saved density on load, like every other pref
 })();
 
 window.addEventListener('resize', resize);   // resize() repaints the wordmark too
