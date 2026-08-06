@@ -450,7 +450,8 @@ canvas:focus-visible { outline-offset: 3px; }
 .rel-desc { font-size: 10px; color: var(--text3); margin-bottom: 6px; line-height: 1.4; }
 .hl-list { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 11px; }
 .hl-pill { padding: 3px 8px; border-radius: 999px; font-size: 11px; font-weight: 500; } /* ink set inline via sectorLum() */
-.nav-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 3px; margin-bottom: 11px; }
+/* Three tiles now, not four - one of the two "parallel" tiles was always a no-op. */
+.nav-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3px; margin-bottom: 11px; }
 .ni { border-radius: 8px; padding: 6px 8px; cursor: pointer; border: 0.5px solid var(--bd); background: var(--bg2); transition: background .12s; }
 .ni:hover { background: var(--bg3); }
 .nl { font-size: 10px; color: var(--text3); }
@@ -2212,10 +2213,16 @@ function updatePanel() {
   // the subdominant; the dominant is E Dorian), and Am got G/F instead of Em/Dm.
   var domSlice   = (actualSlice+1)%12;
   var subSlice   = (actualSlice+11)%12;
-  var parIonian  = MAJSHORT[actualSlice] + ' major';
-  var parAeolian = MAJSHORT[actualSlice] + ' minor';
   var domName    = MAJSHORT[domSlice] + ' ' + mode.name;
   var subName    = MAJSHORT[subSlice] + ' ' + mode.name;
+  // Exactly one of "parallel major" and "parallel minor" is always a no-op: in C major
+  // the app offered "Parallel major -> C major", a tile that takes you where you already
+  // are, and in A minor the minor one does the same. Offer only the one that changes
+  // something. (Locrian is dim; treat it with the minors and offer the major.)
+  var parIsMinor = mode.type === 'maj';
+  var parLabel   = parIsMinor ? 'Parallel minor' : 'Parallel major';
+  var parKeyName = MAJSHORT[actualSlice] + (parIsMinor ? ' minor' : ' major');
+  var parMode    = parIsMinor ? 4 : 0;
 
   // Secondary dominants
   var sdList = getSecondaryDominants(actualSlice, accSlice, modeIdx);
@@ -2265,8 +2272,7 @@ function updatePanel() {
       '<div class="panel-more"'+(panelMore?'':' style="display:none"')+'>' +
         '<div class="slabel">Quick nav</div>' +
         '<div class="nav-grid">' +
-          '<button type="button" class="ni" onclick="goKey('+actualSlice+',0)"><div class="nl">Parallel major</div><div class="nk">'+parIonian+'</div></button>' +
-          '<button type="button" class="ni" onclick="goKey('+actualSlice+',4)"><div class="nl">Parallel minor</div><div class="nk">'+parAeolian+'</div></button>' +
+          '<button type="button" class="ni" onclick="goKey('+actualSlice+','+parMode+')"><div class="nl">'+parLabel+'</div><div class="nk">'+parKeyName+'</div></button>' +
           '<button type="button" class="ni" onclick="goKey('+domSlice+','+modeIdx+')"><div class="nl">Dominant</div><div class="nk">'+domName+'</div></button>' +
           '<button type="button" class="ni" onclick="goKey('+subSlice+','+modeIdx+')"><div class="nl">Subdominant</div><div class="nk">'+subName+'</div></button>' +
         '</div>' +
