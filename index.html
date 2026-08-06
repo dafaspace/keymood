@@ -20,14 +20,24 @@
    The app had no :active state anywhere, so every tap felt dead until its result
    appeared. Transform + background only, so it composites on the GPU and can't
    reflow anything. iOS's own grey flash is suppressed in favour of this. */
-button { -webkit-tap-highlight-color: transparent; transition: transform .09s ease-out, background .12s; }
+/* touch-action: manipulation kills the double-tap-to-zoom wait on any WebKit build that
+   still applies it - the canvas already sets touch-action, the DOM controls never did. */
+button { -webkit-tap-highlight-color: transparent; touch-action: manipulation;
+         transition: transform .09s ease-out, background .12s; }
 button:active { transform: scale(.97); }
+/* The press must be INSTANT and only the release eased. With a .09s ease on the way in,
+   a normal 60-80ms tap never reached full depth - and worse, most of these handlers
+   rebuild the panel with innerHTML, so the node was destroyed mid-transition and the
+   user saw a half-strength press that then vanished. Zero on the way down, eased on the
+   way back up, which is the standard asymmetry. */
+button:active, .ni:active, .cp:active, .sn:active,
+.sugg-card:active, .mood-li:active, .qo:active:not(:disabled) { transition-duration: 0s; }
 /* Wide controls read better as a background shift than a scale - shrinking a
    full-width row draws attention to the row's edges rather than to the press. */
 .sugg-card:active, .mood-li:active, .qo:active:not(:disabled) { transform: none; background: var(--bg3); }
-/* Quick-nav items, chord pills and scale notes are clickable DIVs, so the button
-   rule above doesn't reach them. */
-.ni, .cp, .sn { -webkit-tap-highlight-color: transparent; transition: transform .09s ease-out, background .12s; }
+/* .ni, .cp and .sn are <button> now, so the rule above reaches them - these only add
+   the deeper press the two sound-making controls earn. */
+.ni, .cp, .sn { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 .cp:active, .sn:active { transform: scale(.94); }
 .ni:active { background: var(--bg3); }
 @media (prefers-reduced-motion: reduce) {
@@ -67,7 +77,30 @@ button:active { transform: scale(.97); }
    inactive chip read as selected. State was exactly inverted. */
 :root.light .pal-btn:not(.active), :root.light .seg,
 :root.light .seg-btn:not(.active) { background: #ffffff; }
+/* Ease the theme swap. Toggling used to jump the entire viewport from #1c1c1a to
+   #e7e3da in one frame - the one full-screen brightness change in the app, and the
+   thing the guidance names explicitly. The canvas repaint stays instant; it's a small
+   region and it re-renders anyway. */
+html, body { transition: background-color .28s ease, color .28s ease; }
+@media (prefers-reduced-motion: reduce) { html, body { transition: none; } }
 body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; overflow-x: hidden; }
+
+/* The app has exactly one translucent surface (.mood-pad-axis, a chip whose job is
+   keeping four axis words legible over the dots) and no backdrop-filter anywhere -
+   deliberately, since nothing here scrolls under floating chrome. Honour the
+   preference for the one case that exists. */
+@media (prefers-reduced-transparency: reduce) {
+  .mood-pad-axis { background: var(--bg2); }
+}
+/* prefers-contrast: more. --text3 already clears AA, so this is the tier above:
+   stronger borders, and the two places where opacity stacks on top of already-light
+   ink (the mode button's mood word). */
+@media (prefers-contrast: more) {
+  :root { --text3:#a5a39a; --bd:rgba(255,255,255,.20); --bd2:rgba(255,255,255,.35); }
+  :root.light { --text3:#4a483f; --bd:rgba(0,0,0,.24); --bd2:rgba(0,0,0,.40); }
+  .mbtn.active .mb-mood { opacity:1; }
+  .settings-pop, .panel { border-width:1px; }
+}
 /* Two-column (desktop/tablet): lock to viewport height so the page never scrolls;
    the circle is fitted to the available height and the detail panel scrolls itself. */
 @media (min-width: 621px) {
@@ -118,6 +151,13 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 
 /* Settings popover */
 .settings-pop { position:absolute; top:calc(100% + 8px); right:0; z-index:30; background:var(--bg2); border:0.5px solid var(--bd2); border-radius: 14px; padding:12px 14px; display:flex; flex-direction:column; gap:13px; box-shadow:0 8px 24px rgba(0,0,0,.4); min-width:215px; }
+/* In light theme the popover was #f1eee7 floating over a #ffffff panel - the ELEVATED
+   surface darker than the one beneath it, which reads as a hole punched in the card
+   rather than a card lifted off it. And the shadow was tuned for the dark theme:
+   rgba(0,0,0,.4) is far too heavy over a light page, where the panel's own shadow is
+   .05. Both are theme mistakes, not taste. */
+:root.light .settings-pop { background:#ffffff;
+  box-shadow:0 10px 30px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.06); }
 .set-row { display:flex; align-items:center; justify-content:space-between; gap:16px; }
 .set-label { font-size:12px; color:var(--text2); }
 /* Fixed columns so the strips are all the same width and read as a comparison. */
@@ -188,9 +228,25 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
    sitting on top costs no tap area. */
 .mood-pad-axis { position:absolute; font-size:10px; color:var(--text2); letter-spacing:.03em; text-transform:uppercase; pointer-events:none; z-index:4; padding:1px 4px; border-radius: 8px; background:rgba(37,37,34,.72); }
 :root.light .mood-pad-axis { background:rgba(241,238,231,.75); }
-.mood-pad .etile-dot { position:absolute; transform:translate(-50%,50%); width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; padding:0; z-index:3; }
-.mood-pad .etile-dot .dot { width:13px; height:13px; border-radius:50%; border:1.5px solid var(--bg2); box-shadow:0 0 0 1px rgba(0,0,0,.35); transition:transform .1s; }
-.mood-pad .etile-dot.active .dot { width:17px; height:17px; border-color:#fff; box-shadow:0 0 0 2px hsl(var(--eh) 60% 45%); }
+/* Positioning moved off `transform` onto `translate`. While the centring lived in
+   transform, this rule (0,2,0) outranked `button:active { transform: scale(.97) }`
+   (0,1,1), so the pad's 19 dots - the primary control of the Assist tab - were the one
+   place the press-feedback pass silently missed. Freeing transform lets :active reach
+   them, and it lets selection be a scale instead of a size change. */
+.mood-pad .etile-dot { position:absolute; translate:-50% 50%; width:32px; height:32px; display:flex; align-items:center; justify-content:center; background:none; border:none; cursor:pointer; padding:0; z-index:3; }
+/* Was width/height 13 -> 17 with `transition: transform`, i.e. a transition declared on
+   a property that never changed while the ones that did (width, height, border-color,
+   box-shadow) snapped - and width/height trigger layout rather than compositing. */
+.mood-pad .etile-dot .dot { width:13px; height:13px; border-radius:50%; border:1.5px solid var(--bg2); box-shadow:0 0 0 1px rgba(0,0,0,.35);
+                            transition:transform .12s cubic-bezier(.2,.8,.25,1), border-color .12s, box-shadow .12s; }
+.mood-pad .etile-dot.active .dot { transform:scale(1.31); border-color:#fff; box-shadow:0 0 0 2px hsl(var(--eh) 60% 45%); }
+.mood-pad .etile-dot:active .dot { transform:scale(.88); }
+.mood-pad .etile-dot.active:active .dot { transform:scale(1.18); }
+@media (prefers-reduced-motion: reduce) {
+  .mood-pad .etile-dot .dot { transition:border-color .12s, box-shadow .12s; }
+  .mood-pad .etile-dot:active .dot, .mood-pad .etile-dot.active:active .dot { transform:scale(1.31); }
+  .mood-pad .etile-dot.active .dot { transform:scale(1.31); }
+}
 /* Relation tiles (Assist > Relations lens) - no hue, neutral active state */
 .etile.rel { border-left-color:var(--bd2); }
 .etile.rel.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:600; }
@@ -401,7 +457,9 @@ canvas:focus-visible { outline-offset: 3px; }
 .nk { font-size: 11px; font-weight: 500; color: var(--text); }
 .sec-dom { margin-bottom: 11px; }
 .sd-list { display: flex; flex-wrap: wrap; gap: 3px; margin-top: 4px; }
-.sd-item { font-size: 10px; padding: 3px 7px; border-radius: 8px; background: var(--bg2); border: 0.5px solid var(--bd); color: var(--text2); }
+.sd-item { font-size: 10px; padding: 4px 8px; border-radius: 8px; background: var(--bg2); border: 0.5px solid var(--bd); color: var(--text2);
+           font-family: var(--font); cursor: pointer; display: inline-flex; align-items: baseline; gap: 5px; min-height: 24px; }
+.sd-to { color: var(--text3); font-size: 9px; white-space: nowrap; }
 .empty { font-size: 13px; color: var(--text3); padding: 4px 0; }
 
 /* Quiz */
@@ -1947,6 +2005,11 @@ function setModeByBtn(modeIdx) {
 window.setModeByBtn = setModeByBtn;
 
 function setRel(r) {
+  // Guard the same way the palette and lens loaders are guarded: an unknown name left
+  // activeRel pointing at nothing and the next render() threw on rel.getTarget, taking
+  // the wheel down. Only reachable from a share link or a stale build, but the whole
+  // point of the other clamps was that a bad value must never reach the draw loop.
+  if (!Object.prototype.hasOwnProperty.call(RELS, r)) return;
   activeRel = r;          // active button state is re-rendered by the Theory lens
   render();
   renderAssistPanel();
@@ -1993,7 +2056,8 @@ function getSecondaryDominants(slice, tSlice, modeIdx) {
     // sharp table chosen for this key signature.)
     var secDomName = nn[secDomRoot];
     var targetName = nn[targetRoot] + (target==='min'?'m':'');
-    result.push({ chord: secDomName+'7', resolves: targetName, num: 'V/' + (target==='min'?ROM_MIN:ROM_MAJ)[i] });
+    result.push({ chord: secDomName+'7', resolves: targetName, rootSemi: secDomRoot,
+                  num: 'V/' + (target==='min'?ROM_MIN:ROM_MAJ)[i] });
   }
   return result;
 }
@@ -2069,17 +2133,15 @@ function updatePanel() {
     ctxHTML = MODE_NUMS[modeIdx] + ' mode of <strong>' + _ks.parent + ' major</strong>';
   }
 
-    // Relation highlights - on the key's CANONICAL (sector, isMinor) pair. Reading
-    // `fromInner` alone was wrong for a minor that arrives as fromInner:false with a
-    // minor-type mode (Quick Nav's "Parallel minor", or a pick made in Modal): every
-    // relation was then computed for the relative MAJOR. Same resolver as render().
-  var rel    = RELS[activeRel];
-  var _rks   = assistKeyState(selected);
-  var _rMin  = _rks.cm, _rSec = _rks.cs;
-  var _rTon  = _rMin ? MROOT.indexOf((MROOT[_rSec]+9)%12) : _rSec;
-  var _pgt   = rel.getTarget ? rel.getTarget(_rSec, _rMin, _rTon) : null;
-  var _relGet = (_rMin && rel.getMin) ? rel.getMin : rel.get;   // ♭II needs its own map from a minor tonic
-  var relArr = _pgt ? [_pgt.sector] : (_relGet ? _relGet(_rSec) : []);
+  // The relation block that used to be built here is gone. It printed whatever
+  // `activeRel` held - but activeRel is set ONLY from the Assist tab's Relations lens,
+  // so choosing Tritone over there silently re-headed this section in Tonal and Modal,
+  // where there is no control to change it back and the wheel doesn't even draw the
+  // highlight (showRel is gated on appMode === 'assist'). A control in one tab quietly
+  // rewriting content in another, with no way home. Its default was Neighbours, which
+  // duplicated the Dominant and Subdominant tiles in Quick nav immediately below it, so
+  // nothing is lost by dropping it here; the full relation lens still lives in Assist,
+  // where it has its picker and its wheel highlights.
 
   // Scale HTML
   var scaleHTML = '';
@@ -2106,30 +2168,8 @@ function updatePanel() {
       +chords[i].num+'</span>'+chords[i].name+'</button>';
   }
 
-    // Highlights HTML
-  var hlHTML = '';
-  function _pill(sliceIdx, label) {
-    var bg = SYNTH[sliceIdx];
-    return '<span class="hl-pill" style="background:'+bg+';color:'
-      +(sectorLum(bg,1)>LUM_FLIP?'#000':'#fff')+'">'+label+'</span>';
-  }
-  if (_pgt) {
-    var curLabel = _rMin ? MINNAMES[_rSec] : MAJSHORT[_rSec];
-    var tgtLabel = _pgt.inner ? MINNAMES[_pgt.sector] : MAJSHORT[_pgt.sector];
-    hlHTML += _pill(_rTon, curLabel);
-    hlHTML += _pill(_pgt.sector, tgtLabel);
-  } else {
-    // Most of these relations are a fixed SECTOR offset (e.g. neighbours = ±1) and
-    // read the same from a major key or its relative minor (major↔minor is a
-    // constant -3 semitones, which commutes with any fixed interval) - so from a
-    // minor key the targets are that same sector's MINOR. The Neapolitan is the
-    // exception: ♭II is always a major chord, so it declares its own getMin and
-    // targetAlwaysMaj (see RELS).
-    var _tgtMin = _rMin && !rel.targetAlwaysMaj;
-    for (var i=0; i<relArr.length; i++) {
-      hlHTML += _pill(relArr[i], _tgtMin ? MINNAMES[relArr[i]] : MAJSHORT[relArr[i]]);
-    }
-  }
+  // (The relation pills that were built here went with the block above - they were its
+  // only consumer. The Assist lens builds its own.)
 
   // Quick nav. Step a fifth from the ACTUAL TONIC, not from the parent's sector -
   // reading accSlice meant A Dorian was offered "D Dorian" as its dominant (that's
@@ -2145,7 +2185,15 @@ function updatePanel() {
   var sdList = getSecondaryDominants(actualSlice, accSlice, modeIdx);
   var sdHTML = '';
   for (var i=0; i<sdList.length; i++) {
-    sdHTML += '<span class="sd-item" title="'+sdList[i].num+' resolves to '+sdList[i].resolves+'">'+sdList[i].chord+'</span>';
+    // Was a <span> whose only content was "A7", with the entire point of the thing -
+    // WHAT it resolves to - hidden in a title attribute, which does not exist on touch.
+    // So a phone showed five decorative chips reading "A7 B7 C7 D7 E7" with no stated
+    // relationship to anything, styled exactly like the pills next to them that DO
+    // respond. Now the relationship is on screen, and the chord plays: a secondary
+    // dominant is a sound you want to hear resolve, not a label.
+    sdHTML += '<button type="button" class="sd-item" onclick="playChordPill('+sdList[i].rootSemi+',\'dom7\')"'
+      + ' aria-label="Play '+sdList[i].chord+', '+sdList[i].num+', resolves to '+sdList[i].resolves+'">'
+      + sdList[i].chord + '<span class="sd-to">→ '+sdList[i].resolves+'</span></button>';
   }
 
     // Minor-ring toggle lives in the Tonal panel header (TA-toggle style), since the
@@ -2179,10 +2227,6 @@ function updatePanel() {
       // default panel stays short enough to fit a phone with NO scroll.
       '<button class="more-btn" onclick="togglePanelMore()">'+(panelMore?'Less':'More')+'</button>' +
       '<div class="panel-more"'+(panelMore?'':' style="display:none"')+'>' +
-        '<div class="slabel">'+rel.label+'</div>' +
-        '<div class="rel-desc">'+rel.desc+'</div>' +
-        '<div class="hl-list">'+hlHTML+'</div>' +
-
         '<div class="slabel">Quick nav</div>' +
         '<div class="nav-grid">' +
           '<button type="button" class="ni" onclick="goKey('+actualSlice+',0)"><div class="nl">Parallel major</div><div class="nk">'+parIonian+'</div></button>' +
@@ -2604,6 +2648,10 @@ function _triad(root, type) {
   if (type==='maj') return [root, root+4, root+7];
   if (type==='min') return [root, root+3, root+7];
   if (type==='dim') return [root, root+3, root+6];
+  // A secondary dominant is only itself with the seventh: the tritone between the 3rd
+  // and the b7 is what makes it PULL to its target. A bare major triad would be the
+  // wrong sound for a chip labelled "A7".
+  if (type==='dom7') return [root, root+4, root+7, root+10];
   return [root, root+4, root+7];
 }
 
@@ -3025,9 +3073,9 @@ function renderAssistPanel(){
   var _ks = assistKeyState(selected);
   var cs=_ks.cs, cm=_ks.cm;
   var tog='<div class="ta-toggle">'
-    +'<button class="ta-seg'+(assistStyle==='moods'?' active':'')+'" onclick="setAssistStyle(\'moods\')" title="Mood tags - for video / non-musicians">Moods</button>'
-    +'<button class="ta-seg'+(assistStyle==='relations'?' active':'')+'" onclick="setAssistStyle(\'relations\')" title="Named harmonic relations - for composers">Relations</button>'
-    +'<button class="ta-seg'+(assistStyle==='dj'?' active':'')+'" onclick="setAssistStyle(\'dj\')" title="Camelot mixing moves - for DJs">DJ</button>'
+    +'<button class="ta-seg'+(assistStyle==='moods'?' active':'')+'" onclick="setAssistStyle(\'moods\')" title="Mood tags - for video / non-musicians" aria-description="Mood tags - for video / non-musicians">Moods</button>'
+    +'<button class="ta-seg'+(assistStyle==='relations'?' active':'')+'" onclick="setAssistStyle(\'relations\')" title="Named harmonic relations - for composers" aria-description="Named harmonic relations - for composers">Relations</button>'
+    +'<button class="ta-seg'+(assistStyle==='dj'?' active':'')+'" onclick="setAssistStyle(\'dj\')" title="Camelot mixing moves - for DJs" aria-description="Camelot mixing moves - for DJs">DJ</button>'
     +'</div>';
   var h='<div class="phead">Transition Assistant'+tog+'</div><div class="pbody">';
   // Camelot is hidden by default everywhere in Assist (unexplained alphanumeric
@@ -3085,7 +3133,14 @@ function renderAssistPanel(){
         +'<span class="mood-pad-axis" style="right:6px;top:50%;transform:translateY(-50%)">Bright</span>';
       for(var i=0;i<pts.length;i++){ var pt=pts[i];
         h+='<button class="etile-dot'+(assistEmotion===pt.i?' active':'')+'" style="--eh:'+pt.e.hue+';left:'+pt.x+'%;bottom:'+pt.y+'%" '
-          +'onclick="setAssistEmotion('+pt.i+')" title="'+pt.e.name+'"><span class="dot" style="background:hsl(var(--eh) 60% 50%)"></span></button>';
+          // aria-hidden + tabindex -1: the pad is a spatial VIEW of the list right above
+          // it, not a second set of choices. Both rendered the same 19 emotions, so a
+          // keyboard user tabbed through Action…Epic twice - 38 stops for 19 options -
+          // and the dots' only name was a title attribute, which doesn't exist on touch.
+          // The list is already keyboard-complete and carries the names, so the pad is
+          // now pointer-only and silent, which is what a picture of the choices should be.
+          +'onclick="setAssistEmotion('+pt.i+')" title="'+pt.e.name+'"'
+          +' aria-hidden="true" tabindex="-1"><span class="dot" style="background:hsl(var(--eh) 60% 50%)"></span></button>';
       }
       h+='</div>';
     }
@@ -3123,7 +3178,7 @@ function renderAssistPanel(){
       for(var j=0;j<cap;j++){ var s=sg[j];
         // A rail in the target key's own colour ties the card to its sector on the
         // wheel - the panel was entirely grey next to a saturated colour object.
-        h+='<button class="sugg-card'+(showCamHere?'':' no-cam')+'" title="'+s.tip+'" style="border-left:3px solid '+SYNTH[s.slice]+'" onclick="assistPick('+s.slice+','+(s.min?1:0)+','+s.modeIdx+')">'
+        h+='<button class="sugg-card'+(showCamHere?'':' no-cam')+'" aria-description="'+s.tip+'" style="border-left:3px solid '+SYNTH[s.slice]+'" onclick="assistPick('+s.slice+','+(s.min?1:0)+','+s.modeIdx+')">'
           +'<span class="sugg-key">'+s.name+'</span>'
           +(showCamHere?'<span class="sugg-cam">'+s.cam+'</span>':'')
           +'<span class="sugg-bright">'+s.bright+'</span>'
