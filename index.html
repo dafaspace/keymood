@@ -83,7 +83,36 @@ button:active, .ni:active, .cp:active, .sn:active,
    region and it re-renders anyway. */
 html, body { transition: background-color .28s ease, color .28s ease; }
 @media (prefers-reduced-motion: reduce) { html, body { transition: none; } }
-body { font-family: var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; overflow-x: hidden; }
+/* body had no base font-size and no base line-height at all, so everything inherited
+   the UA's 16px and `normal` (~1.18 for this stack) unless it said otherwise. */
+body { font: 400 15px/1.4 var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; overflow-x: hidden; }
+
+/* SIZE-SPECIFIC TRACKING. Before this, letter-spacing appeared four times in the whole
+   file and every other one of ~130 text nodes ran at `normal` - which is wrong at BOTH
+   ends of a 10-22px scale. Optical sizing is the rule: small text needs air between the
+   letters to stay legible, large text needs it taken away or it looks loose and
+   unset. Applied to type only; no box changes, so no effect on the layout budget. */
+.key-big { letter-spacing: -.015em; }                     /* 22px display */
+h1, .wm-txt { letter-spacing: .08em; }                     /* was .10em - loose even for caps */
+.seg-btn, .ta-seg, .etile, .pal-btn, .key-sub, .ctx-line, .cp, .hl-pill,
+.nk, .sn, .rel-memo, .quiz-hint, .more-btn, .sugg-hard, .sd-item { letter-spacing: .01em; }   /* 11px */
+.mb-mode, .mb-mood, .nl, .sugg-cam, .sugg-bright, .axis-legend,
+.recipe-hint, .metro-btn, .cp span, .rel-desc, .sd-to { letter-spacing: .02em; }              /* 10px */
+
+/* LEADING, only where the text actually WRAPS. A blanket line-height would have inflated
+   every single-line pill and chip and eaten the phone's no-scroll budget for nothing -
+   the panel already overflows 47px in Tonal + More. These are the nodes measured to run
+   to two or more lines at 375px. */
+.axis-legend, .recipe-hint, .empty, .set-label, .sugg-tip { line-height: 1.45; }
+/* ...and taken back off the boxes that are single-line by construction. A base leading
+   is right for copy and pure cost for a chip: inheriting 1.4 added 24px to Tonal + More
+   without making one pill more readable. Measured back to +2px after this. */
+.sn, .cp, .cp span, .nl, .nk, .hl-pill, .sd-item, .sd-to, .slabel, .kt-lbl,
+.seg-btn, .pal-btn, .mb-note, .mb-mode, .mb-mood, .sugg-key, .sugg-cam,
+.sugg-bright, .sugg-hard, .mood-summary, .mood-li { line-height: 1.2; }
+/* line-height:1 at 22px clips the descenders in "C♯ major (Ionian)" and sits the ♯
+   flush against the box edge. 1.15 costs three pixels on one line. */
+.key-big { line-height: 1.15; }
 
 /* The app has exactly one translucent surface (.mood-pad-axis, a chip whose job is
    keeping four axis words legible over the dots) and no backdrop-filter anywhere -
@@ -132,7 +161,9 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .appbar h1 { display:flex; align-items:center; gap:8px; min-width:0; }
 /* Small caps + tight tracking reads as a mark rather than a sentence; the ring beside
    it is a 12-slice miniature of the wheel in the current palette. */
-.wm-txt { font-size:12px; font-weight:600; letter-spacing:.10em; text-transform:uppercase;
+/* .08em, not .10: at 12px uppercase, .10 is at the loose end and reads as
+   s p a c e d   o u t   l e t t e r i n g rather than as a mark. */
+.wm-txt { font-size:12px; font-weight:600; letter-spacing:.08em; text-transform:uppercase;
           color:var(--text2); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 #wm { width:22px; height:22px; flex-shrink:0; display:block; }
 /* position:relative makes this the popover's containing block, so the settings panel
@@ -424,7 +455,10 @@ canvas:focus-visible { outline-offset: 3px; }
 .kt-step button { position:relative; width:30px; height:28px; border-radius: 8px; border:0.5px solid var(--bd2); background:var(--bg2); color:var(--text2); font-size:11px; cursor:pointer; font-family:var(--font); line-height:1; padding:0; display:inline-flex; align-items:center; justify-content:center; }
 .kt-step button::before { content:''; position:absolute; inset:-6px; }
 .kt-step button:hover { background:var(--bg3); color:var(--text); }
-.key-big { font-size: 22px; font-weight: 500; line-height: 1; color: var(--text); }
+/* line-height 1 clipped the descenders in "C♯ major (Ionian)" and sat the ♯ flush on
+   the box edge; 1.15 costs three pixels on a single line. Tracking is set with the rest
+   of the scale near the top of this stylesheet. */
+.key-big { font-size: 22px; font-weight: 500; line-height: 1.15; color: var(--text); }
 /* margin-bottom matters: with 0 here and no margin-top on .slabel, "3♭ (B♭ E♭ A♭) ·
    Bright" sat flush against "SCALE" and the two read as one broken line. */
 .key-sub { font-size: 11px; color: var(--text3); margin: 3px 0 14px; }
