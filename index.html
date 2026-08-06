@@ -643,10 +643,12 @@ if (!Object.prototype.hasOwnProperty.call(PALETTES, curPalette)) curPalette = 'p
 var SYNTH = PALETTES[curPalette];
 // Root in semitones for each circle position
 var MROOT    = [0,7,2,9,4,11,6,1,8,3,10,5];
-var NOTES_SHARP = ['C','C♯','D','D♯','E','F','F♯','G','G♯','A','A♯','B'];
-var NOTES_FLAT  = ['C','D♭','D','E♭','E','F','G♭','G','A♭','A','B♭','B'];
-var FLAT_SLICES = {7:1, 8:1, 9:1, 10:1, 11:1};
-function notesForSlice(s) { return FLAT_SLICES[s] ? NOTES_FLAT : NOTES_SHARP; }
+// (NOTES_SHARP, NOTES_FLAT, FLAT_SLICES and notesForSlice lived here. They were two
+// fixed 12-name tables and a per-sector rule for choosing between them - a model that
+// cannot express Cb or Fb at all, and there is no third table that would, because the
+// alternatives are unbounded. keyNoteNames() derives the spelling from the key's own
+// position on the line of fifths instead. Their last two users were quiz guards, now
+// asked of keySpelling directly.)
 // ── The line of fifths ────────────────────────────────────────────────────────
 // ACC is not just "how many accidentals this sector has". It is each sector's
 // POSITION ON THE LINE OF FIFTHS, and that turns out to be the one number the whole
@@ -690,6 +692,18 @@ function nameOfFifth(f) {
 // lands there we respell the tonic the other way round the line (f +/- 12) and take
 // the reachable spelling. This is the step that turns "Db Aeolian" into "C# Aeolian".
 var MAX_SIG = 7;
+// Pitch class of a position on the line. Seven semitones per fifth, wrapped.
+function pcOfFifth(f) { return ((f * 7) % 12 + 12) % 12; }
+// The seven notes of a key, as pitch class -> correctly spelt name. A major key at
+// fifths p owns exactly p-1 … p+5 (the F C G D A E B run), so this is the whole scale.
+// Replaces the two fixed 12-name tables, which could not express a key that needs Cb or
+// Fb at all - and there is no third table that would, because the alternatives are
+// unbounded. The line has no such limit.
+function keyNoteNames(parentFifths) {
+  var map = {};
+  for (var f = parentFifths - 1; f <= parentFifths + 5; f++) map[pcOfFifth(f)] = nameOfFifth(f);
+  return map;
+}
 // THE resolver: given a sector and a mode, what is this key actually called?
 // Returns the tonic and parent as both a fifths position and a name, plus the key
 // signature. Everything user-facing about spelling should come from here.
@@ -2096,7 +2110,11 @@ function getModeChords(slice, modeIdx, tonicSlice) {
   var m    = MODES[modeIdx];
   var root = MROOT[slice];
   var useSol = isSol();
-  var nn   = notesForSlice(tonicSlice !== undefined ? tonicSlice : slice);
+  // Spell from the KEY, not from a per-sector sharp/flat table. notesForSlice picked its
+  // table from whichever sector the parent landed on, which for an enharmonic parent is
+  // the twin - so the panel title said "D♭ Dorian" while this row printed C♯ D♯ E F♯ G♯
+  // A♯ B, and "F♯ Lydian" came with a flat scale. Same screen, opposite spellings.
+  var nn   = keyNoteNames(keySpelling(slice, modeIdx).parentFifths);
   var notes  = [];
   var chords = [];
   for (var i=0; i<7; i++) {
@@ -2119,17 +2137,22 @@ function getModeChords(slice, modeIdx, tonicSlice) {
 function getSecondaryDominants(slice, tSlice, modeIdx) {
   var m    = MODES[modeIdx || 0];
   var root = MROOT[slice];
-  var nn = notesForSlice(tSlice !== undefined ? tSlice : slice);
+  // The targets are in the key, so they come from its own spelling. The secondary
+  // dominants are NOT - they are chromatic by definition, which is exactly what a fixed
+  // 12-name table cannot spell correctly. On the line it is trivial: a dominant is one
+  // fifth above what it resolves to, so V/x sits at fifths(x) + 1. That gets B♭7 in D♭
+  // major and A♯7 in B major without a table having to guess.
+  var pf   = keySpelling(slice, modeIdx).parentFifths;
+  var nn   = keyNoteNames(pf);
+  var fifthsOfPc = {};
+  for (var f = pf - 1; f <= pf + 5; f++) fifthsOfPc[pcOfFifth(f)] = f;
   var result = [];
   for (var i=1; i<7; i++) {
     var target = m.ct[i];
     if (target === 'dim') continue;   // a diminished degree has no functional dominant
     var targetRoot = (root + m.iv[i]) % 12;
     var secDomRoot = (targetRoot + 7) % 12;
-    // Spell the secondary dominant with the KEY's own accidental convention, not
-    // always sharps: in D♭ major the V/ii is B♭7, never "A♯7". (nn is the flat or
-    // sharp table chosen for this key signature.)
-    var secDomName = nn[secDomRoot];
+    var secDomName = nameOfFifth(fifthsOfPc[targetRoot] + 1);
     var targetName = nn[targetRoot] + (target==='min'?'m':'');
     result.push({ chord: secDomName+'7', resolves: targetName, rootSemi: secDomRoot,
                   num: 'V/' + (target==='min'?ROM_MIN:ROM_MAJ)[i] });
@@ -2354,18 +2377,20 @@ var QUIZ = [
   },
   function(i) {
     var ps = MROOT.indexOf((MROOT[i]-2+12)%12);
-    // Only ask where the wheel's name for the tonic is the one the PARENT key
-    // actually spells. Otherwise the "correct" answer is only an enharmonic stand-in
-    // (D♭ Dorian really belongs to C♭ major, which the wheel can't name, so the app
-    // would answer "B major" - right pitch, contradictory spelling). startQuiz()
-    // re-rolls when a generator throws.
-    if (notesForSlice(ps)[MROOT[i]] !== MAJSHORT[i]) throw 0;
+    // Only ask where the OFFERED answer is the real parent. D♭ Dorian belongs to C♭
+    // major, which is not one of the twelve options, so the app would have answered
+    // "B major" - right pitch, contradictory spelling. Asked of the line of fifths now
+    // rather than of a sharp/flat table: if the key respells its tonic, or its parent
+    // isn't the sector we're about to offer, don't ask. startQuiz() re-rolls on a throw.
+    if (keySpelling(i, 3).tonic !== MAJSHORT[i]) throw 0;
+    if (keySpelling(i, 3).parent !== MAJSHORT[ps]) throw 0;
     return { q:qName(MAJSHORT[i])+' Dorian is the II mode of which major key?', correct:ps,
       opts:shuffled4(ps, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
   function(i) {
     var ps = MROOT.indexOf((MROOT[i]-7+12)%12);
-    if (notesForSlice(ps)[MROOT[i]] !== MAJSHORT[i]) throw 0;   // see the Dorian note above
+    if (keySpelling(i, 2).tonic !== MAJSHORT[i]) throw 0;        // see the Dorian note above
+    if (keySpelling(i, 2).parent !== MAJSHORT[ps]) throw 0;
     return { q:qName(MAJSHORT[i])+' Mixolydian is the V mode of which major key?', correct:ps,
       opts:shuffled4(ps, function(j){ return qName(MAJSHORT[j])+' major'; }) };
   },
