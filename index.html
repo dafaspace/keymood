@@ -151,8 +151,8 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .ms-btn.active { background:var(--text); color:var(--bg); font-weight:500; }
 
 /* Segmented control (replaces camelot/solfège checkboxes - they're mutually exclusive) */
-.seg { display:inline-flex; gap:2px; background:var(--bg2); border-radius:14px; padding:2px; }
-.seg-btn { min-height:24px; padding:3px 11px; font-size:11px; border-radius: 14px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; white-space:nowrap; }
+.seg { display:inline-flex; gap:2px; background:var(--bg2); border-radius:999px; padding:2px; }
+.seg-btn { min-height:24px; padding:3px 11px; font-size:11px; border-radius: 999px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); transition:all .15s; white-space:nowrap; }
 .seg-btn.active { background:var(--text); color:var(--bg); font-weight:500; }
 .seg-btn:hover:not(.active) { color:var(--text2); }
 
@@ -202,8 +202,14 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 /* Context bar - per-mode controls, reserved height so the circle doesn't jump */
 
 /* Transition Assistant */
-.ta-toggle { margin-left:auto; display:inline-flex; gap:2px; background:var(--bg2); border-radius: 14px; padding:2px; }
-.ta-seg { font-size:11px; padding:7px 11px; min-height:30px; border-radius: 10px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); line-height:1; display:inline-flex; align-items:center; }
+/* One shape for every segmented control. There were three - 999px on the tab
+   switcher, 14px in Settings, 10px on the Assist lens picker - so the same kind of
+   control looked like three different kinds depending which screen you were on. The
+   pill was already the tab switcher's shape and is the most distinct from the app's
+   rounded rectangles, so everything follows it. Heights stay as they are: 24 in the
+   dense header rows, 30 where the Assist picker needs the touch target. */
+.ta-toggle { margin-left:auto; display:inline-flex; gap:2px; background:var(--bg2); border-radius: 999px; padding:2px; }
+.ta-seg { font-size:11px; padding:7px 11px; min-height:30px; border-radius: 999px; border:none; background:none; color:var(--text3); cursor:pointer; font-family:var(--font); line-height:1; display:inline-flex; align-items:center; }
 .ta-seg.active { background:var(--text); color:var(--bg); font-weight:600; }
 .assist-tiles { display:flex; flex-wrap:wrap; gap:4px; margin-bottom:4px; }
 .etile { font-size:11px; padding:8px 10px; min-height:36px; border-radius:14px; border:0.5px solid var(--bd2); border-left:3px solid hsl(var(--eh) 60% 52%); background:var(--bg); color:var(--text2); cursor:pointer; font-family:var(--font); transition:all .12s; display:inline-flex; align-items:center; }
@@ -583,14 +589,17 @@ canvas:focus-visible { outline-offset: 3px; }
 <input type="checkbox" id="cb-sol" style="display:none">
 
 <div class="mode-switcher" role="tablist" aria-label="View">
-  <button class="ms-btn active" id="ms-tonal" role="tab" aria-selected="true" onclick="setAppMode('tonal')">Tonal</button>
-  <button class="ms-btn" id="ms-modal" role="tab" aria-selected="false" onclick="setAppMode('modal')">Modal</button>
-  <button class="ms-btn" id="ms-assist" role="tab" aria-selected="false" onclick="setAppMode('assist')">Assist</button>
+  <button class="ms-btn active" id="ms-tonal" role="tab" aria-selected="true" aria-controls="tabpanel" onclick="setAppMode('tonal')">Tonal</button>
+  <button class="ms-btn" id="ms-modal" role="tab" aria-selected="false" aria-controls="tabpanel" onclick="setAppMode('modal')">Modal</button>
+  <button class="ms-btn" id="ms-assist" role="tab" aria-selected="false" aria-controls="tabpanel" onclick="setAppMode('assist')">Assist</button>
 </div>
 
 <input type="checkbox" id="cb-minor" checked style="display:none">
 
-<div class="layout">
+<!-- role="tab" without a tabpanel is a half-built tab set: assistive tech announces
+     "tab 1 of 3" and then has nothing to move into. The layout IS what the tabs
+     switch, so it is the panel. aria-labelledby is updated by setAppMode. -->
+<div class="layout" id="tabpanel" role="tabpanel" aria-labelledby="ms-tonal">
   <div class="circle-col">
     <!-- The wheel is the app's primary control, so it has to be reachable and
          announced without a pointer: arrows step round the circle, up/down cross
@@ -2311,9 +2320,15 @@ function updatePanel() {
 
     // Minor-ring toggle lives in the Tonal panel header (TA-toggle style), since the
     // inner ring is optional only here. Modal hides minor; Assist always shows it.
+    // role="switch" + aria-checked, not a lone button in a segmented-control shell.
+    // It is an on/off, but it was wearing .ta-toggle - the same container the Assist
+    // lens picker uses for "one of three" - so the same component meant two different
+    // things on adjacent screens, and assistive tech was told nothing about its state
+    // at all (the selection was a CSS class).
+    var _minOn = document.getElementById('cb-minor').checked;
     var minorTog = appMode==='tonal'
-      ? '<div class="ta-toggle" style="margin-left:auto"><button class="ta-seg'
-        +(document.getElementById('cb-minor').checked?' active':'')
+      ? '<div class="ta-toggle single" style="margin-left:auto"><button class="ta-seg'
+        +(_minOn?' active':'')+'" role="switch" aria-checked="'+(_minOn?'true':'false')
         +'" onclick="toggleMinorRing()" title="Show the minor (inner) ring">Minor ring</button></div>'
       : '';
     // phead is FUNCTIONAL (swatch + the minor-ring control) - key-big right below is
@@ -2839,6 +2854,10 @@ function setAppMode(mode) {
     b.classList.toggle('active', mode === m);
     b.setAttribute('aria-selected', mode === m ? 'true' : 'false');
   });
+  // Point the panel at whichever tab is now current, so a screen reader entering it
+  // hears which one it belongs to.
+  var _tp = document.getElementById('tabpanel');
+  if (_tp) _tp.setAttribute('aria-labelledby', 'ms-' + mode);
   // The mode strip's container is always present (reserves height in every tab so
   // the circle never shifts); buildModeStrip only fills it in Modal. The minor-ring
   // toggle is rendered into the Tonal panel header by updatePanel().
@@ -3104,10 +3123,22 @@ function assistSuggest(cs,cm,emoIdx){
         // distance the four nearest keys won every time - so arousal never survived
         // into the top 3 and 19 moods produced only 5 distinct answers on a phone
         // (Horror and Sad indistinguishable). Arousal now leads, which is the design
-        // intent: a high-arousal mood SHOULD travel further. Measured across the
-        // weight space; 0.20/0.35/0.45 peaks at 14 distinct sets and falls back to 12
-        // if splice is weakened further, so this is a real optimum rather than
-        // "less splice is always better".
+        // intent: a high-arousal mood SHOULD travel further.
+        //
+        // RE-MEASURED after the brightShift sign fix, since the original search was run
+        // against the buggy version. 112 weight combinations, 19 moods x 24 origin keys.
+        // Distinctness is now 16 of 19 distinct top-3 sets (the "only 5" above is stale
+        // - the brightShift fix did most of that work by itself). Some combinations do
+        // better on distinctness alone: 0.05/0.70/0.25 reaches 19 of 19. Do not take
+        // them. Distinctness is a PROXY; the real test is whether the two axes actually
+        // govern the output, and by that test this weighting is the best measured:
+        //   weights            arousal->distance   valence->brightness   distinct
+        //   0.20/0.35/0.45         0.968                0.963              16
+        //   0.25/0.40/0.35         0.829                0.963              16.5
+        //   0.05/0.70/0.25         0.807                0.989              19
+        // Every gain in distinctness is bought by letting brightness swamp arousal, so
+        // a high-energy mood stops travelling further - which is the one behaviour this
+        // ranking exists to produce. Leave these numbers alone.
         var bWant=(emo.vl||0)*3;                       // -3 dark .. +3 bright
         var bMatch=100-Math.abs(brightShift(cs,cm,ts,tm)-bWant)*12;
         var dMatch=100-Math.abs(dCirc-emo.ar*4)*22;    // arousal -> distance
@@ -3315,7 +3346,10 @@ function renderAssistPanel(){
     if(sg===null){
       h+='<div class="empty" style="margin-top:11px">Pick a move above to see where to go next.</div>';
     }else{
-      var lbl = assistStyle==='dj' ? 'Where to go' : 'Next key';
+      // One name for one thing. This list is the same list in both lenses - a ranked
+      // set of keys to move to - and calling it "Next key" in Moods but "Where to go"
+      // in DJ made two names for it in a tab the user switches between constantly.
+      var lbl = 'Next key';
       // Moods: show 6 (the closely-related palette real music mostly uses), the rest
       // - bolder/distant keys - hide behind "More". DJ shows all its move targets.
       var defN = window.innerWidth <= 620 ? 3 : 6;   // fewer on a phone so it fits with no scroll
