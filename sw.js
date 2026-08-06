@@ -1,5 +1,5 @@
 // Bump CACHE on every version release so clients fetch fresh files.
-var CACHE = "coc-v2.8.0";
+var CACHE = "coc-v2.9.0";
 var ASSETS = ["./index.html", "./manifest.json", "./icon.png"];
 
 // How long the document may wait on the network before we serve what we already have.
