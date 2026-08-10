@@ -173,10 +173,22 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 /* Visual size stays compact (5 icons share a tight header row), but the tappable
    area extends to ~40px via an invisible ::before - the "extend hit area, don't
    grow the icon" pattern all three design reviews recommended. */
-.util-btn { position:relative; background:none; border:none; cursor:pointer; width:28px; height:26px; padding:0; line-height:1; color:var(--text2); font-size:15px; border-radius: 8px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
-.util-btn::before { content:''; position:absolute; inset:-7px; }
+/* Measured at 28x26 with 14-15px glyphs on 1.1-1.3px strokes, and a 42x40 hit area -
+   under Apple's 44x44 and visibly thin. Square 32 with a 17px glyph, and inset -6
+   brings the target to exactly 44x44. Height was 26 against a width of 28 for no
+   reason; a round icon in a non-square box is off-centre by a pixel. */
+.util-btn { position:relative; background:none; border:none; cursor:pointer; width:32px; height:32px; padding:0; line-height:1; color:var(--text2); font-size:17px; border-radius: 8px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.util-btn::before { content:''; position:absolute; inset:-6px; }
 .util-btn:hover { background:var(--bg2); }
 .util-btn.active { color:var(--text); background:var(--bg3); }
+/* MUTED IS A STATE THE USER MUST NOT LOSE TRACK OF. It persists across reloads, and it
+   used to be announced by swapping a 2.5px arc for a 2.5px cross in the same grey at
+   14px - a difference you cannot see, so a mute made by accident looks like an app with
+   no sound. It now reads as an engaged control: filled, in the warning hue, the way a
+   mute button behaves everywhere else. */
+.util-btn.muted { color:#fff; background:#b4472f; }
+.util-btn.muted:hover { background:#c2523a; }
+:root.light .util-btn.muted { color:#fff; background:#c14f36; }
 #bm-quiz { color:#9b7fd4; }
 #bm-quiz.active { background:#7B5EA7; color:#fff; }
 
@@ -540,10 +552,10 @@ canvas:focus-visible { outline-offset: 3px; }
   <h1 style="pointer-events:none"><canvas id="wm" width="44" height="44" aria-hidden="true"></canvas><span class="wm-txt">Another Circle Of Fifths</span></h1>
   <div style="flex:1"></div>
   <div class="util">
-    <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz" aria-pressed="false"><svg width="15" height="15" viewBox="0 0 16 16" style="vertical-align:middle"><path d="M8 2.5 1.5 5 8 7.5 14.5 5 8 2.5z" fill="currentColor"/><path d="M4 6.4V9.5c0 1 8 1 8 0V6.4M14 5.2v3.3" fill="none" stroke="currentColor" stroke-width="1.1" stroke-linecap="round"/></svg></button>
-    <button class="util-btn" id="btn-share" onclick="shareLink()" title="Copy link to this key" aria-label="Share"><svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><path d="M5.5 8.5a3 3 0 0 0 4.2 0l1.5-1.5a3 3 0 0 0-4.2-4.2L6 3.8" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><path d="M8.5 5.5a3 3 0 0 0-4.2 0L2.8 7a3 3 0 0 0 4.2 4.2L8 10.2" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+    <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz" aria-pressed="false"><svg width="17" height="17" viewBox="0 0 16 16" style="vertical-align:middle"><path d="M8 2.5 1.5 5 8 7.5 14.5 5 8 2.5z" fill="currentColor"/><path d="M4 6.4V9.5c0 1 8 1 8 0V6.4M14 5.2v3.3" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg></button>
+    <button class="util-btn" id="btn-share" onclick="shareLink()" title="Copy link to this key" aria-label="Share"><svg width="17" height="17" viewBox="0 0 14 14" style="vertical-align:middle"><path d="M5.5 8.5a3 3 0 0 0 4.2 0l1.5-1.5a3 3 0 0 0-4.2-4.2L6 3.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8.5 5.5a3 3 0 0 0-4.2 0L2.8 7a3 3 0 0 0 4.2 4.2L8 10.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
     <button class="util-btn" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark" aria-label="Theme">&#9790;</button>
-    <button class="util-btn" id="btn-sound" onclick="toggleSound()" title="Toggle sound" aria-label="Sound"><svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg></button>
+    <button class="util-btn" id="btn-sound" onclick="toggleSound()" title="Toggle sound" aria-label="Sound"><svg width="17" height="17" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
     <button class="util-btn" id="btn-settings" onclick="toggleSettings()" title="Settings" aria-label="Settings" aria-expanded="false" aria-controls="settings-pop">&#9881;</button>
     <!-- Inside .util (which is position:relative) so the popover anchors to the gear
          at every width instead of floating to the viewport corner. -->
@@ -2638,8 +2650,8 @@ var _soundOn  = loadPref('sound', true); // was hardcoded true - reset itself ev
 
 // One definition each - the load-time pref sync (further down) reuses these rather
 // than carrying its own copy of the markup.
-var _ICON_SOUND_ON  = '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
-var _ICON_SOUND_OFF = '<svg width="14" height="14" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round"/><line x1="9.5" y1="5" x2="12" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/><line x1="12" y1="5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1.3" stroke-linecap="round"/></svg>';
+var _ICON_SOUND_ON  = '<svg width="17" height="17" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+var _ICON_SOUND_OFF = '<svg width="17" height="17" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="9.5" y1="5" x2="12" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
 
 function toggleSound() {
   _soundOn = !_soundOn;
@@ -2647,7 +2659,17 @@ function toggleSound() {
   // Muting must silence a RUNNING metronome too - it's the one audio path that
   // keeps producing sound on its own after the tap that started it.
   if (!_soundOn) _stopMetronome();
-  document.getElementById('btn-sound').innerHTML = _soundOn ? _ICON_SOUND_ON : _ICON_SOUND_OFF;
+  _paintSoundBtn();
+}
+// One place that paints the mute state, used by the toggle AND by the loader - they
+// used to set the icon separately and only the toggle knew about anything else.
+function _paintSoundBtn() {
+  var b = document.getElementById('btn-sound'); if (!b) return;
+  b.innerHTML = _soundOn ? _ICON_SOUND_ON : _ICON_SOUND_OFF;
+  b.classList.toggle('muted', !_soundOn);
+  b.setAttribute('aria-pressed', _soundOn ? 'false' : 'true');
+  b.title = _soundOn ? 'Mute' : 'Sound is OFF - tap to unmute';
+  b.setAttribute('aria-label', _soundOn ? 'Mute' : 'Sound is off, tap to unmute');
 }
 
 function _getCtx() {
@@ -3501,7 +3523,7 @@ function _flashShare(msg) {
   document.getElementById('cb-minor').checked = minorPref;
   // Sound icon markup is hardcoded to "on" in the HTML; sync it to the loaded pref
   // (was resetting to on every load regardless of the user's last choice).
-  if (!_soundOn) document.getElementById('btn-sound').innerHTML = _ICON_SOUND_OFF;
+  _paintSoundBtn();   // was icon-only, and only when muted - so the class never appeared on load
 })();
 
 // Read URL params on load
