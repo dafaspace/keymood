@@ -577,7 +577,7 @@ canvas:focus-visible { outline-offset: 3px; }
       </div>
       <div class="set-row" style="border-top:0.5px solid var(--bd);padding-top:11px">
         <span class="set-label">Version</span>
-        <span style="font-size:11px;color:var(--text3)">v2.9.0</span>
+        <span style="font-size:11px;color:var(--text3)">v2.9.1</span>
       </div>
       <div class="set-row" style="flex-direction:column;align-items:stretch;gap:7px">
         <span class="set-label">Palette</span>
@@ -2673,18 +2673,47 @@ function _paintSoundBtn() {
 }
 
 function _getCtx() {
-  if (!_audioCtx) _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  // A context can end up 'closed' - the browser reclaims audio resources from a tab
+  // that has sat idle for a long time, and a closed one throws on createOscillator
+  // forever after. Build a new one rather than hand back a corpse.
+  if (!_audioCtx || _audioCtx.state === 'closed') {
+    _audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+  }
   return _audioCtx;
 }
 
+// The old version asked one question - is the state exactly 'suspended'? - and if not,
+// scheduled notes regardless. That is why sound went away on a tab left open a long
+// time and came back only on reload:
+//   - Safari parks a context at 'interrupted', not 'suspended' (a phone call, another
+//     app taking the audio session, a device change). Not 'suspended', so the old code
+//     took the else branch and scheduled into a stopped clock. Silence, permanently.
+//   - Chrome can 'suspend' a backgrounded tab's context, and can close it outright when
+//     reclaiming resources from an idle one.
+//   - resume() can also reject, and nothing was listening for that.
+// Now: anything that is not 'running' gets resumed, a rejection is treated as a dead
+// context and rebuilt once, and notes are only scheduled once the clock is actually
+// running - scheduling into a stopped context is exactly the silent failure to avoid.
 function _withCtx(fn) {
   var ctx = _getCtx();
-  if (ctx.state === 'suspended') {
-    ctx.resume().then(fn);
-  } else {
-    fn();
-  }
+  if (ctx.state === 'running') { fn(); return; }
+  ctx.resume().then(function () {
+    if (_getCtx().state === 'running') fn();
+  }, function () {
+    _audioCtx = null;                       // resume refused: assume it is unusable
+    var fresh = _getCtx();
+    if (fresh.state === 'running') { fn(); return; }
+    fresh.resume().then(function () {
+      if (fresh.state === 'running') fn();
+    }, function () { /* no audio available; the visual pulse still runs */ });
+  });
 }
+// Nudge the context awake when the user comes back, so the FIRST tap after returning
+// makes a sound instead of being the one that spends itself on the resume.
+document.addEventListener('visibilitychange', function () {
+  if (document.hidden || !_audioCtx) return;
+  if (_audioCtx.state !== 'running') _audioCtx.resume().catch(function () {});
+});
 
 // Semitone → frequency (C4=261.63)
 var _FREQ = [261.63,277.18,293.66,311.13,329.63,349.23,369.99,392.00,415.30,440.00,466.16,493.88];
