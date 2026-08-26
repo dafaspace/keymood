@@ -1517,13 +1517,16 @@ function render() {
   // thinking while the app's main object just sat there. Mark the top suggestions
   // on it, ranked, so the answer appears where the user is already looking.
   var suggHL = [];
-  if (selected && appMode === 'assist' && assistStyle !== 'relations') {
+  if (selected && appMode === 'assist' && assistStyle !== 'relations' && !quizMode) {
     var _sk = assistKeyState(selected);
     if (_sk.cs !== null) {
       var _sg = assistStyle === 'dj'
         ? (assistMove === null ? null : djSuggest(_sk.cs, _sk.cm, assistMove))
         : assistSuggest(_sk.cs, _sk.cm, assistEmotion);
-      if (_sg) for (var q = 0; q < Math.min(3, _sg.length); q++) {
+      // As many badges as there are CARDS on screen. It was hardcoded to 3 while the
+      // desktop list showed 6, so half the list had no mark and "why does D have a
+      // number and C#m not" had no answer.
+      if (_sg) for (var q = 0; q < Math.min(assistCardCount(_sg.length), _sg.length); q++) {
         suggHL.push({ slice:_sg[q].slice, min:!!_sg[q].min, rank:q+1 });
       }
     }
@@ -1878,8 +1881,19 @@ function render() {
     }
     var _grow = Math.max(0, Math.min(1, relDraw.x));
     ctx.save();
-    ctx.strokeStyle = dark ? 'rgba(255,255,255,.5)' : 'rgba(0,0,0,.42)';
-    ctx.lineWidth = 1.6;
+    // CLIPPED to inside the major ring. These are drawn last, so they used to lay a
+    // 1.6px line straight across the outer ring and through whichever key names it
+    // passed - the loudest of the untidiness, and it fought the very labels it was
+    // pointing at. Clipping to r < innerR keeps the whole idea (the relationship as
+    // visible geometry, using the empty centre the comment above describes) while the
+    // key names stay clean. The line now emerges from under the ring at each end.
+    //
+    // Tried first and reverted: drawing the whole block BEFORE the sectors. That put it
+    // behind the fills too, and for anything closer than a tritone the entire chord sits
+    // inside the ring band - so the feature vanished completely.
+    ctx.beginPath(); ctx.arc(CX, CY, innerR, 0, Math.PI*2); ctx.clip();
+    ctx.strokeStyle = dark ? 'rgba(255,255,255,.42)' : 'rgba(0,0,0,.36)';
+    ctx.lineWidth = 1.4;
     ctx.lineCap = 'round';
     for (var t2 = 0; t2 < targets.length; t2++) {
       targets[t2] = { x: from.x + (targets[t2].x - from.x)*_grow,
@@ -1895,20 +1909,31 @@ function render() {
   // MOODS / DJ: a small numbered badge on each of the top suggestions, in the panel's
   // own order, so "where do I go next" is answered on the wheel too.
   if (suggHL.length) {
-    var badgeR = Math.max(8, R*0.055);
+    // Measured: the badge used to sit on the sector's MID-ANGLE, the same line as the
+    // key label, 25px further out where it needed 27 to clear it - so on the major ring
+    // it overlapped the letter. It also collided with the chord-tone numeral, which is
+    // 16px above the same label. Three numeric layers on one line.
+    // Fixed by moving it off that line ANGULARLY, to the sector's leading edge, and out
+    // to the rim. Nothing else is drawn there.
+    var badgeR = Math.max(7, R*0.045);
     for (var s2 = 0; s2 < suggHL.length; s2++) {
       var sg2 = suggHL[s2];
-      var a2  = (-Math.PI/2) + sg2.slice*slA;
-      // Sit just inside the outer edge of the ring the target actually lives on.
-      var rr2 = (sg2.min && showMinor) ? accR + (innerR-accR)*0.80
-                                       : innerR + (outerR-innerR)*0.80;
+      var a2  = (-Math.PI/2) + sg2.slice*slA - slA*0.30;
+      var rr2 = (sg2.min && showMinor) ? innerR - badgeR - R*0.012
+                                       : outerR - badgeR - R*0.012;
       var bx = CX + Math.cos(a2)*rr2, by = CY + Math.sin(a2)*rr2;
+      // Quiet, not loud. A filled white disc at weight 700 was the brightest thing on
+      // the wheel - louder than the selection marker, the key names and the chord tones,
+      // for what is navigation rather than an answer. Punched out of the page colour
+      // with a thin ring instead, so it reads as a marker on the wheel, not a sticker.
       ctx.save();
       ctx.beginPath(); ctx.arc(bx, by, badgeR, 0, Math.PI*2);
-      ctx.fillStyle = dark ? 'rgba(255,255,255,.94)' : 'rgba(20,20,18,.9)';
+      ctx.fillStyle   = dark ? 'rgba(28,28,26,.92)' : 'rgba(255,255,255,.94)';
       ctx.fill();
-      ctx.fillStyle = dark ? '#1c1c1a' : '#fff';
-      ctx.font = '700 ' + Math.max(9, R*0.055) + 'px ' + ff;
+      ctx.strokeStyle = dark ? 'rgba(255,255,255,.55)' : 'rgba(20,20,18,.45)';
+      ctx.lineWidth   = 1.2; ctx.stroke();
+      ctx.fillStyle   = dark ? 'rgba(255,255,255,.88)' : 'rgba(20,20,18,.8)';
+      ctx.font = '600 ' + Math.max(9, R*0.042) + 'px ' + ff;
       ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
       ctx.fillText(String(sg2.rank), bx, by + 0.5);
       ctx.restore();
@@ -3283,12 +3308,32 @@ function _stopMetronome(){ _metroOn=false; if(_metroTimer){ clearInterval(_metro
 function setAssistEmotion(i){
   _stopMetronome(); assistEmotion=(assistEmotion===i?null:i); assistShowMore=false;
   assistPadOpen=false; // picking a mood (from the pad) auto-collapses it back to the summary row
+  render();            // the wheel's ranked badges change with the mood - see setAssistMove
   renderAssistPanel();
   say(assistEmotion===null ? 'Mood cleared'
       : EMOTIONS[assistEmotion].name + ' selected. Suggestions updated.');
 }
-function setAssistMove(i){ assistMove=(assistMove===i?null:i); renderAssistPanel(); }
-function toggleAssistMore(){ assistShowMore=!assistShowMore; renderAssistPanel(); }
+// render() as well as renderAssistPanel(): the wheel carries the ranked badges, and
+// these three change what they point at. Without it the badge froze wherever the last
+// paint left it - which LOOKED like it worked for the first couple of taps, because the
+// selection springs were still animating and every frame repainted the wheel anyway.
+// Once they settled the rAF loop stopped, and so did the badge. setRel already did
+// this; the Moods and DJ pickers were the two that didn't.
+// How many suggestion cards are on screen. ONE definition, because render() draws a
+// numbered badge per card on the wheel and the two must agree - the badge count was
+// hardcoded to 3 while the desktop list showed 6.
+// 2 on a phone, not 3: promoting the recipe pushed the third card past the fold, and a
+// list that ends cleanly beats one cut in half now that it is the secondary answer.
+function assistCardCount(total) {
+  if (assistStyle === 'dj') return total;          // a move has few targets; show them all
+  if (assistShowMore) return total;
+  // innerWidth can read 0 before the first layout, which would silently pick the phone
+  // branch and make the wheel's badge count disagree with the panel's card count.
+  var w = window.innerWidth || document.documentElement.clientWidth || 1280;
+  return Math.min(w <= 620 ? 2 : 6, total);
+}
+function setAssistMove(i){ assistMove=(assistMove===i?null:i); render(); renderAssistPanel(); }
+function toggleAssistMore(){ assistShowMore=!assistShowMore; render(); renderAssistPanel(); }
 window.toggleAssistMore=toggleAssistMore;
 function setAssistStyle(s){
   if (s === assistStyle) return;   // re-tapping the lens you're already on shouldn't wipe your pick
@@ -3468,8 +3513,7 @@ function renderAssistPanel(){
       // 2 on a phone, not 3: promoting the recipe above pushed the third card past the
       // fold, and a list that ends cleanly reads better than one cut in half - the more
       // so now that the list is the SECONDARY answer. "More" is right there.
-      var defN = window.innerWidth <= 620 ? 2 : 6;
-      var cap = (assistStyle==='dj') ? sg.length : (assistShowMore ? sg.length : Math.min(defN, sg.length));
+      var cap = assistCardCount(sg.length);
       h+='<div class="slabel" style="margin-top:11px">'+lbl+'</div>'
         // On-screen legend for the two card axes - previously explained only via a
         // hover title, invisible on the touch-first primary platform.
@@ -3485,7 +3529,7 @@ function renderAssistPanel(){
           +'<span class="sugg-hard">'+s.hard+'</span></button>';
       }
       h+='</div>';
-      if(assistStyle!=='dj' && sg.length>defN){
+      if(assistStyle!=='dj' && sg.length>cap){
         h+='<button class="more-btn" onclick="toggleAssistMore()">'+(assistShowMore?'Less':'More - bolder keys')+'</button>';
       }
     }
