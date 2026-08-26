@@ -1338,6 +1338,41 @@ function _drainPulses(ts) {
     if (ts >= _pulseQueue[i].due) { _pulses[_pulseQueue[i].slice] = ts; _pulseQueue.splice(i, 1); }
   }
 }
+// Which sectors carry the tonic triad of the current selection, and in what ROLE.
+// slice -> '1' root | '3' third | '5' fifth.
+//
+// This replaces a per-note flash, and the reason is measured rather than tasteful.
+// MROOT is circle-of-FIFTHS order, so a C major triad is slices 0, 4, 1 - i.e. +120
+// degrees clockwise and then 90 back, twice per tap, at 110ms a step. Apparent motion
+// fuses successive onsets in the 30-200ms band, so the eye is obliged to read that as
+// ONE bright thing hurled a third of the way round the wheel and snapped back. The
+// motion it depicts does not exist. On a keyboard the same triad is a clean left-to-
+// right sweep and the percept is true; on a fifths layout it never can be.
+//
+// The field agrees, and one measurement settles it: muted.io has an `arpeggiate`
+// toggle, and with it ON all three notes light within the same millisecond and clear
+// within the same millisecond. The audio arpeggiates; the picture does not. Everyone
+// else - Musicca, randscullard, interactivecircleoffifths, Tonaly, fifths.io, even
+// Cubase's Chord Assistant - marks the chord and HOLDS it. Note-by-note sequencing
+// exists only where the layout is monotonic in the playback dimension (SoundGrail's
+// keyboard, Chordio's stave, Chrome Music Lab's timeline - and note that Google put it
+// on the timeline and left its chord wheel static).
+//
+// A flash also cannot do this job: it is gone in 620ms, which turns "which notes are in
+// this chord" from recognition into recall.
+function chordToneMap(sel) {
+  if (!sel) return null;
+  var m  = MODES[sel.modeIdx];
+  var as = sel.fromInner ? MROOT.indexOf((MROOT[sel.slice] + m.off) % 12) : sel.slice;
+  if (as < 0) return null;
+  var semis = _triad(MROOT[as], m.ct[0]);
+  var roles = ['1', '3', '5'], out = {};
+  for (var i = 0; i < 3 && i < semis.length; i++) {
+    var sl = MROOT.indexOf(((semis[i] % 12) + 12) % 12);
+    if (sl >= 0 && out[sl] === undefined) out[sl] = roles[i];
+  }
+  return out;
+}
 function _pulseAt(slice, now) {
   var t0 = _pulses[slice];
   if (t0 === undefined) return 0;
@@ -1388,6 +1423,7 @@ function render() {
   if (!R || R <= 8) return;
   ctx.clearRect(0, 0, W, H);
   var _rs       = respellForSelection(selected);   // null unless the key demands it
+  var _ct       = chordToneMap(selected);          // slice -> '1' | '3' | '5', held
   var dark      = isDark();
   // The toggle is the only authority here. It used to be OR'd with
   // `selected.fromInner` to keep a minor selection visible, but that made the
@@ -1718,6 +1754,26 @@ function render() {
     ctx.fillStyle = selFill;
     ctx.fillText(mainLabel, 0, 0);
     ctx.restore();
+
+    // Chord-tone marker: persistent, and it NAMES the role rather than just marking it.
+    // A dot would say "this note is in the chord"; "1 / 3 / 5" says which, which is the
+    // thing a learner came for and the thing a 620ms flash structurally could not
+    // deliver. Held for as long as the key is selected - see chordToneMap.
+    if (_ct && _ct[i] !== undefined) {
+      ctx.save();
+      // Offset in SCREEN space, not radially. The key labels are drawn upright, so a
+      // radial offset made the numeral orbit them - above C at the top, beside E at
+      // four o'clock, reading as a subscript. Directly above the letter is the same
+      // relationship in all twelve sectors.
+      ctx.translate(CX + Math.cos(midA)*lR, CY + Math.sin(midA)*lR - R*0.055);
+      ctx.font = '600 ' + Math.max(9, R*0.038) + 'px ' + ff;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      // Same luminance rule as the label above it, one step quieter so the key name
+      // stays the subject.
+      ctx.fillStyle = onLightOut ? 'rgba(0,0,0,.62)' : 'rgba(255,255,255,.68)';
+      ctx.fillText(_ct[i], 0, 0);
+      ctx.restore();
+    }
 
     // Minor label (+ Camelot)
     if (showMinor) {
@@ -2744,36 +2800,26 @@ function _playNote(semi, when, dur, baseOct) {
 
 function _playArp(semis, oct) {
   var gap = 0.11;
-  // The pulse used to die with the sound: this function returned early when muted, and
-  // pulseSemitone was only ever called from inside it. So muting didn't just silence the
-  // app - it stopped the wheel lighting up at all, and the people most likely to mute (a
-  // DJ beside a mixer, an editor in a shared office) are exactly the ones who lost it.
-  // The sound is optional. The feedback that your tap did something is not.
-  if (!_soundOn) {
-    semis.forEach(function(s,i){ pulseSemitone(s, i*gap*1000); });
-    return;
-  }
+  // ONE acknowledgement, on the note you asked for, whether or not the sound plays -
+  // muting must never take the feedback away, which is why this sits outside the audio
+  // branch. The other two notes no longer flash: see chordToneMap for why sequencing
+  // them across a fifths layout produced a movement that isn't there. They are marked
+  // persistently instead, which is both calmer and more informative.
+  pulseSemitone(semis[0], 0);
+  if (!_soundOn) return;
   _withCtx(function() {
     var ctx = _getCtx();
     var now = ctx.currentTime + 0.05;
     var dur = 1.3;
-    // Read the clock and the latency ONCE, outside the loop. Reading ctx.currentTime
-    // per note meant it advanced by a render quantum between iterations, so each note's
-    // lead drifted a few ms differently - the audio spacing was exact and the visual
-    // spacing was not, which is the one thing this pairing cannot afford.
-    var _t0  = ctx.currentTime;
-    var _lat = (ctx.outputLatency || ctx.baseLatency || 0) * 1000;
     // Play ascending, no repeated note
+    // Audio still arpeggiates - that is a good sound and nobody complained about it.
+    // Only the per-note VISUAL is gone. The frame-synced, outputLatency-compensated
+    // scheduling below is deliberately left intact and unused by the pulse path: if a
+    // scale or progression player is ever added, notes advance along the wheel in
+    // fifths order there, which IS monotonic, and a playhead built on this is the right
+    // call. That is the one place note-by-note highlighting earns its keep here.
     semis.forEach(function(s,i){
       _playNote(s, now+i*gap, dur, oct||4);
-      // Light the sector this note belongs to AT THE MOMENT IT SOUNDS. The audio is
-      // scheduled ahead on the WebAudio clock, so the visual is scheduled against
-      // the same instant rather than fired now - eye and ear land on one frame,
-      // which is what makes it read as one event instead of two.
-      // + outputLatency: `now` is when the sample is SUBMITTED, not when it reaches the
-      // speaker. Without this the flash consistently leads the note, by 16ms wired and
-      // by 100-200ms over Bluetooth - i.e. by an amount that changes with the headphones.
-      pulseSemitone(s, (now + i*gap - _t0) * 1000 + _lat);
     });
   });
 }
