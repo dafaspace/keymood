@@ -315,6 +315,12 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .sugg-hard { font-size:10px; font-weight:600; color:var(--text2); padding:1px 7px; border-radius:10px; background:var(--bg); border:0.5px solid var(--bd2); justify-self:end; white-space:nowrap; }
 .more-btn { width:100%; margin-top:5px; padding:6px; font-size:11px; color:var(--text3); background:none; border:0.5px dashed var(--bd2); border-radius:8px; cursor:pointer; font-family:var(--font); transition:all .12s; }
 .more-btn:hover { color:var(--text2); background:var(--bg2); }
+/* The mood's answer. It used to be one 10px grey line above the cards; the cards below
+   it are frequently identical across moods (G is the nearest bright move from C for any
+   positive-valence mood), so the part that differs has to be the part that reads first. */
+.recipe { display:flex; gap:8px; flex-wrap:wrap; align-items:center; margin-bottom:3px; }
+.rc-mode { font-size:15px; font-weight:500; color:var(--text); letter-spacing:.005em; }
+.rc-traj { font-size:11px; color:var(--text2); line-height:1.45; margin-bottom:11px; }
 .recipe-hint { font-size:10px; color:var(--text3); padding:6px 2px 2px; display:flex; gap:5px; flex-wrap:wrap; align-items:center; }
 .metro-btn { font-size:10px; color:var(--text3); background:none; border:0.5px solid var(--bd2); border-radius: 10px; padding:2px 7px; cursor:pointer; font-family:var(--font); }
 .metro-btn.active { background:var(--text); color:var(--bg); border-color:var(--text); font-weight:600; }
@@ -3380,14 +3386,24 @@ function renderAssistPanel(){
   if(assistStyle==='moods' && assistEmotion!==null){
     var re=EMOTIONS[assistEmotion];
     var re_bpm = Math.round((re.bpmLo+re.bpmHi)/2);
-    h+='<div class="recipe-hint">'
-      +'<span>'+MODES[re.mode].name+'</span><span class="rh-dot">·</span>'
+    // THE MOOD'S ANSWER, promoted. Measured why: from C major, five moods (Nostalgic,
+    // Peaceful, Romantic, Hopeful, Happy) produce a byte-identical first card - "G
+    // brighter Soft" - because G genuinely IS the nearest bright move from C for every
+    // positive-valence mood. The ranking is right; only 8 of 19 moods have a distinct
+    // first card and that is mostly correct musically. What actually differs between
+    // those five is the mode, the tempo and the shape - and all three were showing in a
+    // 10px grey line ABOVE the cards. So the identical part occupied three large
+    // controls and the differing part one small line, and the tab read as "19 moods,
+    // one answer". Same information, inverted hierarchy.
+    h+='<div class="slabel">The sound</div>'
+      +'<div class="recipe">'
+      +'<span class="rc-mode">'+MODES[re.mode].name+'</span>'
       // Reflect the LIVE metronome state - the panel is rebuilt by many actions
       // (picking a card, changing theme/notation/palette, transposing) and the button
       // used to come back un-lit while the click track was still running, so it read
       // as off and tapping it seemed to do nothing (it was actually stopping it).
-      +'<button class="metro-btn'+(_metroOn?' active':'')+'" onclick="toggleMetronome('+re_bpm+',this)" title="Tap to hear this mood\'s tempo">▸ '+re.bpmLo+'-'+re.bpmHi+' BPM</button><span class="rh-dot">·</span>'
-      +'<span>'+re.traj+'</span></div>';
+      +'<button class="metro-btn'+(_metroOn?' active':'')+'" onclick="toggleMetronome('+re_bpm+',this)" title="Tap to hear this mood\'s tempo">▸ '+re.bpmLo+'-'+re.bpmHi+' BPM</button>'
+      +'</div><div class="rc-traj">'+re.traj+'</div>';
   }
   // Relations highlights the wheel + shows a memo instead of suggestion cards.
   if(cs!==null && assistStyle!=='relations'){
@@ -3403,7 +3419,10 @@ function renderAssistPanel(){
       var lbl = 'Next key';
       // Moods: show 6 (the closely-related palette real music mostly uses), the rest
       // - bolder/distant keys - hide behind "More". DJ shows all its move targets.
-      var defN = window.innerWidth <= 620 ? 3 : 6;   // fewer on a phone so it fits with no scroll
+      // 2 on a phone, not 3: promoting the recipe above pushed the third card past the
+      // fold, and a list that ends cleanly reads better than one cut in half - the more
+      // so now that the list is the SECONDARY answer. "More" is right there.
+      var defN = window.innerWidth <= 620 ? 2 : 6;
       var cap = (assistStyle==='dj') ? sg.length : (assistShowMore ? sg.length : Math.min(defN, sg.length));
       h+='<div class="slabel" style="margin-top:11px">'+lbl+'</div>'
         // On-screen legend for the two card axes - previously explained only via a
