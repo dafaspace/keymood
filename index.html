@@ -1290,6 +1290,16 @@ function reducedMotion() {
 var selAng  = new Spring(-Math.PI/2, 1.0, 0.42);   // radians, unwrapped
 var selRing = new Spring(0, 1.0, 0.34);            // 0 = outer ring, 1 = inner ring
 var _selInit = false;
+// "On rails": a move that changes BOTH sector and ring is done in two strokes - first
+// along the ring the marker is on, then one step in or out - instead of both springs
+// at once. Run together they made the marker cut straight across the ring boundary and
+// over unrelated sectors (C -> Dm, C -> Bm), which read as the frame flying loose
+// rather than as part of the wheel. Nothing in the field moves a frame diagonally:
+// most just switch the highlight, muted.io and randscullard rotate the wheel itself.
+// Keeping the travel but confining it to the wheel's own guides - the ring and the
+// spoke - keeps the mechanical feel and removes the diagonal by construction.
+var _pendingRing = null;          // ring to step to once the angle has arrived
+var RAIL_ARRIVE = 0.06;           // rad (~1/9 of a sector): close enough to step
 // Relation connectors draw themselves out from the current key rather than snapping
 // into existence, so the eye is led along the relationship in the direction it goes.
 var relDraw = new Spring(1, 1.0, 0.38);
@@ -1404,9 +1414,13 @@ function _animTick(ts) {
   var dt = _animPrev ? (ts - _animPrev)/1000 : 1/60;
   _animPrev = ts;
   selAng.step(dt); selRing.step(dt); relDraw.step(dt);
+  // Stroke 2 of a rails move: once the angle has arrived, step the ring.
+  if (_pendingRing !== null && Math.abs(selAng.x - selAng.target) < RAIL_ARRIVE) {
+    selRing.target = _pendingRing; _pendingRing = null;
+  }
   _drainPulses(ts);            // light every note that has come due, on THIS frame
   render();
-  if (selAng.settled() && selRing.settled() && relDraw.settled() && !_pulsesActive()) { _animRAF = null; _animPrev = 0; }
+  if (selAng.settled() && selRing.settled() && relDraw.settled() && !_pulsesActive() && _pendingRing === null) { _animRAF = null; _animPrev = 0; }
   else _animRAF = requestAnimationFrame(_animTick);
 }
 function _kickAnim() {
@@ -1453,9 +1467,23 @@ function render() {
     }
     _angDirHint = 0;
     var _tRing = (selected.fromInner && showMinor) ? 1 : 0;
-    if (!_selInit || reducedMotion()) { selAng.snap(_tAng); selRing.snap(_tRing); _selInit = true; }
-    else if (_tAng !== selAng.target || _tRing !== selRing.target) {
-      selAng.target = _tAng; selRing.target = _tRing; _kickAnim();
+    // Where the marker is ultimately headed, counting a ring step still waiting its turn -
+    // otherwise every frame of the first stroke would look like a fresh change of target.
+    var _destRing = (_pendingRing !== null) ? _pendingRing : selRing.target;
+    if (!_selInit || reducedMotion()) {
+      selAng.snap(_tAng); selRing.snap(_tRing); _pendingRing = null; _selInit = true;
+    } else if (_tAng !== selAng.target || _tRing !== _destRing) {
+      var _angMoves = Math.abs(_tAng - selAng.x) > RAIL_ARRIVE;
+      selAng.target = _tAng;
+      if (_angMoves && _tRing !== Math.round(selRing.x)) {
+        // Stroke 1: hold the ring the marker is nearest to (snapping a half-finished
+        // step back onto a rail if this pick interrupted one), travel the angle.
+        selRing.target = Math.round(selRing.x);
+        _pendingRing = _tRing;
+      } else {
+        selRing.target = _tRing; _pendingRing = null;     // same sector, or already there
+      }
+      _kickAnim();
     }
   }
   var _solTonic = isSol() ? currentTonicSemi() : null;   // movable-do reference pitch
