@@ -2005,17 +2005,15 @@ function handlePick(h, noToggle) {
     newModeIdx = h.isInner ? 4 : 0;
   }
   // slice = sector (tonal centre) - never remap for inner ring.
-  // Tapping the SAME key again deselects. The ring has to be part of that identity:
-  // "C Aeolian" (outer, modeIdx 4) and "Am" (inner, modeIdx 4) share a sector and a
-  // mode index but are different keys, so without the fromInner check, picking Am
-  // right after Quick Nav's "Parallel minor" silently blanked the app instead.
   var _newFromInner = (appMode === 'tonal' || appMode === 'assist') ? !!h.isInner : false;
-  // noToggle: keyboard navigation must never land on "nothing selected" - arrowing
-  // onto the key you're already on should be a no-op, not a deselect.
-  if (!noToggle && selected && selected.slice === h.slice && selected.modeIdx === newModeIdx
-      && !!selected.fromInner === _newFromInner) {
-    selected = null;
-  } else {
+  // Tapping the key you are already on REPLAYS it. It used to deselect: the sound
+  // stopped, the panel emptied, and the marker vanished - for the single most natural
+  // thing a person does with an instrument, which is press the same key again to hear
+  // it again. The app never opens with nothing selected and has no use for that state,
+  // so there is nothing to reach by toggling off. (Keyboard Enter already replayed.)
+  var _same = selected && selected.slice === h.slice && selected.modeIdx === newModeIdx
+              && !!selected.fromInner === _newFromInner;
+  if (!_same) {
     selected = { slice: h.slice, tonicSlice: h.slice, modeIdx: newModeIdx, fromInner: _newFromInner };
     lastModeIdx = newModeIdx;
     buildModeStrip();
@@ -2781,8 +2779,55 @@ function _getCtx() {
 // Now: anything that is not 'running' gets resumed, a rejection is treated as a dead
 // context and rebuilt once, and notes are only scheduled once the clock is actually
 // running - scheduling into a stopped context is exactly the silent failure to avoid.
+//
+// v2.10.1: that was not enough, and the reason is the first line below as it used to
+// read - `if (ctx.state === 'running') { fn(); return; }`. A context can REPORT running
+// and still be dead: after the Mac sleeps its clock can stall, and when the output
+// device changes (headphones, Bluetooth, a monitor's speakers) a long-lived context
+// can stay attached to the device that went away. Both say 'running', so notes were
+// scheduled into them and nothing came out - until a reload built a fresh context on
+// the current device, which is exactly the reported shape. I could not reproduce it
+// here, so instead of betting on one cause this distrusts any context that is old,
+// whose clock has stopped, or that outlived a device change, and rebuilds it inside
+// the tap - which is cheap (a few ms) and always lands on the current output.
+// window.__cofAudioLog records every rebuild and why, so the next report can name the
+// actual cause instead of my guessing at it.
+var IDLE_REBUILD_S = 20;
+var _ctxStamp = null;            // {perf, ctx}: wall clock and audio clock at last use
+var _ctxStale = null;            // set by a device change
+window.__cofAudioLog = [];
+function _audioLog(reason, ctx) {
+  var e = { at: new Date().toISOString().slice(11, 19), reason: reason,
+            state: ctx ? ctx.state : '-', ctxTime: ctx ? +ctx.currentTime.toFixed(2) : null };
+  window.__cofAudioLog.push(e);
+  if (window.__cofAudioLog.length > 30) window.__cofAudioLog.shift();
+  try { console.info('[audio]', e); } catch (_e) {}
+}
+if (navigator.mediaDevices && navigator.mediaDevices.addEventListener) {
+  navigator.mediaDevices.addEventListener('devicechange', function () { _ctxStale = 'device changed'; });
+}
+// Why this context should NOT be trusted, or null if it is fine.
+function _ctxProblem(ctx) {
+  if (_ctxStale) return _ctxStale;
+  if (!_ctxStamp) return null;
+  var wall = (performance.now() - _ctxStamp.perf) / 1000;
+  if (wall > IDLE_REBUILD_S) return 'idle ' + Math.round(wall) + 's';
+  if (ctx.state === 'running' && wall > 1.5 && (ctx.currentTime - _ctxStamp.ctx) < wall * 0.5)
+    return 'clock stalled';
+  return null;
+}
 function _withCtx(fn) {
   var ctx = _getCtx();
+  var why = _ctxProblem(ctx);
+  if (why) {
+    _audioLog('rebuild: ' + why, ctx);
+    try { if (ctx.state !== 'closed') ctx.close(); } catch (_e) {}
+    _audioCtx = null; _ctxStale = null; _ctxStamp = null;
+    // A running metronome scheduled its beats on the OLD clock; the new one starts near
+    // zero, so its next beat would be minutes away. Stop it rather than leave it silent.
+    if (_metroOn) _stopMetronome();
+    ctx = _getCtx();
+  }
   if (ctx.state === 'running') { fn(); return; }
   ctx.resume().then(function () {
     if (_getCtx().state === 'running') fn();
@@ -2812,6 +2857,7 @@ function _playNote(semi, when, dur, baseOct) {
   var oct = b + Math.floor(semi / 12);
   var note = ((semi % 12) + 12) % 12;
   var ctx  = _getCtx();
+  _ctxStamp = { perf: performance.now(), ctx: ctx.currentTime };   // "used just now"
   var osc  = ctx.createOscillator();
   var gain = ctx.createGain();
   osc.type = 'triangle';
@@ -2860,6 +2906,9 @@ function _playArp(semis, oct) {
 var _metroTimer = null, _metroBeat = 0, _metroOn = false;
 function _playClick(when, accent) {
   var ctx = _getCtx();
+  // A running metronome counts as use, so it is never mistaken for an idle context
+  // and rebuilt out from under its own scheduler.
+  _ctxStamp = { perf: performance.now(), ctx: ctx.currentTime };
   var osc = ctx.createOscillator(), gain = ctx.createGain();
   osc.type = 'sine';
   osc.frequency.value = accent ? 1600 : 1000;
