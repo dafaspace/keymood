@@ -1287,19 +1287,23 @@ function reducedMotion() {
 // springs - a single spring on 2D distance desyncs when the two axes have different
 // velocities. Damping 1.0 (critically damped, no overshoot) because these moves are
 // taps, not flicks; response 0.42s reads as weighty without feeling slow.
-var selAng  = new Spring(-Math.PI/2, 1.0, 0.42);   // radians, unwrapped
-var selRing = new Spring(0, 1.0, 0.34);            // 0 = outer ring, 1 = inner ring
+// The selection marker no longer TRAVELS. It used to fly to the new key on springs
+// (0.4-1 s), then ride rails along the ring - and either way it lagged the music: the
+// chord sounds on the tap, the frame arrived most of a second later. Now it appears
+// on the tapped sector instantly, in sync with the first note, and "settles in" with a
+// small underdamped scale wobble - as if it closed around the finger and balanced.
+// selAng/selRing are kept as plain positions (always snapped) so the rest of the draw
+// code is unchanged.
+var selAng  = new Spring(-Math.PI/2, 1.0, 0.42);   // radians - snapped, not animated
+var selRing = new Spring(0, 1.0, 0.34);            // 0 = outer, 1 = inner - snapped
+var selPop  = new Spring(1, 0.42, 0.36);           // marker scale; damping < 1 = the wobble
+var POP_FROM = 1.12;                               // starts 12% large and closes in
 var _selInit = false;
-// "On rails": a move that changes BOTH sector and ring is done in two strokes - first
-// along the ring the marker is on, then one step in or out - instead of both springs
-// at once. Run together they made the marker cut straight across the ring boundary and
-// over unrelated sectors (C -> Dm, C -> Bm), which read as the frame flying loose
-// rather than as part of the wheel. Nothing in the field moves a frame diagonally:
-// most just switch the highlight, muted.io and randscullard rotate the wheel itself.
-// Keeping the travel but confining it to the wheel's own guides - the ring and the
-// spoke - keeps the mechanical feel and removes the diagonal by construction.
-var _pendingRing = null;          // ring to step to once the angle has arrived
-var RAIL_ARRIVE = 0.06;           // rad (~1/9 of a sector): close enough to step
+function popMarker() {
+  if (reducedMotion()) return;
+  selPop.x = POP_FROM; selPop.v = 0; selPop.target = 1;
+  _kickAnim();
+}
 // Relation connectors draw themselves out from the current key rather than snapping
 // into existence, so the eye is led along the relationship in the direction it goes.
 var relDraw = new Spring(1, 1.0, 0.38);
@@ -1396,9 +1400,6 @@ function _pulsesActive() {
   return false;
 }
 
-// +1 forces the next dial move clockwise, -1 anticlockwise, 0 = take the short way.
-// Consumed and reset by the next render(), so it only ever steers one move.
-var _angDirHint = 0;
 var _animRAF = null, _animPrev = 0;
 // Backgrounding a tab freezes rAF, so a move in flight stops wherever the last frame
 // left it and _animRAF keeps a stale handle that makes _kickAnim a no-op. Come back and
@@ -1413,14 +1414,10 @@ document.addEventListener('visibilitychange', function() {
 function _animTick(ts) {
   var dt = _animPrev ? (ts - _animPrev)/1000 : 1/60;
   _animPrev = ts;
-  selAng.step(dt); selRing.step(dt); relDraw.step(dt);
-  // Stroke 2 of a rails move: once the angle has arrived, step the ring.
-  if (_pendingRing !== null && Math.abs(selAng.x - selAng.target) < RAIL_ARRIVE) {
-    selRing.target = _pendingRing; _pendingRing = null;
-  }
+  selPop.step(dt); relDraw.step(dt);
   _drainPulses(ts);            // light every note that has come due, on THIS frame
   render();
-  if (selAng.settled() && selRing.settled() && relDraw.settled() && !_pulsesActive() && _pendingRing === null) { _animRAF = null; _animPrev = 0; }
+  if (selPop.settled() && relDraw.settled() && !_pulsesActive()) { _animRAF = null; _animPrev = 0; }
   else _animRAF = requestAnimationFrame(_animTick);
 }
 function _kickAnim() {
@@ -1447,44 +1444,15 @@ function render() {
   var showMinor = appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
   var slA       = 2 * Math.PI / 12;
   var _now      = performance.now();   // one clock for every pulse envelope this frame
-  // Point the dial at the current selection. The angle is kept UNWRAPPED and
-  // re-targeted to whichever multiple of 2π is nearest the current position, so the
-  // marker always takes the short way round (C -> B♭ swings back two steps, it
-  // doesn't run ten steps forward).
+  // Put the marker on the current selection - instantly. A change of key starts the
+  // settle-in wobble; the first paint and reduced motion just place it.
   if (selected) {
-    var _tAng = (-Math.PI/2) + selected.slice*slA;
-    // Shortest path is right for a TAP - you pointed at a sector, the marker goes the
-    // near way. It is wrong for Transpose, where the control itself states a direction:
-    // up a semitone is seven sectors clockwise, but shortest-path took the five-sector
-    // shortcut anticlockwise, so pressing the UP arrow visibly swung the dial DOWN the
-    // circle. The frames contradicted the button. _angDirHint lets transpose() say
-    // which way it meant, for that one move only.
-    if (_angDirHint > 0)      { while (_tAng <= selAng.x) _tAng += 2*Math.PI; }
-    else if (_angDirHint < 0) { while (_tAng >= selAng.x) _tAng -= 2*Math.PI; }
-    else {
-      while (_tAng - selAng.x >  Math.PI) _tAng -= 2*Math.PI;
-      while (_tAng - selAng.x < -Math.PI) _tAng += 2*Math.PI;
-    }
-    _angDirHint = 0;
+    var _tAng  = (-Math.PI/2) + selected.slice*slA;
     var _tRing = (selected.fromInner && showMinor) ? 1 : 0;
-    // Where the marker is ultimately headed, counting a ring step still waiting its turn -
-    // otherwise every frame of the first stroke would look like a fresh change of target.
-    var _destRing = (_pendingRing !== null) ? _pendingRing : selRing.target;
-    if (!_selInit || reducedMotion()) {
-      selAng.snap(_tAng); selRing.snap(_tRing); _pendingRing = null; _selInit = true;
-    } else if (_tAng !== selAng.target || _tRing !== _destRing) {
-      var _angMoves = Math.abs(_tAng - selAng.x) > RAIL_ARRIVE;
-      selAng.target = _tAng;
-      if (_angMoves && _tRing !== Math.round(selRing.x)) {
-        // Stroke 1: hold the ring the marker is nearest to (snapping a half-finished
-        // step back onto a rail if this pick interrupted one), travel the angle.
-        selRing.target = Math.round(selRing.x);
-        _pendingRing = _tRing;
-      } else {
-        selRing.target = _tRing; _pendingRing = null;     // same sector, or already there
-      }
-      _kickAnim();
-    }
+    var _moved = _tAng !== selAng.target || _tRing !== selRing.target;
+    selAng.snap(_tAng); selRing.snap(_tRing);
+    if (_moved && _selInit) popMarker();
+    _selInit = true;
   }
   var _solTonic = isSol() ? currentTonicSemi() : null;   // movable-do reference pitch
   // FIXED radii so the major ring is the SAME thickness in every tab (Modal too) and
@@ -1848,17 +1816,19 @@ function render() {
     }
   }
 
-  // ── The dial pointer ────────────────────────────────────────────────────────
-  // One marker that TRAVELS to the key you picked, rather than a highlight that
-  // blinks out here and in there. Drawn once, after the sectors, at the springs'
-  // current angle and radius - so it can be caught and redirected mid-flight simply
-  // by picking again.
+  // ── The selection marker ────────────────────────────────────────────────────
+  // Appears on the tapped sector at once and settles in with a small scale wobble
+  // (selPop), scaled about the middle of the sector - the point under the finger -
+  // so it reads as closing around the press rather than sliding in from anywhere.
   if (selected) {
     var mA0 = selAng.x - slA/2, mA1 = selAng.x + slA/2;
     var t   = selRing.x;                                   // 0 outer .. 1 inner
     var mOut = outerR + (innerR - outerR) * t;
     var mIn  = innerR + (accR   - innerR) * t;
+    var pop  = selPop.x, pr = (mOut + mIn) / 2;
+    var pcx  = CX + Math.cos(selAng.x)*pr, pcy = CY + Math.sin(selAng.x)*pr;
     ctx.save();
+    if (pop !== 1) { ctx.translate(pcx, pcy); ctx.scale(pop, pop); ctx.translate(-pcx, -pcy); }
     ctx.beginPath();
     ctx.moveTo(CX + Math.cos(mA0)*mOut, CY + Math.sin(mA0)*mOut);
     ctx.arc(CX, CY, mOut, mA0, mA1);
@@ -1866,8 +1836,10 @@ function render() {
     ctx.closePath();
     // Crisp double outline (dark halo + white line) - reads on any palette or theme,
     // no fuzzy glow, even edges.
-    ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 3.6; ctx.stroke();
-    ctx.strokeStyle = '#ffffff';        ctx.lineWidth = 1.6; ctx.stroke();
+    // Line widths divided by the scale so the outline stays the same weight while the
+    // shape breathes - otherwise the wobble would read as the line thickening.
+    ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 3.6/pop; ctx.stroke();
+    ctx.strokeStyle = '#ffffff';        ctx.lineWidth = 1.6/pop; ctx.stroke();
     ctx.restore();
   }
 
@@ -2045,6 +2017,8 @@ function handlePick(h, noToggle) {
     selected = { slice: h.slice, tonicSlice: h.slice, modeIdx: newModeIdx, fromInner: _newFromInner };
     lastModeIdx = newModeIdx;
     buildModeStrip();
+  } else {
+    popMarker();    // a replay is a press too: the marker answers it the same way
   }
   render();
   updatePanel();
@@ -2267,7 +2241,11 @@ function getModeChords(slice, modeIdx, tonicSlice) {
     // anyone would write.
     notes.push(useSol ? solDeg(i, m.iv[i]) : nn[nr]);
     var t   = m.ct[i];
+    // A diminished degree carries its sign on the numeral itself - ii°, vii° - which is
+    // how every harmony text writes it. It used to print a bare "ii" over "C°", so the
+    // numeral alone said minor.
     var num = (t==='min'||t==='dim') ? ROM_MIN[i] : ROM_MAJ[i];
+    if (t === 'dim') num += '°';
     chords.push({ name: nn[nr]+(t==='min'?'m':t==='dim'?'°':''), num:num, type:t });
   }
   return { notes:notes, chords:chords };
@@ -3639,9 +3617,6 @@ function transpose(dir) {
   selected.slice      = newSlice;
   selected.tonicSlice = newSlice;
   lastModeIdx = selected.modeIdx;
-  // Up a semitone is seven sectors clockwise; make the dial travel that way rather
-  // than take the five-sector shortcut back, which read as "up" moving down.
-  _angDirHint = dir > 0 ? 1 : -1;
   buildModeStrip();
   render();
   updatePanel();
