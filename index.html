@@ -1015,6 +1015,11 @@ window.setPalette = setPalette;
 function savePref(k, v) { try { localStorage.setItem('cof_' + k, JSON.stringify(v)); } catch(e){} }
 function loadPref(k, d)  { try { var v = localStorage.getItem('cof_' + k); return v === null ? d : JSON.parse(v); } catch(e){ return d; } }
 function onToggleMinor() { savePref('minor', document.getElementById('cb-minor').checked); render(); }
+// Whether the inner (minor) ring is on the wheel right now. One definition, because the
+// drawing, the hit test and the tap flash all have to agree on it.
+function minorRingShown() {
+  return appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
+}
 // Minor-ring toggle (Tonal panel header) flips the hidden cb-minor state, redraws
 // the wheel, and re-renders the panel so the toggle's active state updates.
 function toggleMinorRing() {
@@ -1313,7 +1318,7 @@ var _relDrawKey = '';
 // envelope keyed by start time rather than a Spring. Registry is slice -> the
 // timestamp the note sounded.
 var PULSE_MS = 620;
-var _pulses = {};
+var _pulses = {};          // 'slice:o' | 'slice:i' -> start time
 // Pulses waiting for their moment: {slice, due} in the performance.now() domain.
 // They used to be setTimeout callbacks, which is the wrong clock twice over. First,
 // a timer doesn't land on a frame: the flash becomes visible on the first rAF frame
@@ -1326,10 +1331,16 @@ var _pulses = {};
 // drained inside the frame loop and the latency is added up front, which is what makes
 // "eye and ear land together" actually true rather than merely intended.
 var _pulseQueue = [];
-function pulseSemitone(semi, delayMs) {
+// A pulse belongs to a SECTOR ON A RING, not to a pitch. It used to take a semitone and
+// find its slice with MROOT.indexOf, and then light both rings of that slice. Both halves
+// lit something other than what was pressed: tapping C also lit Am (same slice, other
+// ring), and tapping Am lit A major and F#m, because the pitch A lives in A major's slice.
+// A tap acknowledgement has one job - "this is what you pressed" - and a second sector
+// lighting up beside it says the opposite.
+function pulseSector(slice, inner, delayMs) {
   if (reducedMotion()) return;
-  var slice = MROOT.indexOf(((semi % 12) + 12) % 12);
-  if (slice < 0) return;
+  if (slice < 0 || slice > 11) return;
+  var key = slice + (inner ? ':i' : ':o');
   var _n = performance.now();
   // Drop anything whose moment has been and gone by more than one pulse's lifetime. The
   // frame loop is the only thing that drains this queue, and rAF does not run in a
@@ -1338,7 +1349,7 @@ function pulseSemitone(semi, delayMs) {
   // A pulse that late has nothing to be in sync WITH; the note it belonged to is over.
   for (var _i = _pulseQueue.length - 1; _i >= 0; _i--)
     if (_n - _pulseQueue[_i].due > PULSE_MS) _pulseQueue.splice(_i, 1);
-  _pulseQueue.push({ slice: slice, due: _n + Math.max(0, delayMs || 0) });
+  _pulseQueue.push({ key: key, due: _n + Math.max(0, delayMs || 0) });
   // And a hard ceiling, because the sweep above is time-based and time barely moves
   // inside a tight synchronous burst. Nothing legitimate queues more than a scale's
   // worth (8); 64 is far past any real use and keeps this bounded whatever happens.
@@ -1346,10 +1357,10 @@ function pulseSemitone(semi, delayMs) {
   _kickAnim();
 }
 // Called once per frame, before render(), with that frame's timestamp - rAF's argument
-// and performance.now() share a timebase, so `due` and `_pulses[slice]` agree.
+// and performance.now() share a timebase, so `due` and `_pulses[key]` agree.
 function _drainPulses(ts) {
   for (var i = _pulseQueue.length - 1; i >= 0; i--) {
-    if (ts >= _pulseQueue[i].due) { _pulses[_pulseQueue[i].slice] = ts; _pulseQueue.splice(i, 1); }
+    if (ts >= _pulseQueue[i].due) { _pulses[_pulseQueue[i].key] = ts; _pulseQueue.splice(i, 1); }
   }
 }
 // Which sectors carry the tonic triad of the current selection, and in what ROLE.
@@ -1387,11 +1398,12 @@ function chordToneMap(sel) {
   }
   return out;
 }
-function _pulseAt(slice, now) {
-  var t0 = _pulses[slice];
+function _pulseAt(slice, inner, now) {
+  var key = slice + (inner ? ':i' : ':o');
+  var t0 = _pulses[key];
   if (t0 === undefined) return 0;
   var k = 1 - (now - t0)/PULSE_MS;
-  if (k <= 0) { delete _pulses[slice]; return 0; }
+  if (k <= 0) { delete _pulses[key]; return 0; }
   return k*k;                      // eased decay - bright attack, soft tail
 }
 function _pulsesActive() {
@@ -1441,7 +1453,7 @@ function render() {
   // control dead exactly when a minor was selected (tap it and the ring stayed,
   // still clickable). The selection stays visible anyway: hiddenMinorSel in the
   // draw loop marks the parent sector when the ring is off.
-  var showMinor = appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
+  var showMinor = minorRingShown();
   var slA       = 2 * Math.PI / 12;
   var _now      = performance.now();   // one clock for every pulse envelope this frame
   // Put the marker on the current selection - instantly. A change of key starts the
@@ -1567,7 +1579,8 @@ function render() {
     var hovOuter = hovered && hovered.slice === i && !hovered.isInner;
     var hovInner = hovered && hovered.slice === i && hovered.isInner;
     var faded    = selected && !isSel && !inScale && !inRel;
-    var pulse    = _pulseAt(i, _now);   // 1 at the note's attack, decaying to 0
+    var pulse    = _pulseAt(i, false, _now);   // 1 at the note's attack, decaying to 0
+    var pulseIn  = _pulseAt(i, true,  _now);   // the inner ring rings on its own
 
     // Outer ring - annular (donut), keeps minor area visually clean
     var selIsInner  = isSel && !!selected.fromInner;
@@ -1642,10 +1655,18 @@ function render() {
                      : innerIsPRL ? 0.92
                      : faded ? 0.80 : 0.82;
       var aInner = aInnerBase + (1 - aInnerBase) * emphInner;   // travels with the dial
-      ctx.fillStyle = ha(pcol, Math.min(1, aInner + 0.30*pulse));
+      var pcolIn = pulseIn > 0 ? lightenHex(col, 0.55*pulseIn) : col;
+      ctx.fillStyle = ha(pcolIn, Math.min(1, aInner + 0.30*pulseIn));
       ctx.fill();
       ctx.strokeStyle = dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
       ctx.lineWidth = 0.8; ctx.stroke();
+      if (pulseIn > 0.01) {
+        ctx.save();
+        ctx.strokeStyle = dark ? 'rgba(255,255,255,'+(0.95*pulseIn)+')' : 'rgba(0,0,0,'+(0.65*pulseIn)+')';
+        ctx.lineWidth = 1 + 3.2*pulseIn;
+        ctx.stroke();
+        ctx.restore();
+      }
     } else if (famHL[i]) {
       // Minor ring hidden (Modal): the band shows the current key's FAMILY - the
       // seven sectors sharing its key signature - so the space carries meaning
@@ -1967,8 +1988,8 @@ function getSlice(x, y) {
   // control dead exactly when a minor was selected (tap it and the ring stayed,
   // still clickable). The selection stays visible anyway: hiddenMinorSel in the
   // draw loop marks the parent sector when the ring is off.
-  var showMinor = appMode === 'assist' || (appMode === 'tonal' && document.getElementById('cb-minor').checked);
-  var innerR = R * 0.70;            // FIXED - matches render() (major/minor boundary)
+  var showMinor = minorRingShown();
+  var innerR = R * 0.70;           // FIXED - matches render() (major/minor boundary)
   if (dist > R * 1.04 || dist < R * 0.40) return null;
   // Sectors are drawn CENTERED on -PI/2 + i*slA (where the label sits), so the
   // hit-test must be shifted half a sector to match - otherwise the label lands
@@ -2875,14 +2896,15 @@ function _playNote(semi, when, dur, baseOct) {
   osc.start(when); osc.stop(when + dur + 0.05);
 }
 
-function _playArp(semis, oct) {
+// at: {slice, inner} - the sector to acknowledge, or null for none.
+function _playArp(semis, oct, at) {
   var gap = 0.11;
-  // ONE acknowledgement, on the note you asked for, whether or not the sound plays -
+  // ONE acknowledgement, on the thing you pressed, whether or not the sound plays -
   // muting must never take the feedback away, which is why this sits outside the audio
   // branch. The other two notes no longer flash: see chordToneMap for why sequencing
   // them across a fifths layout produced a movement that isn't there. They are marked
   // persistently instead, which is both calmer and more informative.
-  pulseSemitone(semis[0], 0);
+  if (at) pulseSector(at.slice, at.inner, 0);
   if (!_soundOn) return;
   _withCtx(function() {
     var ctx = _getCtx();
@@ -2974,12 +2996,21 @@ function playTonic(slice, modeIdx, fromInner) {
   var mode = MODES[modeIdx];
   var as   = fromInner ? MROOT.indexOf((MROOT[slice]+mode.off)%12) : slice;
   var root = MROOT[as];
-  _playArp(_triad(root, mode.ct[0]), 4);
+  // The flash goes on the sector that was pressed. A minor key picked while the minor
+  // ring is hidden is marked on its parent outer sector (see hiddenMinorSel), so it
+  // flashes there too.
+  _playArp(_triad(root, mode.ct[0]), 4, { slice: slice, inner: !!fromInner && minorRingShown() });
 }
 
-// Called when clicking a diatonic chord pill
+// Called when clicking a diatonic chord pill. The chord's own sector rings: a major
+// chord on the outer ring at its root, a minor one on the inner ring beside its
+// relative major. A diminished chord has no sector on this wheel, and a minor chord has
+// none while the minor ring is hidden - lighting a neighbour would name the wrong chord.
 function playChordPill(semi, type) {
-  _playArp(_triad(semi, type), 4);   // mute handled in _playArp, see playTonic
+  var s = ((semi % 12) + 12) % 12, at = null;
+  if (type === 'maj' || type === 'dom7') at = { slice: MROOT.indexOf(s), inner: false };
+  else if (type === 'min' && minorRingShown())  at = { slice: MROOT.indexOf((s + 3) % 12), inner: true };
+  _playArp(_triad(semi, type), 4, at);   // mute handled in _playArp, see playTonic
 }
 
 // Play mode scale ascending - highlights characteristic note of each mode
