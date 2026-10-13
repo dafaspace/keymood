@@ -592,6 +592,13 @@ canvas:focus-visible { outline-offset: 3px; }
         <span class="set-label">Version</span>
         <span style="font-size:11px;color:var(--text3)">v2.11.0</span>
       </div>
+      <!-- Required by the sample licence (CC BY 3.0): name the work, the author and the
+           licence, with a link to it. -->
+      <div class="set-row">
+        <span class="set-label">Piano</span>
+        <span style="font-size:11px;color:var(--text3);text-align:right">Salamander Grand Piano by Alexander Holm,
+          <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 3.0</a></span>
+      </div>
       <div class="set-row" style="flex-direction:column;align-items:stretch;gap:7px">
         <span class="set-label">Palette</span>
         <div class="pal-grid">
@@ -2864,7 +2871,115 @@ document.addEventListener('visibilitychange', function () {
 // Semitone → frequency (C4=261.63)
 var _FREQ = [261.63,277.18,293.66,311.13,329.63,349.23,369.99,392.00,415.30,440.00,466.16,493.88];
 
-function _playNote(semi, when, dur, baseOct) {
+// ── Piano ─────────────────────────────────────────────────────────────────────
+// A sampled grand: Salamander Grand Piano by Alexander Holm (Yamaha C5), CC BY 3.0 -
+// credited in Settings, which the licence requires. 13 notes a minor third apart, C3
+// to C6, so no note is ever shifted more than 1.5 semitones from a real recording;
+// ChordChord's set is a major third apart (up to 2), and the further a sample is
+// pitched, the more its tone stops sounding like that note on a real piano.
+// The files are our own encodes from the 48k/24-bit originals (tools/piano.sh). The
+// widely copied Tone.js mp3s are 38 kbit/s, measured 1.4-5 dB short of the originals
+// between 2 and 12 kHz on the attack, and at that rate the long decay - most of what
+// you hear of a piano note - is where an encoder's artefacts show.
+//
+// Until the samples have arrived the triangle synth below still plays, so the first
+// tap on a cold load is never silent. Buffers are context-independent, which matters
+// because _withCtx rebuilds the context after idle: decoded once, they survive that.
+var PIANO_FILES = ['C3','Ds3','Fs3','A3','C4','Ds4','Fs4','A4','C5','Ds5','Fs5','A5','C6'];
+var PIANO_LO = 48;                      // MIDI of C3; each file is 3 semitones above the last
+// Overall level, matched to the synth it replaces so switching costs no loudness.
+// Measured offline at 48 kHz, chord with bass: synth triad peak -9.3 / RMS -21 dBFS;
+// piano at 1.0, C and Am, peak -4.7 to -6.8 / RMS -18 to -23 - level with it, and
+// under the limiter's -4 dB threshold, so the limiter only ever catches stacked peaks.
+var PIANO_GAIN = 1.0;
+var _piano = { raw: null, buf: [], state: 'idle', failedAt: 0 };
+function _pianoFetch() {
+  if (_piano.raw || _piano.state === 'ready') return;
+  _piano.raw = Promise.all(PIANO_FILES.map(function (n) {
+    return fetch('piano/' + n + '.mp3').then(function (r) {
+      if (!r.ok) throw new Error(n + ' ' + r.status);
+      return r.arrayBuffer();
+    });
+  }));
+  _piano.raw.catch(function () { _piano.raw = null; _piano.state = 'failed'; _piano.failedAt = performance.now(); });
+}
+// Decoding needs a context; it is done in the one that will play, so the buffers come
+// out at the device's own sample rate and are not resampled twice.
+function _pianoDecode(ctx) {
+  if (_piano.state === 'ready' || _piano.state === 'decoding') return;
+  if (_piano.state === 'failed' && performance.now() - _piano.failedAt < 30000) return;
+  _pianoFetch();
+  if (!_piano.raw) return;
+  _piano.state = 'decoding';
+  _piano.raw.then(function (abs) {
+    return Promise.all(abs.map(function (ab) {
+      // The callback form, wrapped: older WebKit returns no promise from decodeAudioData.
+      return new Promise(function (res, rej) { ctx.decodeAudioData(ab, res, rej); });
+    }));
+  }).then(function (bufs) {
+    _piano.buf = bufs; _piano.state = 'ready'; _piano.raw = null;
+  }, function () {
+    _piano.raw = null; _piano.state = 'failed'; _piano.failedAt = performance.now();
+  });
+}
+// Fetch early, decode on first use: the bytes download while the user is still
+// looking at the wheel, and no context is created before a gesture asks for one.
+window.addEventListener('load', function () { setTimeout(_pianoFetch, 800); });
+
+// One output chain per context: a short, quiet room (a piano recorded close is dry,
+// and dry reads as a sample) and a peak limiter so a four-note chord with the bass
+// under it never clips. Rebuilt with the context, cached otherwise.
+var _bus = null;
+function _busFor(ctx) {
+  if (_bus && _bus.ctx === ctx) return _bus.input;
+  var input = ctx.createGain();
+  var lim = ctx.createDynamicsCompressor();
+  lim.threshold.value = -4; lim.knee.value = 3; lim.ratio.value = 12;
+  lim.attack.value = 0.002; lim.release.value = 0.2;
+  var wet = ctx.createGain(); wet.gain.value = 0.16;
+  var conv = ctx.createConvolver(); conv.buffer = _roomIR(ctx);
+  input.connect(lim);
+  input.connect(conv); conv.connect(wet); wet.connect(lim);
+  lim.connect(ctx.destination);
+  _bus = { ctx: ctx, input: input };
+  return input;
+}
+// A synthetic room impulse: decorrelated noise per channel, an exponential decay of
+// about 1.3 s to -60 dB, and a low-pass that closes as the tail goes on, because air
+// and walls take the highs first. 12 ms of pre-delay keeps the attack in front of it.
+function _roomIR(ctx) {
+  var sr = ctx.sampleRate, len = Math.floor(sr * 1.6), pre = Math.floor(sr * 0.012);
+  var b = ctx.createBuffer(2, len, sr);
+  for (var ch = 0; ch < 2; ch++) {
+    var d = b.getChannelData(ch), y = 0;
+    for (var i = pre; i < len; i++) {
+      var t = (i - pre) / sr;
+      var a = 0.55 - 0.45 * Math.min(1, t / 1.2);       // smoothing grows with time
+      y = y + a * ((Math.random() * 2 - 1) - y);
+      d[i] = y * Math.exp(-5.3 * t);
+    }
+  }
+  return b;
+}
+function _pianoVoice(ctx, midi, when, dur, vel) {
+  var k = Math.round((midi - PIANO_LO) / 3);
+  k = Math.max(0, Math.min(PIANO_FILES.length - 1, k));
+  var src = ctx.createBufferSource();
+  src.buffer = _piano.buf[k];
+  src.playbackRate.value = Math.pow(2, (midi - (PIANO_LO + k * 3)) / 12);
+  var g = ctx.createGain();
+  vel *= PIANO_GAIN;
+  g.gain.setValueAtTime(vel, when);
+  // Key release: the damper stops the string over a few hundred ms, it does not cut.
+  g.gain.setValueAtTime(vel, when + dur);
+  g.gain.setTargetAtTime(0, when + dur, 0.11);
+  src.connect(g); g.connect(_busFor(ctx));
+  src.start(when);
+  src.stop(when + dur + 0.9);
+}
+
+// vel 0-1, default 0.7. Piano when it is loaded, the synth until then.
+function _playNote(semi, when, dur, baseOct, vel) {
   // semi can be > 11 (e.g. 14 = D above middle C region)
   // baseOct is the octave for semitone 0 (C)
   var b   = baseOct !== undefined ? baseOct : 4;
@@ -2872,6 +2987,11 @@ function _playNote(semi, when, dur, baseOct) {
   var note = ((semi % 12) + 12) % 12;
   var ctx  = _getCtx();
   _ctxStamp = { perf: performance.now(), ctx: ctx.currentTime };   // "used just now"
+  if (_piano.state === 'ready') {
+    _pianoVoice(ctx, 12 * (oct + 1) + note, when, dur, (vel === undefined ? 0.7 : vel));
+    return;
+  }
+  _pianoDecode(ctx);
   var osc  = ctx.createOscillator();
   var gain = ctx.createGain();
   osc.type = 'triangle';
@@ -2896,7 +3016,13 @@ function _playArp(semis, oct, at) {
   _withCtx(function() {
     var ctx = _getCtx();
     var now = ctx.currentTime + 0.05;
-    var dur = 1.3;
+    var piano = _piano.state === 'ready';
+    // A piano note is allowed to ring; the synth's tone was built around 1.3 s.
+    var dur = piano ? 2.0 : 1.3;
+    // The root an octave down, under the first note, as a pianist's left hand would
+    // play it. Only on the piano: the triangle synth was voiced for three notes and
+    // gets muddy with a fourth below.
+    if (piano) _playNote(semis[0] - 12, now, dur + 0.4, oct||4, 0.5);
     // Play ascending, no repeated note
     // Audio still arpeggiates - that is a good sound and nobody complained about it.
     // Only the per-note VISUAL is gone. The frame-synced, outputLatency-compensated
@@ -2905,7 +3031,9 @@ function _playArp(semis, oct, at) {
     // fifths order there, which IS monotonic, and a playhead built on this is the right
     // call. That is the one place note-by-note highlighting earns its keep here.
     semis.forEach(function(s,i){
-      _playNote(s, now+i*gap, dur, oct||4);
+      // Small, random differences in weight between the notes: identical velocities
+      // are the most audible sign of a machine playing.
+      _playNote(s, now+i*gap, dur - i*gap, oct||4, 0.6 + (Math.random() - 0.5) * 0.08);
     });
   });
 }

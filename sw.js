@@ -1,6 +1,10 @@
 // Bump CACHE on every version release so clients fetch fresh files.
 var CACHE = "coc-v2.11.0";
-var ASSETS = ["./index.html", "./manifest.json", "./icon.png"];
+// The piano samples are precached so sound works offline from the first launch; until
+// they are cached the app falls back to its synth, so a slow install loses nothing.
+var PIANO = ["C3","Ds3","Fs3","A3","C4","Ds4","Fs4","A4","C5","Ds5","Fs5","A5","C6"]
+  .map(function(n){ return "./piano/" + n + ".mp3"; });
+var ASSETS = ["./index.html", "./manifest.json", "./icon.png"].concat(PIANO);
 
 // How long the document may wait on the network before we serve what we already have.
 // This is the whole point of the rewrite - see the fetch handler.

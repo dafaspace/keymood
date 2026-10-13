@@ -14,3 +14,7 @@ Works offline and installs to your home screen — open the link and choose
 - Tonal / Modal views, diatonic chords, key relationships
 - Camelot wheel & solfège notation, transpose, playback
 - Ear-training quiz
+
+## Credits
+
+Piano: [Salamander Grand Piano](https://github.com/sfzinstruments/SalamanderGrandPiano) by Alexander Holm, licensed [CC BY 3.0](https://creativecommons.org/licenses/by/3.0/). The files in `piano/` are re-encoded from the originals by `tools/piano.sh` (trimmed, level-matched, MP3).
