@@ -467,6 +467,40 @@ canvas:focus-visible { outline-offset: 3px; }
 
 /* Panel */
 .panel { border: 0.5px solid var(--bd); border-radius: 14px; overflow: hidden; background: var(--bg); display: flex; flex-direction: column; }
+/* ── Tools card (dice, metronome) ─────────────────────────────────────────────
+   Every control here is a <button> on the house base: flex-centred, height from
+   padding, a 44px hit area even where the visible pill is smaller. */
+.tools { border: 0.5px solid var(--bd); border-radius: 14px; background: var(--bg); padding: 8px; margin-bottom: 8px; }
+.tools button { display:inline-flex; align-items:center; justify-content:center; gap:5px; font:inherit; line-height:1;
+                border:0; margin:0; cursor:pointer; position:relative; -webkit-appearance:none; appearance:none;
+                text-box: trim-both cap alphabetic; }
+.tools button::before { content:''; position:absolute; inset:-5px 0; }
+.tl-seg { display:flex; gap:2px; background:var(--bg2); border-radius:999px; padding:2px; }
+.tl-seg button { flex:1; padding:10px 6px; border-radius:999px; background:none; color:var(--text3); font-size:12px; }
+.tl-seg button.on { background:var(--text); color:var(--bg); font-weight:500; }
+.tl-seg button:hover:not(.on) { color:var(--text2); }
+.tl-body { padding: 10px 4px 2px; }
+.tl-lbl { font-size:10px; font-weight:500; color:var(--text3); letter-spacing:.07em; text-transform:uppercase; margin:0 0 6px; }
+.tl-chips { display:flex; gap:4px; flex-wrap:wrap; margin-bottom:10px; }
+.tl-chip { padding:8px 11px; border-radius:999px; background:none; color:var(--text2); font-size:11px;
+           box-shadow: inset 0 0 0 0.5px var(--bd2); }
+.tl-chip.on { background:var(--text); color:var(--bg); box-shadow:none; }
+.tl-res { font-size:15px; font-weight:500; color:var(--text); margin:0 0 8px; }
+.tl-res small { font-size:11px; font-weight:400; color:var(--text3); }
+.tl-prog { display:grid; grid-template-columns:repeat(4,1fr); gap:3px; margin-bottom:10px; }
+.tl-prog div { background:var(--bg2); border-radius:8px; text-align:center; padding:5px 2px; font-size:10px; color:var(--text2);
+               transition: box-shadow .08s; }
+.tl-prog div b { display:block; font-size:12px; font-weight:500; color:var(--text); margin-bottom:2px; }
+.tl-prog div.now { box-shadow: inset 0 0 0 1.5px var(--text); }
+.tl-btns { display:flex; gap:6px; }
+.tl-btn { flex:1; padding:12px 8px; border-radius:999px; background:var(--bg2); color:var(--text); font-size:12px; }
+.tl-btn.pri { background:var(--text); color:var(--bg); font-weight:600; }
+.tl-bpm { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+.tl-pm { padding:12px 16px; border-radius:999px; background:var(--bg2); color:var(--text); }
+.tl-bpmv { font-size:26px; font-weight:500; color:var(--text); font-variant-numeric: tabular-nums; }
+.tl-bpmv small { font-size:11px; color:var(--text3); margin-left:4px; font-weight:400; }
+.tl-range { width:100%; margin:0 0 12px; accent-color: var(--text); }
+.tl-note { font-size:11px; color:var(--text3); line-height:1.4; margin:8px 0 0; }
 .phead { padding: 9px 13px; border-bottom: 0.5px solid var(--bd); font-size: 12px; font-weight: 500; color: var(--text2); display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .pbody { padding: 11px 13px; overflow-y: auto; }
@@ -640,6 +674,9 @@ canvas:focus-visible { outline-offset: 3px; }
     <canvas id="c" tabindex="0" role="application" aria-label="Circle of fifths"></canvas>
   </div>
   <div class="panel-col">
+    <!-- Tools: the dice and the metronome. Their display is the middle of the wheel;
+         this card is the switch and the controls. Rendered by renderTools(). -->
+    <div class="tools" id="tools" style="display:none"></div>
     <!-- Modes (лады) live in the PANEL column (above the panel), not the circle's
          column - so the circle is at the SAME spot in every tab. Shown only in Modal. -->
     <div class="mode-strip-wrap" id="modestripwrap" style="display:none"><div class="mode-strip" id="modestrip"></div></div>
@@ -1430,8 +1467,9 @@ function _animTick(ts) {
   _animPrev = ts;
   selPop.step(dt); relDraw.step(dt);
   _drainPulses(ts);            // light every note that has come due, on THIS frame
+  _drainCues(ts);              // and every tool cue (chord change, metronome beat)
   render();
-  if (selPop.settled() && relDraw.settled() && !_pulsesActive()) { _animRAF = null; _animPrev = 0; }
+  if (selPop.settled() && relDraw.settled() && !_pulsesActive() && !_cues.length) { _animRAF = null; _animPrev = 0; }
   else _animRAF = requestAnimationFrame(_animTick);
 }
 function _kickAnim() {
@@ -1818,6 +1856,8 @@ function render() {
     }
   }
 
+  _drawToolDisplay(ctx, CX, CY, R, accR, ff, dark);
+
   // ── The selection marker ────────────────────────────────────────────────────
   // Appears on the tapped sector at once and settles in with a small scale wobble
   // (selPop), scaled about the middle of the sector - the point under the finger -
@@ -1942,10 +1982,12 @@ function render() {
     }
   }
 
-  // Center circle - no fill, just border
-  ctx.beginPath(); ctx.arc(CX,CY,R*0.17,0,Math.PI*2);
-  ctx.strokeStyle= dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
-  ctx.lineWidth  = 0.5; ctx.stroke();
+  // Center circle - no fill, just border (covered by the tool display when one is open)
+  if (!toolOpen()) {
+    ctx.beginPath(); ctx.arc(CX,CY,R*0.17,0,Math.PI*2);
+    ctx.strokeStyle= dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
+    ctx.lineWidth  = 0.5; ctx.stroke();
+  }
 
   // Canvas pixels say nothing to a screen reader - keep an accessible name that
   // reports the current selection, plus how to drive it from the keyboard.
@@ -2015,9 +2057,11 @@ function handlePick(h, noToggle) {
   // so there is nothing to reach by toggling off. (Keyboard Enter already replayed.)
   var _same = selected && selected.slice === h.slice && selected.modeIdx === newModeIdx
               && !!selected.fromInner === _newFromInner;
+  diceStop();
   if (!_same) {
     selected = { slice: h.slice, tonicSlice: h.slice, modeIdx: newModeIdx, fromInner: _newFromInner };
     lastModeIdx = newModeIdx;
+    _noteKey(selected);
     buildModeStrip();
   } else {
     popMarker();    // a replay is a press too: the marker answers it the same way
@@ -2080,7 +2124,11 @@ cv.addEventListener('pointerup', function(e) {
   _pressing = false;
   var c = evCoords(e);
   hovered = null;
-  handlePick(getSlice(c.x, c.y));   // null (released off the wheel) is a no-op = cancelled
+  var _h = getSlice(c.x, c.y);
+  // The middle of the wheel is the tool display; releasing on it does the tool's one
+  // action (roll, start/stop). Outside a tool it stays a dead zone, as before.
+  if (!_h && toolOpen() && Math.hypot(c.x - CX, c.y - CY) < R * 0.40) { toolTap(); return; }
+  handlePick(_h);   // null (released off the wheel) is a no-op = cancelled
 });
 cv.addEventListener('pointercancel', function() {
   _pressing = false; hovered = null; render();
@@ -2284,6 +2332,7 @@ function getSecondaryDominants(slice, tSlice, modeIdx) {
 }
 
 function updatePanel() {
+  renderTools();
   var panel = document.getElementById('panel');
   // Quiz owns the panel while active - anything that repaints the panel mid-question
   // (tab/notation/palette changes) used to destroy it while quizMode stayed true,
@@ -2846,7 +2895,10 @@ function _withCtx(fn) {
     _audioCtx = null; _ctxStale = null; _ctxStamp = null;
     // A running metronome scheduled its beats on the OLD clock; the new one starts near
     // zero, so its next beat would be minutes away. Stop it rather than leave it silent.
-    if (_metroOn) _stopMetronome();
+    // Only a RUNNING one (it has a timer): a metronome being started right now is the
+    // reason this call exists, and stopping it here made the first press after 20 s of
+    // quiet do nothing at all.
+    if (_metroTimer) _stopMetronome();
     ctx = _getCtx();
   }
   if (ctx.state === 'running') { fn(); return; }
@@ -2974,6 +3026,7 @@ function _pianoVoice(ctx, midi, when, dur, vel) {
   g.gain.setValueAtTime(vel, when + dur);
   g.gain.setTargetAtTime(0, when + dur, 0.11);
   src.connect(g); g.connect(_busFor(ctx));
+  if (_voiceSink) _voiceSink.push({ src: src, g: g });
   src.start(when);
   src.stop(when + dur + 0.9);
 }
@@ -3000,6 +3053,7 @@ function _playNote(semi, when, dur, baseOct, vel) {
   gain.gain.linearRampToValueAtTime(0.18, when + 0.015);
   gain.gain.exponentialRampToValueAtTime(0.001, when + dur);
   osc.connect(gain); gain.connect(ctx.destination);
+  if (_voiceSink) _voiceSink.push({ src: osc, g: gain });
   osc.start(when); osc.stop(when + dur + 0.05);
 }
 
@@ -3058,6 +3112,7 @@ function _playClick(when, accent) {
   gain.gain.setValueAtTime(0.20, when);
   gain.gain.exponentialRampToValueAtTime(0.001, when + 0.05);
   osc.connect(gain); gain.connect(ctx.destination);
+  if (_voiceSink) _voiceSink.push({ src: osc, g: gain });
   osc.start(when); osc.stop(when + 0.06);
 }
 function toggleMetronome(bpm, btn) {
@@ -3072,24 +3127,443 @@ function toggleMetronome(bpm, btn) {
   // promising "tap to hear this mood's tempo" - a dead control that looked alive.
   // Pressing it is an unambiguous request to hear something, so grant it and let the
   // speaker icon show what changed.
-  if (!_soundOn) toggleSound();
-  _metroOn = true;
   if (btn) btn.classList.add('active');
+  _metroStart(bpm, 4);
+}
+window.toggleMetronome = toggleMetronome;
+
+// The one scheduler, shared by the recipe button and the Metronome tool. Tempo and
+// beats are read on every tick, so a change lands on the next beat instead of
+// requiring a restart. Each click also queues a cue at the moment it will be HEARD
+// (audio clock plus output latency), which is what lights the beat on the display.
+var _metroBpm = 92, _metroBeats = 4;
+function _metroStart(bpm, beats) {
+  if (!_soundOn) toggleSound();       // see toggleMetronome: a metronome IS the sound
+  _metroBpm = bpm; _metroBeats = beats || 4;
+  _metroOn = true;
   _withCtx(function() {
     if (!_metroOn || _metroTimer) return;  // stopped (or already started) while the context resumed
     var ctx = _getCtx();
-    var interval = 60 / bpm;
     var nextTime = ctx.currentTime + 0.05;
     _metroBeat = 0;
     _metroTimer = setInterval(function() {
       while (nextTime < ctx.currentTime + 0.1) {
-        _playClick(nextTime, _metroBeat % 4 === 0);
-        nextTime += interval; _metroBeat++;
+        var b = _metroBeat % _metroBeats;
+        _playClick(nextTime, b === 0);
+        _cueAt(ctx, nextTime, (function(bb) { return function() { _metroCur = bb; }; })(b), 'metro');
+        nextTime += 60 / _metroBpm; _metroBeat++;
       }
     }, 25);
   });
 }
-window.toggleMetronome = toggleMetronome;
+
+// ── Cues: things that must happen when a sound is heard ──────────────────────
+// A cue fires inside the frame loop at {due}, in the performance.now() domain. Same
+// reasoning as _pulseQueue: a timer does not land on a frame, and the sound leaves the
+// speaker outputLatency after it is scheduled. Reduced motion still needs the state
+// changes (which chord is playing), just without animation, so it uses timers.
+var _cues = [];
+function _cueAt(ctx, when, fn, tag) {
+  var lat = ctx.outputLatency || ctx.baseLatency || 0;
+  var due = performance.now() + (when - ctx.currentTime + lat) * 1000;
+  if (reducedMotion()) {
+    var c0 = { due: due, fn: fn, tag: tag, dead: false };
+    setTimeout(function() { if (!c0.dead) { fn(); render(); } }, Math.max(0, due - performance.now()));
+    _cues.push(c0);
+    return c0;
+  }
+  var c = { due: due, fn: fn, tag: tag, dead: false };
+  _cues.push(c);
+  _cues.sort(function(a, b) { return a.due - b.due; });
+  if (_cues.length > 256) _cues.splice(0, _cues.length - 256);
+  _kickAnim();
+  return c;
+}
+function _drainCues(ts) {
+  while (_cues.length && _cues[0].due <= ts) { var c = _cues.shift(); if (!c.dead) c.fn(); }
+}
+function _dropCues(tag) {
+  _cues = _cues.filter(function(c) { if (c.tag === tag) { c.dead = true; return false; } return true; });
+}
+
+// ── Tools: the dice and the metronome ────────────────────────────────────────
+// Their display is the middle of the wheel (_drawToolDisplay, called from render);
+// the card above the panel is the switch and the controls. Chosen by Dafa on 13 Oct
+// 2026 from three drawn options (../mockups/centre-display.html, option A): the switch
+// sits at the top of the panel column, the display only shows, and tapping it does
+// the tool's one main action. The tuner will be the third tool; it is not listed until
+// it exists, because a tab that leads nowhere is the placeholder a store rejects.
+var tool = loadPref('tool', null);
+if (tool !== 'dice' && tool !== 'metro') tool = null;
+var diceVary = loadPref('diceVary', { key: true, mode: true, chords: true, tempo: true });
+var _dice = { tpl: null, bpm: loadPref('diceBpm', 92), playing: -1, voices: [], rolled: false };
+var _metroToolBpm = loadPref('metroBpm', 92), _metroToolBeats = loadPref('metroBeats', 4);
+var _metroCur = -1;              // beat lit on the display; -1 = none
+var _tapTimes = [];
+var _voiceSink = null;           // while set, every voice scheduled is collected here
+
+var TL_ICON = {
+  dice:  '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2" y="2" width="12" height="12" rx="3"/><circle cx="5.5" cy="5.5" r=".9" fill="currentColor"/><circle cx="8" cy="8" r=".9" fill="currentColor"/><circle cx="10.5" cy="10.5" r=".9" fill="currentColor"/></svg>',
+  metro: '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><path d="M5.5 2h5l2.5 12H3z"/><path d="M8 11l3.5-6"/></svg>',
+  lock:  '<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5"/></svg>',
+  minus: '<svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 7h8"/></svg>',
+  plus:  '<svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 7h8M7 3v8"/></svg>'
+};
+
+function toolsVisible() { return !quizMode && (appMode === 'tonal' || appMode === 'modal'); }
+function toolOpen() { return toolsVisible() ? tool : null; }
+
+// Progressions per mode as scale-degree indices (0 = tonic). Each leans on the chord
+// that makes its mode audible - Lydian's major II, Mixolydian's flat VII, Dorian's
+// major IV, Phrygian's flat II. Qualities and spellings come from the mode itself, so a
+// template can never produce a chord that is not in the key.
+var DICE_PROG = [
+  [[0,4,5,3],[0,3,4,0],[1,4,0,0],[0,5,3,4],[5,3,0,4]],   // Ionian
+  [[0,1,0,1],[0,1,6,0],[0,1,4,0],[0,5,1,0]],             // Lydian
+  [[0,6,3,0],[0,6,0,6],[0,4,3,0],[0,3,6,3]],             // Mixolydian
+  [[0,3,0,3],[0,6,3,0],[0,3,4,0],[0,2,3,0]],             // Dorian
+  [[0,5,2,6],[0,6,5,6],[0,3,6,2],[0,5,6,0],[0,3,4,0]],   // Aeolian
+  [[0,1,0,1],[0,1,2,1],[0,5,6,0],[0,3,1,0]],             // Phrygian
+  [[0,1,0,1],[0,4,1,0],[0,5,6,0]]                        // Locrian
+];
+
+// Recently visited keys ("pc:mode", newest last), so the dice can lean away from them.
+var _keyHist = loadPref('keyHist', []);
+function _noteKey(sel) {
+  if (!sel) return;
+  var k = MROOT[tonicSliceOf(sel)] + ':' + sel.modeIdx;
+  _keyHist = _keyHist.filter(function(x) { return x !== k; });
+  _keyHist.push(k);
+  if (_keyHist.length > 24) _keyHist.shift();
+  savePref('keyHist', _keyHist);
+}
+// The whole point of the dice is to get out of the usual keys, so it is weighted away
+// from the ten most recent: weight .15 for those, 1 for the rest, 0 for where you are.
+function _rareTonic(curPc, mode) {
+  var recent = _keyHist.slice(-10), w = [], sum = 0, pc;
+  for (pc = 0; pc < 12; pc++) {
+    var x = pc === curPc ? 0 : (recent.indexOf(pc + ':' + mode) >= 0 ? 0.15 : 1);
+    w.push(x); sum += x;
+  }
+  var r = Math.random() * sum;
+  for (pc = 0; pc < 12; pc++) { r -= w[pc]; if (r <= 0) return pc; }
+  return (curPc + 7) % 12;
+}
+// A selection in the form the current tab draws it: Tonal puts a minor key on the
+// inner ring beside its relative major, Modal puts every tonic on the outer ring.
+function _selFor(pc, mode) {
+  if (appMode === 'tonal' && mode === 4) {
+    var s = MROOT.indexOf((pc + 3) % 12);
+    return { slice: s, tonicSlice: s, modeIdx: 4, fromInner: true };
+  }
+  var t = MROOT.indexOf(pc);
+  return { slice: t, tonicSlice: t, modeIdx: mode, fromInner: false };
+}
+// The selected key's diatonic chords, spelled from the key - the same derivation as
+// updatePanel, so the dice and the panel can never name a chord differently.
+function _selChordList(sel) {
+  var mode = MODES[sel.modeIdx], actual, acc;
+  if (sel.fromInner) { actual = MROOT.indexOf((MROOT[sel.slice] + mode.off) % 12); acc = sel.slice; }
+  else {
+    actual = sel.slice;
+    acc = sel.modeIdx === 0 ? sel.slice : MROOT.indexOf((MROOT[actual] - mode.off + 120) % 12);
+  }
+  return { chords: getModeChords(actual, sel.modeIdx, acc).chords, tonicPc: MROOT[actual], mode: mode };
+}
+function _chordSector(rootPc, type) {
+  if (type === 'maj') return { slice: MROOT.indexOf(rootPc), inner: false };
+  if (type === 'min' && minorRingShown()) return { slice: MROOT.indexOf((rootPc + 3) % 12), inner: true };
+  return null;                         // a diminished chord has no sector on this wheel
+}
+// Voice-led triads: each chord takes the inversion nearest the one before it, the way
+// a pianist's hand moves, instead of every chord jumping to root position. The lowest
+// note stays between G3 and G4, clear of the bass (C3-B3) and inside the samples.
+var TRIAD_IV = { maj: [0,4,7], min: [0,3,7], dim: [0,3,6] };
+function _voiceProgression(chords) {
+  var prev = null;
+  return chords.map(function(c) {
+    var pcs = TRIAD_IV[c.type].map(function(x) { return (c.root + x) % 12; });
+    var best = null, bestD = 1e9;
+    for (var inv = 0; inv < 3; inv++) {
+      var ord = pcs.slice(inv).concat(pcs.slice(0, inv));
+      for (var base = 55; base <= 67; base++) {
+        if (base % 12 !== ord[0]) continue;
+        var v = [base];
+        for (var j = 1; j < 3; j++) { var n = v[j-1] + 1; while (n % 12 !== ord[j]) n++; v.push(n); }
+        var d = prev ? Math.abs(v[0]-prev[0]) + Math.abs(v[1]-prev[1]) + Math.abs(v[2]-prev[2])
+                     : Math.abs((v[0] + v[2]) / 2 - 65);
+        if (d < bestD) { bestD = d; best = v; }
+      }
+    }
+    prev = best;
+    return best;
+  });
+}
+
+function diceRoll() {
+  if (!toolsVisible()) return;
+  var cur = selected;
+  var curPc = cur ? MROOT[tonicSliceOf(cur)] : 0;
+  var curMode = cur ? cur.modeIdx : (appMode === 'modal' ? lastModeIdx : 0);
+  if (appMode === 'tonal' && curMode !== 0 && curMode !== 4) curMode = 0;
+  var mode = curMode;
+  if (diceVary.mode) {
+    var opts = appMode === 'modal' ? [0,1,2,3,4,5,6] : [0,4];
+    // With the key held, a mode roll must actually change the mode or nothing happens.
+    var guard = 0;
+    do { mode = opts[Math.floor(Math.random() * opts.length)]; }
+    while (!diceVary.key && mode === curMode && ++guard < 20);
+  }
+  var pc = diceVary.key ? _rareTonic(curPc, mode) : curPc;
+  if (diceVary.chords || !_dice.tpl) {
+    var list = DICE_PROG[mode], prev = _dice.tpl ? _dice.tpl.join() : '', tpl, tries = 0;
+    do { tpl = list[Math.floor(Math.random() * list.length)]; } while (tpl.join() === prev && ++tries < 8);
+    _dice.tpl = tpl;
+  }
+  if (diceVary.tempo) { _dice.bpm = 60 + Math.floor(Math.random() * 81); savePref('diceBpm', _dice.bpm); }
+  selected = _selFor(pc, mode);
+  lastModeIdx = mode;
+  _dice.rolled = true;
+  _noteKey(selected);
+  buildModeStrip();
+  popMarker();
+  render();
+  updatePanel();
+  dicePlay();
+  var sp = keySpelling(tonicSliceOf(selected), selected.modeIdx);
+  say(sp.tonic + ' ' + (mode === 0 ? 'major' : mode === 4 ? 'minor' : MODES[mode].name) +
+      ', ' + _dice.bpm + ' beats per minute');
+}
+window.diceRoll = diceRoll;
+
+// Four bars, one chord a bar, bass under a voice-led triad, a click on every beat.
+// Muted, it still walks the highlight through the chords so the progression can be
+// read; it just makes no sound.
+function dicePlay() {
+  if (!selected || !_dice.tpl) return;
+  diceStop();
+  if (_metroOn) { _stopMetronome(); }   // one click track at a time
+  var info = _selChordList(selected);
+  var chords = _dice.tpl.map(function(d) {
+    return { root: (info.tonicPc + info.mode.iv[d]) % 12, type: info.mode.ct[d] };
+  });
+  var voices = _voiceProgression(chords);
+  _withCtx(function() {
+    var ctx = _getCtx(), beat = 60 / _dice.bpm, bar = beat * 4, t0 = ctx.currentTime + 0.08;
+    _voiceSink = _dice.voices = [];
+    chords.forEach(function(c, k) {
+      var when = t0 + k * bar;
+      if (_soundOn) {
+        _playNote(48 + c.root, when, bar * 0.96, -1, 0.5);
+        voices[k].forEach(function(n, j) {
+          _playNote(n, when + j * 0.012, bar * 0.94, -1, 0.5 + (Math.random() - 0.5) * 0.06);
+        });
+        for (var b = 0; b < 4; b++) _playClick(when + b * beat, b === 0);
+      }
+      var at = _chordSector(c.root, c.type);
+      _cueAt(ctx, when, function() {
+        _dice.playing = k; _paintDicePlaying();
+        if (at) pulseSector(at.slice, at.inner, 0);
+      }, 'dice');
+    });
+    _voiceSink = null;
+    _cueAt(ctx, t0 + chords.length * bar, function() { _dice.playing = -1; _paintDicePlaying(); }, 'dice');
+  });
+}
+window.dicePlay = dicePlay;
+function diceStop() {
+  if (!_dice) return;               // called by an early render before the tools block ran
+  var ctx = _audioCtx, now = ctx ? ctx.currentTime : 0;
+  _dice.voices.forEach(function(v) {
+    try { v.g.gain.cancelScheduledValues(now); v.g.gain.setTargetAtTime(0, now, 0.04); v.src.stop(now + 0.3); } catch (_e) {}
+  });
+  _dice.voices = [];
+  _dropCues('dice');
+  if (_dice.playing !== -1) { _dice.playing = -1; _paintDicePlaying(); }
+}
+// Moves only the "now" ring between chord cells - no rebuild mid-progression.
+function _paintDicePlaying() {
+  var cells = document.querySelectorAll('#tools .tl-prog > div');
+  for (var i = 0; i < cells.length; i++) cells[i].classList.toggle('now', i === _dice.playing);
+  render();
+}
+
+function metroToggle() {
+  if (_metroOn) _stopMetronome(); else { diceStop(); _metroStart(_metroToolBpm, _metroToolBeats); }
+  renderTools(); render();
+}
+function metroSetBpm(v) {
+  _metroToolBpm = Math.max(30, Math.min(240, Math.round(v)));
+  savePref('metroBpm', _metroToolBpm);
+  if (_metroOn) _metroBpm = _metroToolBpm;
+  var el = document.getElementById('tl-bpmv'); if (el) el.firstChild.nodeValue = _metroToolBpm;
+  var sl = document.getElementById('tl-bpmr'); if (sl && +sl.value !== _metroToolBpm) sl.value = _metroToolBpm;
+  render();
+}
+function metroSetBeats(n) {
+  _metroToolBeats = n; savePref('metroBeats', n);
+  if (_metroOn) _metroBeats = n;
+  renderTools(); render();
+}
+// Tap tempo: the average gap of the last few taps; a pause over two seconds starts over.
+function metroTap() {
+  var now = performance.now();
+  if (_tapTimes.length && now - _tapTimes[_tapTimes.length - 1] > 2000) _tapTimes = [];
+  _tapTimes.push(now);
+  if (_tapTimes.length > 5) _tapTimes.shift();
+  if (_tapTimes.length >= 2) {
+    metroSetBpm(60000 / ((_tapTimes[_tapTimes.length - 1] - _tapTimes[0]) / (_tapTimes.length - 1)));
+  }
+}
+window.metroToggle = metroToggle; window.metroSetBpm = metroSetBpm;
+window.metroSetBeats = metroSetBeats; window.metroTap = metroTap;
+
+function setTool(t) {
+  var next = tool === t ? null : t;
+  // A tool's sound belongs to its display: close the display and the sound stops,
+  // so nothing keeps clicking with no visible way to stop it.
+  if (tool === 'metro' && next !== 'metro') _stopMetronome();
+  if (tool === 'dice' && next !== 'dice') diceStop();
+  tool = next;
+  savePref('tool', tool);
+  renderTools(); render();
+}
+function toggleVary(k) { diceVary[k] = !diceVary[k]; savePref('diceVary', diceVary); renderTools(); }
+window.setTool = setTool; window.toggleVary = toggleVary;
+function toolTap() {
+  if (tool === 'dice') diceRoll();
+  else if (tool === 'metro') metroToggle();
+}
+// The first updatePanel() runs before this block has defined its state, and
+// renderTools() bails out then - so paint the card once here, now that it can.
+setTimeout(function() { renderTools(); render(); }, 0);
+
+function renderTools() {
+  var el = document.getElementById('tools');
+  if (!el || !_dice) return;
+  if (!toolsVisible()) {
+    el.style.display = 'none';
+    diceStop();
+    if (tool === 'metro' && _metroOn) _stopMetronome();
+    return;
+  }
+  el.style.display = '';
+  var t = tool;
+  var h = '<div class="tl-seg" role="group" aria-label="Tools">' +
+    '<button type="button" class="' + (t === 'dice' ? 'on' : '') + '" aria-pressed="' + (t === 'dice') +
+      '" onclick="setTool(\'dice\')">' + TL_ICON.dice + 'Dice</button>' +
+    '<button type="button" class="' + (t === 'metro' ? 'on' : '') + '" aria-pressed="' + (t === 'metro') +
+      '" onclick="setTool(\'metro\')">' + TL_ICON.metro + 'Metronome</button></div>';
+  if (t === 'dice') h += _diceHTML();
+  else if (t === 'metro') h += _metroHTML();
+  el.innerHTML = h;
+}
+function _diceHTML() {
+  var chips = [['key', 'Key'], ['mode', appMode === 'tonal' ? 'Major/minor' : 'Mode'],
+               ['chords', 'Chords'], ['tempo', 'Tempo']];
+  var h = '<div class="tl-body"><div class="tl-lbl">Change on roll</div><div class="tl-chips">';
+  chips.forEach(function(c) {
+    var on = !!diceVary[c[0]];
+    h += '<button type="button" class="tl-chip' + (on ? ' on' : '') + '" aria-pressed="' + on +
+         '" onclick="toggleVary(\'' + c[0] + '\')" title="' + (on ? 'Changes on the next roll' : 'Stays as it is') +
+         '" aria-label="' + c[1] + ', ' + (on ? 'changes on the next roll' : 'stays as it is') +
+         '">' + (on ? '' : TL_ICON.lock) + c[1] + '</button>';
+  });
+  h += '</div>';
+  if (_dice.rolled && selected && _dice.tpl) {
+    var info = _selChordList(selected), mi = selected.modeIdx;
+    var sp = keySpelling(tonicSliceOf(selected), mi);
+    h += '<div class="tl-res">' + sp.tonic + ' ' + (mi === 0 ? 'major' : mi === 4 ? 'minor' : MODES[mi].name) +
+         ' <small>· ' + _dice.bpm + ' bpm</small></div>';
+    h += '<div class="tl-prog">' + _dice.tpl.map(function(d, k) {
+      var c = info.chords[d];
+      return '<div class="' + (_dice.playing === k ? 'now' : '') + '"><b>' + c.num + '</b>' + c.name + '</div>';
+    }).join('') + '</div>';
+    h += '<div class="tl-btns"><button type="button" class="tl-btn pri" onclick="diceRoll()">' + TL_ICON.dice +
+         'Roll</button><button type="button" class="tl-btn" onclick="dicePlay()">Play again</button></div>';
+  } else {
+    h += '<div class="tl-btns"><button type="button" class="tl-btn pri" onclick="diceRoll()">' + TL_ICON.dice +
+         'Roll</button></div>' +
+         '<p class="tl-note">A key, a mode, four chords and a tempo - leaning toward the ones you have not played lately. ' +
+         'Tap Roll or the middle of the wheel.</p>';
+  }
+  return h + '</div>';
+}
+function _metroHTML() {
+  var h = '<div class="tl-body"><div class="tl-lbl">Tempo</div><div class="tl-bpm">' +
+    '<button type="button" class="tl-pm" aria-label="Slower" onclick="metroSetBpm(_metroToolBpm - 1)">' + TL_ICON.minus + '</button>' +
+    '<span class="tl-bpmv" id="tl-bpmv">' + _metroToolBpm + '<small>bpm</small></span>' +
+    '<button type="button" class="tl-pm" aria-label="Faster" onclick="metroSetBpm(_metroToolBpm + 1)">' + TL_ICON.plus + '</button></div>' +
+    '<input type="range" class="tl-range" id="tl-bpmr" min="30" max="240" step="1" value="' + _metroToolBpm +
+    '" aria-label="Tempo in beats per minute" oninput="metroSetBpm(+this.value)">' +
+    '<div class="tl-lbl">Beats in a bar</div><div class="tl-chips">';
+  [2, 3, 4, 5, 6].forEach(function(n) {
+    var on = _metroToolBeats === n;
+    h += '<button type="button" class="tl-chip' + (on ? ' on' : '') + '" aria-pressed="' + on +
+         '" onclick="metroSetBeats(' + n + ')">' + n + '</button>';
+  });
+  h += '</div><div class="tl-btns"><button type="button" class="tl-btn pri" onclick="metroToggle()">' +
+       (_metroOn ? 'Stop' : 'Start') + '</button><button type="button" class="tl-btn" onclick="metroTap()">Tap tempo</button></div></div>';
+  return h;
+}
+
+// The display: the middle of the wheel while a tool is open. It covers the key-
+// signature ring, which comes back when the tool is closed.
+function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
+  var t = toolOpen();
+  if (!t) return;
+  var r = accR - 1;
+  var ink = dark ? '#e8e6e0' : '#1a1917', sub = dark ? '#9a9890' : '#5c5b54';
+  c2.save();
+  c2.beginPath(); c2.arc(CX, CY, r, 0, Math.PI * 2);
+  c2.fillStyle = dark ? '#1f1f1d' : '#f6f4ef';
+  c2.fill();
+  c2.strokeStyle = dark ? 'rgba(255,255,255,.14)' : 'rgba(0,0,0,.12)';
+  c2.lineWidth = 1; c2.stroke();
+  c2.textAlign = 'center'; c2.textBaseline = 'middle';
+  var big = Math.max(18, R * 0.13), small = Math.max(10, R * 0.046);
+  if (t === 'dice') {
+    var line1 = null, line2 = null;
+    if (selected && _dice.tpl && _dice.playing >= 0) {
+      var ch = _selChordList(selected).chords[_dice.tpl[_dice.playing]];
+      line1 = ch.num; line2 = ch.name;
+    } else if (selected && _dice.rolled) {
+      var mi = selected.modeIdx, sp = keySpelling(tonicSliceOf(selected), mi);
+      line1 = sp.tonic;
+      line2 = (mi === 0 ? 'major' : mi === 4 ? 'minor' : MODES[mi].name) + ' · ' + _dice.bpm + ' bpm';
+    }
+    if (line1) {
+      c2.fillStyle = ink; c2.font = '500 ' + big + 'px ' + ff; c2.fillText(line1, CX, CY - r * 0.22);
+      c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff; c2.fillText(line2, CX, CY + r * 0.10);
+    } else {
+      c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff; c2.fillText('Tap to roll', CX, CY + r * 0.10);
+    }
+    // The dice glyph: the same drawing as the button icon, at display size.
+    var s = r * 0.30, gx = CX - s / 2, gy = CY + r * (line1 ? 0.30 : -0.30) ;
+    c2.strokeStyle = ink; c2.lineWidth = Math.max(1.2, R * 0.006);
+    c2.beginPath();
+    if (c2.roundRect) c2.roundRect(gx, gy, s, s, s * 0.25); else c2.rect(gx, gy, s, s);
+    c2.stroke();
+    c2.fillStyle = ink;
+    [[0.28, 0.28], [0.5, 0.5], [0.72, 0.72]].forEach(function(p) {
+      c2.beginPath(); c2.arc(gx + s * p[0], gy + s * p[1], s * 0.075, 0, Math.PI * 2); c2.fill();
+    });
+  } else if (t === 'metro') {
+    c2.fillStyle = ink; c2.font = '500 ' + (big * 1.15) + 'px ' + ff;
+    c2.fillText(String(_metroToolBpm), CX, CY - r * 0.16);
+    c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff;
+    c2.fillText('BPM · ' + _metroToolBeats + ' beats', CX, CY + r * 0.18);
+    var n = _metroToolBeats, gap = r * 0.20, dy = CY + r * 0.48;
+    for (var b = 0; b < n; b++) {
+      var lit = _metroOn && _metroCur === b;
+      c2.beginPath();
+      c2.arc(CX + (b - (n - 1) / 2) * gap, dy, lit ? r * 0.065 : r * 0.045, 0, Math.PI * 2);
+      c2.fillStyle = lit ? ink : (dark ? '#55544f' : '#c9c5bb');
+      c2.fill();
+    }
+  }
+  c2.restore();
+}
 
 function _triad(root, type) {
   // root is 0-11 (semitone within octave)
@@ -3511,7 +3985,8 @@ function djSuggest(cs,cm,moveIdx){
 }
 // Stop the metronome whenever its BPM context changes underneath it (switching
 // mood/lens/tab) - otherwise it silently keeps clicking at a now-unrelated tempo.
-function _stopMetronome(){ _metroOn=false; if(_metroTimer){ clearInterval(_metroTimer); _metroTimer=null; } }
+function _stopMetronome(){ _metroOn=false; if(_metroTimer){ clearInterval(_metroTimer); _metroTimer=null; }
+  _metroCur = -1; if (_cues) _dropCues('metro'); }
 function setAssistEmotion(i){
   _stopMetronome(); assistEmotion=(assistEmotion===i?null:i); assistShowMore=false;
   assistPadOpen=false; // picking a mood (from the pad) auto-collapses it back to the summary row
