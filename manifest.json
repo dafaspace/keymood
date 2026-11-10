@@ -1,7 +1,7 @@
 {
-  "name": "Another Circle of Fifths",
-  "short_name": "Fifths",
-  "description": "Interactive circle of fifths — keys, modes, chords, Camelot & solfège.",
+  "name": "Keymood - Circle of Fifths",
+  "short_name": "Keymood",
+  "description": "A circle of fifths you can hear: any key, its chords and modes, and the next key for the mood you want.",
   "id": ".",
   "start_url": ".",
   "scope": ".",

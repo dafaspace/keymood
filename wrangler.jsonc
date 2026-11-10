@@ -1,0 +1,10 @@
+// keymood.app: a Cloudflare Worker that serves only static files, no script.
+// Deployed by Workers Builds on every push to main. The same repo still feeds
+// GitHub Pages, whose copy hands saved settings over to keymood.app (index.html).
+{
+  "name": "keymood",
+  "compatibility_date": "2026-11-01",
+  "assets": {
+    "directory": "./"
+  }
+}

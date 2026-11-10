@@ -1,0 +1,19 @@
+# Read by Cloudflare only (GitHub Pages serves it as a plain file and ignores it).
+/*
+  X-Content-Type-Options: nosniff
+  Referrer-Policy: strict-origin-when-cross-origin
+
+# The page and the worker are always checked, so a release reaches people at once;
+# the service worker keeps the app working offline either way.
+/
+  Cache-Control: no-cache
+/index.html
+  Cache-Control: no-cache
+/sw.js
+  Cache-Control: no-cache
+/manifest.json
+  Cache-Control: no-cache
+
+# A week, not a year: the file names carry no version, and a re-encoded note must arrive.
+/piano/*
+  Cache-Control: public, max-age=604800

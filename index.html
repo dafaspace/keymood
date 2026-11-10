@@ -3,15 +3,16 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Another Circle Of Fifths</title>
-<meta name="description" content="Interactive circle of fifths - keys, modes, chords, Camelot & solfège. A music theory tool.">
+<title>Keymood - Circle of Fifths</title>
+<meta name="description" content="A circle of fifths you can hear: any key, its chords and modes, and the next key for the mood you want.">
+<link rel="canonical" href="https://keymood.app/">
 <meta name="theme-color" content="#1c1c1a">
 <link rel="manifest" href="manifest.json">
 <link rel="icon" href="icon.png">
 <link rel="apple-touch-icon" href="icon.png">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-<meta name="apple-mobile-web-app-title" content="Fifths">
+<meta name="apple-mobile-web-app-title" content="Keymood">
 <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -407,16 +408,8 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
   /* Tighten the two header rows into one compact block instead of two 10px-margin
      rows - recovers real height for the wheel without hiding anything. */
   .appbar { margin-bottom: 4px; }
-  /* On a phone the name doesn't fit beside five utility buttons - it was being
-     ellipsised to "ANOTHER CIRCLE OF FIF…", which reads as a bug, and shrinking the
-     type further would drop back under the legibility floor we just raised. So the
-     MARK carries the identity here and the words step aside: that's what an app icon
-     does, and the screen belongs to the content. The full name returns on desktop,
-     where there's room for it. Hidden visually, NOT removed: display:none took the
-     words out of the accessibility tree too, leaving the page's only h1 announcing
-     as an empty heading. */
-  .wm-txt { position: absolute; width: 1px; height: 1px; overflow: hidden;
-            clip-path: inset(50%); white-space: nowrap; }   /* = .sr-only */
+  /* The name used to be hidden on a phone: "ANOTHER CIRCLE OF FIFTHS" was ellipsised
+     beside five utility buttons. "KEYMOOD" is about 65px at this size, so it stays. */
   #wm { width: 26px; height: 26px; }
   .mode-switcher { margin-bottom: 6px; }
   /* align-items:stretch is the fix for BOTH the off-centre wheel and the narrow
@@ -596,7 +589,7 @@ canvas:focus-visible { outline-offset: 3px; }
   <!-- The mark is drawn from the LIVE palette (see paintWordmark), so the app's own
        identity changes colour with the wheel it draws. Version moved into Settings -
        a build number doesn't belong in a product's name. -->
-  <h1 style="pointer-events:none"><canvas id="wm" width="44" height="44" aria-hidden="true"></canvas><span class="wm-txt">Another Circle Of Fifths</span></h1>
+  <h1 style="pointer-events:none"><canvas id="wm" width="44" height="44" aria-hidden="true"></canvas><span class="wm-txt">Keymood</span></h1>
   <div style="flex:1"></div>
   <div class="util">
     <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz" aria-pressed="false"><svg width="17" height="17" viewBox="0 0 16 16" style="vertical-align:middle"><path d="M8 2.5 1.5 5 8 7.5 14.5 5 8 2.5z" fill="currentColor"/><path d="M4 6.4V9.5c0 1 8 1 8 0V6.4M14 5.2v3.3" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg></button>
@@ -688,6 +681,42 @@ canvas:focus-visible { outline-offset: 3px; }
 </div>
 
 <script>
+// ── Moving to keymood.app ─────────────────────────────────────────────────────
+// Browser storage belongs to one address. The copy still served at
+// dafaspace.github.io/keymood/ (and the /fifths/ bridge in front of it) is the only
+// thing that can read what someone saved there, so it hands the settings over in
+// keymood.app's #move= fragment - a fragment never reaches a server - and keymood.app
+// writes them before anything below reads a preference. Only cof_ keys travel, only
+// to this one fixed address, never to one taken from the URL, and a setting already
+// made on keymood.app is never overwritten.
+var KEYMOOD_HOME = 'https://keymood.app/';
+var KEYMOOD_LIVE = false;   // true once keymood.app serves this build over HTTPS
+(function() {
+  try {
+    var m = /^#move=([A-Za-z0-9_-]+)$/.exec(location.hash);
+    if (m) {
+      var got = JSON.parse(decodeURIComponent(escape(atob(m[1].replace(/-/g, '+').replace(/_/g, '/')))));
+      Object.keys(got).forEach(function(k) {
+        if (/^cof_\w+$/.test(k) && typeof got[k] === 'string' && localStorage.getItem(k) === null)
+          localStorage.setItem(k, got[k]);
+      });
+      history.replaceState(null, '', location.pathname + location.search);
+    }
+  } catch(e) {}
+  if (KEYMOOD_LIVE && location.hostname === 'dafaspace.github.io') {
+    var keys = {};
+    try {
+      for (var i = 0; i < localStorage.length; i++) {
+        var k = localStorage.key(i);
+        if (k && k.indexOf('cof_') === 0) keys[k] = localStorage.getItem(k);
+      }
+    } catch(e) {}
+    var hash = Object.keys(keys).length ? '#move=' + btoa(unescape(encodeURIComponent(JSON.stringify(keys))))
+      .replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '') : '';
+    location.replace(KEYMOOD_HOME + location.search + hash);
+  }
+})();
+
 // ── Data ─────────────────────────────────────────────────────────────────────
 // ── The line of fifths ────────────────────────────────────────────────────────
 // ACC is not just "how many accidentals this sector has". It is each sector's
@@ -4293,7 +4322,7 @@ function shareLink() {
   // desktop or if the user dismisses it. navigator.share needs a user gesture, which
   // the button click provides.
   if (navigator.share && window.innerWidth <= 620) {
-    navigator.share({ title: 'Another Circle Of Fifths', url: url })
+    navigator.share({ title: 'Keymood', url: url })
       .catch(function(){ /* dismissed or unsupported target - fall back quietly */
         if (navigator.clipboard && navigator.clipboard.writeText) {
           navigator.clipboard.writeText(url).then(function(){ _flashShare('✓ Copied!'); })
