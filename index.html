@@ -641,8 +641,8 @@ canvas:focus-visible { outline-offset: 3px; }
                at 170° of 180°); Itten's complements are true; Zodiac's four elements
                are the four augmented triads (ΔE 8 within a family vs 87 between);
                Scriabin is a historical list, not a geometry; Zebra is achromatic. -->
-          <button class="pal-btn" id="pal-pastel"   onclick="setPalette('pastel')"   title="Calm default - colour follows the circle, so a fifth is a small hue step">Pastel</button>
-          <button class="pal-btn" id="pal-itten"    onclick="setPalette('itten')"    title="True complements - opposite colours are a tritone apart">Itten</button>
+          <button class="pal-btn" id="pal-itten"    onclick="setPalette('itten')"    title="Default - true complements: opposite colours are a tritone apart">Itten</button>
+          <button class="pal-btn" id="pal-pastel"   onclick="setPalette('pastel')"   title="Calm - colour follows the circle, so a fifth is a small hue step">Pastel</button>
           <button class="pal-btn" id="pal-scriabin" onclick="setPalette('scriabin')" title="Scriabin's own colours for each key (1910) - historical, not a geometry">Scriabin</button>
           <button class="pal-btn" id="pal-zodiac"   onclick="setPalette('zodiac')"   title="One colour per major-third family - each shade is an augmented triad (C-E-A♭)">Zodiac</button>
           <button class="pal-btn" id="pal-zebra"    onclick="setPalette('zebra')"    title="Greyscale - maximum label contrast, no colour coding">Zebra</button>
@@ -763,13 +763,14 @@ var PALETTES = {
   zodiac:   ['#D9433A','#4A9D5B','#D9B23D','#3D77C8','#C8362E','#3D8A4D','#C8A032','#3568B0','#E85248','#57AD68','#E8C24A','#4A86D9'],
   zebra:    ['#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F','#DCDCE4','#38383F']
 };
-var PALETTE_NAMES = ['pastel','itten','scriabin','zodiac','zebra'];
+var PALETTE_NAMES = ['itten','pastel','scriabin','zodiac','zebra'];
 var GREY_PALETTES = { zebra:1 };   // skip the dark-theme white-lift for the greyscale one
 // SYNTH used to fall back on its own while curPalette kept the bad name, so a stale or
 // hand-edited value left the wheel correct but NO palette button marked active - the
 // settings popover simply couldn't say which palette was live. Clamp the name itself.
-var curPalette = loadPref('palette','pastel');
-if (!Object.prototype.hasOwnProperty.call(PALETTES, curPalette)) curPalette = 'pastel';
+// Itten is the default since 10 Nov 2026 (Dafa); a palette someone already chose is kept.
+var curPalette = loadPref('palette','itten');
+if (!Object.prototype.hasOwnProperty.call(PALETTES, curPalette)) curPalette = 'itten';
 var SYNTH = PALETTES[curPalette];
 // Root in semitones for each circle position - derived too, seven semitones per fifth.
 // Kept as a materialised array rather than a call: it is read on every sector of every
@@ -4281,7 +4282,7 @@ function shareLink() {
   if (document.documentElement.classList.contains('light')) params.push('light=1');
   // The wheel the recipient sees should be the wheel the sender saw: palette and the
   // minor-ring switch change it just as much as notation does.
-  if (curPalette !== 'pastel') params.push('pal=' + curPalette);
+  if (curPalette !== 'itten') params.push('pal=' + curPalette);
   if (!document.getElementById('cb-minor').checked) params.push('minor=0');
   if (params.length) url += '?' + params.join('&');
   // On a phone, sharing a key means sending it to someone - so offer the platform's
