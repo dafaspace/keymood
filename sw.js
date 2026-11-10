@@ -1,5 +1,5 @@
 // Bump CACHE on every version release so clients fetch fresh files.
-var CACHE = "coc-v2.12.1";
+var CACHE = "coc-v2.13.0";
 // The piano samples are precached so sound works offline from the first launch; until
 // they are cached the app falls back to its synth, so a slow install loses nothing.
 var PIANO = ["C3","Ds3","Fs3","A3","C4","Ds4","Fs4","A4","C5","Ds5","Fs5","A5","C6"]
@@ -40,6 +40,9 @@ self.addEventListener("activate", function(e) {
 
 self.addEventListener("fetch", function(e) {
   var req = e.request;
+  // Only GETs are ours to answer. The visitor count posts to /cdn-cgi/rum on this
+  // origin, and cache.put() throws on anything but a GET.
+  if (req.method !== "GET") return;
   // Network-first for the app shell (the HTML document) so a new version shows
   // up the moment the device is online; fall back to cache when offline. This
   // is what makes home-screen installs self-update (no remove/re-add needed).

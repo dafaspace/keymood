@@ -5,7 +5,7 @@ find the next key for the mood you want, practise with a metronome in any meter 
 a dice that rolls keys and progressions. Camelot and solfège notation, an ear-training
 quiz, a sampled piano, and shareable links. (Formerly "Another Circle of Fifths".)
 
-**▶ Live app: https://dafaspace.github.io/keymood/** (moving to https://keymood.app)
+**▶ Live app: https://keymood.app**
 
 Works offline and installs to your home screen — open the link and choose
 "Add to Home Screen".
