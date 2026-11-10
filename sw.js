@@ -1,5 +1,5 @@
 // Bump CACHE on every version release so clients fetch fresh files.
-var CACHE = "coc-v2.11.0";
+var CACHE = "coc-v2.12.0";
 // The piano samples are precached so sound works offline from the first launch; until
 // they are cached the app falls back to its synth, so a slow install loses nothing.
 var PIANO = ["C3","Ds3","Fs3","A3","C4","Ds4","Fs4","A4","C5","Ds5","Fs5","A5","C6"]
