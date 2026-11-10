@@ -494,6 +494,12 @@ canvas:focus-visible { outline-offset: 3px; }
 .tl-bpmv small { font-size:11px; color:var(--text3); margin-left:4px; font-weight:400; }
 .tl-range { width:100%; margin:0 0 12px; accent-color: var(--text); }
 .tl-note { font-size:11px; color:var(--text3); line-height:1.4; margin:8px 0 0; }
+/* 16px: iOS Safari zooms the page into any field set smaller. */
+.tl-meter { display:block; width:100%; font:inherit; font-size:16px; color:var(--text); background:var(--bg);
+            padding-block:8px; padding-inline:12px; border-radius:10px; border:0; box-shadow: inset 0 0 0 0.5px var(--bd2);
+            font-variant-numeric: tabular-nums; }
+.tl-meter[aria-invalid="true"] { box-shadow: inset 0 0 0 1px #d0453b; }
+.tl-mnote { margin:6px 0 12px; }
 .phead { padding: 9px 13px; border-bottom: 0.5px solid var(--bd); font-size: 12px; font-weight: 500; color: var(--text2); display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
 .sw { width: 10px; height: 10px; border-radius: 50%; display: inline-block; flex-shrink: 0; }
 .pbody { padding: 11px 13px; overflow-y: auto; }
@@ -3141,15 +3147,18 @@ function _playArp(semis, oct, at) {
 // first use). Keeping them separate is what stops a fast double-tap from starting
 // two schedulers and orphaning the first (an un-killable click track).
 var _metroTimer = null, _metroBeat = 0, _metroOn = false;
-function _playClick(when, accent) {
+// level 2 = first pulse of the bar, 1 = first pulse of a group (every beat of 4/4),
+// 0 = a pulse inside a group (the "and"s of 2+2+3). true/false still mean 2/1.
+function _playClick(when, level) {
+  var lv = level === true ? 2 : level === false ? 1 : level;
   var ctx = _getCtx();
   // A running metronome counts as use, so it is never mistaken for an idle context
   // and rebuilt out from under its own scheduler.
   _ctxStamp = { perf: performance.now(), ctx: ctx.currentTime };
   var osc = ctx.createOscillator(), gain = ctx.createGain();
   osc.type = 'sine';
-  osc.frequency.value = accent ? 1600 : 1000;
-  gain.gain.setValueAtTime(0.20, when);
+  osc.frequency.value = lv === 2 ? 1600 : lv === 1 ? 1000 : 800;
+  gain.gain.setValueAtTime(lv === 0 ? 0.09 : 0.20, when);
   gain.gain.exponentialRampToValueAtTime(0.001, when + 0.05);
   osc.connect(gain); gain.connect(ctx.destination);
   if (_voiceSink) _voiceSink.push({ src: osc, g: gain });
@@ -3172,14 +3181,80 @@ function toggleMetronome(bpm, btn) {
 }
 window.toggleMetronome = toggleMetronome;
 
+// ── Meters ────────────────────────────────────────────────────────────────────
+// Any written meter: "7/8", "2+2+3/8", "13/16", an irrational "4/3", or a cycle of
+// bars such as "6/8 3/4". A bar is groups of pulses on one note value. The first
+// pulse of the bar gets the strong click, the first of every other group the normal
+// click, the rest a quiet one: that is what makes 7/8 feel like 2+2+3 instead of
+// seven equal ticks. A metronome that accents only beat 1 cannot teach an odd meter.
+var METER_MAX_PULSES = 64, METER_MAX_BARS = 8;
+// The grouping a musician assumes when only n/d is written.
+function meterGroups(n, d) {
+  var g = [], i;
+  if (d === 4 && n > 3 && n % 3 === 0) { for (i = 0; i < n / 3; i++) g.push(3); return g; }  // 6/4, 9/4
+  if (d < 8 || n <= 3) { for (i = 0; i < n; i++) g.push(1); return g; }                     // 4/4, 5/4, 3/8
+  if (n % 3 === 0) { for (i = 0; i < n / 3; i++) g.push(3); return g; }                     // 6/8, 9/8, 12/8
+  for (i = 0; i < Math.floor((n % 2 ? n - 3 : n) / 2); i++) g.push(2);                     // 5/8 = 2+3,
+  if (n % 2) g.push(3);                                                                    // 7/8 = 2+2+3
+  return g;
+}
+function parseMeter(s) {
+  var bars = String(s == null ? '' : s).replace(/\s*([\/+])\s*/g, '$1')    // "7 / 8" = "7/8"
+    .trim().split(/[\s,;|]+/).filter(Boolean), out = [], total = 0;
+  if (!bars.length || bars.length > METER_MAX_BARS) return null;
+  for (var i = 0; i < bars.length; i++) {
+    var m = /^\(?(\d+(?:\+\d+)*)\)?\/(\d+)$/.exec(bars[i]);
+    if (!m) return null;
+    var d = +m[2], parts = m[1].split('+').map(Number);
+    if (d < 1 || d > 64 || parts.some(function(p) { return p < 1; })) return null;
+    var n = parts.reduce(function(a, b) { return a + b; }, 0);
+    if ((total += n) > METER_MAX_PULSES) return null;
+    out.push({ d: d, g: parts.length > 1 ? parts : meterGroups(n, d) });
+  }
+  return out;
+}
+function _barN(b) { return b.g.reduce(function(a, c) { return a + c; }, 0); }
+// text: the short form ("7/8" when the grouping is the usual one) - presets and prefs.
+// full: the grouping always spelled out unless every pulse is its own group ("2+2+3/8").
+function meterCompile(bars) {
+  var pulses = [];
+  bars.forEach(function(b, bi) {
+    var k = 0;
+    b.g.forEach(function(sz) {
+      for (var j = 0; j < sz; j++, k++) pulses.push({ w: 1 / b.d, lv: k === 0 ? 2 : j === 0 ? 1 : 0, bar: bi });
+    });
+  });
+  // The tempo number counts the first bar's group when its groups are equal (a quarter
+  // in 4/4, a dotted quarter in 6/8), otherwise its pulse (an eighth in 2+2+3/8).
+  var b0 = bars[0], eq = b0.g.every(function(x) { return x === b0.g[0]; });
+  return {
+    bars: bars, pulses: pulses, unit: (eq ? b0.g[0] : 1) / b0.d,
+    text: bars.map(function(b) { var n = _barN(b);
+      return (b.g.join() === meterGroups(n, b.d).join() ? n : b.g.join('+')) + '/' + b.d; }).join(' '),
+    full: bars.map(function(b) {
+      return (b.g.every(function(x) { return x === 1; }) ? _barN(b) : b.g.join('+')) + '/' + b.d; }).join(' ')
+  };
+}
+// What the tempo number counts, as a musician says it: "quarters", "dotted quarters".
+function meterUnitName(unit) {
+  var names = { 1: 'wholes', 2: 'halves', 4: 'quarters', 8: 'eighths', 16: 'sixteenths', 32: '32nds', 64: '64ths' };
+  for (var d in names) {
+    if (Math.abs(unit - 1 / d) < 1e-9) return names[d];
+    if (Math.abs(unit - 1.5 / d) < 1e-9) return 'dotted ' + names[d];
+  }
+  var inv = Math.round(1 / unit);                       // an irrational meter's pulse
+  return Math.abs(unit - 1 / inv) < 1e-9 ? '1/' + inv + ' notes' : 'beats';
+}
+
 // The one scheduler, shared by the recipe button and the Metronome tool. Tempo and
-// beats are read on every tick, so a change lands on the next beat instead of
+// meter are read on every tick, so a change lands on the next pulse instead of
 // requiring a restart. Each click also queues a cue at the moment it will be HEARD
-// (audio clock plus output latency), which is what lights the beat on the display.
-var _metroBpm = 92, _metroBeats = 4;
-function _metroStart(bpm, beats) {
+// (audio clock plus output latency), which is what lights the pulse on the display.
+var _metroBpm = 92, _metroM = null;    // _metroM: the compiled meter that is playing
+function _metroStart(bpm, meter) {
   if (!_soundOn) toggleSound();       // see toggleMetronome: a metronome IS the sound
-  _metroBpm = bpm; _metroBeats = beats || 4;
+  _metroBpm = bpm;
+  _metroM = (meter && typeof meter === 'object') ? meter : meterCompile(parseMeter((meter || 4) + '/4'));
   _metroOn = true;
   _withCtx(function() {
     if (!_metroOn || _metroTimer) return;  // stopped (or already started) while the context resumed
@@ -3188,10 +3263,12 @@ function _metroStart(bpm, beats) {
     _metroBeat = 0;
     _metroTimer = setInterval(function() {
       while (nextTime < ctx.currentTime + 0.1) {
-        var b = _metroBeat % _metroBeats;
-        _playClick(nextTime, b === 0);
-        _cueAt(ctx, nextTime, (function(bb) { return function() { _metroCur = bb; }; })(b), 'metro');
-        nextTime += 60 / _metroBpm; _metroBeat++;
+        var P = _metroM.pulses;
+        if (_metroBeat >= P.length) _metroBeat = 0;
+        var p = P[_metroBeat];
+        _playClick(nextTime, p.lv);
+        _cueAt(ctx, nextTime, (function(i) { return function() { _metroCur = i; }; })(_metroBeat), 'metro');
+        nextTime += p.w / _metroM.unit * 60 / _metroBpm; _metroBeat++;
       }
     }, 25);
   });
@@ -3237,7 +3314,15 @@ var tool = loadPref('tool', null);
 if (tool !== 'dice' && tool !== 'metro') tool = null;
 var diceVary = loadPref('diceVary', { key: true, mode: true, chords: true, tempo: true });
 var _dice = { tpl: null, bpm: loadPref('diceBpm', 92), playing: -1, voices: [], rolled: false };
-var _metroToolBpm = loadPref('metroBpm', 92), _metroToolBeats = loadPref('metroBeats', 4);
+var _metroToolBpm = loadPref('metroBpm', 92);
+// metroBeats (2-6, before 10 Nov 2026) still opens as n/4.
+var _metroToolMeter = meterCompile(parseMeter(loadPref('metroMeter', null)) ||
+                                   parseMeter(loadPref('metroBeats', 4) + '/4') || parseMeter('4/4'));
+// The chips are shortcuts; the field takes any meter. A second tap on a lit chip moves
+// to its next common grouping, so 7/8 reaches 3+2+2 and 2+3+2 without typing.
+var METER_PRESETS = [['2/4'], ['3/4'], ['4/4'], ['5/4', '3+2/4', '2+3/4'], ['6/8', '2+2+2/8'],
+  ['7/8', '3+2+2/8', '2+3+2/8'], ['9/8', '2+2+2+3/8'], ['12/8'], ['13/8', '3+3+3+2+2/8']]
+  .map(function(list) { return list.map(function(s) { return meterCompile(parseMeter(s)).text; }); });
 var _metroCur = -1;              // beat lit on the display; -1 = none
 var _tapTimes = [];
 var _voiceSink = null;           // while set, every voice scheduled is collected here
@@ -3248,6 +3333,7 @@ var TL_ICON = {
   lock:  '<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="2.5" y="5.5" width="7" height="5" rx="1"/><path d="M4 5.5V4a2 2 0 0 1 4 0v1.5"/></svg>',
   // Same 10px box as the lock, so a chip keeps its width when it is toggled: with an
   // icon on the locked side only, "Key" grew 47 -> 62px and pushed the row around.
+  cycle: '<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.8 4.6A4 4 0 0 0 2.5 4.2M2.2 7.4A4 4 0 0 0 9.5 7.8"/><path d="M2.3 1.9v2.4h2.4M9.7 10.1V7.7H7.3"/></svg>',
   shuffle: '<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3.5h2c1.5 0 2.5 5 4 5h3M1.5 8.5h2c1.5 0 2.5-5 4-5h3M9 2l1.5 1.5L9 5M9 7l1.5 1.5L9 10"/></svg>',
   minus: '<svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 7h8"/></svg>',
   plus:  '<svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 7h8M7 3v8"/></svg>'
@@ -3432,21 +3518,37 @@ function _paintDicePlaying() {
 }
 
 function metroToggle() {
-  if (_metroOn) _stopMetronome(); else { diceStop(); _metroStart(_metroToolBpm, _metroToolBeats); }
+  if (_metroOn) _stopMetronome(); else { diceStop(); _metroStart(_metroToolBpm, _metroToolMeter); }
   renderTools(); render();
 }
 function metroSetBpm(v) {
-  _metroToolBpm = Math.max(30, Math.min(240, Math.round(v)));
+  _metroToolBpm = Math.max(20, Math.min(400, Math.round(v)));
   savePref('metroBpm', _metroToolBpm);
   if (_metroOn) _metroBpm = _metroToolBpm;
   var el = document.getElementById('tl-bpmv'); if (el) el.firstChild.nodeValue = _metroToolBpm;
   var sl = document.getElementById('tl-bpmr'); if (sl && +sl.value !== _metroToolBpm) sl.value = _metroToolBpm;
   render();
 }
-function metroSetBeats(n) {
-  _metroToolBeats = n; savePref('metroBeats', n);
-  if (_metroOn) _metroBeats = n;
+// A running metronome switches at once and starts the new meter from its first pulse.
+function metroSetMeter(bars) {
+  _metroToolMeter = meterCompile(bars);
+  savePref('metroMeter', _metroToolMeter.text);
+  if (_metroOn) { _metroM = _metroToolMeter; _metroBeat = 0; }
   renderTools(); render();
+}
+function metroPreset(i) {
+  var list = METER_PRESETS[i], at = list.indexOf(_metroToolMeter.text);
+  metroSetMeter(parseMeter(list[at < 0 ? 0 : (at + 1) % list.length]));
+}
+function metroMeterInput(el) {
+  var bars = parseMeter(el.value);
+  if (!bars) {
+    el.setAttribute('aria-invalid', 'true');
+    var note = document.getElementById('tl-mnote');
+    if (note) note.textContent = 'Write it as 7/8, 2+2+3/8 or 6/8 3/4 - up to 64 pulses in all.';
+    return;
+  }
+  metroSetMeter(bars);
 }
 // Tap tempo: the average gap of the last few taps; a pause over two seconds starts over.
 function metroTap() {
@@ -3459,7 +3561,7 @@ function metroTap() {
   }
 }
 window.metroToggle = metroToggle; window.metroSetBpm = metroSetBpm;
-window.metroSetBeats = metroSetBeats; window.metroTap = metroTap;
+window.metroPreset = metroPreset; window.metroMeterInput = metroMeterInput; window.metroTap = metroTap;
 
 function setTool(t) {
   var next = tool === t ? null : t;
@@ -3537,15 +3639,24 @@ function _metroHTML() {
     '<button type="button" class="tl-pm" aria-label="Slower" onclick="metroSetBpm(_metroToolBpm - 1)">' + TL_ICON.minus + '</button>' +
     '<span class="tl-bpmv" id="tl-bpmv">' + _metroToolBpm + '<small>bpm</small></span>' +
     '<button type="button" class="tl-pm" aria-label="Faster" onclick="metroSetBpm(_metroToolBpm + 1)">' + TL_ICON.plus + '</button></div>' +
-    '<input type="range" class="tl-range" id="tl-bpmr" min="30" max="240" step="1" value="' + _metroToolBpm +
+    '<input type="range" class="tl-range" id="tl-bpmr" min="20" max="400" step="1" value="' + _metroToolBpm +
     '" aria-label="Tempo in beats per minute" oninput="metroSetBpm(+this.value)">' +
-    '<div class="tl-lbl">Beats in a bar</div><div class="tl-chips">';
-  [2, 3, 4, 5, 6].forEach(function(n) {
-    var on = _metroToolBeats === n;
+    '<div class="tl-lbl">Meter</div><div class="tl-chips">';
+  var M = _metroToolMeter;
+  METER_PRESETS.forEach(function(list, i) {
+    var on = list.indexOf(M.text) >= 0, more = list.length > 1;
+    // The cycle mark shows in both states, so a chip keeps its width when lit.
     h += '<button type="button" class="tl-chip' + (on ? ' on' : '') + '" aria-pressed="' + on +
-         '" onclick="metroSetBeats(' + n + ')">' + n + '</button>';
+         '" onclick="metroPreset(' + i + ')"' +
+         (more ? ' aria-label="' + list[0] + (on ? ', grouped ' + M.full + ', tap for another grouping' : ', several groupings') + '"' : '') +
+         '>' + (more ? TL_ICON.cycle : '') + list[0] + '</button>';
   });
-  h += '</div><div class="tl-btns"><button type="button" class="tl-btn pri" onclick="metroToggle()">' +
+  h += '</div><input type="text" class="tl-meter" id="tl-meter" value="' + M.full + '" inputmode="text"' +
+       ' autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="3+3+2/8 or 6/8 3/4"' +
+       ' aria-label="Any meter, for example 3+3+2/8 or 6/8 3/4" aria-describedby="tl-mnote"' +
+       ' onchange="metroMeterInput(this)" onkeydown="if (event.key === \'Enter\') this.blur()">' +
+       '<div class="tl-note tl-mnote" id="tl-mnote">The tempo counts ' + meterUnitName(M.unit) + '.</div>' +
+       '<div class="tl-btns"><button type="button" class="tl-btn pri" onclick="metroToggle()">' +
        (_metroOn ? 'Stop' : 'Start') + '</button><button type="button" class="tl-btn" onclick="metroTap()">Tap tempo</button></div></div>';
   return h;
 }
@@ -3594,16 +3705,26 @@ function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
   } else if (t === 'metro') {
     c2.fillStyle = ink; c2.font = '500 ' + (big * 1.15) + 'px ' + ff;
     c2.fillText(String(_metroToolBpm), CX, CY - r * 0.16);
+    var M = (_metroOn && _metroM) ? _metroM : _metroToolMeter;
     c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff;
-    c2.fillText('BPM · ' + _metroToolBeats + ' beats', CX, CY + r * 0.18);
-    var n = _metroToolBeats, gap = r * 0.20, dy = CY + r * 0.48;
-    for (var b = 0; b < n; b++) {
-      var lit = _metroOn && _metroCur === b;
-      c2.beginPath();
-      c2.arc(CX + (b - (n - 1) / 2) * gap, dy, lit ? r * 0.065 : r * 0.045, 0, Math.PI * 2);
+    c2.fillText('BPM · ' + M.full, CX, CY + r * 0.18);
+    // One dot per pulse, clustered by group, a wider gap between bars; group starts
+    // larger than the pulses inside a group, the bar's first pulse largest. A long
+    // cycle shows only the bar that is playing.
+    var P = M.pulses, curBar = (_metroOn && _metroCur >= 0 && P[_metroCur]) ? P[_metroCur].bar : 0;
+    var idx = [];
+    for (var i = 0; i < P.length; i++) if (P.length <= 24 || P[i].bar === curBar) idx.push(i);
+    var slots = 0;
+    idx.forEach(function(i, k) { if (k) slots += 1 + (P[i].lv === 2 ? 1.2 : P[i].lv === 1 ? 0.6 : 0); });
+    var step = slots ? Math.min(r * 0.20, r * 1.3 / slots) : 0, x = CX - slots * step / 2, dy = CY + r * 0.48;
+    var dotR = Math.min(r * 0.045, step * 0.32 || r * 0.045);
+    idx.forEach(function(i, k) {
+      if (k) x += step * (1 + (P[i].lv === 2 ? 1.2 : P[i].lv === 1 ? 0.6 : 0));
+      var lit = _metroOn && _metroCur === i, rad = dotR * (P[i].lv === 2 ? 1.35 : P[i].lv === 1 ? 1.1 : 0.8);
+      c2.beginPath(); c2.arc(x, dy, lit ? rad * 1.4 : rad, 0, Math.PI * 2);
       c2.fillStyle = lit ? ink : (dark ? '#55544f' : '#c9c5bb');
       c2.fill();
-    }
+    });
   }
   c2.restore();
 }
