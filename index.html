@@ -677,6 +677,9 @@ canvas:focus-visible { outline-offset: 3px; }
          between the major and minor rings, Enter/Space picks. aria-label is kept in
          sync with the selection by render(). -->
     <canvas id="c" tabindex="0" role="application" aria-label="Circle of fifths"></canvas>
+    <!-- The loading ring in the wheel's hub is canvas pixels; this says the same to a
+         screen reader, and is hidden whenever the ring is. -->
+    <progress id="piano-prog" class="sr-only" max="100" value="0" aria-label="Loading the piano" hidden></progress>
   </div>
   <div class="panel-col">
     <!-- Tools: the dice and the metronome. Their display is the middle of the wheel;
@@ -1513,7 +1516,8 @@ function _animTick(ts) {
   _drainPulses(ts);            // light every note that has come due, on THIS frame
   _drainCues(ts);              // and every tool cue (chord change, metronome beat)
   render();
-  if (selPop.settled() && relDraw.settled() && !_pulsesActive() && !_cues.length) { _animRAF = null; _animPrev = 0; }
+  if (selPop.settled() && relDraw.settled() && !_pulsesActive() && !_cues.length &&
+      !_plAnimating(performance.now())) { _animRAF = null; _animPrev = 0; }
   else _animRAF = requestAnimationFrame(_animTick);
 }
 function _kickAnim() {
@@ -2032,6 +2036,7 @@ function render() {
     ctx.strokeStyle= dark ? 'rgba(255,255,255,.08)' : 'rgba(0,0,0,.08)';
     ctx.lineWidth  = 0.5; ctx.stroke();
   }
+  _drawPianoRing(ctx, dark, accR);
 
   // Canvas pixels say nothing to a screen reader - keep an accessible name that
   // reports the current selection, plus how to drive it from the keyboard.
@@ -2974,8 +2979,6 @@ document.addEventListener('visibilitychange', function () {
   if (_audioCtx.state !== 'running') _audioCtx.resume().catch(function () {});
 });
 
-// Semitone → frequency (C4=261.63)
-var _FREQ = [261.63,277.18,293.66,311.13,329.63,349.23,369.99,392.00,415.30,440.00,466.16,493.88];
 
 // ── Piano ─────────────────────────────────────────────────────────────────────
 // A sampled grand: Salamander Grand Piano by Alexander Holm (Yamaha C5), CC BY 3.0 -
@@ -2988,33 +2991,63 @@ var _FREQ = [261.63,277.18,293.66,311.13,329.63,349.23,369.99,392.00,415.30,440.
 // between 2 and 12 kHz on the attack, and at that rate the long decay - most of what
 // you hear of a piano note - is where an encoder's artefacts show.
 //
-// Until the samples have arrived the triangle synth below still plays, so the first
-// tap on a cold load is never silent. Buffers are context-independent, which matters
-// because _withCtx rebuilds the context after idle: decoded once, they survive that.
+// There is no stand-in sound. Until the samples are decoded a tap plays nothing and the
+// hub of the wheel shows them arriving (the loading ring below): the old triangle synth
+// sounded broken, and the first sound anyone hears must be the piano (Dafa, 10 Nov;
+// Tastebook rules.firstSound). Buffers are context-independent, which matters because
+// _withCtx rebuilds the context after idle: decoded once, they survive that.
 var PIANO_FILES = ['C3','Ds3','Fs3','A3','C4','Ds4','Fs4','A4','C5','Ds5','Fs5','A5','C6'];
 var PIANO_LO = 48;                      // MIDI of C3; each file is 3 semitones above the last
-// Overall level, matched to the synth it replaces so switching costs no loudness.
+// Overall level, matched to the synth it replaced so switching cost no loudness.
 // Measured offline at 48 kHz, chord with bass: synth triad peak -9.3 / RMS -21 dBFS;
 // piano at 1.0, C and Am, peak -4.7 to -6.8 / RMS -18 to -23 - level with it, and
 // under the limiter's -4 dB threshold, so the limiter only ever catches stacked peaks.
 var PIANO_GAIN = 1.0;
-var _piano = { raw: null, buf: [], state: 'idle', failedAt: 0 };
+var _piano = { raw: null, buf: [], state: 'idle', failedAt: 0, frac: [] };
+// Each file is read as a stream so the loading ring can follow the bytes. Progress is
+// the mean of the files' own fractions: they are within a few KB of each other, so this
+// is byte-weighted in practice and needs no total. No length or no streams: the file
+// counts whole when it lands.
+function _pianoFile(i) {
+  return fetch('piano/' + PIANO_FILES[i] + '.mp3').then(function (r) {
+    if (!r.ok) throw new Error(PIANO_FILES[i] + ' ' + r.status);
+    var len = +r.headers.get('content-length');
+    if (!len || !r.body || !r.body.getReader) {
+      return r.arrayBuffer().then(function (ab) { _piano.frac[i] = 1; _plBytes(); return ab; });
+    }
+    var rd = r.body.getReader(), parts = [], got = 0;
+    return (function pump() {
+      return rd.read().then(function (x) {
+        if (x.done) {
+          var out = new Uint8Array(got), o = 0;
+          parts.forEach(function (p) { out.set(p, o); o += p.length; });
+          _piano.frac[i] = 1; _plBytes();
+          return out.buffer;
+        }
+        parts.push(x.value); got += x.value.length;
+        _piano.frac[i] = Math.min(1, got / len); _plBytes();
+        return pump();
+      });
+    })();
+  });
+}
 function _pianoFetch() {
   if (_piano.raw || _piano.state === 'ready') return;
-  _piano.raw = Promise.all(PIANO_FILES.map(function (n) {
-    return fetch('piano/' + n + '.mp3').then(function (r) {
-      if (!r.ok) throw new Error(n + ' ' + r.status);
-      return r.arrayBuffer();
-    });
-  }));
-  _piano.raw.catch(function () { _piano.raw = null; _piano.state = 'failed'; _piano.failedAt = performance.now(); });
+  _piano.frac = [];
+  _plStart();
+  _piano.raw = Promise.all(PIANO_FILES.map(function (n, i) { return _pianoFile(i); }));
+  _piano.raw.catch(function () {
+    _piano.raw = null; _piano.state = 'failed'; _piano.failedAt = performance.now(); _plFail();
+  });
 }
 // Decoding needs a context. The early decode below uses an OfflineAudioContext at the
 // files' own 48 kHz, so decoding resamples nothing; playback resamples once, as it
 // must anyway, since playbackRate shifts each sample to its note.
 function _pianoDecode(ctx) {
   if (_piano.state === 'ready' || _piano.state === 'decoding') return;
-  if (_piano.state === 'failed' && performance.now() - _piano.failedAt < 30000) return;
+  // A failed load retries at the next tap that asks for sound, or when the network
+  // comes back (below) - but not more often than every 5 s.
+  if (_piano.state === 'failed' && performance.now() - _piano.failedAt < 5000) return;
   _pianoFetch();
   if (!_piano.raw) return;
   _piano.state = 'decoding';
@@ -3024,11 +3057,14 @@ function _pianoDecode(ctx) {
       return new Promise(function (res, rej) { ctx.decodeAudioData(ab, res, rej); });
     }));
   }).then(function (bufs) {
-    _piano.buf = bufs; _piano.state = 'ready'; _piano.raw = null;
+    _piano.buf = bufs; _piano.state = 'ready'; _piano.raw = null; _plDone();
   }, function () {
-    _piano.raw = null; _piano.state = 'failed'; _piano.failedAt = performance.now();
+    _piano.raw = null; _piano.state = 'failed'; _piano.failedAt = performance.now(); _plFail();
   });
 }
+window.addEventListener('online', function () {
+  if (_piano.state === 'failed') { _piano.failedAt = 0; _pianoDecodeEarly(); }
+});
 // Fetch AND decode at load. Decoding used to wait for the first tap, so that tap always
 // played the synth (Dafa, 10 Nov). An OfflineAudioContext needs no gesture and never
 // makes a sound, so no live context is created before a gesture asks for one; the
@@ -3039,6 +3075,130 @@ function _pianoDecodeEarly() {
   try { _pianoDecode(new OAC(2, 1, 48000)); } catch (e) { _pianoFetch(); }
 }
 window.addEventListener('load', function () { setTimeout(_pianoDecodeEarly, 300); });
+
+// ── The loading ring ──────────────────────────────────────────────────────────
+// While the piano is on its way, the hub of the wheel draws the app's mark - its ring
+// of twelve colours - filling clockwise from C as the bytes arrive, each segment in its
+// own sector's colour, over a faint ghost of the whole mark. Timing is the family
+// progress rule (Tastebook tokens.json, progress): shown from 1 s, or at once when a
+// tap asks for sound first, since that tap is silent and the ring says why; once shown,
+// at least 500 ms; never backwards; still while no bytes come; full for a moment, then
+// it blooms out. Reduced motion: it steps, and goes without the bloom.
+// How it moves: at the measured rate of arrival, never past what has arrived, and never
+// more than about a second behind it. The family rule's "glide over the update gap" made
+// steps here: the 13 files report in bursts, and a glide timed from one update to the
+// next ended long before the next burst, so the line stopped and started (measured
+// 10 Nov). A rate taken over the last 0.8 s does not care how the updates are bunched.
+var _pl = { real: 0, shown: 0, tPrev: 0, hist: [], rate: 0, fullAt: 0,
+            on: false, at: 0, doneAt: 0, timer: null };
+var PL_SHOW_MS = 1000, PL_MIN_MS = 500, PL_CATCHUP_MS = 1000, PL_RATE_MS = 800,
+    PL_HOLD_MS = 220, PL_FADE_MS = 520;
+function _plStart() {
+  clearTimeout(_pl.timer);
+  var now = performance.now();
+  _pl.real = _pl.shown = _pl.rate = 0; _pl.hist = [[now, 0]]; _pl.tPrev = now;
+  _pl.doneAt = _pl.fullAt = 0;
+  _pl.timer = setTimeout(function () { if (_piano.state !== 'ready') _plShow(); }, PL_SHOW_MS);
+}
+// Moves the drawn value on to `now` and returns it.
+function _plShown(now) {
+  var dt = Math.max(0, now - _pl.tPrev); _pl.tPrev = now;
+  var lag = _pl.real - _pl.shown;
+  if (reducedMotion() || lag <= 0) _pl.shown = _pl.real;
+  else _pl.shown = Math.min(_pl.real, _pl.shown + dt * Math.max(_pl.rate, lag / PL_CATCHUP_MS));
+  if (_pl.shown >= 1 && !_pl.fullAt) _pl.fullAt = now;
+  return _pl.shown;
+}
+function _plSet(v) {
+  var now = performance.now();
+  v = Math.min(1, v);
+  if (v <= _pl.real) return;                               // never backwards
+  _plShown(now);                                           // settle the old motion first
+  _pl.real = v;
+  _pl.hist.push([now, v]);
+  while (_pl.hist.length > 2 && now - _pl.hist[1][0] > PL_RATE_MS) _pl.hist.shift();
+  var h0 = _pl.hist[0], span = now - h0[0];
+  if (span >= 100) _pl.rate = (v - h0[1]) / span;
+  var pr = document.getElementById('piano-prog'); if (pr) pr.value = Math.round(v * 100);
+  _plKick();
+}
+function _plBytes() {
+  var s = 0;
+  for (var i = 0; i < PIANO_FILES.length; i++) s += _piano.frac[i] || 0;
+  _plSet(0.95 * s / PIANO_FILES.length);                   // decoding is the last 5%
+}
+function _plShow() {
+  if (_pl.on || _piano.state === 'ready') return;
+  _pl.on = true; _pl.at = performance.now(); _pl.doneAt = 0;
+  var pr = document.getElementById('piano-prog'); if (pr) pr.hidden = false;
+  _plKick();
+}
+function _plHide() {
+  _pl.on = false;
+  var pr = document.getElementById('piano-prog'); if (pr) pr.hidden = true;
+  render();
+}
+function _plDone() {
+  clearTimeout(_pl.timer);
+  _plSet(1);
+  if (!_pl.on) return;                                     // never shown: nothing to take away
+  _pl.doneAt = performance.now();
+  if (reducedMotion()) setTimeout(_plHide, Math.max(PL_HOLD_MS, _pl.at + PL_MIN_MS - _pl.doneAt));
+  _plKick();
+}
+// A failed load leaves no ring standing still forever: it goes, and the next tap that
+// asks for sound, or the network coming back, starts it again.
+function _plFail() { clearTimeout(_pl.timer); if (_pl.on) _plHide(); }
+// Called by a note that could not sound yet.
+function _plWanted() { if (_piano.raw || _piano.state === 'decoding') _plShow(); }
+// 1 while showing, falling to 0 as it blooms out after the piano is ready.
+function _plAlpha(now) {
+  if (!_pl.on) return 0;
+  if (!_pl.doneAt || reducedMotion()) return 1;
+  if (!_pl.fullAt) return 1;
+  var start = Math.max(_pl.fullAt + PL_HOLD_MS, _pl.at + PL_MIN_MS);
+  var k = (now - start) / PL_FADE_MS;
+  return k <= 0 ? 1 : k >= 1 ? 0 : 1 - (1 - Math.pow(1 - k, 3));
+}
+function _plAnimating(now) {
+  if (!_pl.on) return false;
+  if (_pl.doneAt && !reducedMotion() && _plAlpha(now) <= 0) { _plHide(); return false; }
+  return _pl.shown < _pl.real || !!_pl.doneAt;
+}
+function _plKick() { if (reducedMotion()) render(); else _kickAnim(); }
+function _drawPianoRing(c2, dark, accR) {
+  if (!_pl.on) return;
+  var now = performance.now(), p = _plShown(now), a = _plAlpha(now);
+  if (a <= 0) return;
+  var slA = 2 * Math.PI / 12;
+  // In the hub at the mark's own proportions (paintWordmark: inner 0.30 of outer 0.50);
+  // round the edge of a tool's display when one covers the hub.
+  var rO = toolOpen() ? accR - 1 : R * 0.17;
+  var rI = toolOpen() ? rO - Math.max(2.5, R * 0.014) : rO * 0.60;
+  if (_pl.doneAt && !reducedMotion()) { var g = 1 + 0.08 * (1 - a); rO *= g; rI *= g; }
+  function seg(i, f) {
+    var a0 = (-Math.PI / 2) + i * slA - slA / 2, a1 = a0 + f * slA;
+    c2.beginPath();
+    c2.moveTo(CX + Math.cos(a0) * rO, CY + Math.sin(a0) * rO);
+    c2.arc(CX, CY, rO, a0, a1);
+    c2.arc(CX, CY, rI, a1, a0, true);
+    c2.closePath();
+    c2.fill();
+  }
+  c2.save();
+  for (var i = 0; i < 12; i++) {
+    var col = (dark && !GREY_PALETTES[curPalette]) ? lightenHex(SYNTH[i], 0.16) : SYNTH[i];
+    var f = Math.max(0, Math.min(1, p * 12 - i));
+    c2.fillStyle = col;
+    c2.shadowBlur = 0; c2.globalAlpha = a * 0.16;   // the ghost, so the shape reads at once
+    seg(i, 1);
+    if (f > 0) {
+      c2.globalAlpha = a; c2.shadowColor = col; c2.shadowBlur = R * 0.03;
+      seg(i, f);
+    }
+  }
+  c2.restore();
+}
 
 // One output chain per context: a short, quiet room (a piano recorded close is dry,
 // and dry reads as a sample) and a peak limiter so a four-note chord with the bass
@@ -3093,7 +3253,7 @@ function _pianoVoice(ctx, midi, when, dur, vel) {
   src.stop(when + dur + 0.9);
 }
 
-// vel 0-1, default 0.7. Piano when it is loaded, the synth until then.
+// vel 0-1, default 0.7. The piano, or nothing until it is ready (see the loading ring).
 function _playNote(semi, when, dur, baseOct, vel) {
   // semi can be > 11 (e.g. 14 = D above middle C region)
   // baseOct is the octave for semitone 0 (C)
@@ -3107,16 +3267,7 @@ function _playNote(semi, when, dur, baseOct, vel) {
     return;
   }
   _pianoDecode(ctx);
-  var osc  = ctx.createOscillator();
-  var gain = ctx.createGain();
-  osc.type = 'triangle';
-  osc.frequency.value = _FREQ[note] * Math.pow(2, oct - 4);
-  gain.gain.setValueAtTime(0, when);
-  gain.gain.linearRampToValueAtTime(0.18, when + 0.015);
-  gain.gain.exponentialRampToValueAtTime(0.001, when + dur);
-  osc.connect(gain); gain.connect(ctx.destination);
-  if (_voiceSink) _voiceSink.push({ src: osc, g: gain });
-  osc.start(when); osc.stop(when + dur + 0.05);
+  _plWanted();
 }
 
 // at: {slice, inner} - the sector to acknowledge, or null for none.
@@ -3132,13 +3283,9 @@ function _playArp(semis, oct, at) {
   _withCtx(function() {
     var ctx = _getCtx();
     var now = ctx.currentTime + 0.05;
-    var piano = _piano.state === 'ready';
-    // A piano note is allowed to ring; the synth's tone was built around 1.3 s.
-    var dur = piano ? 2.0 : 1.3;
-    // The root an octave down, under the first note, as a pianist's left hand would
-    // play it. Only on the piano: the triangle synth was voiced for three notes and
-    // gets muddy with a fourth below.
-    if (piano) _playNote(semis[0] - 12, now, dur + 0.4, oct||4, 0.5);
+    var dur = 2.0;                   // a piano note is allowed to ring
+    // The root an octave down, under the first note, as a pianist's left hand would play it.
+    _playNote(semis[0] - 12, now, dur + 0.4, oct||4, 0.5);
     // Play ascending, no repeated note
     // Audio still arpeggiates - that is a good sound and nobody complained about it.
     // Only the per-note VISUAL is gone. The frame-synced, outputLatency-compensated
@@ -3795,10 +3942,9 @@ function playModeScale(slice, modeIdx, fromInner) {
     // On the piano the old 0.9 s damped every note while the next two were still
     // sounding, so the run came out clipped, and the top note - the one the ear waits
     // for - had almost no tail. A pianist plays this with a little pedal: each note
-    // overlaps the next few and the arrival rings. The synth keeps its own lengths.
-    var piano = _piano.state === 'ready';
-    var dur  = piano ? 1.5 : 0.9;
-    var last = piano ? 2.8 : 0.9*1.3;
+    // overlaps the next few and the arrival rings.
+    var dur  = 1.5;
+    var last = 2.8;
     // root + mode.iv gives ascending semitones from root
     // e.g. G(7) Ionian: [7,9,11,12,14,16,18]
     // _playNote with baseOct=4: floor(7/12)=0→G4, floor(12/12)=1→C5 ✓
