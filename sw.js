@@ -4,7 +4,11 @@ var CACHE = "coc-v2.12.1";
 // they are cached the app falls back to its synth, so a slow install loses nothing.
 var PIANO = ["C3","Ds3","Fs3","A3","C4","Ds4","Fs4","A4","C5","Ds5","Fs5","A5","C6"]
   .map(function(n){ return "./piano/" + n + ".mp3"; });
-var ASSETS = ["./index.html", "./manifest.json", "./icon.png"].concat(PIANO);
+// The shell is cached under "./", never "./index.html": Cloudflare answers /index.html
+// with a 307 to /, and a redirected response served to a navigation is a network error,
+// so the cached app would fail exactly when it is needed, offline (keymood.app, 10 Nov).
+var SHELL = "./";
+var ASSETS = [SHELL, "./manifest.json", "./icon.png"].concat(PIANO);
 
 // How long the document may wait on the network before we serve what we already have.
 // This is the whole point of the rewrite - see the fetch handler.
@@ -54,7 +58,7 @@ self.addEventListener("fetch", function(e) {
     // hijacked all the same way - show the app we already have.
     e.respondWith((function() {
       function offline() {
-        return caches.match("./index.html").then(function(r) {
+        return caches.match(SHELL).then(function(r) {
           return r || caches.match(req).then(function(r2){ return r2 || Response.error(); });
         });
       }
@@ -66,9 +70,9 @@ self.addEventListener("fetch", function(e) {
       // slow-but-working network updates the app for next launch even though this launch
       // was served from cache.
       e.waitUntil(net.then(function(r) {
-        if (!r || !r.ok || r.type === "opaqueredirect") return;
+        if (!r || !r.ok || r.type === "opaqueredirect" || r.redirected) return;
         var copy = r.clone();
-        return caches.open(CACHE).then(function(c){ return c.put("./index.html", copy); });
+        return caches.open(CACHE).then(function(c){ return c.put(SHELL, copy); });
       }));
       return Promise.race([net, timed]).then(function(res) {
         if (!res || !res.ok || res.type === "opaqueredirect") return offline();

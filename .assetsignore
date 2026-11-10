@@ -1,4 +1,6 @@
 .git
+.claude
+.DS_Store
 .gitignore
 .assetsignore
 wrangler.jsonc
