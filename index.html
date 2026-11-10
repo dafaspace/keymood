@@ -2273,6 +2273,17 @@ function setRel(r) {
 window.setRel = setRel;
 
 // ── Panel ─────────────────────────────────────────────────────────────────────
+// A degree's numeral is measured against the MAJOR scale on the same tonic, the way
+// harmony texts write modes: E Locrian is i° ♭II ♭iii iv ♭V ♭VI ♭vii. It used to print
+// i° II iii iv V VI vii, and a bare "II" claims the major scale's whole tone above the
+// tonic where Locrian has a semitone - the numeral contradicted the SCALE row above it.
+function degNum(i, semi, t) {
+  var d = semi - SOL_MAJ_IV[i];                 // only ever -1, 0 or +1 in the 7 modes
+  return (d < 0 ? '♭' : d > 0 ? '♯' : '')
+       + ((t==='min'||t==='dim') ? ROM_MIN[i] : ROM_MAJ[i]) + (t==='dim' ? '°' : '');
+}
+// The same numeral as a screen reader should say it ("flat VII", not "music flat sign").
+function numSpoken(num) { return num.replace('♭', 'flat ').replace('♯', 'sharp '); }
 function getModeChords(slice, modeIdx, tonicSlice) {
   var m    = MODES[modeIdx];
   var root = MROOT[slice];
@@ -2294,8 +2305,7 @@ function getModeChords(slice, modeIdx, tonicSlice) {
     // A diminished degree carries its sign on the numeral itself - ii°, vii° - which is
     // how every harmony text writes it. It used to print a bare "ii" over "C°", so the
     // numeral alone said minor.
-    var num = (t==='min'||t==='dim') ? ROM_MIN[i] : ROM_MAJ[i];
-    if (t === 'dim') num += '°';
+    var num = degNum(i, m.iv[i], t);
     chords.push({ name: nn[nr]+(t==='min'?'m':t==='dim'?'°':''), num:num, type:t });
   }
   return { notes:notes, chords:chords };
@@ -2326,7 +2336,7 @@ function getSecondaryDominants(slice, tSlice, modeIdx) {
     var secDomName = nameOfFifth(fifthsOfPc[targetRoot] + 1);
     var targetName = nn[targetRoot] + (target==='min'?'m':'');
     result.push({ chord: secDomName+'7', resolves: targetName, rootSemi: secDomRoot,
-                  num: 'V/' + (target==='min'?ROM_MIN:ROM_MAJ)[i] });
+                  num: 'V/' + degNum(i, m.iv[i], target) });
   }
   return result;
 }
@@ -2445,7 +2455,7 @@ function updatePanel() {
     var _cT = chords[i].type;
     chordsHTML += '<button type="button" class="cp" style="background:'+cc.bg+';color:'+cc.tx
       +';cursor:pointer" onclick="playChordPill('+_cS+',\'' + _cT + '\')"'
-      +' aria-label="Play '+chords[i].name+', the '+chords[i].num+' chord"><span>'
+      +' aria-label="Play '+chords[i].name+', the '+numSpoken(chords[i].num)+' chord"><span>'
       +chords[i].num+'</span>'+chords[i].name+'</button>';
   }
 
@@ -2479,7 +2489,7 @@ function updatePanel() {
     // respond. Now the relationship is on screen, and the chord plays: a secondary
     // dominant is a sound you want to hear resolve, not a label.
     sdHTML += '<button type="button" class="sd-item" onclick="playChordPill('+sdList[i].rootSemi+',\'dom7\')"'
-      + ' aria-label="Play '+sdList[i].chord+', '+sdList[i].num+', resolves to '+sdList[i].resolves+'">'
+      + ' aria-label="Play '+sdList[i].chord+', '+numSpoken(sdList[i].num)+', resolves to '+sdList[i].resolves+'">'
       + sdList[i].chord + '<span class="sd-to">→ '+sdList[i].resolves+'</span></button>';
   }
 
