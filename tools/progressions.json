@@ -1,0 +1,4966 @@
+[
+  {
+    "id": "axis-progression",
+    "name": "I-V-vi-IV (Axis progression)",
+    "aka": [
+      "vi-IV-I-V (sensitive female chord progression)",
+      "V-vi-IV-I",
+      "IV-I-V-vi",
+      "Pop-punk progression",
+      "Singer/songwriter schema",
+      "Let It Be progression (1564)",
+      "1-5-6-4 (gospel)",
+      "i-bVI-bIII-bVII (the same loop heard from the relative minor)"
+    ],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "V",
+      "vi",
+      "IV"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "Let It Be - The Beatles",
+      "Someone Like You - Adele",
+      "Despacito - Luis Fonsi (as vi-IV-I-V)"
+    ],
+    "why": "Three major chords frame one minor chord, so the loop sounds hopeful with a single shadow, and every rotation can serve as the start.",
+    "moods": [
+      "Hopeful",
+      "Nostalgic",
+      "Triumph"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/I%E2%80%93V%E2%80%93vi%E2%80%93IV_progression",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.09%3A_Four-Chord_Schemas",
+      "https://music.ragnet.co.jp/standard-chord-songs?disp=more",
+      "https://www.hearandplay.com/main/the-application-of-common-chord-progressions-in-gospel-music"
+    ]
+  },
+  {
+    "id": "fifties-progression",
+    "name": "50s progression",
+    "aka": [
+      "Doo-wop progression",
+      "Heart and Soul changes",
+      "Stand by Me changes",
+      "Ice cream changes",
+      "IV-V-I-vi",
+      "V-I-vi-IV",
+      "vi-IV-V-I (Komuro progression, 6451)"
+    ],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "vi",
+      "IV",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Stand by Me - Ben E. King",
+      "Earth Angel - The Penguins",
+      "Get Wild - TM Network (as vi-IV-V-I)"
+    ],
+    "why": "The tonic drops to its relative minor and climbs back through IV and V, the gentle rocking loop of 1950s ballads.",
+    "moods": [
+      "Nostalgic",
+      "Romantic",
+      "Happy"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/50s_progression",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.09%3A_Four-Chord_Schemas",
+      "https://music.ragnet.co.jp/standard-chord-songs?disp=more",
+      "https://en.wikipedia.org/wiki/Royal_road_progression"
+    ]
+  },
+  {
+    "id": "i-iv-vi-v",
+    "name": "I-IV-vi-V",
+    "aka": [
+      "IV-vi-V-I",
+      "vi-V-I-IV",
+      "V-I-IV-vi"
+    ],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "IV",
+      "vi",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [
+      "More Than a Feeling - Boston",
+      "She Drives Me Crazy - Fine Young Cannibals"
+    ],
+    "why": "The 50s loop with vi and IV swapped, so the minor chord arrives late and V pulls straight back home.",
+    "moods": [
+      "Hopeful",
+      "Happy",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/50s_progression"
+    ]
+  },
+  {
+    "id": "sleep-walk-changes",
+    "name": "I-vi-iv-V (Sleep Walk changes)",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "vi",
+      "iv",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 64,
+    "examples": [
+      "Sleep Walk - Santo & Johnny"
+    ],
+    "why": "The 50s loop with its IV turned minor, which adds a dreamy, bittersweet sigh before the dominant.",
+    "moods": [
+      "Nostalgic",
+      "Romantic",
+      "Sad"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/50s_progression"
+    ]
+  },
+  {
+    "id": "three-chord-i-iv-v",
+    "name": "I-IV-V (three-chord song)",
+    "aka": [
+      "IV-V-I",
+      "V-I-IV",
+      "I-IV-V-I",
+      "I-IV-V-V",
+      "I-I-IV-V"
+    ],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "IV",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 140,
+    "examples": [
+      "Wild Thing - The Troggs",
+      "La Bamba - Ritchie Valens",
+      "Twist and Shout - The Isley Brothers"
+    ],
+    "why": "Tonic, subdominant and dominant in their plainest order, the three-chord engine of rock and roll, folk and country.",
+    "moods": [
+      "Happy",
+      "Running",
+      "Triumph"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Three-chord_song",
+      "https://en.wikipedia.org/wiki/Chord_progression"
+    ]
+  },
+  {
+    "id": "sonics-i-biii-iv-biii",
+    "name": "I-bIII-IV-bIII (Sonics' Louie Louie)",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I:2",
+      "bIII:2",
+      "IV:2",
+      "bIII:2"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [
+      "Louie Louie - The Sonics"
+    ],
+    "why": "Swapping the V of the Louie Louie loop for a borrowed bIII gives the garage-rock riff a darker, bluesier edge.",
+    "moods": [
+      "Sneaky",
+      "Action",
+      "Tension"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Louie_Louie"
+    ]
+  },
+  {
+    "id": "double-plagal",
+    "name": "I-bVII-IV (double plagal)",
+    "aka": [
+      "bVII-IV-I (double plagal cadence)",
+      "V-IV-I as a loop",
+      "I-V-IV",
+      "IV-I-V",
+      "1-b7-4 (gospel worship transition)",
+      "Subtonic Mixolydian loop"
+    ],
+    "family": "pop-rock",
+    "tonic": "mixolydian",
+    "chords": [
+      "I",
+      "bVII",
+      "IV",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Sweet Child o' Mine - Guns N' Roses",
+      "Hey Jude (coda) - The Beatles",
+      "Sweet Home Alabama - Lynyrd Skynyrd"
+    ],
+    "why": "Each chord falls a fourth to the next, two plagal steps in a row, so the loop feels open and anthemic rather than resolved.",
+    "moods": [
+      "Heroic",
+      "Triumph",
+      "Happy"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.08%3A_Blues-Based_Schemas",
+      "https://en.wikipedia.org/wiki/Mixolydian_mode",
+      "https://en.wikipedia.org/wiki/Chord_progression",
+      "https://en.wikipedia.org/wiki/V%E2%80%93IV%E2%80%93I_turnaround",
+      "https://www.hearandplay.com/main/the-application-of-common-chord-progressions-in-gospel-music",
+      "https://www.hooktheory.com/theorytab/view/guns-n-roses/sweet-child-o-mine"
+    ]
+  },
+  {
+    "id": "mixolydian-i-bvii-iv-v",
+    "name": "I-bVII-IV-V (Mixolydian)",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "mixolydian",
+    "chords": [
+      "I",
+      "bVII",
+      "IV",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [],
+    "why": "A Mixolydian descent through bVII and IV that turns back up to V, mixing rock swagger with a real cadence.",
+    "moods": [
+      "Heroic",
+      "Happy",
+      "Running"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Mixolydian_mode"
+    ]
+  },
+  {
+    "id": "chromatic-descending-5-6",
+    "name": "I-V-bVII-IV (chromatic descending 5-6 sequence)",
+    "aka": [
+      "Double plagal with V",
+      "Waterfalls loop"
+    ],
+    "family": "pop-rock",
+    "tonic": "mixolydian",
+    "chords": [
+      "I",
+      "V",
+      "bVII",
+      "IV"
+    ],
+    "meter": "4/4",
+    "bpm": 86,
+    "examples": [
+      "Waterfalls - TLC"
+    ],
+    "why": "Two pairs of chords a fifth apart, the second pair a whole step below the first, so the loop slides down with a relaxed, open sound.",
+    "moods": [
+      "Peaceful",
+      "Hopeful",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/List_of_chord_progressions",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.13%3A_Pentatonic_Harmony"
+    ]
+  },
+  {
+    "id": "aeolian-shuttle",
+    "name": "i-bVII-bVI-bVII (Aeolian shuttle)",
+    "aka": [
+      "I-bVII-bVI-bVII (in minor)"
+    ],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVII",
+      "bVI",
+      "bVII"
+    ],
+    "meter": "4/4",
+    "bpm": 113,
+    "examples": [
+      "All Along the Watchtower - Bob Dylan / Jimi Hendrix",
+      "Somebody That I Used to Know (chorus) - Gotye"
+    ],
+    "why": "The minor tonic steps down two whole steps and back up, a brooding rock loop with no leading tone.",
+    "moods": [
+      "Tension",
+      "Action",
+      "Mysterious"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/List_of_chord_progressions",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas",
+      "https://www.hooktheory.com/theorytab/view/bob-dylan/all-along-the-watchtower"
+    ]
+  },
+  {
+    "id": "aeolian-descent",
+    "name": "i-bVII-bVI (Aeolian descent)",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVII",
+      "bVI:8"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "Con el bate de aluminio - Los Van Van",
+      "Stairway to Heaven (final section) - Led Zeppelin"
+    ],
+    "why": "Three chords walk straight down the natural minor scale, a heavy, fatalistic fall that loops back up to the tonic.",
+    "moods": [
+      "Epic",
+      "Tension",
+      "Sad"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Guajeo",
+      "https://en.wikipedia.org/wiki/Heavy_metal_music",
+      "https://violetrecording.com/rnb-chord-progressions/"
+    ]
+  },
+  {
+    "id": "creep-progression",
+    "name": "I-III-IV-iv (Creep progression)",
+    "aka": [
+      "Chromatic Puff (I-III-IV)"
+    ],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "III",
+      "IV",
+      "iv"
+    ],
+    "meter": "4/4",
+    "bpm": 92,
+    "examples": [
+      "Creep - Radiohead"
+    ],
+    "why": "A major III brightens the loop and then IV turns minor, so hope and disappointment trade places every bar.",
+    "moods": [
+      "Sad",
+      "Nostalgic",
+      "Romantic"
+    ],
+    "sources": [
+      "https://www.hooktheory.com/theorytab/view/radiohead/creep",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.11%3A_Puff_Schemas",
+      "https://en.wikipedia.org/wiki/Eight-bar_blues"
+    ]
+  },
+  {
+    "id": "major-line-cliche",
+    "name": "Major line cliche (I-I+-vi-I+)",
+    "aka": [
+      "Ascending line cliche"
+    ],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "I+",
+      "vi/1",
+      "I+"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "One inner voice creeps up from the fifth to the sixth and back over a held tonic bass, giving a single chord a sense of motion.",
+    "moods": [
+      "Romantic",
+      "Nostalgic",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Line_clich%C3%A9"
+    ]
+  },
+  {
+    "id": "extended-plagal",
+    "name": "bVI-bIII-bVII-IV-I (extended plagal)",
+    "aka": [
+      "Hey Joe progression",
+      "Circle of fourths into the tonic"
+    ],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "bVI",
+      "bIII",
+      "bVII",
+      "IV",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 84,
+    "examples": [
+      "Hey Joe - The Jimi Hendrix Experience"
+    ],
+    "why": "Five major chords a fourth apart chain plagal steps all the way home, a long rolling fall into the tonic.",
+    "moods": [
+      "Tension",
+      "Action",
+      "Heroic"
+    ],
+    "sources": [
+      "https://www.hooktheory.com/theorytab/view/jimi-hendrix/hey-joe",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.08%3A_Blues-Based_Schemas",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.13%3A_Pentatonic_Harmony"
+    ]
+  },
+  {
+    "id": "hotel-california",
+    "name": "Hotel California progression",
+    "aka": [
+      "Spanish progression (as described for this song)"
+    ],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "V",
+      "bVII",
+      "IV",
+      "bVI",
+      "bIII",
+      "iv",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 74,
+    "examples": [
+      "Hotel California - Eagles"
+    ],
+    "why": "Each pair of chords falls a fourth, so the minor loop drifts through bright major chords before the dominant pulls it back.",
+    "moods": [
+      "Mysterious",
+      "Nostalgic",
+      "Tension"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Hotel_California"
+    ]
+  },
+  {
+    "id": "bvii-v7-i-cadence",
+    "name": "bVII-V7-I cadence",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "bVII",
+      "V7",
+      "I:8"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Little Children - Billy J. Kramer",
+      "(Sittin' On) The Dock of the Bay - Otis Redding",
+      "Rumble - Link Wray"
+    ],
+    "why": "A borrowed bVII leans onto the dominant seventh before home, the twangy cadence of 1960s rock and Western scores.",
+    "moods": [
+      "Heroic",
+      "Nostalgic",
+      "Action"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/%E2%99%ADVII%E2%80%93V7_cadence"
+    ]
+  },
+  {
+    "id": "biii-v7-i-cadence",
+    "name": "bIII-V7-I cadence",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "bIII",
+      "V7",
+      "I:8"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [
+      "Something - The Beatles",
+      "Sleigh Ride - Leroy Anderson",
+      "New Born - Muse"
+    ],
+    "why": "A borrowed bIII sets up the dominant with a surprising, slightly dark lift before it resolves.",
+    "moods": [
+      "Nostalgic",
+      "Quirky",
+      "Hopeful"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/%E2%99%ADVII%E2%80%93V7_cadence"
+    ]
+  },
+  {
+    "id": "plagal-sigh",
+    "name": "IV-iv-I (plagal sigh)",
+    "aka": [
+      "I-IV-iv",
+      "Minor plagal cadence after IV"
+    ],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "IV",
+      "iv",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 104,
+    "examples": [
+      "Wake Me Up When September Ends - Green Day",
+      "In My Life - The Beatles"
+    ],
+    "why": "The IV darkens to iv, its sixth sinking a half step onto the fifth of the tonic, a sentimental sigh before home.",
+    "moods": [
+      "Nostalgic",
+      "Sad",
+      "Romantic"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.08%3A_Blues-Based_Schemas",
+      "https://en.wikipedia.org/wiki/Plagal_cadence",
+      "https://www.hooktheory.com/blog/cinematic-chord-progressions/"
+    ]
+  },
+  {
+    "id": "i-i7-iv-iv",
+    "name": "I-I7-IV-iv",
+    "aka": [
+      "Plagal turnaround with a dominant-seventh tonic"
+    ],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "I7",
+      "IV",
+      "iv"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "The Japanese Grand March (earliest cited source)"
+    ],
+    "why": "The tonic grows a seventh that pulls it to IV, and IV then turns minor, a churchy, bittersweet way back to the start.",
+    "moods": [
+      "Nostalgic",
+      "Romantic",
+      "Sad"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/V%E2%80%93IV%E2%80%93I_turnaround",
+      "https://en.wikipedia.org/wiki/Plagal_cadence"
+    ]
+  },
+  {
+    "id": "puff",
+    "name": "I-iii-IV (Puff schema)",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "iii",
+      "IV",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "Puff, the Magic Dragon - Peter, Paul and Mary",
+      "Let's Get It On - Marvin Gaye"
+    ],
+    "why": "The mediant triad slips in between tonic and subdominant, a soft, folky step that delays the lift to IV.",
+    "moods": [
+      "Peaceful",
+      "Nostalgic",
+      "Romantic"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.11%3A_Puff_Schemas"
+    ]
+  },
+  {
+    "id": "minor-puff",
+    "name": "i-bIII-iv (minor Puff)",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bIII",
+      "iv",
+      "i"
+    ],
+    "meter": "4/4",
+    "bpm": 116,
+    "examples": [
+      "The House of the Rising Sun - The Animals"
+    ],
+    "why": "The minor tonic rises to its relative major and on to iv, a ballad shape that sounds warm and fatalistic at once.",
+    "moods": [
+      "Sad",
+      "Nostalgic",
+      "Mysterious"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.11%3A_Puff_Schemas"
+    ]
+  },
+  {
+    "id": "aeolian-lament",
+    "name": "i-bVII-bVI-v (Aeolian lament)",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVII",
+      "bVI",
+      "v"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "I Don't Like You - Eva Simons"
+    ],
+    "why": "The Andalusian descent ending on a minor v, so the cadence stays modal and never sharpens to a leading tone.",
+    "moods": [
+      "Sad",
+      "Mysterious",
+      "Tension"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas"
+    ]
+  },
+  {
+    "id": "comfortably-numb-descent",
+    "name": "i-bVII-bVI-iv",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVII",
+      "bVI",
+      "iv"
+    ],
+    "meter": "4/4",
+    "bpm": 64,
+    "examples": [
+      "Comfortably Numb - Pink Floyd"
+    ],
+    "why": "The lament descent skips the dominant and lands on iv, so the loop sinks without any pull back to the tonic.",
+    "moods": [
+      "Sad",
+      "Nostalgic",
+      "Epic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Andalusian_cadence"
+    ]
+  },
+  {
+    "id": "pentatonic-minor-ascent",
+    "name": "i-bIII-IV-bVI",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bIII",
+      "IV",
+      "bVI"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [],
+    "why": "The roots climb through the minor pentatonic scale, with a bright major IV that hints at Dorian.",
+    "moods": [
+      "Mysterious",
+      "Hopeful",
+      "Epic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Chord_progression"
+    ]
+  },
+  {
+    "id": "minor-hopscotch",
+    "name": "bVI-V-i-bIII (minor Hopscotch)",
+    "aka": [
+      "VI-V-i-III"
+    ],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "bVI",
+      "V",
+      "i",
+      "bIII"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [],
+    "why": "The Hopscotch loop heard in minor with a true dominant, so the climb into the tonic gets a sharp leading-tone pull.",
+    "moods": [
+      "Tension",
+      "Sad",
+      "Epic"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.09%3A_Four-Chord_Schemas"
+    ]
+  },
+  {
+    "id": "major-descending-tetrachord",
+    "name": "I-iii/7-IV/6-V7 (major descending bass)",
+    "aka": [
+      "I-iii/7-II7/6-V7 (I'll Follow the Sun variant)"
+    ],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "iii/7",
+      "IV/6",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "Girl - The Beatles",
+      "I'll Follow the Sun - The Beatles (variant)"
+    ],
+    "why": "The bass walks down 1-7-6-5 under gentle inversions, a major-key cousin of the lament that lands on a half cadence.",
+    "moods": [
+      "Nostalgic",
+      "Romantic",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Lament_bass"
+    ]
+  },
+  {
+    "id": "magical-mystery-descent",
+    "name": "Descending chromatic bass in major",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "I/b7",
+      "IV/6",
+      "iv/b6",
+      "I/5"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "Magical Mystery Tour (coda) - The Beatles"
+    ],
+    "why": "The bass slides down chromatically under the tonic while IV turns minor, a wistful major-key cousin of the lament.",
+    "moods": [
+      "Nostalgic",
+      "Sad",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Lament_bass"
+    ]
+  },
+  {
+    "id": "stairway-descent",
+    "name": "Minor chromatic line descent",
+    "aka": [
+      "Stairway descending line"
+    ],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bIII+/7",
+      "i/b7",
+      "IV/6",
+      "bVImaj7"
+    ],
+    "meter": "4/4",
+    "bpm": 72,
+    "examples": [
+      "Stairway to Heaven (intro) - Led Zeppelin",
+      "Michelle - The Beatles (variant)",
+      "Jar of Hearts - Christina Perri (variant)"
+    ],
+    "why": "The bass creeps down by half steps under a held minor tonic, turning one chord into a slow, haunted descent.",
+    "moods": [
+      "Mysterious",
+      "Sad",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html",
+      "https://en.wikipedia.org/wiki/Lament_bass"
+    ]
+  },
+  {
+    "id": "while-my-guitar-descent",
+    "name": "i-i/b7-IV7/6-bVI (While My Guitar Gently Weeps)",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "i/b7",
+      "IV7/6",
+      "bVI"
+    ],
+    "meter": "4/4",
+    "bpm": 116,
+    "examples": [
+      "While My Guitar Gently Weeps - The Beatles"
+    ],
+    "why": "The bass steps down from the minor tonic through a Dorian IV7 to the flat sixth, a weary, sliding lament.",
+    "moods": [
+      "Sad",
+      "Nostalgic",
+      "Mysterious"
+    ],
+    "sources": [
+      "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html",
+      "https://en.wikipedia.org/wiki/Lament_bass"
+    ]
+  },
+  {
+    "id": "dream-on-descent",
+    "name": "i-i/b7-viø7-bVImaj7 (Dream On)",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "i/b7",
+      "viø7",
+      "bVImaj7"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [
+      "Dream On - Aerosmith"
+    ],
+    "why": "A half-diminished chord on the raised sixth sits in the middle of the falling bass, borrowing melodic-minor colour on the way down.",
+    "moods": [
+      "Sad",
+      "Epic",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html"
+    ]
+  },
+  {
+    "id": "ii-v-i-major",
+    "name": "ii-V-I",
+    "aka": [
+      "Two-five-one",
+      "2-5-1"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "ii7",
+      "V7",
+      "Imaj7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Honeysuckle Rose - Fats Waller",
+      "Satin Doll - Duke Ellington",
+      "Autumn Leaves (opening) - Joseph Kosma"
+    ],
+    "why": "The supertonic and dominant sevenths fall by fifths into a major-seventh tonic, the basic cadence of jazz.",
+    "moods": [
+      "Wealth",
+      "Romantic",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Ii%E2%80%93V%E2%80%93I_progression",
+      "https://www.hearandplay.com/main/essential-chord-progressions-every-gospel-musician-must-familiar"
+    ]
+  },
+  {
+    "id": "minor-ii-v-i",
+    "name": "Minor ii-V-i",
+    "aka": [
+      "iiø7-V7-i",
+      "7-3-6 (gospel name, heard from the relative major)"
+    ],
+    "family": "jazz",
+    "tonic": "minor",
+    "chords": [
+      "iiø7",
+      "V7b9",
+      "im(maj7):8"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Blue Bossa (bars 5-8) - Kenny Dorham",
+      "Autumn Leaves (bars 5-8) - Joseph Kosma"
+    ],
+    "why": "A half-diminished ii and an altered dominant fall into a minor tonic, darker and more urgent than the major cadence.",
+    "moods": [
+      "Detective",
+      "Mysterious",
+      "Tension"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Ii%E2%80%93V%E2%80%93I_progression",
+      "https://www.hearandplay.com/main/7-3-6-chord-progression-vs-minor-2-5-1-chord-progression",
+      "https://www.hearandplay.com/main/essential-chord-progressions-every-gospel-musician-must-familiar"
+    ]
+  },
+  {
+    "id": "tritone-substitution",
+    "name": "ii-bII7-I (tritone substitution)",
+    "aka": [],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "ii7",
+      "bII7",
+      "Imaj7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [
+      "April in Paris (minor form, mm. 11-12) - Vernon Duke"
+    ],
+    "why": "The dominant is swapped for the dominant a tritone away, so the bass slides down by half steps into the tonic.",
+    "moods": [
+      "Wealth",
+      "Sneaky",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Tritone_substitution",
+      "https://en.wikipedia.org/wiki/Ii%E2%80%93V%E2%80%93I_progression",
+      "https://en.wikipedia.org/wiki/Turnaround_(music)"
+    ]
+  },
+  {
+    "id": "backdoor-progression",
+    "name": "Backdoor progression (IV-iv7-bVII7-I)",
+    "aka": [
+      "Backdoor ii-V",
+      "iv7-bVII7-I"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "IV",
+      "iv7",
+      "bVII7",
+      "Imaj7"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Lady Bird (bars 3-4) - Tadd Dameron"
+    ],
+    "why": "The tonic is approached from the flat side through borrowed minor chords, a softer, more wistful arrival than V-I.",
+    "moods": [
+      "Romantic",
+      "Nostalgic",
+      "Wealth"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Backdoor_progression",
+      "https://en.wikipedia.org/wiki/Lady_Bird_(composition)"
+    ]
+  },
+  {
+    "id": "i-vi-ii-v",
+    "name": "I-vi-ii-V turnaround",
+    "aka": [
+      "1625 progression (junkan code)",
+      "ii-V-I-vi",
+      "Imaj7-vi7-ii7-V7 (1-6-2-5)",
+      "vi-ii-V-I (circle progression)"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "Imaj7:2",
+      "vi7:2",
+      "ii7:2",
+      "V7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 140,
+    "examples": [
+      "I Got Rhythm - George Gershwin",
+      "Last Christmas - Wham!",
+      "Island in the Sun - Weezer (as vi-ii-V-I)"
+    ],
+    "why": "A two-bar circle of fifths that leaves the tonic and arrives back on the dominant, the standard way to keep a tune turning over.",
+    "moods": [
+      "Happy",
+      "Nostalgic",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/I%E2%88%92vi%E2%88%92ii%E2%88%92V",
+      "https://en.wikipedia.org/wiki/Turnaround_(music)",
+      "https://music.ragnet.co.jp/standard-chord-songs?disp=more",
+      "https://violetrecording.com/rnb-chord-progressions/",
+      "https://en.wikipedia.org/wiki/Circle_progression"
+    ]
+  },
+  {
+    "id": "i-vi7-ii7-v7",
+    "name": "I-VI7-ii7-V7 turnaround",
+    "aka": [
+      "Stock jazz-blues turnaround"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "Imaj7:2",
+      "VI7:2",
+      "ii7:2",
+      "V7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 140,
+    "examples": [],
+    "why": "Turning vi into a dominant seventh gives the turnaround a secondary-dominant pull into ii, a brighter, more urgent swing.",
+    "moods": [
+      "Happy",
+      "Quirky",
+      "Running"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/I%E2%88%92vi%E2%88%92ii%E2%88%92V",
+      "https://en.wikipedia.org/wiki/V%E2%80%93IV%E2%80%93I_turnaround",
+      "https://en.wikipedia.org/wiki/Turnaround_(music)"
+    ]
+  },
+  {
+    "id": "iii-vi-ii-v",
+    "name": "iii-vi-ii-V",
+    "aka": [
+      "3-6-2-5"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "iii7:2",
+      "vi7:2",
+      "ii7:2",
+      "V7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [],
+    "why": "The circle of fifths started from the mediant, so the turnaround avoids the tonic until the very end.",
+    "moods": [
+      "Romantic",
+      "Wealth",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Turnaround_(music)",
+      "https://violetrecording.com/rnb-chord-progressions/"
+    ]
+  },
+  {
+    "id": "ragtime-progression",
+    "name": "Ragtime progression (VI7-II7-V7-I)",
+    "aka": [
+      "I-VI7-II7-V7",
+      "Sweet Georgia Brown changes",
+      "Chained secondary dominants"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "VI7",
+      "II7",
+      "V7",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 160,
+    "examples": [
+      "Charleston - James P. Johnson",
+      "Sweet Georgia Brown - Ben Bernie & Maceo Pinkard",
+      "Alice's Restaurant - Arlo Guthrie"
+    ],
+    "why": "A chain of dominant sevenths, each resolving down a fifth to the next, bounces back to the tonic.",
+    "moods": [
+      "Happy",
+      "Quirky",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Ragtime_progression",
+      "https://en.wikipedia.org/wiki/Turnaround_(music)",
+      "https://en.wikipedia.org/wiki/Chord_progression"
+    ]
+  },
+  {
+    "id": "ragtime-three-chord",
+    "name": "II7-V7-I",
+    "aka": [
+      "Three-chord ragtime progression",
+      "V7/V-V7-I"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "II7",
+      "V7",
+      "I:8"
+    ],
+    "meter": "4/4",
+    "bpm": 140,
+    "examples": [],
+    "why": "The supertonic becomes a dominant seventh, so it pushes into V like a second leading chord before home.",
+    "moods": [
+      "Happy",
+      "Quirky",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Ragtime_progression",
+      "https://en.wikipedia.org/wiki/Ii%E2%80%93V%E2%80%93I_progression",
+      "https://en.wikipedia.org/wiki/Turnaround_(music)"
+    ]
+  },
+  {
+    "id": "raised-four-diminished-cadence",
+    "name": "#iv°7-V-I",
+    "aka": [
+      "viio7/V-V-I"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "#iv°7",
+      "V",
+      "I:8"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [],
+    "why": "A diminished seventh on the raised fourth leans onto the dominant by half step, a ragtime and parlour cadence.",
+    "moods": [
+      "Quirky",
+      "Nostalgic",
+      "Tension"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/List_of_chord_progressions"
+    ]
+  },
+  {
+    "id": "ii-biii-aug-i",
+    "name": "ii-bIII+-I",
+    "aka": [
+      "bIII+ as dominant substitute"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "ii7",
+      "bIII+",
+      "Imaj7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [],
+    "why": "An augmented chord on bIII shares the dominant's leading tone and adds a raised fifth, a smoky substitute for V.",
+    "moods": [
+      "Mysterious",
+      "Sneaky",
+      "Wealth"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/List_of_chord_progressions"
+    ]
+  },
+  {
+    "id": "back-cycled-ii-v-chain",
+    "name": "Back-cycled ii-V chain",
+    "aka": [
+      "ii-V substitution of the ragtime progression"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "vii7:2",
+      "III7:2",
+      "iii7:2",
+      "VI7:2",
+      "vi7:2",
+      "II7:2",
+      "ii7:2",
+      "V7:2",
+      "Imaj7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 140,
+    "examples": [],
+    "why": "Each dominant of the ragtime chain gets its own ii, so pairs of chords fall by fifths in a long spiral home.",
+    "moods": [
+      "Wealth",
+      "Process",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Ragtime_progression"
+    ]
+  },
+  {
+    "id": "chromatic-ii-v-chain",
+    "name": "iii7-bIII7-ii7-bII7-Imaj7",
+    "aka": [],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "iii7:2",
+      "bIII7:2",
+      "ii7:2",
+      "bII7:2",
+      "Imaj7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [],
+    "why": "Tritone substitutes put every other chord a half step lower, so the bass walks chromatically down to the tonic.",
+    "moods": [
+      "Sneaky",
+      "Wealth",
+      "Detective"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Ii%E2%80%93V%E2%80%93I_progression"
+    ]
+  },
+  {
+    "id": "rhythm-changes-a",
+    "name": "Rhythm changes A section",
+    "aka": [
+      "I Got Rhythm A section"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "I6:2",
+      "vi7:2",
+      "ii7:2",
+      "V7:2",
+      "I6:2",
+      "vi7:2",
+      "ii7:2",
+      "V7:2",
+      "I:2",
+      "I7:2",
+      "IV:2",
+      "iv:2",
+      "I:2",
+      "V7:2",
+      "I:4"
+    ],
+    "meter": "4/4",
+    "bpm": 200,
+    "examples": [
+      "I Got Rhythm - George Gershwin",
+      "Oleo - Sonny Rollins",
+      "Anthropology - Charlie Parker"
+    ],
+    "why": "Fast two-beat turnarounds circle the tonic, then a I7-IV-iv move borrows the plagal sigh before the cadence.",
+    "moods": [
+      "Running",
+      "Happy",
+      "Action"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Rhythm_changes"
+    ]
+  },
+  {
+    "id": "rhythm-changes-bridge",
+    "name": "Rhythm changes bridge (Sears Roebuck bridge)",
+    "aka": [
+      "III7-VI7-II7-V7",
+      "Five-chord ragtime progression (III7-VI7-II7-V7-I)"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "III7:8",
+      "VI7:8",
+      "II7:8",
+      "V7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 200,
+    "examples": [
+      "I Got Rhythm (bridge) - George Gershwin",
+      "Scrapple from the Apple (bridge) - Charlie Parker",
+      "Perdido (bridge) - Juan Tizol"
+    ],
+    "why": "Two bars of each dominant seventh walk the circle of fifths back toward the home key.",
+    "moods": [
+      "Running",
+      "Action",
+      "Happy"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Rhythm_changes",
+      "https://en.wikipedia.org/wiki/Ragtime_progression"
+    ]
+  },
+  {
+    "id": "montgomery-ward-bridge",
+    "name": "Montgomery-Ward bridge",
+    "aka": [
+      "Riepel's Monte (jazz form)",
+      "I7-IV-II7-V7"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "v7",
+      "I7",
+      "IV",
+      "IV",
+      "vi7",
+      "II7",
+      "ii7",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 140,
+    "examples": [
+      "Honeysuckle Rose - Fats Waller",
+      "On the Sunny Side of the Street - Jimmy McHugh",
+      "Satin Doll - Duke Ellington"
+    ],
+    "why": "Two ii-V pairs climb a whole step from IV to V, the jazz descendant of the galant Monte sequence.",
+    "moods": [
+      "Happy",
+      "Hopeful",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Montgomery-Ward_bridge"
+    ]
+  },
+  {
+    "id": "stomp-progression",
+    "name": "Stomp progression",
+    "aka": [
+      "King Porter Stomp changes"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "IV7:2",
+      "#iv°7:2",
+      "I7/5:2",
+      "I7:2",
+      "IV7:2",
+      "#iv°7:2",
+      "I7/5:2",
+      "I7:2",
+      "IV7:2",
+      "#iv°7:2",
+      "I7/5:2",
+      "VI7:2",
+      "II7:4",
+      "V7:2",
+      "I7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 180,
+    "examples": [
+      "King Porter Stomp - Jelly Roll Morton",
+      "Bojangles (A Portrait of Bill Robinson) - Duke Ellington"
+    ],
+    "why": "A IV7, raised-fourth diminished and tonic six-four shuffle ends in a ragtime turnaround, the swing-era riff chorus.",
+    "moods": [
+      "Running",
+      "Happy",
+      "Action"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Stomp_progression"
+    ]
+  },
+  {
+    "id": "coltrane-changes",
+    "name": "Coltrane changes (Countdown substitution)",
+    "aka": [
+      "Coltrane matrix",
+      "Giant Steps cycle"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "ii7:2",
+      "bIII7:2",
+      "bVImaj7:2",
+      "VII7:2",
+      "IIImaj7:2",
+      "V7:2",
+      "Imaj7:4"
+    ],
+    "meter": "4/4",
+    "bpm": 240,
+    "examples": [
+      "Giant Steps - John Coltrane",
+      "Countdown - John Coltrane"
+    ],
+    "why": "Keys a major third apart are each touched by their own dominant, so one cadence spins through three tonal centres.",
+    "moods": [
+      "Running",
+      "Tension",
+      "Magical"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Coltrane_changes"
+    ]
+  },
+  {
+    "id": "tune-up-changes",
+    "name": "Tune Up changes (ii-V-I down a whole step)",
+    "aka": [],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "ii7",
+      "V7",
+      "Imaj7:8",
+      "i7",
+      "IV7",
+      "bVIImaj7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 200,
+    "examples": [
+      "Tune Up - Miles Davis"
+    ],
+    "why": "The same ii-V-I is played and then moved down a whole step, so the key centre sinks like a staircase.",
+    "moods": [
+      "Process",
+      "Running",
+      "Wealth"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Coltrane_changes"
+    ]
+  },
+  {
+    "id": "tadd-dameron-turnaround",
+    "name": "Tadd Dameron turnaround",
+    "aka": [
+      "Lady Bird turnaround",
+      "I-bIII7-bVImaj7-bII7"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "Imaj7:2",
+      "bIII7:2",
+      "bVImaj7:2",
+      "bII7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 140,
+    "examples": [
+      "Lady Bird - Tadd Dameron"
+    ],
+    "why": "Chords borrowed from the flat side fall by fifths and then by half step, a lush chromatic way back to the tonic.",
+    "moods": [
+      "Wealth",
+      "Romantic",
+      "Sneaky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Turnaround_(music)",
+      "https://en.wikipedia.org/wiki/Lady_Bird_(composition)"
+    ]
+  },
+  {
+    "id": "chromatic-turnaround",
+    "name": "I-bIII7-II7-bII7 turnaround",
+    "aka": [
+      "Tritone-substituted I-vi-ii-V"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "Imaj7:2",
+      "bIII7:2",
+      "II7:2",
+      "bII7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 140,
+    "examples": [],
+    "why": "Tritone substitutes for vi and V make the bass slide down by half steps from bIII to the tonic.",
+    "moods": [
+      "Sneaky",
+      "Wealth",
+      "Detective"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Turnaround_(music)"
+    ]
+  },
+  {
+    "id": "passing-diminished-turnaround",
+    "name": "I-biii°7-ii7-V7 turnaround",
+    "aka": [],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "Imaj7:2",
+      "biii°7:2",
+      "ii7:2",
+      "V7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [],
+    "why": "A diminished seventh slides down by half step into ii, a gospel-tinged passing chord inside the turnaround.",
+    "moods": [
+      "Romantic",
+      "Nostalgic",
+      "Sneaky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Turnaround_(music)",
+      "https://en.wikipedia.org/wiki/Cadence"
+    ]
+  },
+  {
+    "id": "autumn-leaves-a",
+    "name": "Autumn Leaves A section",
+    "aka": [
+      "Circle of fifths in minor (jazz form)"
+    ],
+    "family": "jazz",
+    "tonic": "minor",
+    "chords": [
+      "iv7",
+      "bVII7",
+      "bIIImaj7",
+      "bVImaj7",
+      "iiø7",
+      "V7",
+      "i:8"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Autumn Leaves - Joseph Kosma"
+    ],
+    "why": "A ii-V-I in the relative major is answered by a ii-V-i in the minor, two cadences linked by the circle of fifths.",
+    "moods": [
+      "Nostalgic",
+      "Sad",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Autumn_Leaves_(1945_song)"
+    ]
+  },
+  {
+    "id": "all-the-things-a",
+    "name": "All the Things You Are A section",
+    "aka": [],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "vi7",
+      "ii7",
+      "V7",
+      "Imaj7",
+      "IVmaj7",
+      "VII7",
+      "IIImaj7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 140,
+    "examples": [
+      "All the Things You Are - Jerome Kern"
+    ],
+    "why": "Roots fall by fourths from vi to IV, then one dominant lifts the tune a major third into a new key.",
+    "moods": [
+      "Romantic",
+      "Wealth",
+      "Hopeful"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/All_the_Things_You_Are"
+    ]
+  },
+  {
+    "id": "lady-bird-changes",
+    "name": "Lady Bird changes",
+    "aka": [],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "Imaj7:8",
+      "iv7:4",
+      "bVII7:4",
+      "Imaj7:8",
+      "bvii7:4",
+      "bIII7:4",
+      "bVImaj7:8",
+      "vi7:4",
+      "II7:4",
+      "ii7:4",
+      "V7:4",
+      "Imaj7:2",
+      "bIII7:2",
+      "bVImaj7:2",
+      "bII7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 160,
+    "examples": [
+      "Lady Bird - Tadd Dameron"
+    ],
+    "why": "Backdoor ii-Vs visit the flat keys and a closing Dameron turnaround slides home, a sixteen-bar loop full of soft chromatic colour.",
+    "moods": [
+      "Wealth",
+      "Romantic",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Lady_Bird_(composition)"
+    ]
+  },
+  {
+    "id": "solar-changes",
+    "name": "Solar changes",
+    "aka": [],
+    "family": "jazz",
+    "tonic": "minor",
+    "chords": [
+      "im(maj7):8",
+      "v7:4",
+      "v7:2",
+      "I7:2",
+      "IVmaj7:8",
+      "iv7:4",
+      "bVII7:4",
+      "bIIImaj7:4",
+      "biii7:2",
+      "bVI7:2",
+      "bIImaj7:4",
+      "iiø7:2",
+      "V7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 150,
+    "examples": [
+      "Solar - Miles Davis"
+    ],
+    "why": "A minor-major tonic opens a chain of ii-V-I cadences that keeps stepping down to new keys until a minor ii-V brings it back.",
+    "moods": [
+      "Mysterious",
+      "Detective",
+      "Wealth"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Solar_(composition)"
+    ]
+  },
+  {
+    "id": "so-what-form",
+    "name": "So What / Impressions form",
+    "aka": [
+      "Modal AABA, Dorian a half step apart"
+    ],
+    "family": "jazz",
+    "tonic": "dorian",
+    "chords": [
+      "i7:64",
+      "bii7:32",
+      "i7:32"
+    ],
+    "meter": "4/4",
+    "bpm": 136,
+    "examples": [
+      "So What - Miles Davis",
+      "Impressions - John Coltrane"
+    ],
+    "why": "Sixteen bars on one Dorian minor seventh, eight a half step higher and eight back, so the colour comes from the mode rather than from chord changes.",
+    "moods": [
+      "Detective",
+      "Mysterious",
+      "Sneaky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/So_What_(Miles_Davis_composition)",
+      "https://en.wikipedia.org/wiki/Dorian_mode"
+    ]
+  },
+  {
+    "id": "maiden-voyage-changes",
+    "name": "Maiden Voyage changes",
+    "aka": [],
+    "family": "jazz",
+    "tonic": "mixolydian",
+    "chords": [
+      "I7sus4:16",
+      "bIII7sus4:16",
+      "I7sus4:16",
+      "bIII7sus4:16",
+      "bII7sus4:16",
+      "vii9:16",
+      "I7sus4:16",
+      "bIII7sus4:16"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Maiden Voyage - Herbie Hancock"
+    ],
+    "why": "Suspended dominant chords move in four-bar blocks, so the harmony floats without ever cadencing.",
+    "moods": [
+      "Peaceful",
+      "Mysterious",
+      "Magical"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Maiden_Voyage_(composition)",
+      "https://en.wikipedia.org/wiki/Dorian_mode"
+    ]
+  },
+  {
+    "id": "take-the-a-train-a",
+    "name": "Take the A Train A section",
+    "aka": [
+      "I-II7-ii-V-I"
+    ],
+    "family": "jazz",
+    "tonic": "major",
+    "chords": [
+      "I6:8",
+      "II7:8",
+      "ii7:4",
+      "V7:4",
+      "I6:8"
+    ],
+    "meter": "4/4",
+    "bpm": 169,
+    "examples": [
+      "Take the \"A\" Train - Billy Strayhorn"
+    ],
+    "why": "Two bars of II7 with a raised fourth in the melody give the tonic a bright, whole-tone lift before a ii-V brings it home.",
+    "moods": [
+      "Running",
+      "Happy",
+      "Action"
+    ],
+    "sources": [
+      "https://www.jazzstandards.com/compositions-0/taketheatrain.htm",
+      "https://www.jazzadvice.com/lessons/how-to-play-the-girl-from-ipanema/",
+      "https://www.hooktheory.com/theorytab/view/duke-ellington/take-the-a-train"
+    ]
+  },
+  {
+    "id": "minor-line-cliche",
+    "name": "Minor line cliche",
+    "aka": [
+      "i-im(maj7)-i7-i6"
+    ],
+    "family": "jazz",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "im(maj7)",
+      "i7",
+      "i6"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [
+      "My Funny Valentine - Richard Rodgers"
+    ],
+    "why": "One voice slides down by half steps from the root inside a held minor chord, the classic sound of a brooding intro.",
+    "moods": [
+      "Mysterious",
+      "Detective",
+      "Sad"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Line_clich%C3%A9"
+    ]
+  },
+  {
+    "id": "twelve-bar-blues",
+    "name": "Twelve-bar blues",
+    "aka": [
+      "Slow change",
+      "Shuffle form with bar 12 on I"
+    ],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I7:16",
+      "IV7:8",
+      "I7:8",
+      "V7:4",
+      "IV7:4",
+      "I7:4",
+      "V7:4"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Johnny B. Goode - Chuck Berry",
+      "Tutti Frutti - Little Richard"
+    ],
+    "why": "Four bars of tonic, two of subdominant and a dominant-subdominant turnaround, the call-and-response frame of the blues.",
+    "moods": [
+      "Running",
+      "Sneaky",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Twelve-bar_blues",
+      "https://en.wikipedia.org/wiki/Chord_progression"
+    ]
+  },
+  {
+    "id": "twelve-bar-quick-change",
+    "name": "Twelve-bar blues, quick change",
+    "aka": [
+      "Quick to four"
+    ],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I7:4",
+      "IV7:4",
+      "I7:8",
+      "IV7:8",
+      "I7:8",
+      "V7:4",
+      "IV7:4",
+      "I7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [],
+    "why": "Bar 2 jumps to IV and back, so the form moves sooner and swings harder than the slow change.",
+    "moods": [
+      "Running",
+      "Sneaky",
+      "Happy"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Twelve-bar_blues"
+    ]
+  },
+  {
+    "id": "bebop-blues",
+    "name": "Bebop (jazz) blues",
+    "aka": [],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I7:4",
+      "IV7:4",
+      "I7:4",
+      "v7:2",
+      "I7:2",
+      "IV7:4",
+      "#iv°7:4",
+      "I7:4",
+      "VI7b9:4",
+      "ii7:4",
+      "V7:4",
+      "I7:2",
+      "VI7b9:2",
+      "ii7:2",
+      "V7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 180,
+    "examples": [
+      "Now's the Time - Charlie Parker",
+      "Billie's Bounce - Charlie Parker",
+      "Tenor Madness - Sonny Rollins"
+    ],
+    "why": "The twelve-bar form with ii-V approaches, a raised-fourth diminished and secondary dominants, so every bar points to the next.",
+    "moods": [
+      "Running",
+      "Sneaky",
+      "Wealth"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Twelve-bar_blues"
+    ]
+  },
+  {
+    "id": "bird-blues",
+    "name": "Bird blues (Bird changes)",
+    "aka": [
+      "Blues for Alice changes"
+    ],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "Imaj7:4",
+      "viiø7:2",
+      "III7:2",
+      "vi7:2",
+      "II7:2",
+      "v7:2",
+      "I7:2",
+      "IV7:4",
+      "iv7:2",
+      "bVII7:2",
+      "iii7:2",
+      "VI7:2",
+      "biii7:2",
+      "bVI7:2",
+      "ii7:4",
+      "V7:4",
+      "Imaj7:2",
+      "VI7:2",
+      "ii7:2",
+      "V7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 180,
+    "examples": [
+      "Blues for Alice - Charlie Parker",
+      "Bluesette - Toots Thielemans",
+      "Freight Trane - Tommy Flanagan"
+    ],
+    "why": "Descending ii-V pairs replace the plain blues chords, spiralling down by whole and half steps before the turnaround.",
+    "moods": [
+      "Running",
+      "Wealth",
+      "Sneaky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Bird_changes",
+      "https://en.wikipedia.org/wiki/Chord_progression"
+    ]
+  },
+  {
+    "id": "minor-blues",
+    "name": "Minor blues",
+    "aka": [],
+    "family": "blues",
+    "tonic": "minor",
+    "chords": [
+      "i7:16",
+      "iv7:8",
+      "i7:8",
+      "bVI7:4",
+      "V7:4",
+      "i7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [
+      "Equinox - John Coltrane",
+      "Mr. P.C. - John Coltrane"
+    ],
+    "why": "The blues form in a minor key, with a bVI7 falling by half step onto the dominant for a darker turnaround.",
+    "moods": [
+      "Detective",
+      "Sneaky",
+      "Mysterious"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Twelve-bar_blues"
+    ]
+  },
+  {
+    "id": "eight-bar-key-to-the-highway",
+    "name": "Eight-bar blues (Key to the Highway)",
+    "aka": [
+      "Generic eight-bar blues"
+    ],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I7",
+      "V7",
+      "IV7",
+      "IV7",
+      "I7",
+      "V7",
+      "I7",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [
+      "Key to the Highway - Big Bill Broonzy",
+      "Slow Down - J. B. Lenoir"
+    ],
+    "why": "The dominant arrives in bar 2, so the short form swings between I, V and IV in quick, conversational phrases.",
+    "moods": [
+      "Nostalgic",
+      "Running",
+      "Sneaky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Eight-bar_blues"
+    ]
+  },
+  {
+    "id": "eight-bar-worried-life",
+    "name": "Eight-bar blues (Worried Life Blues)",
+    "aka": [],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I",
+      "I",
+      "IV",
+      "IV",
+      "I",
+      "V",
+      "I:2",
+      "IV:2",
+      "I:2",
+      "V:2"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "Worried Life Blues - Big Maceo"
+    ],
+    "why": "Two bars each of tonic and subdominant, then a quick I-IV, I-V turnaround, probably the most common eight-bar blues.",
+    "moods": [
+      "Nostalgic",
+      "Sad",
+      "Sneaky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Eight-bar_blues"
+    ]
+  },
+  {
+    "id": "eight-bar-heartbreak-hotel",
+    "name": "Eight-bar blues (Heartbreak Hotel)",
+    "aka": [
+      "Get a Haircut variant (ends V-V)"
+    ],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I:16",
+      "IV:8",
+      "V:4",
+      "I:4"
+    ],
+    "meter": "4/4",
+    "bpm": 96,
+    "examples": [
+      "Heartbreak Hotel - Elvis Presley"
+    ],
+    "why": "Four bars of brooding tonic before a short IV-V-I close, a stark eight-bar blues with all its weight up front.",
+    "moods": [
+      "Sad",
+      "Sneaky",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Eight-bar_blues"
+    ]
+  },
+  {
+    "id": "eight-bar-walkin-by-myself",
+    "name": "Eight-bar blues (Walkin' by Myself)",
+    "aka": [],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I7:16",
+      "IV7",
+      "V7",
+      "I7",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [
+      "Walkin' by Myself - Jimmy Rogers"
+    ],
+    "why": "Four bars on the tonic and then one bar each of IV, V, I and V, an unorthodox eight-bar shape that rushes the ending.",
+    "moods": [
+      "Running",
+      "Sneaky",
+      "Happy"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Eight-bar_blues"
+    ]
+  },
+  {
+    "id": "eight-bar-trouble-in-mind",
+    "name": "Eight-bar blues (Trouble in Mind)",
+    "aka": [],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I",
+      "I7",
+      "IV",
+      "iv",
+      "I:2",
+      "VI7:2",
+      "ii:2",
+      "V:2",
+      "I:2",
+      "IV:2",
+      "I:2",
+      "V:2"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [
+      "Trouble in Mind - Nina Simone",
+      "Trouble in Mind - Bertha Hill"
+    ],
+    "why": "A minor iv and a secondary dominant give this gospel-tinged eight-bar blues a sweeter, more song-like turn.",
+    "moods": [
+      "Nostalgic",
+      "Sad",
+      "Hopeful"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Eight-bar_blues"
+    ]
+  },
+  {
+    "id": "eight-bar-sitting-on-top",
+    "name": "Eight-bar blues (Sitting on Top of the World)",
+    "aka": [],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I",
+      "I7",
+      "IV",
+      "iv",
+      "I7",
+      "V",
+      "I7:2",
+      "IV:2",
+      "I7:2",
+      "V:2"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "Sitting on Top of the World - Howlin' Wolf"
+    ],
+    "why": "The tonic seventh leads to IV and a borrowed iv before a dominant and a double turnaround, a country-blues eight-bar.",
+    "moods": [
+      "Nostalgic",
+      "Sad",
+      "Sneaky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Eight-bar_blues"
+    ]
+  },
+  {
+    "id": "eight-bar-aint-nobodys-business",
+    "name": "Eight-bar blues (Ain't Nobody's Business)",
+    "aka": [],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I",
+      "III",
+      "IV",
+      "iv",
+      "I",
+      "vi",
+      "ii",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [
+      "Ain't Nobody's Business - Freddie King"
+    ],
+    "why": "A major III, a borrowed iv and a vi-ii-V turnaround give the eight bars a torch-song shape.",
+    "moods": [
+      "Sad",
+      "Nostalgic",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Eight-bar_blues"
+    ]
+  },
+  {
+    "id": "eight-bar-twelve-minus-four",
+    "name": "Eight-bar blues (twelve-bar minus its first four)",
+    "aka": [],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "IV7",
+      "IV7",
+      "I7",
+      "I7",
+      "V7",
+      "IV7",
+      "I7",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [
+      "Mary Had a Little Lamb - Buddy Guy",
+      "Love Me Like a Man - Bonnie Raitt"
+    ],
+    "why": "Starting on the subdominant drops the listener straight into the second line of a twelve-bar blues.",
+    "moods": [
+      "Sneaky",
+      "Running",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Eight-bar_blues"
+    ]
+  },
+  {
+    "id": "sixteen-bar-extended-tonic",
+    "name": "Sixteen-bar blues (extended tonic)",
+    "aka": [],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I7:32",
+      "IV7:8",
+      "I7:8",
+      "V7:4",
+      "IV7:4",
+      "I7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [
+      "Hoochie Coochie Man - Muddy Waters",
+      "Oh, Pretty Woman - Albert King"
+    ],
+    "why": "Eight bars of stop-time tonic before the usual twelve-bar ending, so the tension builds on one chord.",
+    "moods": [
+      "Sneaky",
+      "Tension",
+      "Detective"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Sixteen-bar_blues"
+    ]
+  },
+  {
+    "id": "sixteen-bar-repeated-middle",
+    "name": "Sixteen-bar blues (repeated middle)",
+    "aka": [
+      "Lonesome Road Blues form"
+    ],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I7:16",
+      "IV7:8",
+      "I7:8",
+      "IV7:8",
+      "I7:8",
+      "V7:4",
+      "IV7:4",
+      "I7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [
+      "Going Down the Road Feeling Bad - Woody Guthrie",
+      "Sleepy Time Time - Cream"
+    ],
+    "why": "The IV-to-I line is sung twice before the turnaround, a folk-blues form that stretches the middle.",
+    "moods": [
+      "Nostalgic",
+      "Running",
+      "Sad"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Sixteen-bar_blues"
+    ]
+  },
+  {
+    "id": "sixteen-bar-repeated-turnaround",
+    "name": "Sixteen-bar blues (repeated turnaround)",
+    "aka": [],
+    "family": "blues",
+    "tonic": "blues",
+    "chords": [
+      "I7:16",
+      "IV7:8",
+      "I7:8",
+      "V7:4",
+      "IV7:4",
+      "V7:4",
+      "IV7:4",
+      "V7:4",
+      "IV7:4",
+      "I7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [
+      "Watermelon Man - Herbie Hancock",
+      "Let's Dance - Chris Montez"
+    ],
+    "why": "The V-IV turnaround is played three times in a row, so the end of the form hangs in a groove before landing.",
+    "moods": [
+      "Running",
+      "Happy",
+      "Sneaky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Sixteen-bar_blues"
+    ]
+  },
+  {
+    "id": "i-iv-vamp",
+    "name": "I-IV vamp (plagal)",
+    "aka": [
+      "1-4 gospel progression",
+      "Amen cadence (IV-I)",
+      "Plagal half cadence (I-IV)",
+      "Two-chord soul vamp"
+    ],
+    "family": "gospel-soul-rnb",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "IV"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [
+      "Oh Happy Day - Edwin Hawkins Singers",
+      "Soul Man - Sam and Dave",
+      "In the Midnight Hour - Wilson Pickett"
+    ],
+    "why": "Tonic and subdominant rock back and forth, the open, churchy groove behind gospel vamps and soul verses.",
+    "moods": [
+      "Happy",
+      "Hopeful",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.08%3A_Blues-Based_Schemas",
+      "https://www.hearandplay.com/main/the-application-of-common-chord-progressions-in-gospel-music",
+      "https://en.wikipedia.org/wiki/Plagal_cadence",
+      "https://en.wikipedia.org/wiki/Cadence"
+    ]
+  },
+  {
+    "id": "gospel-four-five-flat-six-flat-seven-one",
+    "name": "IV-V-bVI-bVII-I (4-5-b6-b7-1)",
+    "aka": [
+      "Gospel step-up ending"
+    ],
+    "family": "gospel-soul-rnb",
+    "tonic": "major",
+    "chords": [
+      "IV",
+      "V",
+      "bVI",
+      "bVII",
+      "I:8"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [],
+    "why": "Two diatonic steps and two borrowed ones climb by step into the tonic, a dramatic gospel ending.",
+    "moods": [
+      "Triumph",
+      "Epic",
+      "Heroic"
+    ],
+    "sources": [
+      "https://www.hearandplay.com/main/the-application-of-common-chord-progressions-in-gospel-music"
+    ]
+  },
+  {
+    "id": "minor-three-chord",
+    "name": "i-iv-V7 (minor three-chord)",
+    "aka": [
+      "Quiet storm i7-iv7-V7",
+      "Blatnye akkordy (Am-Dm-E)"
+    ],
+    "family": "gospel-soul-rnb",
+    "tonic": "minor",
+    "chords": [
+      "i7",
+      "iv7",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [],
+    "why": "Minor tonic and subdominant with a major dominant, the harmonic-minor engine of slow jams and street-guitar songs alike.",
+    "moods": [
+      "Sad",
+      "Romantic",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://violetrecording.com/rnb-chord-progressions/",
+      "https://fb.ru/article/71690/am---akkord-kotoryiy-znayut-vse/amp/"
+    ]
+  },
+  {
+    "id": "i-vi-two-chord",
+    "name": "I-vi two-chord vamp",
+    "aka": [],
+    "family": "gospel-soul-rnb",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "vi"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [
+      "Shout - The Isley Brothers"
+    ],
+    "why": "Tonic and relative minor share two notes, so the vamp rocks gently between bright and soft.",
+    "moods": [
+      "Happy",
+      "Nostalgic",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Chord_progression"
+    ]
+  },
+  {
+    "id": "pachelbel-canon",
+    "name": "Pachelbel's Canon progression",
+    "aka": [
+      "Canon progression (kanon shinko)",
+      "Pachelbel sequence (root-position descending 5-6)"
+    ],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "V",
+      "vi",
+      "iii",
+      "IV",
+      "I",
+      "IV",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 64,
+    "examples": [
+      "Canon in D - Johann Pachelbel",
+      "Basket Case - Green Day",
+      "Don't Look Back in Anger - Oasis"
+    ],
+    "why": "The bass falls a fourth and rises a step in a repeating pattern, so the chords descend gracefully while staying bright.",
+    "moods": [
+      "Peaceful",
+      "Romantic",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Pachelbel%27s_Canon",
+      "https://en.wikipedia.org/wiki/Sequence_(music)",
+      "https://music.ragnet.co.jp/standard-chord-songs?disp=more"
+    ]
+  },
+  {
+    "id": "galant-romanesca",
+    "name": "Romanesca (galant schema)",
+    "aka": [
+      "Gjerdingen's Romanesca"
+    ],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "V/7",
+      "vi",
+      "I/3"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [],
+    "why": "A stepwise-falling bass under alternating root-position and first-inversion chords, the noble opening gambit of the galant style.",
+    "moods": [
+      "Peaceful",
+      "Romantic",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "prinner",
+    "name": "Prinner",
+    "aka": [
+      "Modulating Prinner (the same schema in the dominant key, I-V/7-#iv°/6-V)"
+    ],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "IV",
+      "I/3",
+      "vii°/2",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [],
+    "why": "The bass steps down 4-3-2-1 under a falling upper line, the galant style's gentle answer to an opening phrase.",
+    "moods": [
+      "Peaceful",
+      "Romantic",
+      "Happy"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.11%3A_Galant_Schemas",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "fonte",
+    "name": "Fonte",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "VI7/#1:2",
+      "ii:2",
+      "V7/7:2",
+      "I:2"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "A cadence onto minor ii is repeated a step lower in the major, so the phrase descends like water from a fountain.",
+    "moods": [
+      "Romantic",
+      "Nostalgic",
+      "Hopeful"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "monte",
+    "name": "Monte",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I7/3:2",
+      "IV:2",
+      "II7/#4:2",
+      "V:2"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "Each secondary dominant resolves up a step, so the phrase climbs like a mountain path toward the dominant.",
+    "moods": [
+      "Hopeful",
+      "Triumph",
+      "Heroic"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "ponte",
+    "name": "Ponte",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "V",
+      "V7",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "The dominant is held like a pedal while the melody climbs, a bridge that builds expectation for the return of the tonic.",
+    "moods": [
+      "Suspense",
+      "Tension",
+      "Hopeful"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "galant-do-re-mi",
+    "name": "Do-Re-Mi (galant schema)",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "V/7",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "The melody rises do-re-mi over tonic, dominant and tonic again, a simple and confident opening.",
+    "moods": [
+      "Happy",
+      "Hopeful",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "meyer",
+    "name": "Meyer",
+    "aka": [
+      "Jupiter",
+      "Aprile",
+      "Pastorella (same tonic-dominant-dominant-tonic frame)"
+    ],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "V7/2",
+      "V7/7",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "The tonic moves to the dominant and back while the bass steps 1-2-7-1, a balanced question-and-answer opening.",
+    "moods": [
+      "Peaceful",
+      "Happy",
+      "Romantic"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.11%3A_Galant_Schemas",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "sol-fa-mi",
+    "name": "Sol-Fa-Mi",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "ii",
+      "V7/7",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "The melody falls 5-4-4-3 while the bass rises to ii and returns through the leading tone, a courtly opening gambit.",
+    "moods": [
+      "Peaceful",
+      "Romantic",
+      "Happy"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "fenaroli",
+    "name": "Fenaroli",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "V7/7",
+      "I",
+      "V7/2",
+      "I/3"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [],
+    "why": "Two dominant-tonic pairs with the bass climbing 7-1-2-3, a circular figure that keeps turning around the tonic.",
+    "moods": [
+      "Process",
+      "Peaceful",
+      "Happy"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "quiescenza",
+    "name": "Quiescenza",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I7:2",
+      "IV/1:2",
+      "vii°/1:2",
+      "I:2"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [],
+    "why": "Over a tonic pedal the upper line sinks to the flat seventh and climbs back, a calm closing gesture after a cadence.",
+    "moods": [
+      "Peaceful",
+      "Nostalgic",
+      "Romantic"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "indugio",
+    "name": "Indugio",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "ii7/4:8",
+      "II7/#4:4",
+      "V:4"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "The subdominant is lingered on before the bass rises to the raised fourth, a deliberate delay before the cadence.",
+    "moods": [
+      "Suspense",
+      "Tension",
+      "Hopeful"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "cadenza-semplice",
+    "name": "Cadenza semplice",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I/3",
+      "ii7/4",
+      "V",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "The bass climbs 3-4-5 into the dominant and drops to the tonic, the plain galant cadence.",
+    "moods": [
+      "Peaceful",
+      "Triumph",
+      "Happy"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "cadenza-composta",
+    "name": "Cadenza composta (cadential six-four)",
+    "aka": [
+      "Cadential 64"
+    ],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I/3",
+      "ii7/4",
+      "I/5",
+      "V7",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "A tonic six-four over the dominant bass delays the V7, the grand compound cadence of classical music.",
+    "moods": [
+      "Triumph",
+      "Heroic",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata",
+      "https://www.hooktheory.com/theorytab/common-chord-progressions"
+    ]
+  },
+  {
+    "id": "cadenza-doppia",
+    "name": "Cadenza doppia",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "V:2",
+      "I/5:2",
+      "Vsus4:2",
+      "V:2",
+      "I:8"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "The dominant is held while a six-four and a suspended fourth resolve above it, an ornate, ceremonious cadence.",
+    "moods": [
+      "Triumph",
+      "Wealth",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Galant_Schemata"
+    ]
+  },
+  {
+    "id": "converging-cadence",
+    "name": "Converging cadence",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I/3",
+      "ii7/4",
+      "II7/#4",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "The bass climbs chromatically 3-4-#4-5 to a half cadence while the melody falls, the voices converging on the dominant.",
+    "moods": [
+      "Suspense",
+      "Hopeful",
+      "Tension"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary"
+    ]
+  },
+  {
+    "id": "galant-deceptive-cadence",
+    "name": "Deceptive cadence (galant)",
+    "aka": [
+      "Inganno"
+    ],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I/3",
+      "ii7/4",
+      "V",
+      "vi"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [],
+    "why": "The bass climbs to the dominant and then steps up to vi instead of falling to I, a cadence that sidesteps its goal.",
+    "moods": [
+      "Sad",
+      "Suspense",
+      "Romantic"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
+      "https://en.wikipedia.org/wiki/Cadence"
+    ]
+  },
+  {
+    "id": "circle-of-fifths-major",
+    "name": "Diatonic circle of fifths (major)",
+    "aka": [
+      "Descending-fifths sequence",
+      "I-IV-vii°-iii-vi-ii-V-I",
+      "1-4-7-3-6-2-5-1"
+    ],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "IV",
+      "vii°",
+      "iii",
+      "vi",
+      "ii",
+      "V",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "Angels We Have Heard on High (refrain)"
+    ],
+    "why": "Every diatonic chord is visited by falling fifths, a sequence that feels unstoppable and returns to its start.",
+    "moods": [
+      "Process",
+      "Triumph",
+      "Hopeful"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Circle_progression",
+      "https://en.wikipedia.org/wiki/Sequence_(music)",
+      "https://en.wikipedia.org/wiki/Chord_progression"
+    ]
+  },
+  {
+    "id": "circle-of-fifths-minor",
+    "name": "Diatonic circle of fifths (minor)",
+    "aka": [
+      "i-iv-VII-III-VI-ii°-V-i"
+    ],
+    "family": "baroque-galant",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "iv",
+      "bVII",
+      "bIII",
+      "bVI",
+      "ii°",
+      "V",
+      "i"
+    ],
+    "meter": "4/4",
+    "bpm": 116,
+    "examples": [
+      "I Will Survive - Gloria Gaynor"
+    ],
+    "why": "The minor-key circle passes through the relative major before the dominant pulls it back to the minor tonic.",
+    "moods": [
+      "Sad",
+      "Epic",
+      "Process"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Circle_progression",
+      "https://en.wikipedia.org/wiki/I%E2%88%92vi%E2%88%92ii%E2%88%92V"
+    ]
+  },
+  {
+    "id": "rule-of-the-octave-ascending",
+    "name": "Rule of the octave (ascending)",
+    "aka": [
+      "Regle de l'octave"
+    ],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "V7/2",
+      "I/3",
+      "ii7/4",
+      "V",
+      "IV/6",
+      "V7/7",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [],
+    "why": "Each step of a rising major-scale bass gets its standard Baroque chord, so a plain scale becomes a full progression.",
+    "moods": [
+      "Process",
+      "Hopeful",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://musictheory.sites.gettysburg.edu/?p=1533",
+      "https://en.wikipedia.org/wiki/Rule_of_the_octave"
+    ]
+  },
+  {
+    "id": "rule-of-the-octave-descending",
+    "name": "Rule of the octave (descending)",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "V/7",
+      "II7/6",
+      "V",
+      "V7/4",
+      "I/3",
+      "V7/2",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [],
+    "why": "The falling scale is harmonised with a brief tonicisation of V on the sixth degree, a model for accompanying any descending bass.",
+    "moods": [
+      "Process",
+      "Peaceful",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://musictheory.sites.gettysburg.edu/?p=1533",
+      "https://en.wikipedia.org/wiki/Rule_of_the_octave"
+    ]
+  },
+  {
+    "id": "lament-bass-diatonic",
+    "name": "Lament bass (diatonic)",
+    "aka": [
+      "Descending minor tetrachord",
+      "Phrygian tetrachord"
+    ],
+    "family": "baroque-galant",
+    "tonic": "minor",
+    "chords": [
+      "i:3",
+      "v/b7:3",
+      "iv/b6:3",
+      "V:3"
+    ],
+    "meter": "3/4",
+    "bpm": 66,
+    "examples": [
+      "Lamento della Ninfa - Claudio Monteverdi",
+      "Por una Cabeza (chorus, variant) - Carlos Gardel"
+    ],
+    "why": "The bass descends four steps from tonic to dominant under soft minor inversions, the Baroque emblem of grief.",
+    "moods": [
+      "Sad",
+      "Nostalgic",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Lament_bass",
+      "https://www.hooktheory.com/theorytab/view/carlos-gardel/por-una-cabeza",
+      "https://en.wikipedia.org/wiki/Andalusian_cadence"
+    ]
+  },
+  {
+    "id": "lament-bass-chromatic",
+    "name": "Chromatic lament bass (Dido's Lament)",
+    "aka": [
+      "Passus duriusculus",
+      "Chromatic fourth"
+    ],
+    "family": "baroque-galant",
+    "tonic": "minor",
+    "chords": [
+      "i:3",
+      "V/7:3",
+      "I7/b7:3",
+      "IV/6:3",
+      "iv/b6:3",
+      "V:3"
+    ],
+    "meter": "3/4",
+    "bpm": 60,
+    "examples": [
+      "Dido's Lament (When I am laid in earth) - Henry Purcell",
+      "Crucifixus (Mass in B minor) - J. S. Bach"
+    ],
+    "why": "The bass sinks by half steps from tonic to dominant, each chromatic step adding weight to the mourning.",
+    "moods": [
+      "Sad",
+      "Epic",
+      "Mysterious"
+    ],
+    "sources": [
+      "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html",
+      "https://en.wikipedia.org/wiki/Lament_bass"
+    ]
+  },
+  {
+    "id": "phrygian-half-cadence",
+    "name": "Phrygian half cadence",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "iv/b6",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [
+      "Schau, lieber Gott, wie meine Feind (BWV 153) - J. S. Bach"
+    ],
+    "why": "The bass falls a half step from the flat sixth to the dominant, an archaic, questioning close in minor.",
+    "moods": [
+      "Mysterious",
+      "Suspense",
+      "Sad"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Cadence"
+    ]
+  },
+  {
+    "id": "ascending-5-6-sequence",
+    "name": "Ascending 5-6 sequence",
+    "aka": [],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "vi/1",
+      "ii",
+      "vii°/2",
+      "iii",
+      "I/3",
+      "IV",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [
+      "For Unto Us a Child Is Born (underlying harmony) - G. F. Handel"
+    ],
+    "why": "Each chord shares its bass with the next and then the bass steps up, so the music climbs one scale degree at a time.",
+    "moods": [
+      "Hopeful",
+      "Triumph",
+      "Process"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Sequence_(music)"
+    ]
+  },
+  {
+    "id": "descending-5-6-sequence",
+    "name": "Descending 5-6 sequence",
+    "aka": [
+      "Descending thirds with passing first inversions"
+    ],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "V/7",
+      "vi",
+      "iii/5",
+      "IV",
+      "I/3",
+      "ii",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [],
+    "why": "Root-position chords alternate with first inversions over a stepwise-falling bass, a smooth, singing descent.",
+    "moods": [
+      "Peaceful",
+      "Nostalgic",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Sequence_(music)"
+    ]
+  },
+  {
+    "id": "rosalia-sequence",
+    "name": "Up-a-fourth, down-a-third sequence",
+    "aka": [
+      "Sound of Music sequence"
+    ],
+    "family": "baroque-galant",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "IV",
+      "ii",
+      "V",
+      "iii",
+      "vi"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [
+      "Do-Re-Mi - Richard Rodgers (compared)"
+    ],
+    "why": "Roots rise a fourth and fall a third, so each pair of chords sits a step above the last in a cheerful climb.",
+    "moods": [
+      "Happy",
+      "Hopeful",
+      "Quirky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Sequence_(music)"
+    ]
+  },
+  {
+    "id": "la-folia",
+    "name": "La Folia (later folia)",
+    "aka": [
+      "Follia",
+      "Folies d'Espagne"
+    ],
+    "family": "renaissance",
+    "tonic": "minor",
+    "chords": [
+      "i:3",
+      "V7:3",
+      "i:3",
+      "bVII:3",
+      "bIII:3",
+      "bVII:3",
+      "i:3",
+      "V7:3",
+      "i:3",
+      "V7:3",
+      "i:3",
+      "bVII:3",
+      "bIII:3",
+      "bVII:3",
+      "i:1",
+      "V7:2",
+      "i:3"
+    ],
+    "meter": "3/4",
+    "bpm": 76,
+    "examples": [
+      "Sonata Op. 5 No. 12 - Arcangelo Corelli",
+      "Trio Sonata Op. 1 No. 12 - Antonio Vivaldi",
+      "Variations on a Theme of Corelli - Sergei Rachmaninoff"
+    ],
+    "why": "A slow sarabande ground that swings between minor tonic, dominant and the relative major, built for endless variation.",
+    "moods": [
+      "Epic",
+      "Sad",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Folia"
+    ]
+  },
+  {
+    "id": "romanesca-ground",
+    "name": "Romanesca (Renaissance ground)",
+    "aka": [
+      "Guardame las vacas"
+    ],
+    "family": "renaissance",
+    "tonic": "minor",
+    "chords": [
+      "bIII:3",
+      "bVII:3",
+      "i:3",
+      "V:3",
+      "bIII:3",
+      "bVII:3",
+      "i:3",
+      "V:3",
+      "i:3"
+    ],
+    "meter": "3/4",
+    "bpm": 100,
+    "examples": [
+      "Guardame las vacas - Luys de Narvaez",
+      "Greensleeves (refrain)"
+    ],
+    "why": "A ground that starts in the relative major and slides into the minor and back, a staple of sixteenth-century improvisation.",
+    "moods": [
+      "Nostalgic",
+      "Romantic",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Romanesca"
+    ]
+  },
+  {
+    "id": "passamezzo-antico",
+    "name": "Passamezzo antico",
+    "aka": [],
+    "family": "renaissance",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVII",
+      "i",
+      "V",
+      "bIII",
+      "bVII",
+      "i:2",
+      "V:2",
+      "i"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [
+      "Greensleeves (verse)"
+    ],
+    "why": "Minor tonic and subtonic alternate, then the relative major and the dominant, the Renaissance ground behind countless dances.",
+    "moods": [
+      "Nostalgic",
+      "Romantic",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Passamezzo_antico",
+      "https://en.wikipedia.org/wiki/Romanesca",
+      "https://en.wikipedia.org/wiki/Double_tonic"
+    ]
+  },
+  {
+    "id": "passamezzo-moderno",
+    "name": "Passamezzo moderno",
+    "aka": [
+      "Gregory Walker",
+      "I-IV-I-V",
+      "I-IV-bVII-IV (the same loop heard from IV, Mixolydian)"
+    ],
+    "family": "renaissance",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "IV",
+      "I",
+      "V",
+      "I",
+      "IV",
+      "I:2",
+      "V:2",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "Gassenhauer - Hans Neusidler",
+      "Wreck of the Old 97 (traditional)",
+      "Honky Tonk Women - The Rolling Stones"
+    ],
+    "why": "Tonic alternates with subdominant and dominant in two balanced strains, the major-key Renaissance ground that folk song inherited.",
+    "moods": [
+      "Happy",
+      "Peaceful",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Passamezzo_moderno",
+      "https://en.wikipedia.org/wiki/Three-chord_song",
+      "https://en.wikipedia.org/wiki/List_of_chord_progressions"
+    ]
+  },
+  {
+    "id": "neapolitan-cadence",
+    "name": "Neapolitan cadence",
+    "aka": [
+      "i-bII6-V7-i"
+    ],
+    "family": "classical-romantic",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bII/4",
+      "V7",
+      "i"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [
+      "Moonlight Sonata (first movement) - Ludwig van Beethoven",
+      "Piano Sonata in C minor - Joseph Haydn"
+    ],
+    "why": "The flat second, voiced over the fourth degree, darkens the approach to the dominant with a poignant half-step fall.",
+    "moods": [
+      "Sad",
+      "Tension",
+      "Mysterious"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Neapolitan_chord"
+    ]
+  },
+  {
+    "id": "italian-sixth-cadence",
+    "name": "Italian sixth cadence",
+    "aka": [],
+    "family": "classical-romantic",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "iv/b6",
+      "bVI7",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [
+      "Piano Sonata Op. 78 (second movement) - Ludwig van Beethoven"
+    ],
+    "why": "The flat sixth in the bass and a raised fourth above it squeeze outward by half step onto the dominant.",
+    "moods": [
+      "Tension",
+      "Suspense",
+      "Sad"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Augmented_sixth_chord"
+    ]
+  },
+  {
+    "id": "german-sixth-cadence",
+    "name": "German sixth cadence",
+    "aka": [],
+    "family": "classical-romantic",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVI7",
+      "i/5",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [
+      "Appassionata Sonata (slow movement) - Ludwig van Beethoven",
+      "Binks' Waltz - Scott Joplin"
+    ],
+    "why": "A chord that sounds like a dominant seventh on the flat sixth resolves through a cadential six-four, a rich approach to V.",
+    "moods": [
+      "Tension",
+      "Epic",
+      "Sad"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Augmented_sixth_chord",
+      "https://en.wikipedia.org/wiki/Tritone_substitution"
+    ]
+  },
+  {
+    "id": "picardy-third",
+    "name": "Picardy third cadence",
+    "aka": [],
+    "family": "classical-romantic",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "iv",
+      "V",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [
+      "Jesu, meine Freude - J. S. Bach",
+      "Coventry Carol (traditional)"
+    ],
+    "why": "A minor progression that ends on a major tonic, so the final chord arrives like light after shadow.",
+    "moods": [
+      "Hopeful",
+      "Triumph",
+      "Sad"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Picardy_third",
+      "https://en.wikipedia.org/wiki/Cadence"
+    ]
+  },
+  {
+    "id": "tristan-progression",
+    "name": "Tristan chord resolution",
+    "aka": [],
+    "family": "classical-romantic",
+    "tonic": "minor",
+    "chords": [
+      "bviø7",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 50,
+    "examples": [
+      "Prelude to Tristan und Isolde - Richard Wagner"
+    ],
+    "why": "A half-diminished chord melts onto a dominant seventh that never reaches its tonic, the emblem of Romantic longing.",
+    "moods": [
+      "Romantic",
+      "Suspense",
+      "Mysterious"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Tristan_chord",
+      "https://en.wikipedia.org/wiki/Augmented_sixth_chord"
+    ]
+  },
+  {
+    "id": "moravian-cadence",
+    "name": "Moravian cadence",
+    "aka": [],
+    "family": "classical-romantic",
+    "tonic": "major",
+    "chords": [
+      "IV6",
+      "I/3"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [],
+    "why": "The outer notes of an added-sixth subdominant move inward by a tone onto a first-inversion tonic, a soft folk-like close.",
+    "moods": [
+      "Peaceful",
+      "Nostalgic",
+      "Magical"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Cadence"
+    ]
+  },
+  {
+    "id": "dorian-shuttle",
+    "name": "i7-IV7 (Dorian shuttle)",
+    "aka": [
+      "Dorian vamp",
+      "IV-i",
+      "ii7-V7 vamp (the same loop heard as a ii-V)"
+    ],
+    "family": "modal",
+    "tonic": "dorian",
+    "chords": [
+      "i7",
+      "IV7"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Oye Como Va - Tito Puente / Santana",
+      "Get Lucky - Daft Punk",
+      "Dance, Dance, Dance - CHIC"
+    ],
+    "why": "The major IV carries the raised sixth of the Dorian mode, so the minor vamp sounds cool and groovy rather than sad.",
+    "moods": [
+      "Sneaky",
+      "Running",
+      "Quirky"
+    ],
+    "sources": [
+      "https://www.hooktheory.com/theorytab/view/santana/oye-como-va",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas",
+      "https://en.wikipedia.org/wiki/Dorian_mode",
+      "https://en.wikipedia.org/wiki/Ii%E2%80%93V%E2%80%93I_progression"
+    ]
+  },
+  {
+    "id": "dorian-i-biii-bvii-iv",
+    "name": "i-bIII-bVII-IV (Mad World)",
+    "aka": [],
+    "family": "modal",
+    "tonic": "dorian",
+    "chords": [
+      "i",
+      "bIII",
+      "bVII",
+      "IV"
+    ],
+    "meter": "4/4",
+    "bpm": 119,
+    "examples": [
+      "Mad World - Tears for Fears"
+    ],
+    "why": "A minor tonic answered at the end by a major IV, so the loop hovers between minor gloom and Dorian brightness.",
+    "moods": [
+      "Sad",
+      "Mysterious",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Dorian_mode",
+      "https://www.hooktheory.com/theorytab/view/tears-for-fears/mad-world"
+    ]
+  },
+  {
+    "id": "aeolian-i-bvi-shuttle",
+    "name": "i-bVI shuttle",
+    "aka": [],
+    "family": "modal",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVI"
+    ],
+    "meter": "4/4",
+    "bpm": 136,
+    "examples": [
+      "Eleanor Rigby - The Beatles"
+    ],
+    "why": "The minor tonic and the major chord on the flat sixth share two notes, a stark, sorrowful two-chord rock.",
+    "moods": [
+      "Sad",
+      "Mysterious",
+      "Tension"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Dorian_mode",
+      "https://www.hooktheory.com/theorytab/view/the-beatles/eleanor-rigby"
+    ]
+  },
+  {
+    "id": "mixolydian-subtonic-shuttle",
+    "name": "I-bVII (subtonic shuttle)",
+    "aka": [],
+    "family": "modal",
+    "tonic": "mixolydian",
+    "chords": [
+      "I",
+      "bVII"
+    ],
+    "meter": "4/4",
+    "bpm": 137,
+    "examples": [
+      "Tired of Waiting for You - The Kinks",
+      "You Really Got Me (verse) - The Kinks"
+    ],
+    "why": "Tonic and the major chord a whole step below alternate with no dominant, the loose, swaggering sound of Mixolydian rock.",
+    "moods": [
+      "Heroic",
+      "Running",
+      "Happy"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas",
+      "https://www.hooktheory.com/theorytab/view/the-kinks/you-really-got-me"
+    ]
+  },
+  {
+    "id": "lydian-shuttle",
+    "name": "I-II (Lydian shuttle)",
+    "aka": [],
+    "family": "modal",
+    "tonic": "lydian",
+    "chords": [
+      "I",
+      "II"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [
+      "E.T. the Extra-Terrestrial (main theme) - John Williams",
+      "Sara - Fleetwood Mac"
+    ],
+    "why": "The major II brings in the raised fourth, so the tonic seems to float upward with wonder.",
+    "moods": [
+      "Magical",
+      "Hopeful",
+      "Peaceful"
+    ],
+    "sources": [
+      "https://www.hooktheory.com/blog/cinematic-chord-progressions/",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas"
+    ]
+  },
+  {
+    "id": "lydian-cadence",
+    "name": "II-IV-I (Lydian cadence)",
+    "aka": [
+      "I-II-IV (1-2-4 gospel worship transition)"
+    ],
+    "family": "modal",
+    "tonic": "lydian",
+    "chords": [
+      "II",
+      "IV",
+      "I:8"
+    ],
+    "meter": "4/4",
+    "bpm": 128,
+    "examples": [
+      "Forget You - CeeLo Green"
+    ],
+    "why": "The Lydian II falls to IV and then home, a sunny cadence that avoids the dominant entirely.",
+    "moods": [
+      "Happy",
+      "Hopeful",
+      "Magical"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas",
+      "https://www.hearandplay.com/main/the-application-of-common-chord-progressions-in-gospel-music"
+    ]
+  },
+  {
+    "id": "phrygian-vamp",
+    "name": "i-bII (Phrygian vamp)",
+    "aka": [],
+    "family": "metal",
+    "tonic": "phrygian",
+    "chords": [
+      "i",
+      "bII"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [],
+    "why": "The half step above the minor tonic gives a menacing, exotic pull, the core of Phrygian metal riffs.",
+    "moods": [
+      "Tension",
+      "Horror",
+      "Action"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Heavy_metal_music"
+    ]
+  },
+  {
+    "id": "phrygian-i-bii-biii",
+    "name": "i-bII-bIII (Phrygian climb)",
+    "aka": [],
+    "family": "metal",
+    "tonic": "phrygian",
+    "chords": [
+      "i",
+      "bII",
+      "bIII:8"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [],
+    "why": "The riff climbs a half step and then a whole step from the minor tonic, a dark, heaving Phrygian figure.",
+    "moods": [
+      "Action",
+      "Tension",
+      "Horror"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Heavy_metal_music"
+    ]
+  },
+  {
+    "id": "aeolian-i-bvi-iv-bvii",
+    "name": "i-bVI-iv-bVII",
+    "aka": [],
+    "family": "metal",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVI",
+      "iv",
+      "bVII"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [],
+    "why": "The minor tonic falls to bVI and climbs back through iv and bVII, a modal loop with no leading tone.",
+    "moods": [
+      "Epic",
+      "Action",
+      "Tension"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Heavy_metal_music"
+    ]
+  },
+  {
+    "id": "aeolian-cadence",
+    "name": "bVI-bVII-i (Aeolian cadence)",
+    "aka": [
+      "i-bVI-bVII",
+      "Minor Mario cadence",
+      "IV-V-vi (4-5-6 gospel rise, the same loop heard from the relative major)"
+    ],
+    "family": "film-epic",
+    "tonic": "minor",
+    "chords": [
+      "bVI",
+      "bVII",
+      "i:8"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "The Fellowship theme (The Lord of the Rings) - Howard Shore",
+      "Make Me Over - Tonex (as IV-V-vi)"
+    ],
+    "why": "Two major chords climb by whole step into a minor tonic, a heroic but sombre arrival.",
+    "moods": [
+      "Epic",
+      "Heroic",
+      "Sad"
+    ],
+    "sources": [
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas",
+      "https://en.wikipedia.org/wiki/Heavy_metal_music",
+      "https://www.hearandplay.com/main/the-application-of-common-chord-progressions-in-gospel-music"
+    ]
+  },
+  {
+    "id": "chromatic-mediant-bvi",
+    "name": "I-bVI (chromatic mediant)",
+    "aka": [
+      "Flat-submediant shift",
+      "I-III (the same major-third pair heard from the other chord)"
+    ],
+    "family": "film-epic",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "bVI"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [
+      "Symphony No. 3, second movement - Johannes Brahms"
+    ],
+    "why": "A major chord a major third below shares one note with the tonic, a sudden, glowing shift of colour.",
+    "moods": [
+      "Epic",
+      "Magical",
+      "Heroic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Chromatic_mediant"
+    ]
+  },
+  {
+    "id": "chromatic-mediant-biii",
+    "name": "I-bIII (chromatic mediant)",
+    "aka": [
+      "I-VI (the same minor-third pair heard from the other chord)"
+    ],
+    "family": "film-epic",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "bIII"
+    ],
+    "meter": "4/4",
+    "bpm": 90,
+    "examples": [
+      "Linus and Lucy - Vince Guaraldi"
+    ],
+    "why": "A major chord a minor third above the tonic shares one note with it, a bold, cinematic lurch.",
+    "moods": [
+      "Heroic",
+      "Epic",
+      "Quirky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Chromatic_mediant"
+    ]
+  },
+  {
+    "id": "hexatonic-pole",
+    "name": "I-bvi (doubly chromatic mediant)",
+    "aka": [
+      "Hexatonic pole"
+    ],
+    "family": "film-epic",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "bvi"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [],
+    "why": "A minor chord a major third below the major tonic shares no notes with it, an uncanny, otherworldly shift.",
+    "moods": [
+      "Mysterious",
+      "Horror",
+      "Magical"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Chromatic_mediant"
+    ]
+  },
+  {
+    "id": "doubly-chromatic-biii",
+    "name": "I-biii (doubly chromatic mediant)",
+    "aka": [],
+    "family": "film-epic",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "biii"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [],
+    "why": "A minor chord a minor third above the major tonic has no common tones, a dark, disorienting jolt.",
+    "moods": [
+      "Mysterious",
+      "Suspense",
+      "Horror"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Chromatic_mediant"
+    ]
+  },
+  {
+    "id": "imperial-march-mediant",
+    "name": "i-bvi (minor chromatic mediant)",
+    "aka": [
+      "Vader progression",
+      "Tarnhelm-type progression"
+    ],
+    "family": "film-epic",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bvi"
+    ],
+    "meter": "4/4",
+    "bpm": 104,
+    "examples": [
+      "The Imperial March - John Williams",
+      "Gollum's theme (The Lord of the Rings) - Howard Shore"
+    ],
+    "why": "Two minor chords a major third apart share one note, a progression that film music uses for evil, power and menace.",
+    "moods": [
+      "Horror",
+      "Epic",
+      "Tension"
+    ],
+    "sources": [
+      "https://now.tufts.edu/2018/01/12/professor-turns-dark-side",
+      "https://en.wikipedia.org/wiki/Chromatic_mediant"
+    ]
+  },
+  {
+    "id": "minor-plagal-shuttle",
+    "name": "I-iv (minor plagal)",
+    "aka": [
+      "Minor plagal cadence (iv-I)",
+      "Freygish I-iv"
+    ],
+    "family": "film-epic",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "iv"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [
+      "Princess Leia's Theme - John Williams",
+      "Tifa's Theme - Nobuo Uematsu",
+      "Liebestod (Tristan und Isolde) - Richard Wagner"
+    ],
+    "why": "A borrowed minor iv over a sustained tonic gives a bittersweet, longing glow.",
+    "moods": [
+      "Romantic",
+      "Nostalgic",
+      "Sad"
+    ],
+    "sources": [
+      "https://www.hooktheory.com/blog/cinematic-chord-progressions/",
+      "https://en.wikipedia.org/wiki/Cadence",
+      "https://en.wikipedia.org/wiki/Plagal_cadence",
+      "https://blankp.substack.com/p/old-time-klezmer-harmonica-b60"
+    ]
+  },
+  {
+    "id": "man-of-steel-progression",
+    "name": "I-bVI-IV",
+    "aka": [],
+    "family": "film-epic",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "bVI",
+      "IV"
+    ],
+    "meter": "4/4",
+    "bpm": 80,
+    "examples": [
+      "An Ideal of Hope (Man of Steel) - Hans Zimmer"
+    ],
+    "why": "A borrowed bVI between tonic and IV casts a shadow over a heroic major key, heroism with a threat underneath.",
+    "moods": [
+      "Heroic",
+      "Epic",
+      "Hopeful"
+    ],
+    "sources": [
+      "https://www.hooktheory.com/blog/cinematic-chord-progressions/"
+    ]
+  },
+  {
+    "id": "interstellar-progression",
+    "name": "bVImaj7-v-i-v7",
+    "aka": [],
+    "family": "film-epic",
+    "tonic": "minor",
+    "chords": [
+      "bVImaj7",
+      "v",
+      "i",
+      "v7"
+    ],
+    "meter": "4/4",
+    "bpm": 70,
+    "examples": [
+      "Interstellar (main theme) - Hans Zimmer"
+    ],
+    "why": "A major-seventh bVI and a minor v soften the minor key, so the loop feels vast and less lonely.",
+    "moods": [
+      "Epic",
+      "Peaceful",
+      "Magical"
+    ],
+    "sources": [
+      "https://www.hooktheory.com/blog/cinematic-chord-progressions/"
+    ]
+  },
+  {
+    "id": "mario-cadence",
+    "name": "bVI-bVII-I (Mario cadence)",
+    "aka": [
+      "Aeolian cadence with a Picardy third",
+      "Backdoor IV-V"
+    ],
+    "family": "other",
+    "tonic": "major",
+    "chords": [
+      "bVI",
+      "bVII",
+      "I:8"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Super Mario Bros. level-end fanfare - Koji Kondo"
+    ],
+    "why": "Two chords borrowed from the minor climb by whole steps into a major tonic, a triumphant fanfare ending.",
+    "moods": [
+      "Triumph",
+      "Heroic",
+      "Happy"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/List_of_chord_progressions",
+      "https://en.wikipedia.org/wiki/Backdoor_progression",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas"
+    ]
+  },
+  {
+    "id": "andalusian-cadence",
+    "name": "Andalusian cadence",
+    "aka": [
+      "iv-bIII-bII-I (Phrygian reading)",
+      "Cadencia andaluza",
+      "Minor descending tetrachord",
+      "Lament schema (pop)",
+      "Tangos cierre (Dm-C-Bb-A)",
+      "Fandango estribillo (I-iv-bIII-bII-I)",
+      "Misirlou solo (iv-bIII-bII-I)"
+    ],
+    "family": "flamenco-latin",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVII",
+      "bVI",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [
+      "Hit the Road Jack - Ray Charles",
+      "Runaway - Del Shannon",
+      "Sultans of Swing - Dire Straits"
+    ],
+    "why": "Four chords step down the minor tetrachord to a major chord on the fifth, which flamenco hears as a Phrygian home.",
+    "moods": [
+      "Tension",
+      "Romantic",
+      "Action"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Andalusian_cadence",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.10%3A_Classical_Schemas_(in_a_Pop_Context)",
+      "https://www.studioflamenco.com/tangos-flamencos",
+      "https://www.studioflamenco.com/fandangos",
+      "https://www.hooktheory.com/theorytab/view/dick-dale/misirlou"
+    ]
+  },
+  {
+    "id": "andalusian-minor-bvii",
+    "name": "i-bvii-bVI-V7 (Andalusian with minor bvii)",
+    "aka": [],
+    "family": "flamenco-latin",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bvii",
+      "bVI",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [
+      "Chanela - Paco de Lucia"
+    ],
+    "why": "Making the second chord minor smooths the descent and gives the cadence a darker, more modal colour.",
+    "moods": [
+      "Romantic",
+      "Mysterious",
+      "Tension"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Andalusian_cadence"
+    ]
+  },
+  {
+    "id": "solea-por-arriba-letra",
+    "name": "Solea por arriba (letra accompaniment)",
+    "aka": [
+      "Soleares in E"
+    ],
+    "family": "flamenco-latin",
+    "tonic": "phrygian-dominant",
+    "chords": [
+      "I:6",
+      "I7:3",
+      "iv:3",
+      "iv:1",
+      "bIII:1",
+      "bII:5",
+      "I:1",
+      "bII:1",
+      "I:3"
+    ],
+    "meter": "12/8",
+    "bpm": 120,
+    "examples": [],
+    "why": "Over two twelve-count compases the tonic rises through its seventh to iv and falls back down the Phrygian tetrachord, the solemn heart of flamenco.",
+    "moods": [
+      "Sad",
+      "Romantic",
+      "Epic"
+    ],
+    "sources": [
+      "https://www.studioflamenco.com/soleares"
+    ]
+  },
+  {
+    "id": "flamenco-cambio",
+    "name": "Flamenco cambio (bII-bVI-bII-I)",
+    "aka": [],
+    "family": "flamenco-latin",
+    "tonic": "phrygian-dominant",
+    "chords": [
+      "bII:3",
+      "bVI:3",
+      "bII:3",
+      "I:3"
+    ],
+    "meter": "12/8",
+    "bpm": 120,
+    "examples": [],
+    "why": "Moving from bII to bVI briefly sounds like the relative major before the half step back down to the Phrygian tonic.",
+    "moods": [
+      "Romantic",
+      "Hopeful",
+      "Mysterious"
+    ],
+    "sources": [
+      "https://www.studioflamenco.com/soleares"
+    ]
+  },
+  {
+    "id": "farruca-compas",
+    "name": "Farruca compas (V7-i)",
+    "aka": [
+      "Minor tonic-dominant vamp"
+    ],
+    "family": "flamenco-latin",
+    "tonic": "minor",
+    "chords": [
+      "V7",
+      "i"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [],
+    "why": "Dominant seventh and minor tonic alternate in four-count bars, a stern, proud minor pulse.",
+    "moods": [
+      "Tension",
+      "Action",
+      "Sad"
+    ],
+    "sources": [
+      "https://www.studioflamenco.com/farruca"
+    ]
+  },
+  {
+    "id": "farruca-llamada",
+    "name": "Farruca llamada (iv-i-V7-i)",
+    "aka": [],
+    "family": "flamenco-latin",
+    "tonic": "minor",
+    "chords": [
+      "iv",
+      "i",
+      "V7",
+      "i"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [],
+    "why": "The subdominant leads into a plain minor cadence, the A-minor close that ends farruca phrases.",
+    "moods": [
+      "Sad",
+      "Tension",
+      "Romantic"
+    ],
+    "sources": [
+      "https://www.studioflamenco.com/farruca"
+    ]
+  },
+  {
+    "id": "fandango-de-huelva-copla",
+    "name": "Fandango de Huelva copla",
+    "aka": [],
+    "family": "flamenco-latin",
+    "tonic": "phrygian-dominant",
+    "chords": [
+      "I:3",
+      "bIII7:3",
+      "bVI/b3:12",
+      "bII:12",
+      "bVI/b3:12",
+      "bIII7:12",
+      "bVI/b3:6",
+      "bVI7:3",
+      "bII:3",
+      "I:6"
+    ],
+    "meter": "3/4",
+    "bpm": 170,
+    "examples": [],
+    "why": "The sung copla leaves the Phrygian tonic for the relative-major area and falls back through bII, the classic fandango shape.",
+    "moods": [
+      "Romantic",
+      "Nostalgic",
+      "Hopeful"
+    ],
+    "sources": [
+      "https://www.studioflamenco.com/fandangos"
+    ]
+  },
+  {
+    "id": "flamenco-guajira",
+    "name": "Guajira (flamenco) letra",
+    "aka": [],
+    "family": "flamenco-latin",
+    "tonic": "major",
+    "chords": [
+      "V7:6",
+      "I:6",
+      "V7:6",
+      "I:9",
+      "vi:3",
+      "ii7:6",
+      "I:3",
+      "vi:3",
+      "ii7:6",
+      "V7:6",
+      "I:9",
+      "vi:3",
+      "ii7:6",
+      "V:6",
+      "I:6"
+    ],
+    "meter": "12/8",
+    "bpm": 150,
+    "examples": [],
+    "why": "A Cuban-flavoured major song form in flamenco's twelve-count compas, swinging between tonic and dominant with a vi-ii turn.",
+    "moods": [
+      "Happy",
+      "Nostalgic",
+      "Romantic"
+    ],
+    "sources": [
+      "https://www.studioflamenco.com/guajiras"
+    ]
+  },
+  {
+    "id": "girl-from-ipanema-a",
+    "name": "Girl from Ipanema A section",
+    "aka": [],
+    "family": "flamenco-latin",
+    "tonic": "major",
+    "chords": [
+      "Imaj7:8",
+      "II7:8",
+      "ii7:4",
+      "bII7:4",
+      "Imaj7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [
+      "The Girl from Ipanema - Antonio Carlos Jobim"
+    ],
+    "why": "A Lydian-tinged II7 floats over the tonic before a ii and a tritone-substitute dominant glide down by half step home.",
+    "moods": [
+      "Romantic",
+      "Peaceful",
+      "Wealth"
+    ],
+    "sources": [
+      "https://www.jazzadvice.com/lessons/how-to-play-the-girl-from-ipanema/"
+    ]
+  },
+  {
+    "id": "blue-bossa-changes",
+    "name": "Blue Bossa changes",
+    "aka": [],
+    "family": "flamenco-latin",
+    "tonic": "minor",
+    "chords": [
+      "i7:8",
+      "iv7:8",
+      "iiø7:4",
+      "V7:4",
+      "i7:8",
+      "biii7:4",
+      "bVI7:4",
+      "bIImaj7:8",
+      "iiø7:4",
+      "V7:4",
+      "i7:4",
+      "iiø7:2",
+      "V7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 140,
+    "examples": [
+      "Blue Bossa - Kenny Dorham"
+    ],
+    "why": "Minor ii-V-i cadences frame a brief ii-V-I a half step up, a cool, sunlit minor bossa.",
+    "moods": [
+      "Romantic",
+      "Detective",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://www.learnjazzstandards.com/blog/blue-bossa-chords/"
+    ]
+  },
+  {
+    "id": "i-iv-v-iv",
+    "name": "I-IV-V-IV",
+    "aka": [
+      "Louie Louie changes",
+      "Congolese harmonic cycle (C-F-G-F)",
+      "Son guajeo I-IV-V-IV"
+    ],
+    "family": "flamenco-latin",
+    "tonic": "major",
+    "chords": [
+      "I:2",
+      "IV:2",
+      "V:2",
+      "IV:2"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Louie Louie - Richard Berry / The Kingsmen",
+      "El Loco Cha Cha - Rene Touzet"
+    ],
+    "why": "The V falls back to IV instead of resolving, so the loop circles endlessly, ideal for a dance groove or a montuno.",
+    "moods": [
+      "Happy",
+      "Running",
+      "Quirky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Guajeo",
+      "https://en.wikipedia.org/wiki/Louie_Louie",
+      "https://en.wikipedia.org/wiki/Three-chord_song"
+    ]
+  },
+  {
+    "id": "double-tonic",
+    "name": "i-bVII (double tonic)",
+    "aka": [
+      "Subtonic shuttle (Aeolian i-bVII)",
+      "Shifting tonic"
+    ],
+    "family": "folk-celtic",
+    "tonic": "dorian",
+    "chords": [
+      "i:4",
+      "bVII:4",
+      "i:2",
+      "bVII:2",
+      "i:4"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Drunken Sailor (traditional)",
+      "The Woods so Wild (Elizabethan)",
+      "Somebody That I Used to Know (verse) - Gotye"
+    ],
+    "why": "The tune swings between a minor tonic and the chord a whole step below, the modal heartbeat of English, Scottish and Irish song.",
+    "moods": [
+      "Nostalgic",
+      "Running",
+      "Quirky"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Double_tonic",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas",
+      "https://en.wikipedia.org/wiki/Dorian_mode"
+    ]
+  },
+  {
+    "id": "double-tonic-with-dominant",
+    "name": "Double tonic with dominant close",
+    "aka": [
+      "Binary double tonic"
+    ],
+    "family": "folk-celtic",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVII",
+      "i",
+      "V",
+      "i",
+      "bVII",
+      "i:2",
+      "bVII:2",
+      "i"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [],
+    "why": "The double-tonic shuttle is closed with a real dominant, a tune shape that leads straight into the passamezzo antico.",
+    "moods": [
+      "Nostalgic",
+      "Peaceful",
+      "Running"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Double_tonic"
+    ]
+  },
+  {
+    "id": "tonic-dominant-vamp",
+    "name": "I-V7 two-chord vamp",
+    "aka": [
+      "Tonic-dominant oom-pah",
+      "Alegrias compas (E-B7 in twelve counts)"
+    ],
+    "family": "folk-celtic",
+    "tonic": "major",
+    "chords": [
+      "I",
+      "V7"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Achy Breaky Heart - Billy Ray Cyrus"
+    ],
+    "why": "Just home and the dominant seventh, the simplest harmonic swing of folk dances, polkas, country and the alegrias compas.",
+    "moods": [
+      "Happy",
+      "Quirky",
+      "Running"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Chord_progression",
+      "https://www.studioflamenco.com/about2-cgzh"
+    ]
+  },
+  {
+    "id": "freygish-vamp",
+    "name": "Freygish vamp (I-bvii)",
+    "aka": [
+      "Ahava Rabboh vamp",
+      "D-Cm in D freygish"
+    ],
+    "family": "klezmer-eastern",
+    "tonic": "phrygian-dominant",
+    "chords": [
+      "I:8",
+      "bvii:4",
+      "I:4"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [],
+    "why": "The major tonic of freygish alternates with a minor chord a whole step below, whose third gives a half-step pull back to the tonic.",
+    "moods": [
+      "Nostalgic",
+      "Mysterious",
+      "Romantic"
+    ],
+    "sources": [
+      "https://twochords.substack.com/p/shimke-khazer",
+      "https://blankp.substack.com/p/old-time-klezmer-harmonica-b60",
+      "https://en.wikipedia.org/wiki/Phrygian_dominant_scale"
+    ]
+  },
+  {
+    "id": "hijaz-vamp",
+    "name": "Hijaz vamp (I-bII)",
+    "aka": [
+      "Phrygian-dominant vamp",
+      "Flamenco E-F vamp",
+      "Rebetiko tavern vamp"
+    ],
+    "family": "arabic-turkish-balkan",
+    "tonic": "phrygian-dominant",
+    "chords": [
+      "I",
+      "bII"
+    ],
+    "meter": "4/4",
+    "bpm": 173,
+    "examples": [
+      "Misirlou (verse) - Dick Dale"
+    ],
+    "why": "The flat second over a major tonic outlines the Hijaz augmented second, a hypnotic, exotic sway.",
+    "moods": [
+      "Mysterious",
+      "Tension",
+      "Action"
+    ],
+    "sources": [
+      "https://www.hooktheory.com/theorytab/view/dick-dale/misirlou",
+      "https://guitarcomposerstoolbox.com/guitar-scales/e-hijaz/",
+      "https://en.wikipedia.org/wiki/Phrygian_dominant_scale"
+    ]
+  },
+  {
+    "id": "royal-road",
+    "name": "Royal road progression (IVmaj7-V7-iii7-vi)",
+    "aka": [
+      "Odo shinko",
+      "Koakuma chord progression",
+      "4536",
+      "bVImaj7-bVII7-v7-i (the same loop heard from the relative minor)"
+    ],
+    "family": "japanese-kpop",
+    "tonic": "major",
+    "chords": [
+      "IVmaj7",
+      "V7",
+      "iii7",
+      "vi"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [
+      "Yoru ni Kakeru - YOASOBI",
+      "Love so sweet - Arashi",
+      "Sotsugyo Shashin - Yumi Matsutoya"
+    ],
+    "why": "Subdominant and dominant climb, then the expected tonic is replaced by iii and vi, a bittersweet lift that J-pop choruses love.",
+    "moods": [
+      "Nostalgic",
+      "Hopeful",
+      "Romantic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Royal_road_progression",
+      "https://music.ragnet.co.jp/standard-chord-songs?disp=more"
+    ]
+  },
+  {
+    "id": "royal-road-cadence",
+    "name": "Royal road with ii-V-I",
+    "aka": [
+      "IVmaj7-V7-iii7-vi7-ii7-V7-I"
+    ],
+    "family": "japanese-kpop",
+    "tonic": "major",
+    "chords": [
+      "IVmaj7",
+      "V7",
+      "iii7",
+      "vi7",
+      "ii7",
+      "V7",
+      "Imaj7:8"
+    ],
+    "meter": "4/4",
+    "bpm": 130,
+    "examples": [],
+    "why": "The royal road keeps falling by fifths after vi until it reaches the tonic, turning the loop into a full cadence.",
+    "moods": [
+      "Hopeful",
+      "Triumph",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Royal_road_progression"
+    ]
+  },
+  {
+    "id": "royal-road-secondary-dominants",
+    "name": "IVmaj7-V7-III7-VI7 (royal road with secondary dominants)",
+    "aka": [],
+    "family": "japanese-kpop",
+    "tonic": "major",
+    "chords": [
+      "IVmaj7",
+      "V7",
+      "III7",
+      "VI7"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [
+      "Loveable - Kim Jong-kook"
+    ],
+    "why": "Turning iii and vi into dominant sevenths makes the royal road push forward with brighter, more insistent tension.",
+    "moods": [
+      "Hopeful",
+      "Romantic",
+      "Happy"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Royal_road_progression"
+    ]
+  },
+  {
+    "id": "just-the-two-of-us",
+    "name": "Just the Two of Us progression",
+    "aka": [
+      "Marunouchi Sadistic progression (maru-sa shinko)",
+      "IVmaj7-III7-vi7-I7 (Marunouchi form without the v7)"
+    ],
+    "family": "japanese-kpop",
+    "tonic": "major",
+    "chords": [
+      "IVmaj7",
+      "III7",
+      "vi7",
+      "v7:2",
+      "I7:2"
+    ],
+    "meter": "4/4",
+    "bpm": 96,
+    "examples": [
+      "Just the Two of Us - Grover Washington Jr. & Bill Withers",
+      "Marunouchi Sadistic - Shiina Ringo",
+      "Usseewa - Ado"
+    ],
+    "why": "A secondary-dominant III7 tips the key toward its relative minor, then v7-I7 slides back up, a smoky, urban loop.",
+    "moods": [
+      "Romantic",
+      "Wealth",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://www.nippon.com/ja/japan-topics/g01096/",
+      "https://music.ragnet.co.jp/standard-chord-songs?disp=more"
+    ]
+  },
+  {
+    "id": "four-five-six-one",
+    "name": "IV-V-vi-I (4561 progression)",
+    "aka": [
+      "Hopscotch schema",
+      "I-IV-V-vi (deceptive-cadence loop)",
+      "VI-VII-i-III (minor reading)"
+    ],
+    "family": "japanese-kpop",
+    "tonic": "major",
+    "chords": [
+      "IV",
+      "V",
+      "vi",
+      "I"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [
+      "Uchiage Hanabi - DAOKO x Kenshi Yonezu",
+      "Dancing with a Stranger - Sam Smith",
+      "No Brainer - DJ Khaled"
+    ],
+    "why": "IV and V rise to vi instead of the tonic, and the tonic follows a bar late, a hopeful loop that keeps stepping upward.",
+    "moods": [
+      "Hopeful",
+      "Nostalgic",
+      "Romantic"
+    ],
+    "sources": [
+      "https://music.ragnet.co.jp/standard-chord-songs?disp=more",
+      "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.09%3A_Four-Chord_Schemas"
+    ]
+  },
+  {
+    "id": "interstate-love-song-descent",
+    "name": "i-V/7-I7/b7-viø7-bVI (Interstate Love Song)",
+    "aka": [],
+    "family": "pop-rock",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "V/7",
+      "I7/b7",
+      "viø7",
+      "bVI"
+    ],
+    "meter": "4/4",
+    "bpm": 116,
+    "examples": [
+      "Interstate Love Song - Stone Temple Pilots"
+    ],
+    "why": "The chromatic lament bass is bent through a half-diminished chord on the raised sixth before landing on the flat sixth.",
+    "moods": [
+      "Sad",
+      "Nostalgic",
+      "Tension"
+    ],
+    "sources": [
+      "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html"
+    ]
+  },
+  {
+    "id": "andalusian-secondary-dominant",
+    "name": "i-bVII7-bIII-bVI-V (Andalusian with secondary dominant)",
+    "aka": [],
+    "family": "flamenco-latin",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVII7",
+      "bIII",
+      "bVI",
+      "V"
+    ],
+    "meter": "4/4",
+    "bpm": 110,
+    "examples": [],
+    "why": "A dominant seventh on bVII tonicises the relative major, so the lament detours through bright chords before the Phrygian close.",
+    "moods": [
+      "Romantic",
+      "Nostalgic",
+      "Tension"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Andalusian_cadence"
+    ]
+  },
+  {
+    "id": "fandango-estribillo-circle",
+    "name": "Fandango estribillo with circle of fifths",
+    "aka": [],
+    "family": "flamenco-latin",
+    "tonic": "phrygian-dominant",
+    "chords": [
+      "I:2",
+      "iv:4",
+      "bVII7/2:3",
+      "bIII7:3",
+      "bVI7:3",
+      "bII:6",
+      "I:3"
+    ],
+    "meter": "3/4",
+    "bpm": 170,
+    "examples": [],
+    "why": "After iv the harmony runs a chain of dominant sevenths down the circle of fifths and drops onto the Phrygian tonic through bII.",
+    "moods": [
+      "Romantic",
+      "Action",
+      "Nostalgic"
+    ],
+    "sources": [
+      "https://www.studioflamenco.com/fandangos"
+    ]
+  },
+  {
+    "id": "farruca-letra-close",
+    "name": "i-bVI-V7-i (farruca letra close)",
+    "aka": [],
+    "family": "flamenco-latin",
+    "tonic": "minor",
+    "chords": [
+      "i",
+      "bVI",
+      "V7",
+      "i"
+    ],
+    "meter": "4/4",
+    "bpm": 100,
+    "examples": [],
+    "why": "The flat sixth slips down a half step onto the dominant seventh, a stark Spanish minor cadence.",
+    "moods": [
+      "Sad",
+      "Tension",
+      "Romantic"
+    ],
+    "sources": [
+      "https://www.studioflamenco.com/farruca"
+    ]
+  },
+  {
+    "id": "royal-road-minor-form",
+    "name": "iv7-v7-bIIImaj7-bVI (royal road, minor-key form)",
+    "aka": [],
+    "family": "japanese-kpop",
+    "tonic": "minor",
+    "chords": [
+      "iv7",
+      "v7",
+      "bIIImaj7",
+      "bVI"
+    ],
+    "meter": "4/4",
+    "bpm": 120,
+    "examples": [],
+    "why": "The royal-road rise transplanted into minor, climbing from iv and v to the relative major and settling on bVI.",
+    "moods": [
+      "Nostalgic",
+      "Sad",
+      "Hopeful"
+    ],
+    "sources": [
+      "https://en.wikipedia.org/wiki/Royal_road_progression"
+    ]
+  },
+  {
+    "id": "beethoven-lament-german-sixth",
+    "name": "Chromatic lament with German sixth",
+    "aka": [],
+    "family": "classical-romantic",
+    "tonic": "minor",
+    "chords": [
+      "i:3",
+      "V/7:3",
+      "I7/b7:3",
+      "IV/6:3",
+      "bVI7:3",
+      "i/5:3",
+      "V:6"
+    ],
+    "meter": "3/4",
+    "bpm": 60,
+    "examples": [
+      "32 Variations in C minor, WoO 80 - Ludwig van Beethoven"
+    ],
+    "why": "The chromatic bass descends to the flat sixth, where a German sixth and a cadential six-four drive hard onto the dominant.",
+    "moods": [
+      "Tension",
+      "Epic",
+      "Sad"
+    ],
+    "sources": [
+      "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html",
+      "https://en.wikipedia.org/wiki/Augmented_sixth_chord"
+    ]
+  }
+]
