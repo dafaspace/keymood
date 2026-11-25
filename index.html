@@ -550,6 +550,10 @@ canvas:focus-visible { outline-offset: 3px; }
 .tl-btns { display:flex; gap:6px; }
 .tl-btn { flex:1; padding:12px 8px; border-radius:999px; background:var(--bg2); color:var(--text); font-size:12px; }
 .tl-btn.pri { background:var(--text); color:var(--bg); font-weight:600; }
+/* The dice's four chips share one row down to a 360px phone: 7px side padding instead of
+   11 gives back 32px (measured: 336px needed, 325 available at 375). */
+.tools .tl-dice { flex-wrap: nowrap; }
+.tools .tl-dice .tl-chip { padding-left: 7px; padding-right: 7px; flex: 0 1 auto; }
 /* A switch, not an action: lit by a ring, so it never reads as a second primary. */
 .tl-btn.tog.on { box-shadow: inset 0 0 0 1.5px var(--text); font-weight:600; }
 .tl-prog div i { display:block; font-style:normal; font-size:9px; color:var(--text3); margin-top:1px; }
@@ -4696,14 +4700,18 @@ function _paintWheelCtl(t) {
   el.innerHTML = h;
 }
 function _diceHTML() {
-  var chips = [['key', 'Key'], ['mode', appMode === 'tonal' ? 'Major/minor' : 'Mode'],
-               ['chords', 'Chords'], ['tempo', 'Tempo']];
-  var h = '<div class="tl-body"><div class="tl-lbl">Change on roll</div><div class="tl-chips">';
+  // [pref, label, spoken name]. "Maj/min", not "Major/minor": with the full word the four
+  // chips took 336px of a 325px row on a 375px phone and wrapped to a second line (Dafa,
+  // 25 Nov: save that line). The spoken name keeps the words whole.
+  var chips = [['key', 'Key', 'Key'],
+               ['mode', appMode === 'tonal' ? 'Maj/min' : 'Mode', appMode === 'tonal' ? 'Major or minor' : 'Mode'],
+               ['chords', 'Chords', 'Chords'], ['tempo', 'Tempo', 'Tempo']];
+  var h = '<div class="tl-body"><div class="tl-lbl">Change on roll</div><div class="tl-chips tl-dice">';
   chips.forEach(function(c) {
     var on = !!diceVary[c[0]];
     h += '<button type="button" class="tl-chip' + (on ? ' on' : '') + '" aria-pressed="' + on +
          '" onclick="toggleVary(\'' + c[0] + '\')" title="' + (on ? 'Changes on the next roll' : 'Stays as it is') +
-         '" aria-label="' + c[1] + ', ' + (on ? 'changes on the next roll' : 'stays as it is') +
+         '" aria-label="' + c[2] + ', ' + (on ? 'changes on the next roll' : 'stays as it is') +
          '">' + (on ? TL_ICON.shuffle : TL_ICON.lock) + c[1] + '</button>';
   });
   h += '</div>';
