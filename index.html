@@ -568,6 +568,11 @@ canvas:focus-visible { outline-offset: 3px; }
 .pg-row.on { box-shadow: inset 0 0 0 1.5px var(--text); }
 .pg-detail { padding:8px 2px 10px; }
 .pg-ex { color:var(--text2); font-style:italic; }
+/* A twisted chord: its cell lit in the accent of a change, its device named under it. */
+.tl-prog div.tw { background: var(--bg3); box-shadow: inset 0 0 0 1px var(--text3); }
+.tl-prog div.tw i { color: var(--text2); }
+.pg-tw { font-size: 11px; color: var(--text2); line-height: 1.5; margin: 0 0 4px; }
+.pg-tw .tl-chip { margin-inline-start: 6px; }
 .tl-bpm { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
 .tl-pm { padding:12px 16px; border-radius:999px; background:var(--bg2); color:var(--text); }
 .tl-bpmv { font-size:26px; font-weight:500; color:var(--text); font-variant-numeric: tabular-nums; }
@@ -4274,23 +4279,172 @@ function _progKey() { var t = _progTonic(); return t.pc + ':' + t.name; }
 function progFamily(f) { _pg.fam = f; savePref('progFam', f); renderTools(); }
 function progPick(id) {
   if (_pg.id === id) { if (_lp && _lp.tag === 'prog') { _lpStop('prog'); return; } progPlay(); return; }
-  _pg.id = id; savePref('progId', id); progPlay();
+  _pg.id = id; savePref('progId', id);
+  if (_lp && _lp.tag === 'prog') _lpStop('prog');      // a new progression starts clean
+  progPlay();
 }
 function progPlay() {
   var p = _progById(_pg.id);
   if (!p) return;
   if (_lp && _lp.tag === 'prog') { _lpStop('prog'); return; }
-  var o = { tag: 'prog', chords: progBuild(p), bpm: _progBpm(p), bpb: +p.meter.split('/')[0],
-    loop: _pg.loop, click: _pg.click, key: _progKey(),
+  var o = { tag: 'prog', chords: _progSequence(p), bpm: _progBpm(p), bpb: +p.meter.split('/')[0],
+    loop: _pg.loop, click: _pg.click, key: _progKey() + '#' + _tw.ver,
     onChord: function(k) {
       _pg.playing = k; _paintProgPlaying();
       var c = o.chords[k], at = _chordSector(c.root, _ringType(c.type));
       if (at) pulseSector(at.slice, at.inner, 0);
     },
     onEnd: function() { _pg.playing = -1; renderTools(); render(); },
-    rebuild: function() { var k = _progKey(); if (k === o.key) return false; o.key = k; o.chords = progBuild(p); return true; } };
+    // A new key on the wheel, or a new twist: carry on with the new chords from here.
+    rebuild: function() {
+      var k = _progKey() + '#' + _tw.ver;
+      if (k === o.key) return false;
+      o.key = k; o.chords = _progSequence(p);
+      if (o.k >= o.chords.length) o.k = 0;
+      return true;
+    } };
   _lpStart(o); renderTools(); render();
 }
+
+// ── Twist (Pro) ───────────────────────────────────────────────────────────────
+// Dafa, 25 Nov, picked the simplest of three researched generators (scratchpad
+// generator-research.md, "Frame and Twist"): the progression plays as written, then
+// again with named twists - a borrowed chord, a tritone substitution, a chromatic
+// mediant... Each press of Twist adds one, a little bolder than the last. The research
+// behind it: a surprising chord is enjoyed when the listener is confident of what comes
+// next, and disliked when the context is already unsure (Cheung et al. 2019, Current
+// Biology). So the untwisted pass comes first every time round, to set up the
+// expectation the twist lands against, and twists go where expectation is strongest:
+// the cadence. Every twist keeps an anchor - a shared tone, a step in every voice, or a
+// dominant resolving - so it sounds chosen rather than wrong.
+var _tw = { id: null, list: [], ver: 0 };     // list: [{slot, op, arg}] on pass B
+var REL_DEG = [0,1,1,2,2,3,4,4,5,5,6,6], REL_FLAT = [0,1,0,1,0,0,1,0,1,0,1,0];
+var NUM_SUF = { maj: '', min: '', dim: '°', aug: '+', dom7: '7', min7: '7', maj7: 'maj7', hdim7: 'ø7', dim7: '°7',
+  maj6: '6', min6: '6', minmaj7: '(maj7)', dom9: '9', min9: '9', maj9: 'maj9', dom7b9: '7♭9', sus4: 'sus4',
+  sus2: 'sus2', dom7sus4: '7sus4', add9: 'add9' };
+function _isMinorType(type) { return /^(min|min7|min6|min9|minmaj7|dim|hdim7|dim7)$/.test(type); }
+// A chord made from a step above the tonic, spelled and named like the library's own.
+function _twChord(t, rel, type, beats) {
+  rel = ((rel % 12) + 12) % 12;
+  var deg = REL_DEG[rel], r = _spellDeg(t.L, t.pc, deg, rel), num = ['I','II','III','IV','V','VI','VII'][deg];
+  return { root: r.pc, bass: r.pc, rel: rel, type: type, beats: beats, twisted: true, name: r.name + CHORD_SYM[type],
+           label: (REL_FLAT[rel] ? '♭' : '') + (_isMinorType(type) ? num.toLowerCase() : num) + NUM_SUF[type] };
+}
+function _pcsOf(c) { return CHORD_IV[c.type].map(function(x) { return (c.root + x) % 12; }); }
+function _shared(a, b) { var B = _pcsOf(b); return _pcsOf(a).filter(function(x) { return B.indexOf(x) >= 0; }).length; }
+// Each op: level (1 mild .. 5 bold), a name, and a transform of the chord in its slot.
+// It returns the chords that replace it (one, or two halves), or null where it does not
+// apply. `minor` says the progression's tonic chord is minor.
+var TWIST_OPS = [
+  { L: 1, name: 'Seventh', f: function(c, n, t) {
+      var ty = { maj: (c.rel === 7 || c.rel === 10) ? 'dom7' : 'maj7', min: 'min7', dim: 'hdim7' }[c.type];
+      return ty ? [_twChord(t, c.rel, ty, c.beats)] : null; } },
+  { L: 1, name: 'Diatonic substitute', f: function(c, n, t, minor) {
+      if (minor || !/^(maj|maj7|dom7)$/.test(c.type)) return null;
+      var m = { 0: [9, 'min'], 5: [2, 'min7'], 7: [11, 'dim'] }[c.rel];
+      return m ? [_twChord(t, m[0], m[1], c.beats)] : null; } },
+  { L: 2, name: 'Borrowed chord', f: function(c, n, t, minor, last) {
+      var m = minor ? ({ 5: [5, 'maj'], 7: [7, 'dom7'] }[c.rel] || (last && c.rel === 0 ? [0, 'maj'] : null))
+                    : { 5: [5, 'min'], 9: [8, 'maj'], 2: [2, 'hdim7'], 4: [3, 'maj'] }[c.rel];
+      if (!m || (c.rel === m[0] && c.type === m[1])) return null;
+      if (!minor && c.rel === 5 && c.type !== 'maj' && c.type !== 'maj7') return null;
+      return [_twChord(t, m[0], m[1], c.beats)]; } },
+  { L: 2, name: 'Applied dominant', f: function(c, n, t) {
+      if (!n || c.beats < 2 || /dim/.test(n.type) || n.rel === c.rel) return null;
+      var h = c.beats / 2, keep = _twChord(t, c.rel, c.type, h); keep.twisted = false;
+      return [keep, _twChord(t, n.rel + 7, 'dom7', h)]; } },
+  { L: 3, name: 'Tritone substitution', f: function(c, n, t) {
+      if (!n || !/^(dom7|maj)$/.test(c.type) || (c.root + 5) % 12 !== n.root) return null;
+      return [_twChord(t, c.rel + 6, 'dom7', c.beats)]; } },
+  { L: 3, name: 'Chromatic mediant', f: function(c, n, t, minor, last, arg) {
+      // A third away in the same quality, one tone kept: C to E or A♭; Am to Cm or Fm.
+      if (c.rel !== 0 || last || !/^(maj|min)$/.test(c.type)) return null;
+      var to = c.type === 'maj' ? (arg ? 4 : 8) : (arg ? 3 : 8);
+      return [_twChord(t, to, c.type, c.beats)]; } },
+  { L: 3, name: 'Backdoor', f: function(c, n, t) {
+      if (!n || c.rel !== 7 || n.rel !== 0 || !/^(maj|dom7)$/.test(c.type)) return null;
+      if (c.beats >= 2) return [_twChord(t, 5, 'min7', c.beats / 2), _twChord(t, 10, 'dom7', c.beats / 2)];
+      return [_twChord(t, 10, 'dom7', c.beats)]; } },
+  { L: 4, name: 'Slide', f: function(c, n, t) {
+      if (c.type === 'maj') return [_twChord(t, c.rel + 1, 'min', c.beats)];
+      if (c.type === 'min') return [_twChord(t, c.rel - 1, 'maj', c.beats)];
+      return null; } },
+  { L: 5, name: 'Hexatonic pole', f: function(c, n, t) {
+      if (c.type === 'maj') return [_twChord(t, c.rel + 8, 'min', c.beats)];
+      if (c.type === 'min') return [_twChord(t, c.rel + 4, 'maj', c.beats)];
+      return null; } }
+];
+function _twFrame(p) {
+  var t = _progTonic();
+  return progBuild(p).map(function(c) { c.rel = ((c.root - t.pc) % 12 + 12) % 12; return c; });
+}
+// The frame's slots with the twists in place, as chords.
+function _twApply(frame, list) {
+  var t = _progTonic(), first = frame[0], minor = first && _isMinorType(first.type) && first.rel === 0, out = [];
+  frame.forEach(function(c, i) {
+    var tw = list.filter(function(x) { return x.slot === i; })[0];
+    if (!tw) { out.push(c); return; }
+    var op = TWIST_OPS.filter(function(o) { return o.name === tw.op; })[0];
+    var rep = op && op.f(c, frame[i + 1] || frame[0], t, minor, i === frame.length - 1, tw.arg);
+    if (!rep) { out.push(c); return; }
+    rep.forEach(function(r) { if (r.twisted) r.twistName = tw.op; if (c.bass !== c.root && r === rep[0] && !r.twisted) r.bass = c.bass; out.push(r); });
+  });
+  return out;
+}
+// What the player plays: the frame alone, or the frame and then its twisted pass.
+function _progSequence(p) {
+  if (_tw.id !== p.id || !_tw.list.length) return progBuild(p);
+  var frame = _twFrame(p);
+  return frame.concat(_twApply(frame, _tw.list));
+}
+function progTwist() {
+  var p = _progById(_pg.id);
+  if (!p) return;
+  if (_tw.id !== p.id) _tw = { id: p.id, list: [], ver: _tw.ver + 1 };
+  if (_tw.list.length >= 4) { say('Four twists is the most; Undo starts again'); return; }
+  var frame = _twFrame(p), t = _progTonic(), n = frame.length;
+  var minor = _isMinorType(frame[0].type) && frame[0].rel === 0;
+  var lmax = Math.min(5, _tw.list.length + 2);            // each press may be bolder
+  var cands = [];
+  frame.forEach(function(c, i) {
+    // No twist beside another: each keeps untouched neighbours, so the anchor it was
+    // chosen for is still there when it sounds. (Measured on the whole library: twists
+    // side by side left a dominant pointing at a chord that had itself been replaced.)
+    if (_tw.list.some(function(x) { return Math.abs(x.slot - i) <= 1; })) return;
+    var next = frame[i + 1] || frame[0], last = i === n - 1;
+    // The cadence is where the ear is surest, so the last slots weigh most.
+    var sw = i === n - 1 ? 3 : i === n - 2 ? 2.5 : 1;
+    TWIST_OPS.forEach(function(op) {
+      if (op.L > lmax) return;
+      [0, 1].forEach(function(arg) {
+        if (arg && op.name !== 'Chromatic mediant') return;
+        var rep = op.f(c, next, t, minor, last, arg);
+        if (!rep) return;
+        // An anchor on each side: a shared tone, a dominant resolving, or a step.
+        var r0 = rep[0], r1 = rep[rep.length - 1], prev = frame[i - 1] || frame[n - 1];
+        var anchored = (_shared(prev, r0) > 0 || op.L >= 4) &&
+                       (_shared(r1, next) > 0 || (r1.root + 5) % 12 === next.root || op.L >= 4);
+        if (!anchored) return;
+        // Bolder devices weigh more; one already used weighs less, and the applied
+        // dominant, which fits almost anywhere, less again - it was 48% of all twists.
+        var used = _tw.list.some(function(x) { return x.op === op.name; });
+        cands.push({ slot: i, op: op.name, arg: arg, L: op.L,
+                     w: sw * (1 + op.L) * (used ? 0.3 : 1) * (op.name === 'Applied dominant' ? 0.5 : 1) });
+      });
+    });
+  });
+  if (!cands.length) { say(_tw.list.length ? 'That is all the twists this one takes; Undo starts again' : 'No twist fits here that would still sound chosen'); return; }
+  var sum = cands.reduce(function(s, c) { return s + c.w; }, 0), r = Math.random() * sum, pick = cands[0];
+  for (var k = 0; k < cands.length; k++) { r -= cands[k].w; if (r <= 0) { pick = cands[k]; break; } }
+  _tw.list.push(pick); _tw.ver++;
+  say(pick.op + ' in bar ' + (pick.slot + 1));
+  if (!(_lp && _lp.tag === 'prog')) progPlay(); else { renderTools(); render(); }
+}
+function progUntwist() {
+  _tw = { id: null, list: [], ver: _tw.ver + 1 };
+  renderTools(); render();
+}
+window.progTwist = progTwist; window.progUntwist = progUntwist;
 function progToggle(k) {
   _pg[k] = !_pg[k]; savePref(k === 'loop' ? 'progLoop' : 'progClick', _pg[k]);
   if (_lp && _lp.tag === 'prog') _lp[k] = _pg[k];
@@ -4343,16 +4497,21 @@ function _progHTML() {
          '" onclick="progPick(\'' + p.id + '\')"><b>' + _progTitle(p) + '</b><span>' +
          (nums.length > 10 ? nums.slice(0, 10).join(' ') + ' …' : nums.join(' ')) + '</span></button>';
     if (!on) return;
-    var cs = progBuild(p);
+    var cs = _progSequence(p), tws = _tw.id === p.id ? _tw.list : [];
     h += '<div class="pg-detail"><div class="tl-res">' + t.name + ' ' + PROG_MODE[p.tonic] +
          ' <small>· ' + p.meter + '</small></div><div class="tl-prog">' + cs.map(function(c, k) {
-           var dl = _durLabel(c.beats, bpb);
-           return '<div class="' + (playing && _pg.playing === k ? 'now' : '') + '"><b>' + c.label + '</b>' + c.name +
-                  (dl ? '<i>' + dl + '</i>' : '') + '</div>';
+           var dl = _durLabel(c.beats, bpb), cls = (playing && _pg.playing === k ? 'now' : '') + (c.twisted ? ' tw' : '');
+           return '<div class="' + cls + '"><b>' + c.label + '</b>' + c.name +
+                  (c.twisted ? '<i>' + c.twistName + '</i>' : dl ? '<i>' + dl + '</i>' : '') + '</div>';
          }).join('') + '</div>' +
-         '<p class="tl-note">' + p.why + (p.ex ? ' <span class="pg-ex">' + p.ex + '</span>' : '') + '</p></div>';
+         (tws.length ? '<div class="pg-tw">The second time round: ' + tws.map(function(x) { return x.op.toLowerCase() + ' in bar ' + (x.slot + 1); }).join(', ') +
+                       ' <button type="button" class="tl-chip" onclick="progUntwist()">Undo twists</button></div>' : '') +
+         '<p class="tl-note">' + p.why + (p.ex ? ' <span class="pg-ex">' + p.ex + '</span>' : '') + '</p>' +
+         '<div class="tl-chips" style="margin:8px 0 0"><button type="button" class="tl-chip' + (_pg.click ? ' on' : '') +
+         '" aria-pressed="' + _pg.click + '" onclick="progToggle(\'click\')">Click on the beats</button></div></div>';
   });
-  h += '</div><p class="tl-note">Tap a progression to play it; the middle of the wheel plays and stops it, the corners hold Loop and Click. ' +
+  h += '</div><p class="tl-note">Tap a progression to play it; the middle of the wheel plays and stops it. Twist, at the top right, ' +
+       'plays it again with a surprising change - each press one more. ' +
        'It plays in the key you pick on the wheel, and follows when you change key.</p>';
   return h + '</div>';
 }
@@ -4516,7 +4675,7 @@ function _paintWheelCtl(t) {
     h += b('tl', 'Tap', '', null, 'metroTap()', 'Tap tempo');
   } else if (t === 'prog') {
     h += b('tl', 'Loop', TL_ICON.loop, _pg.loop, "progToggle('loop')", 'Loop');
-    h += b('tr', 'Click', '', _pg.click, "progToggle('click')", 'Click on the beats');
+    if (_pg.id) h += b('tr', 'Twist', TL_ICON.shuffle, null, 'progTwist()', 'Twist: play it again with a surprising change');
   }
   el.innerHTML = h;
 }
