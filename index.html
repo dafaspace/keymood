@@ -728,7 +728,7 @@ canvas:focus-visible { outline-offset: 3px; }
       <div class="set-row pro-row" id="pro-row"></div>
       <div class="set-row" style="border-top:0.5px solid var(--bd);padding-top:11px">
         <span class="set-label">Version</span>
-        <span style="font-size:11px;color:var(--text3)">v2.15.0</span>
+        <span style="font-size:11px;color:var(--text3)">v2.15.1</span>
       </div>
       <!-- Required by the sample licence (CC BY 3.0): name the work, the author and the
            licence, with a link to it. -->
@@ -3941,14 +3941,14 @@ function proUseCode(v) {
     if (el) el.textContent = r.ok ? '' : r.expired ? 'That code ended on ' + r.until + '.' : 'That code is not valid.';
   });
 }
-function proOff() { _proApply('', { ok: false }, false); say('Keymood Pro is off on this device'); }
-window.proUseCode = proUseCode; window.proOff = proOff;
+window.proUseCode = proUseCode;
 function _paintProRow() {
   var el = document.getElementById('pro-row');
   if (!el) return;
+  // No Turn off button (Dafa, 25 Nov: why have one?): one stray tap cost a tester their
+  // code. A tester sees when it ends; the owner checks the free app with ?pro=off.
   el.innerHTML = _pro
-    ? '<span class="set-label">Pro</span><span class="pro-state">On' + (_proInfo ? ' until ' + _proInfo.until : '') +
-      ' <button type="button" class="seg-btn" onclick="proOff()">Turn off</button></span>'
+    ? '<span class="set-label">Pro</span><span class="pro-state">On' + (_proInfo ? ' until ' + _proInfo.until : '') + '</span>'
     : '<span class="set-label">Pro code</span><span class="pro-state"><input type="text" id="pro-code" class="pro-code"' +
       ' autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste a code" aria-label="Keymood Pro code"' +
       ' onkeydown="if (event.key === \'Enter\') proUseCode(this.value)"><button type="button" class="seg-btn"' +
