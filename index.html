@@ -437,6 +437,20 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
   .panel-col { flex: 1 1 auto; min-height: 0; margin: 0 -12px -12px; width: auto;
                overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
   .panel-col > .tools, .panel-col > .mode-strip-wrap { margin-left: 12px; margin-right: 12px; }
+  /* The column is a sheet (layout C): scrolling its content lifts it over the wheel's
+     lower half, up to just below the hub, so a list gets ~400px instead of ~320 while the
+     hub (Play/Stop, the sounding chord) and the corner switches stay in view. The grip, or
+     pulling down at the top, lowers it again. */
+  .panel-col { position: relative; z-index: 2; background: var(--bg);
+               transition: margin-top .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s; }
+  .panel-col.up { margin-top: calc(-1 * var(--lift, 0px)); border-radius: 16px 16px 0 0;
+                  box-shadow: 0 -8px 20px rgba(0,0,0,.35); }
+  .panel-col > .sheet-grip { display: flex; position: sticky; top: 0; z-index: 3; width: 100%; height: 26px; margin: 0 0 2px;
+                align-items: center; justify-content: center; background: var(--bg); border: 0; padding: 0;
+                border-radius: 16px 16px 0 0; cursor: pointer; -webkit-appearance: none; appearance: none; }
+  .sheet-grip span { width: 38px; height: 5px; border-radius: 3px; background: var(--text3); opacity: .55; }
+  .panel-col .tl-head { top: 26px; }
+  @media (prefers-reduced-motion: reduce) { .panel-col { transition: none; } }
   /* Sheet, not a floating bordered card: bleeds to the screen edges and docks to
      the bottom, so unused space below short content reads as calm ground rather
      than a visibly empty box. It grows to fill the column but never shrinks below
@@ -483,6 +497,28 @@ canvas:focus-visible { outline-offset: 3px; }
    Every control here is a <button> on the house base: flex-centred, height from
    padding, a 44px hit area even where the visible pill is smaller. */
 .tools { border: 0.5px solid var(--bd); border-radius: 14px; background: var(--bg); padding: 8px; margin-bottom: 8px; }
+/* Layout C (Dafa, 25 Nov): the live controls sit ON the wheel, so they never scroll.
+   Play/Stop is the hub; the two top corners of the square canvas, empty of wheel, hold
+   the tool's two switches. The layer is laid over the canvas by resize(); only its
+   buttons take touches. Clearance: a 44px corner button's inner point is ~221px from
+   the centre at 402px wide, the wheel's hit edge 208. */
+.circle-col { position: relative; }
+.sheet-grip { display: none; }
+.wheel-ctl { position: absolute; pointer-events: none; z-index: 1; }
+.wheel-ctl button { position: absolute; top: 0; pointer-events: auto; width: 44px; height: 44px; border-radius: 22px;
+  display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
+  border: 0; margin: 0; padding: 0; font: inherit; font-size: 10px; line-height: 1; color: var(--text2);
+  background: var(--bg2); cursor: pointer; -webkit-appearance: none; appearance: none; text-box: normal; }
+.wheel-ctl button.tl { left: 0; } .wheel-ctl button.tr { right: 0; }
+.wheel-ctl button.on { color: var(--text); box-shadow: inset 0 0 0 1.5px var(--text); font-weight: 600; }
+.wheel-ctl button:active { transform: scale(.94); transition-duration: 0s; }
+/* The tool's switch and its tempo stay at the top of the scrolling column while its
+   list scrolls under them. */
+.tl-head { position: sticky; top: 0; z-index: 2; background: var(--bg); margin: -8px -8px 0; padding: 8px 8px 4px;
+  border-radius: 14px 14px 0 0; }
+.tl-head .tl-bpm { margin: 8px 0 2px; }
+.tl-head .tl-pm { padding: 10px 14px; }
+.tl-head .tl-bpmv { font-size: 22px; }
 .tools button { display:inline-flex; align-items:center; justify-content:center; gap:5px; font:inherit; line-height:1;
                 border:0; margin:0; cursor:pointer; position:relative; -webkit-appearance:none; appearance:none;
                 text-box: trim-both cap alphabetic; }
@@ -711,8 +747,12 @@ canvas:focus-visible { outline-offset: 3px; }
     <!-- The loading ring in the wheel's hub is canvas pixels; this says the same to a
          screen reader, and is hidden whenever the ring is. -->
     <progress id="piano-prog" class="sr-only" max="100" value="0" aria-label="Loading the piano" hidden></progress>
+    <div class="wheel-ctl" id="wheelctl"></div>
   </div>
-  <div class="panel-col">
+  <div class="panel-col" id="panelcol">
+    <!-- Phone only: the column is a sheet that rises over the lower half of the wheel to
+         give its list room, and comes back down. Hidden on wider screens. -->
+    <button type="button" class="sheet-grip" id="sheetgrip" aria-label="Show more of the list" aria-expanded="false"><span></span></button>
     <!-- Tools: the dice and the metronome. Their display is the middle of the wheel;
          this card is the switch and the controls. Rendered by renderTools(). -->
     <div class="tools" id="tools" style="display:none"></div>
@@ -1307,6 +1347,20 @@ function resize() {
   cv.height = s * dpr;
   ctx.scale(dpr, dpr);
   W = H = s; CX = CY = s/2; R = s * 0.50;
+  // The corner controls lie exactly over the canvas, and the phone sheet rises to just
+  // below the hub: from the canvas's bottom up to the hub's (0.40 R) plus a little air.
+  // The layer reaches up to 56px past each side of the canvas where the column has room,
+  // so the corner buttons sit beside the wheel rather than over its rim: on an iPhone SE
+  // the wheel is height-bound at ~264px, and a button in the canvas's own corner would
+  // have covered 8px of the outer ring.
+  var wc = document.getElementById('wheelctl');
+  if (wc) {
+    var spare = Math.max(0, Math.min(56, cv.offsetLeft));
+    wc.style.left = (cv.offsetLeft - spare) + 'px'; wc.style.top = cv.offsetTop + 'px';
+    wc.style.width = (s + 2 * spare) + 'px'; wc.style.height = s + 'px';
+  }
+  var pcol = document.getElementById('panelcol');
+  if (pcol) pcol.style.setProperty('--lift', Math.round(R * 0.60 + 2) + 'px');
   render();
   // The mark is larger on mobile, so its backing store has to follow the breakpoint.
   // Doing it here rather than only in a resize listener covers every path that
@@ -4222,15 +4276,10 @@ function _progHTML() {
            return '<div class="' + (playing && _pg.playing === k ? 'now' : '') + '"><b>' + c.label + '</b>' + c.name +
                   (dl ? '<i>' + dl + '</i>' : '') + '</div>';
          }).join('') + '</div>' +
-         '<p class="tl-note">' + p.why + (p.ex ? ' <span class="pg-ex">' + p.ex + '</span>' : '') + '</p>' +
-         '<div class="tl-bpm"><button type="button" class="tl-pm" aria-label="Slower" onclick="progTempo(-2)">' + TL_ICON.minus +
-         '</button><span class="tl-bpmv" id="pg-bpmv">' + _progBpm(p) + '<small>bpm</small></span>' +
-         '<button type="button" class="tl-pm" aria-label="Faster" onclick="progTempo(2)">' + TL_ICON.plus + '</button></div>' +
-         '<div class="tl-btns"><button type="button" class="tl-btn pri" onclick="progPlay()">' + (playing ? 'Stop' : 'Play') + '</button>' +
-         '<button type="button" class="tl-btn tog' + (_pg.loop ? ' on' : '') + '" aria-pressed="' + _pg.loop + '" onclick="progToggle(\'loop\')">' + TL_ICON.loop + 'Loop</button>' +
-         '<button type="button" class="tl-btn tog' + (_pg.click ? ' on' : '') + '" aria-pressed="' + _pg.click + '" onclick="progToggle(\'click\')">Click</button></div></div>';
+         '<p class="tl-note">' + p.why + (p.ex ? ' <span class="pg-ex">' + p.ex + '</span>' : '') + '</p></div>';
   });
-  h += '</div><p class="tl-note">Played in the key you pick on the wheel. Change the key while it loops and it follows.</p>';
+  h += '</div><p class="tl-note">Tap a progression to play it; the middle of the wheel plays and stops it, the corners hold Loop and Click. ' +
+       'It plays in the key you pick on the wheel, and follows when you change key.</p>';
   return h + '</div>';
 }
 // Moves only the "now" ring between chord cells - no rebuild mid-progression.
@@ -4308,6 +4357,35 @@ function toolTap() {
 // renderTools() bails out then - so paint the card once here, now that it can.
 setTimeout(function() { renderTools(); render(); }, 0);
 
+// ── The phone sheet (layout C) ────────────────────────────────────────────────
+// Scrolling the column's content lifts it over the lower half of the wheel, to just
+// below the hub (the CSS height is --lift, set by resize()); the hub and the corner
+// switches stay in view. The grip toggles it, and pulling down at the top of the
+// content lowers it. Phone width only; on a wider screen the column sits beside the
+// wheel and never covers it.
+(function() {
+  var col = document.getElementById('panelcol'), grip = document.getElementById('sheetgrip');
+  if (!col || !grip) return;
+  var mq = window.matchMedia ? window.matchMedia('(max-width: 620px)') : null;
+  function phone() { return mq ? mq.matches : window.innerWidth <= 620; }
+  function up() { return col.classList.contains('up'); }
+  function set(on) {
+    if (!phone()) on = false;
+    if (on === up()) return;
+    col.classList.toggle('up', on);
+    grip.setAttribute('aria-expanded', on ? 'true' : 'false');
+    grip.setAttribute('aria-label', on ? 'Show the whole wheel' : 'Show more of the list');
+  }
+  grip.addEventListener('click', function() { set(!up()); });
+  col.addEventListener('scroll', function() { if (col.scrollTop > 24) set(true); }, { passive: true });
+  var y0 = null;
+  col.addEventListener('touchstart', function(e) { y0 = col.scrollTop <= 0 ? e.touches[0].clientY : null; }, { passive: true });
+  col.addEventListener('touchmove', function(e) {
+    if (y0 !== null && up() && e.touches[0].clientY - y0 > 40) { set(false); y0 = null; }
+  }, { passive: true });
+  if (mq && mq.addEventListener) mq.addEventListener('change', function() { if (!phone()) set(false); });
+})();
+
 function renderTools() {
   var el = document.getElementById('tools');
   if (!el || !_dice) return;
@@ -4323,16 +4401,49 @@ function renderTools() {
   // The choice itself is kept: Pro is confirmed a moment after load (the token is hashed
   // asynchronously), and the open tab should come back once it is.
   var t = (tool === 'prog' && !_pro) ? null : tool;
-  var h = '<div class="tl-seg" role="group" aria-label="Tools">' +
+  _paintWheelCtl(t);
+  var h = '<div class="tl-head"><div class="tl-seg" role="group" aria-label="Tools">' +
     '<button type="button" class="' + (t === 'dice' ? 'on' : '') + '" aria-pressed="' + (t === 'dice') +
       '" onclick="setTool(\'dice\')">' + TL_ICON.dice + 'Dice</button>' +
     '<button type="button" class="' + (t === 'metro' ? 'on' : '') + '" aria-pressed="' + (t === 'metro') +
       '" onclick="setTool(\'metro\')">' + TL_ICON.metro + 'Metronome</button>' +
     (_pro ? '<button type="button" class="' + (t === 'prog' ? 'on' : '') + '" aria-pressed="' + (t === 'prog') +
       '" onclick="setTool(\'prog\')">' + TL_ICON.prog + 'Progressions</button>' : '') + '</div>';
+  // Tempo rides in the head with the switch, so it stays in reach while a list scrolls.
+  var hp = t === 'prog' ? _progById(_pg.id) : null;
+  if (t === 'metro') h += _tempoRow('tl-bpmv', _metroToolBpm, 'metroSetBpm(_metroToolBpm - 1)', 'metroSetBpm(_metroToolBpm + 1)');
+  else if (hp) h += _tempoRow('pg-bpmv', _progBpm(hp), 'progTempo(-2)', 'progTempo(2)');
+  h += '</div>';
   if (t === 'dice') h += _diceHTML();
   else if (t === 'metro') h += _metroHTML();
   else if (t === 'prog') h += _progHTML();
+  el.innerHTML = h;
+}
+function _tempoRow(id, v, minus, plus) {
+  return '<div class="tl-bpm"><button type="button" class="tl-pm" aria-label="Slower" onclick="' + minus + '">' + TL_ICON.minus +
+         '</button><span class="tl-bpmv" id="' + id + '">' + v + '<small>bpm</small></span>' +
+         '<button type="button" class="tl-pm" aria-label="Faster" onclick="' + plus + '">' + TL_ICON.plus + '</button></div>';
+}
+// The two top corners of the wheel: each tool's live switches (layout C). Dice: Loop
+// (Pro) and Roll. Metronome: Tap tempo. Progressions: Loop and Click. Play/Stop is the
+// hub itself, so nothing that runs the music ever scrolls out of reach.
+function _paintWheelCtl(t) {
+  var el = document.getElementById('wheelctl');
+  if (!el) return;
+  function b(pos, label, icon, on, act, aria) {
+    return '<button type="button" class="' + pos + (on ? ' on' : '') + '"' + (on !== null ? ' aria-pressed="' + !!on + '"' : '') +
+           ' aria-label="' + aria + '" onclick="' + act + '">' + icon + label + '</button>';
+  }
+  var h = '';
+  if (t === 'dice') {
+    if (_pro) h += b('tl', 'Loop', TL_ICON.loop, !!_dice.loop, 'diceLoop()', 'Loop the progression');
+    h += b('tr', 'Roll', TL_ICON.dice, null, 'diceRoll()', 'Roll the dice');
+  } else if (t === 'metro') {
+    h += b('tl', 'Tap', '', null, 'metroTap()', 'Tap tempo');
+  } else if (t === 'prog') {
+    h += b('tl', 'Loop', TL_ICON.loop, _pg.loop, "progToggle('loop')", 'Loop');
+    h += b('tr', 'Click', '', _pg.click, "progToggle('click')", 'Click on the beats');
+  }
   el.innerHTML = h;
 }
 function _diceHTML() {
@@ -4359,9 +4470,7 @@ function _diceHTML() {
     var dPlaying = _lp && _lp.tag === 'dice';
     h += '<div class="tl-btns"><button type="button" class="tl-btn pri" onclick="diceRoll()">' + TL_ICON.dice +
          'Roll</button><button type="button" class="tl-btn" onclick="' + (dPlaying ? 'diceStop()' : 'dicePlay()') + '">' +
-         (dPlaying ? 'Stop' : 'Play again') + '</button>' +
-         (_pro ? '<button type="button" class="tl-btn tog' + (_dice.loop ? ' on' : '') + '" aria-pressed="' + _dice.loop +
-                 '" onclick="diceLoop()">' + TL_ICON.loop + 'Loop</button>' : '') + '</div>';
+         (dPlaying ? 'Stop' : 'Play again') + '</button></div>';
   } else {
     h += '<div class="tl-btns"><button type="button" class="tl-btn pri" onclick="diceRoll()">' + TL_ICON.dice +
          'Roll</button></div>' +
@@ -4371,10 +4480,7 @@ function _diceHTML() {
   return h + '</div>';
 }
 function _metroHTML() {
-  var h = '<div class="tl-body"><div class="tl-lbl">Tempo</div><div class="tl-bpm">' +
-    '<button type="button" class="tl-pm" aria-label="Slower" onclick="metroSetBpm(_metroToolBpm - 1)">' + TL_ICON.minus + '</button>' +
-    '<span class="tl-bpmv" id="tl-bpmv">' + _metroToolBpm + '<small>bpm</small></span>' +
-    '<button type="button" class="tl-pm" aria-label="Faster" onclick="metroSetBpm(_metroToolBpm + 1)">' + TL_ICON.plus + '</button></div>' +
+  var h = '<div class="tl-body">' +
     '<input type="range" class="tl-range" id="tl-bpmr" min="20" max="400" step="1" value="' + _metroToolBpm +
     '" aria-label="Tempo in beats per minute" oninput="metroSetBpm(+this.value)">' +
     '<div class="tl-lbl">Meter</div><div class="tl-chips">';
@@ -4443,13 +4549,13 @@ function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
     // play in and what a tap does.
     var pp = _progById(_pg.id), pl = _lp && _lp.tag === 'prog' && _pg.playing >= 0 ? _lp.chords[_pg.playing] : null;
     if (pl) {
-      c2.fillStyle = ink; c2.font = '500 ' + big + 'px ' + ff; c2.fillText(pl.label, CX, CY - r * 0.20);
-      c2.fillStyle = sub; c2.font = '400 ' + (small * 1.25) + 'px ' + ff; c2.fillText(pl.name, CX, CY + r * 0.14);
-      if (_lp.loop) { c2.font = '400 ' + small + 'px ' + ff; c2.fillText('Loop · ' + _lp.bpm + ' bpm', CX, CY + r * 0.44); }
+      c2.fillStyle = ink; c2.font = '500 ' + big + 'px ' + ff; c2.fillText(pl.label, CX, CY - r * 0.26);
+      c2.fillStyle = sub; c2.font = '400 ' + (small * 1.25) + 'px ' + ff; c2.fillText(pl.name, CX, CY + r * 0.08);
+      _hubGlyph(c2, CX, CY + r * 0.50, r * 0.15, true, ink, dark ? '#1f1f1d' : '#f6f4ef');
     } else if (pp) {
       var tn = _progTonic();
-      c2.fillStyle = ink; c2.font = '500 ' + (big * 0.8) + 'px ' + ff; c2.fillText(tn.name + ' ' + PROG_MODE[pp.tonic], CX, CY - r * 0.14);
-      c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff; c2.fillText('Tap to play', CX, CY + r * 0.18);
+      c2.fillStyle = ink; c2.font = '500 ' + (big * 0.8) + 'px ' + ff; c2.fillText(tn.name + ' ' + PROG_MODE[pp.tonic], CX, CY - r * 0.18);
+      _hubGlyph(c2, CX, CY + r * 0.30, r * 0.17, false, ink, dark ? '#1f1f1d' : '#f6f4ef');
     } else {
       c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff; c2.fillText('Pick a progression', CX, CY);
     }
@@ -4462,6 +4568,8 @@ function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
     // One dot per pulse, clustered by group, a wider gap between bars; group starts
     // larger than the pulses inside a group, the bar's first pulse largest. A long
     // cycle shows only the bar that is playing.
+    // Stopped, the hub shows what a tap does; running, its dots are the beat, and a tap stops.
+    if (!_metroOn) { _hubGlyph(c2, CX, CY + r * 0.52, r * 0.15, false, ink, dark ? '#1f1f1d' : '#f6f4ef'); c2.restore(); return; }
     var P = M.pulses, curBar = (_metroOn && _metroCur >= 0 && P[_metroCur]) ? P[_metroCur].bar : 0;
     var idx = [];
     for (var i = 0; i < P.length; i++) if (P.length <= 24 || P[i].bar === curBar) idx.push(i);
@@ -4480,6 +4588,14 @@ function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
   c2.restore();
 }
 
+// Play or Stop, drawn in the hub: a disc in the ink with the symbol cut out of it.
+function _hubGlyph(c2, x, y, rad, playing, ink, ground) {
+  c2.beginPath(); c2.arc(x, y, rad, 0, Math.PI * 2); c2.fillStyle = ink; c2.fill();
+  c2.fillStyle = ground; c2.beginPath();
+  if (playing) { var q = rad * 0.36; c2.rect(x - q, y - q, q * 2, q * 2); }
+  else { var u = rad * 0.42; c2.moveTo(x - u * 0.7, y - u); c2.lineTo(x + u * 1.05, y); c2.lineTo(x - u * 0.7, y + u); c2.closePath(); }
+  c2.fill();
+}
 function _triad(root, type) {
   // root is 0-11 (semitone within octave)
   // return intervals relative to C (so _playNote with baseOct=4 gives correct pitches)
