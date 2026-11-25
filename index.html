@@ -1414,6 +1414,7 @@ var selAng  = new Spring(-Math.PI/2, 1.0, 0.42);   // radians - snapped, not ani
 var selRing = new Spring(0, 1.0, 0.34);            // 0 = outer, 1 = inner - snapped
 var selPop  = new Spring(1, 0.42, 0.36);           // marker scale; damping < 1 = the wobble
 var POP_FROM = 1.12;                               // starts 12% large and closes in
+var SEL_RISE = 1.07;                               // the raised selection's size at rest
 var _selInit = false;
 function popMarker() {
   if (reducedMotion()) return;
@@ -1666,6 +1667,7 @@ function render() {
              : (parentSl !== null && parentSl !== undefined) ? parentSl
              : selected.slice;
 
+  var _selLbl = null;   // the selected sector's label, redrawn on the raised sector below
   for (var i = 0; i < 12; i++) {
     var a0 = (-Math.PI/2) + i*slA - slA/2;
     var a1 = a0 + slA;
@@ -1874,6 +1876,7 @@ function render() {
     ctx.fillStyle = selFill;
     ctx.fillText(mainLabel, 0, 0);
     ctx.restore();
+    if (markOuter) _selLbl = { text: mainLabel, size: Math.max(12, R*0.072) };
 
     // Minor label (+ Camelot)
     if (showMinor) {
@@ -1895,6 +1898,7 @@ function render() {
                     : (onLightIn ? 'rgba(0,0,0,.6)' : 'rgba(255,255,255,.55)');
       ctx.fillText(minMain, 0, 0);
       ctx.restore();
+      if (isSel && selIsInner) _selLbl = { text: minMain, size: Math.max(9, R*0.052) };
     }
 
     // Accidentals (skip C=0, hide in Camelot mode). Dark theme was sub-perceptual
@@ -1920,29 +1924,52 @@ function render() {
   _drawToolDisplay(ctx, CX, CY, R, accR, ff, dark);
 
   // ── The selection marker ────────────────────────────────────────────────────
-  // Appears on the tapped sector at once and settles in with a small scale wobble
-  // (selPop), scaled about the middle of the sector - the point under the finger -
-  // so it reads as closing around the press rather than sliding in from anywhere.
+  // The selected sector RISES off the wheel toward you (Dafa, 25 Nov, replacing the
+  // white outline): drawn again on top, a little larger about its own middle, a shade
+  // lighter, over a soft shadow, with its label. It needs no room outside the wheel, so
+  // a minor on the inner ring rises the same way. It appears at once and settles with
+  // the same small wobble (selPop), scaled about the point under the finger. A note
+  // still rings it: the pulse that lights an ordinary sector lights the raised one.
   if (selected) {
     var mA0 = selAng.x - slA/2, mA1 = selAng.x + slA/2;
     var t   = selRing.x;                                   // 0 outer .. 1 inner
     var mOut = outerR + (innerR - outerR) * t;
     var mIn  = innerR + (accR   - innerR) * t;
-    var pop  = selPop.x, pr = (mOut + mIn) / 2;
+    var pop  = selPop.x * SEL_RISE, pr = (mOut + mIn) / 2;
     var pcx  = CX + Math.cos(selAng.x)*pr, pcy = CY + Math.sin(selAng.x)*pr;
+    var si   = selected.slice, sInner = t > 0.5;
+    var sBase = (dark && !GREY_PALETTES[curPalette]) ? lightenHex(SYNTH[si], 0.16) : SYNTH[si];
+    var sCol  = lightenHex(sBase, dark ? 0.14 : 0.18);
+    var sPulse = _pulseAt(si, sInner, _now);
+    if (sPulse > 0) sCol = lightenHex(sCol, 0.55*sPulse);
+    var dpr = devicePixelRatio || 1;                       // shadows ignore the transform
     ctx.save();
-    if (pop !== 1) { ctx.translate(pcx, pcy); ctx.scale(pop, pop); ctx.translate(-pcx, -pcy); }
+    ctx.translate(pcx, pcy); ctx.scale(pop, pop); ctx.translate(-pcx, -pcy);
     ctx.beginPath();
     ctx.moveTo(CX + Math.cos(mA0)*mOut, CY + Math.sin(mA0)*mOut);
     ctx.arc(CX, CY, mOut, mA0, mA1);
     ctx.arc(CX, CY, mIn,  mA1, mA0, true);
     ctx.closePath();
-    // Crisp double outline (dark halo + white line) - reads on any palette or theme,
-    // no fuzzy glow, even edges.
-    // Line widths divided by the scale so the outline stays the same weight while the
-    // shape breathes - otherwise the wobble would read as the line thickening.
-    ctx.strokeStyle = 'rgba(0,0,0,.5)'; ctx.lineWidth = 3.6/pop; ctx.stroke();
-    ctx.strokeStyle = '#ffffff';        ctx.lineWidth = 1.6/pop; ctx.stroke();
+    ctx.shadowColor   = dark ? 'rgba(0,0,0,.62)' : 'rgba(0,0,0,.30)';
+    ctx.shadowBlur    = R * 0.05 * dpr;
+    ctx.shadowOffsetY = R * 0.018 * dpr;
+    ctx.fillStyle = sCol;
+    ctx.fill();
+    ctx.shadowColor = 'transparent';
+    // A hairline in the theme's own edge colour keeps the raised edge crisp where its
+    // colour meets a neighbour of nearly the same hue.
+    ctx.strokeStyle = dark ? 'rgba(255,255,255,.22)' : 'rgba(0,0,0,.14)';
+    ctx.lineWidth = 1 / pop; ctx.stroke();
+    if (sPulse > 0.01) {
+      ctx.strokeStyle = dark ? 'rgba(255,255,255,'+(0.95*sPulse)+')' : 'rgba(0,0,0,'+(0.65*sPulse)+')';
+      ctx.lineWidth = (1 + 3.2*sPulse) / pop; ctx.stroke();
+    }
+    if (_selLbl) {
+      ctx.font = '600 ' + _selLbl.size + 'px ' + ff;
+      ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+      ctx.fillStyle = sectorLum(sCol, 1) > LUM_FLIP ? '#000' : '#fff';
+      ctx.fillText(_selLbl.text, pcx, pcy);
+    }
     ctx.restore();
   }
 
