@@ -61,6 +61,8 @@ button:active, .ni:active, .cp:active, .sn:active,
   --text: #e8e6e0; --text2: #9a9890; --text3: #8d8b83; /* 5.00 on bg, 4.50 on bg2 */
   --bd: rgba(255,255,255,0.08); --bd2: rgba(255,255,255,0.15);
   --font: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  /* Keymood Pro's one colour: the pill, the lock on its tab, the sheet's button. */
+  --pro: #e8c26a; --pro-ink: #1c1c1a;
 }
 :root.light {
   /* Two-surface light theme: a warm light-grey page, white elevated panels,
@@ -68,6 +70,8 @@ button:active, .ni:active, .cp:active, .sn:active,
   --bg: #e7e3da; --bg2: #f1eee7; --bg3: #e4e0d6;
   --text: #1a1917; --text2: #5c5b54; --text3: #656359; /* 4.71 on bg, 4.58 on bg3, 6.03 on the white panel */
   --bd: rgba(0,0,0,0.10); --bd2: rgba(0,0,0,0.16);
+  /* The dark gold reaches 4.9:1 on the page, where #e8c26a would be 1.5:1. */
+  --pro: #7a5a12; --pro-ink: #ffffff;
 }
 :root.light .panel { background: #ffffff; box-shadow: 0 1px 3px rgba(0,0,0,0.05); }
 /* In light theme these controls used --bg (= page colour) and vanished. Give them
@@ -196,8 +200,10 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .util-btn.muted { color:#fff; background:#b4472f; }
 .util-btn.muted:hover { background:#c2523a; }
 :root.light .util-btn.muted { color:#fff; background:#c14f36; }
-#bm-quiz { color:#9b7fd4; }
+/* One colour for all five, like one drawing style (Dafa, 25 Nov); the quiz keeps its
+   violet for the state it turns on, as mute keeps its red. */
 #bm-quiz.active { background:#7B5EA7; color:#fff; }
+.bar-ic { display:block; flex-shrink:0; }
 
 /* Settings popover */
 .settings-pop { position:absolute; top:calc(100% + 8px); right:0; z-index:30; background:var(--bg2); border:0.5px solid var(--bd2); border-radius: 14px; padding:12px 14px; display:flex; flex-direction:column; gap:13px; box-shadow:0 8px 24px rgba(0,0,0,.4); min-width:215px; }
@@ -216,6 +222,71 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
             border-radius: 8px; padding: 6px 8px; min-height: 36px; }
 .pro-msg { flex-basis: 100%; font-size: 11px; color: var(--text3); text-align: end; }
 .pro-msg:empty { display: none; }
+/* The way into Pro (Dafa, 25 Nov: "a button to go Pro, then a code or a purchase"): a
+   pill in the app bar, the locked Progressions tab and the Settings row all open one
+   sheet. Gone, with the lock, once Pro is on. */
+.pro-pill { position: relative; font: inherit; font-size: 12px; font-weight: 600; letter-spacing: .04em; line-height: 1;
+            color: var(--pro); background: none; border: 1.5px solid var(--pro); border-radius: 999px;
+            padding: 8px 11px; margin-inline-end: 6px; cursor: pointer; flex-shrink: 0;
+            display: inline-flex; align-items: center; justify-content: center; text-box: trim-both cap alphabetic; }
+.pro-pill::before { content: ''; position: absolute; inset: -8px -4px; }
+.pro-pill[hidden] { display: none; }
+/* At 320px the pill left the wordmark "KE..."; the coloured mark alone reads better. */
+@media (max-width: 340px) { .appbar:has(.pro-pill:not([hidden])) .wm-txt { display: none; } }
+.tl-seg button.locked svg { color: var(--pro); }
+.pro-ov { position: fixed; inset: 0; z-index: 60; }
+.pro-ov[hidden] { display: none; }
+.pro-back { position: absolute; inset: 0; background: rgba(0,0,0,.55); opacity: 0; transition: opacity .22s; touch-action: none; }
+:root.light .pro-back { background: rgba(0,0,0,.32); }
+.pro-sheet { position: absolute; left: 0; right: 0; bottom: 0; box-sizing: border-box; max-height: calc(100svh - 40px);
+             overflow-y: auto; overscroll-behavior: contain; background: var(--bg2); color: var(--text);
+             border-radius: 18px 18px 0 0; padding: 10px 24px calc(22px + env(safe-area-inset-bottom, 0px));
+             transform: translateY(100%); transition: transform .3s cubic-bezier(.32,.72,0,1); outline: none; }
+:root.light .pro-sheet { background: #ffffff; }
+.pro-ov.open .pro-back { opacity: 1; }
+.pro-ov.open .pro-sheet { transform: none; }
+.pro-grip { display: block; width: 40px; height: 5px; border-radius: 3px; background: var(--bd2); margin: 0 auto 12px; }
+.pro-x { position: absolute; top: 8px; inset-inline-end: 8px; background: none; border: none; color: var(--text2);
+         padding: 13px; border-radius: 999px; cursor: pointer; display: inline-flex; line-height: 1; }
+.pro-x:hover { background: var(--bg3); }
+.pro-sheet h2 { font-size: 22px; font-weight: 600; margin: 6px 0 4px; letter-spacing: -.01em; }
+.pro-sub { font-size: 13px; color: var(--text2); margin: 0 0 18px; }
+.pro-list { list-style: none; padding: 0; margin: 0 0 18px; }
+.pro-list li { position: relative; padding-inline-start: 22px; margin-bottom: 14px; }
+.pro-list li::before { content: ''; position: absolute; inset-inline-start: 3px; top: .42em; width: 8px; height: 8px;
+                       border-radius: 50%; background: var(--pro); }
+.pro-list b { display: block; font-size: 14px; font-weight: 500; }
+.pro-list span { display: block; font-size: 12px; line-height: 1.4; color: var(--text2); margin-top: 3px; }
+.pro-buy { border-top: 0.5px solid var(--bd); padding-top: 16px; text-align: center; }
+.pro-price { font-size: 14px; color: var(--text2); margin: 0 0 12px; }
+.pro-price b { color: var(--text); font-weight: 600; }
+.pro-notify { display: flex; align-items: center; justify-content: center; padding: 16px; border-radius: 999px;
+              background: var(--pro); color: var(--pro-ink); font-size: 14px; font-weight: 600; line-height: 1;
+              text-decoration: none; text-box: trim-both cap alphabetic; }
+.pro-free { font-size: 11.5px; color: var(--text3); margin: 10px 0 0; }
+.pro-codebox { border-top: 0.5px solid var(--bd); margin-top: 18px; padding-top: 14px; }
+.pro-lbl { display: block; font-size: 10px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
+.pro-coderow { display: flex; gap: 8px; }
+.pro-sheet .pro-code { flex: 1; width: auto; min-width: 0; min-height: 44px; box-sizing: border-box; }
+.pro-use { font: inherit; font-size: 14px; font-weight: 500; line-height: 1; color: var(--text); background: var(--bg3);
+           border: 0.5px solid var(--bd2); border-radius: 10px; padding: 0 20px; cursor: pointer;
+           display: inline-flex; align-items: center; text-box: trim-both cap alphabetic; }
+.pro-sheet .pro-msg { text-align: start; font-size: 12px; color: var(--text2); margin: 8px 0 0; }
+/* A wider screen gets a card in the middle rather than a sheet from the bottom edge. */
+@media (min-width: 621px) {
+  .pro-sheet { left: 50%; right: auto; top: 50%; bottom: auto; width: 400px; border-radius: 18px; padding-bottom: 24px;
+               max-height: calc(100svh - 64px); opacity: 0; transform: translate(-50%, -47%); transition: transform .22s, opacity .22s; }
+  .pro-ov.open .pro-sheet { transform: translate(-50%, -50%); opacity: 1; }
+  .pro-grip { visibility: hidden; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .pro-sheet, .pro-ov.open .pro-sheet { transform: none; transition: opacity .15s; }
+  .pro-sheet { opacity: 0; }
+  .pro-ov.open .pro-sheet { opacity: 1; }
+}
+@media (prefers-reduced-motion: reduce) and (min-width: 621px) {
+  .pro-sheet, .pro-ov.open .pro-sheet { transform: translate(-50%, -50%); }
+}
 .set-label { font-size:12px; color:var(--text2); }
 /* Fixed columns so the strips are all the same width and read as a comparison. */
 .pal-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
@@ -690,11 +761,14 @@ canvas:focus-visible { outline-offset: 3px; }
   <h1 style="pointer-events:none"><canvas id="wm" width="44" height="44" aria-hidden="true"></canvas><span class="wm-txt">Keymood</span></h1>
   <div style="flex:1"></div>
   <div class="util">
-    <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz" aria-pressed="false"><svg width="17" height="17" viewBox="0 0 16 16" style="vertical-align:middle"><path d="M8 2.5 1.5 5 8 7.5 14.5 5 8 2.5z" fill="currentColor"/><path d="M4 6.4V9.5c0 1 8 1 8 0V6.4M14 5.2v3.3" fill="none" stroke="currentColor" stroke-width="1.35" stroke-linecap="round"/></svg></button>
-    <button class="util-btn" id="btn-share" onclick="shareLink()" title="Copy link to this key" aria-label="Share"><svg width="17" height="17" viewBox="0 0 14 14" style="vertical-align:middle"><path d="M5.5 8.5a3 3 0 0 0 4.2 0l1.5-1.5a3 3 0 0 0-4.2-4.2L6 3.8" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><path d="M8.5 5.5a3 3 0 0 0-4.2 0L2.8 7a3 3 0 0 0 4.2 4.2L8 10.2" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
-    <button class="util-btn" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark" aria-label="Theme">&#9790;</button>
+    <!-- Shown once the stored code (if any) has been checked, so a Pro device never
+         flashes it. Painted by _paintProRow(). -->
+    <button type="button" class="pro-pill" id="btn-pro" onclick="proOpen()" aria-haspopup="dialog" title="Keymood Pro" hidden>Pro</button>
+    <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz" aria-pressed="false"><svg class="bar-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></button>
+    <button class="util-btn" id="btn-share" onclick="shareLink()" title="Copy link to this key" aria-label="Share"><svg class="bar-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
+    <button class="util-btn" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark" aria-label="Theme"></button>
     <button class="util-btn" id="btn-sound" onclick="toggleSound()" title="Toggle sound" aria-label="Sound"><svg width="17" height="17" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg></button>
-    <button class="util-btn" id="btn-settings" onclick="toggleSettings()" title="Settings" aria-label="Settings" aria-expanded="false" aria-controls="settings-pop">&#9881;</button>
+    <button class="util-btn" id="btn-settings" onclick="toggleSettings()" title="Settings" aria-label="Settings" aria-expanded="false" aria-controls="settings-pop"><svg class="bar-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z"/><circle cx="12" cy="12" r="3"/></svg></button>
     <!-- Inside .util (which is position:relative) so the popover anchors to the gear
          at every width instead of floating to the viewport corner. -->
     <div id="settings-pop" class="settings-pop" style="display:none">
@@ -723,12 +797,12 @@ canvas:focus-visible { outline-offset: 3px; }
         </div>
       </div>
       <div class="set-row pro-msg" id="awake-note" hidden></div>
-      <!-- Pro: a tester or the owner pastes a code here, or opens a ?pro= link. Painted by
-           _paintProRow(). The web build only: a store build sells Pro in the store. -->
+      <!-- Pro: its state, or a button to the Pro sheet. Painted by _paintProRow(). The web
+           build only: a store build sells Pro in the store. -->
       <div class="set-row pro-row" id="pro-row"></div>
       <div class="set-row" style="border-top:0.5px solid var(--bd);padding-top:11px">
         <span class="set-label">Version</span>
-        <span style="font-size:11px;color:var(--text3)">v2.15.1</span>
+        <span style="font-size:11px;color:var(--text3)">v2.16.0</span>
       </div>
       <!-- Required by the sample licence (CC BY 3.0): name the work, the author and the
            licence, with a link to it. -->
@@ -757,6 +831,39 @@ canvas:focus-visible { outline-offset: 3px; }
 </div>
 <input type="checkbox" id="cb-camelot" style="display:none">
 <input type="checkbox" id="cb-sol" style="display:none">
+<!-- Keymood Pro. The web build only: until a shop exists it says so and counts who wants
+     it by email, and takes a code from Dafa (his own, or a tester's). A store build sells
+     Pro through the store and shows no code field (App Store 3.1.1). -->
+<div class="pro-ov" id="pro-ov" hidden>
+  <div class="pro-back" onclick="proClose()"></div>
+  <div class="pro-sheet" id="pro-sheet" role="dialog" aria-modal="true" aria-labelledby="pro-title" tabindex="-1">
+    <span class="pro-grip" aria-hidden="true"></span>
+    <button type="button" class="pro-x" onclick="proClose()" aria-label="Close"><svg width="18" height="18" viewBox="0 0 18 18" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" aria-hidden="true"><path d="M4.5 4.5l9 9M13.5 4.5l-9 9"/></svg></button>
+    <h2 id="pro-title">Keymood Pro</h2>
+    <p class="pro-sub">Practice that does not go stale.</p>
+    <ul class="pro-list">
+      <li><b id="pro-n">Progressions in any key</b><span>Jazz, baroque and galant, blues, modal, flamenco, film, folk and more, with why each one works.</span></li>
+      <li><b>Loop and click</b><span>Play along with a progression or the dice on repeat, at your tempo.</span></li>
+      <li><b>Twist</b><span>The same progression again, with an unexpected turn in it.</span></li>
+    </ul>
+    <div class="pro-buy">
+      <!-- No price until Pro can be bought (Dafa, 25 Nov: "the price should not show yet"). -->
+      <p class="pro-price">Not on sale yet.</p>
+      <a class="pro-notify" href="mailto:hello@dafaspace.com?subject=Keymood%20Pro&amp;body=Please%20tell%20me%20when%20Keymood%20Pro%20is%20on%20sale.">Tell me when it is</a>
+      <!-- The address in words too: on a computer with no mail app the button does nothing. -->
+      <p class="pro-free">Opens an email to hello@dafaspace.com.<br>Everything free in Keymood stays free.</p>
+    </div>
+    <div class="pro-codebox">
+      <label class="pro-lbl" for="pro-code">Have a code?</label>
+      <div class="pro-coderow">
+        <input type="text" id="pro-code" class="pro-code" autocomplete="off" autocapitalize="off" spellcheck="false"
+               placeholder="Paste a code or link" onkeydown="if (event.key === 'Enter') proUseCode(this.value)">
+        <button type="button" class="pro-use" onclick="proUseCode(document.getElementById('pro-code').value)">Use</button>
+      </div>
+      <p class="pro-msg" id="pro-msg" role="status"></p>
+    </div>
+  </div>
+</div>
 
 <div class="mode-switcher" role="tablist" aria-label="View">
   <button class="ms-btn active" id="ms-tonal" role="tab" aria-selected="true" aria-controls="tabpanel" onclick="setAppMode('tonal')">Tonal</button>
@@ -1251,6 +1358,8 @@ document.addEventListener('click', function(e) {
 // popover, not the quiz underneath it.
 document.addEventListener('keydown', function(e) {
   if (e.key !== 'Escape') return;
+  var po = document.getElementById('pro-ov');
+  if (po && !po.hidden) { proClose(); return; }
   var p = document.getElementById('settings-pop');
   if (p && p.style.display !== 'none') {
     _setSettingsOpen(false); document.getElementById('btn-settings').focus(); return;
@@ -1308,8 +1417,9 @@ function toggleTheme() {
 function _updateThemeBtn() {
   var isLight = document.documentElement.classList.contains('light');
   var btn = document.getElementById('btn-theme');
-  // ︎ forces monochrome text rendering (not a colour emoji) for consistency.
-  btn.textContent = isLight ? '☀︎' : '☽︎';
+  // A drawn icon, not the text glyph it was: a font's moon and sun sat at another size
+  // and weight than the icons beside them, and differed between iOS and Android.
+  btn.innerHTML = isLight ? _ICON_SUN : _ICON_MOON;
   btn.style.color  = '';
   btn.setAttribute('aria-pressed', isLight ? 'true' : 'false');
   // Keep the OS/browser chrome (iOS status bar, Android toolbar) in step with the
@@ -3010,8 +3120,20 @@ var _soundOn  = loadPref('sound', true); // was hardcoded true - reset itself ev
 
 // One definition each - the load-time pref sync (further down) reuses these rather
 // than carrying its own copy of the markup.
-var _ICON_SOUND_ON  = '<svg width="17" height="17" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><path d="M8.5 5a2.5 2.5 0 0 1 0 4" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
-var _ICON_SOUND_OFF = '<svg width="17" height="17" viewBox="0 0 14 14" style="vertical-align:middle"><polygon points="1,4.5 4,4.5 7,2 7,12 4,9.5 1,9.5" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/><line x1="9.5" y1="5" x2="12" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/><line x1="12" y1="5" x2="9.5" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/></svg>';
+// The app bar's icons (Dafa, 25 Nov: "all five in one style"): Lucide (ISC licence), the
+// set Cinemail uses, on one 24 grid with one stroke. Quiz, share and settings are drawn
+// in the markup with the same wrapper; link and moon are Cinemail's own paths, so the
+// two apps draw them identically.
+function _barSvg(d) {
+  return '<svg class="bar-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"' +
+         ' stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">' + d + '</svg>';
+}
+var _BAR_SPEAKER = '<path d="M11 4.702a.705.705 0 0 0-1.203-.498L6.413 7.587A1.4 1.4 0 0 1 5.416 8H3a1 1 0 0 0-1 1v6a1 1 0 0 0 1 1h2.416a1.4 1.4 0 0 1 .997.413l3.383 3.384A.705.705 0 0 0 11 19.298z"/>';
+var _ICON_SOUND_ON  = _barSvg(_BAR_SPEAKER + '<path d="M16 9a5 5 0 0 1 0 6"/><path d="M19.364 18.364a9 9 0 0 0 0-12.728"/>');
+var _ICON_SOUND_OFF = _barSvg(_BAR_SPEAKER + '<path d="M22 9l-6 6"/><path d="M16 9l6 6"/>');
+var _ICON_MOON = _barSvg('<path d="M20.985 12.486a9 9 0 1 1-9.473-9.472c.405-.022.617.46.402.803a6 6 0 0 0 8.268 8.268c.344-.215.825-.004.803.401"/>');
+var _ICON_SUN  = _barSvg('<circle cx="12" cy="12" r="4"/><path d="M12 2v2"/><path d="M12 20v2"/><path d="m4.93 4.93 1.41 1.41"/>' +
+  '<path d="m17.66 17.66 1.41 1.41"/><path d="M2 12h2"/><path d="M20 12h2"/><path d="m6.34 17.66-1.41 1.41"/><path d="m19.07 4.93-1.41 1.41"/>');
 
 function toggleSound() {
   _soundOn = !_soundOn;
@@ -3737,6 +3859,9 @@ var TL_ICON = {
   cycle: '<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.8 4.6A4 4 0 0 0 2.5 4.2M2.2 7.4A4 4 0 0 0 9.5 7.8"/><path d="M2.3 1.9v2.4h2.4M9.7 10.1V7.7H7.3"/></svg>',
   shuffle: '<svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1.5 3.5h2c1.5 0 2.5 5 4 5h3M1.5 8.5h2c1.5 0 2.5-5 4-5h3M9 2l1.5 1.5L9 5M9 7l1.5 1.5L9 10"/></svg>',
   prog:  '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linejoin="round" aria-hidden="true"><rect x="2" y="7" width="2.6" height="7" rx=".8"/><rect x="6.7" y="3" width="2.6" height="11" rx=".8"/><rect x="11.4" y="5" width="2.6" height="9" rx=".8"/></svg>',
+  // The Progressions tab without Pro: a lock in the same 15px box as the tab's own icon,
+  // so the tab is as wide locked as open.
+  lockTab: '<svg width="15" height="15" viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.3" aria-hidden="true"><rect x="3.5" y="7" width="9" height="7" rx="1.5"/><path d="M5.5 7V5a2.5 2.5 0 0 1 5 0v2"/></svg>',
   loop:  '<svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" stroke-width="1.3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9.8 4.6A4 4 0 0 0 2.5 4.2M2.2 7.4A4 4 0 0 0 9.5 7.8"/><path d="M2.3 1.9v2.4h2.4M9.7 10.1V7.7H7.3"/></svg>',
   minus: '<svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 7h8"/></svg>',
   plus:  '<svg width="14" height="14" viewBox="0 0 14 14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" aria-hidden="true"><path d="M3 7h8M7 3v8"/></svg>'
@@ -3921,7 +4046,11 @@ function _proCheck(code) {
     return { ok: left, expired: !left, who: m[1], until: m[2].slice(0, 4) + '-' + m[2].slice(4, 6) + '-' + m[2].slice(6) };
   }, function() { return { ok: false }; });
 }
+// False until the stored code, if any, has been checked: the pill and the lock wait for
+// it, so a Pro device does not flash them for the moment the check takes.
+var _proKnown = false;
 function _proApply(code, r, announce) {
+  _proKnown = true;
   if (r.ok) {
     _pro = true; _proInfo = r.who ? { who: r.who, until: r.until } : null; savePref('pro', code);
     if (announce) say('Keymood Pro is on' + (r.until ? ' until ' + r.until : '') + ' on this device');
@@ -3932,29 +4061,86 @@ function _proApply(code, r, announce) {
   }
   renderTools(); render(); _paintProRow();
 }
-// From the Settings field; the link form is read at load below.
+// From the Pro sheet's field; the link form is read at load below. A code that fails
+// leaves things as they were: only a good one changes anything.
 function proUseCode(v) {
-  var code = String(v || '').trim().replace(/^.*[?&]pro=/, '');
+  var code = String(v || '').trim().replace(/^.*[?&]pro=/, '').replace(/[&#].*$/, '');
+  var msg = document.getElementById('pro-msg');
+  if (!code) { if (msg) msg.textContent = 'Paste the code or the link you were given.'; return; }
   _proCheck(code).then(function(r) {
-    _proApply(code, r, true);              // repaints the row, so its message is looked up after
-    var el = document.getElementById('pro-msg');
-    if (el) el.textContent = r.ok ? '' : r.expired ? 'That code ended on ' + r.until + '.' : 'That code is not valid.';
+    if (!r.ok) {
+      if (msg) msg.textContent = r.expired ? 'That code ended on ' + r.until + '.' : 'That code is not valid.';
+      return;
+    }
+    _proApply(code, r, true);
+    proClose();
+    // Show what was just unlocked: the library is the first thing Pro names.
+    if (tool !== 'prog') {
+      if (toolsVisible()) setTool('prog');
+      else { tool = 'prog'; savePref('tool', tool); }
+    }
   });
 }
 window.proUseCode = proUseCode;
 function _paintProRow() {
+  var pill = document.getElementById('btn-pro');
+  if (pill) pill.hidden = _pro || !_proKnown;
   var el = document.getElementById('pro-row');
   if (!el) return;
   // No Turn off button (Dafa, 25 Nov: why have one?): one stray tap cost a tester their
   // code. A tester sees when it ends; the owner checks the free app with ?pro=off.
   el.innerHTML = _pro
     ? '<span class="set-label">Pro</span><span class="pro-state">On' + (_proInfo ? ' until ' + _proInfo.until : '') + '</span>'
-    : '<span class="set-label">Pro code</span><span class="pro-state"><input type="text" id="pro-code" class="pro-code"' +
-      ' autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste a code" aria-label="Keymood Pro code"' +
-      ' onkeydown="if (event.key === \'Enter\') proUseCode(this.value)"><button type="button" class="seg-btn"' +
-      ' onclick="proUseCode(document.getElementById(\'pro-code\').value)">Use</button></span>' +
-      '<span class="pro-msg" id="pro-msg" role="status"></span>';
+    : '<span class="set-label">Pro</span><button type="button" class="seg-btn" aria-haspopup="dialog"' +
+      ' onclick="proOpen()">See Keymood Pro</button>';
 }
+// The Pro sheet. A modal: focus moves into it and back, Tab stays inside, and Escape,
+// the backdrop, the cross or a pull down on the sheet close it.
+var _proBack = null;
+function _proOv() { return document.getElementById('pro-ov'); }
+function proOpen() {
+  var ov = _proOv();
+  if (!ov || !ov.hidden) return;
+  _proBack = document.activeElement;
+  var sp = document.getElementById('settings-pop');
+  if (sp && sp.style.display !== 'none') { _setSettingsOpen(false); _proBack = document.getElementById('btn-settings'); }
+  var n = document.getElementById('pro-n');
+  if (n) n.textContent = PROG_LIB.length + ' progressions in any key';
+  var msg = document.getElementById('pro-msg'); if (msg) msg.textContent = '';
+  ov.hidden = false;
+  void ov.offsetWidth;                     // lay it out closed first, so the slide runs
+  ov.classList.add('open');
+  // The sheet itself takes focus, not the field: on a phone a focused field raises the
+  // keyboard over what Pro is.
+  document.getElementById('pro-sheet').focus({ preventScroll: true });
+}
+function proClose() {
+  var ov = _proOv();
+  if (!ov || ov.hidden || !ov.classList.contains('open')) return;
+  ov.classList.remove('open');
+  var f = document.getElementById('pro-code'); if (f) f.blur();
+  setTimeout(function() { if (!ov.classList.contains('open')) ov.hidden = true; }, 320);
+  if (_proBack && _proBack.focus && document.body.contains(_proBack)) _proBack.focus({ preventScroll: true });
+  _proBack = null;
+}
+function proOpen_tab() { if (_pro) setTool('prog'); else proOpen(); }
+window.proOpen = proOpen; window.proClose = proClose; window.proOpen_tab = proOpen_tab;
+(function() {
+  var sh = document.getElementById('pro-sheet');
+  if (!sh) return;
+  sh.addEventListener('keydown', function(e) {
+    if (e.key !== 'Tab') return;
+    var f = sh.querySelectorAll('button, a[href], input');
+    var first = f[0], last = f[f.length - 1];
+    if (e.shiftKey && (document.activeElement === first || document.activeElement === sh)) { e.preventDefault(); last.focus(); }
+    else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+  });
+  var y0 = null;
+  sh.addEventListener('touchstart', function(e) { y0 = sh.scrollTop <= 0 ? e.touches[0].clientY : null; }, { passive: true });
+  sh.addEventListener('touchmove', function(e) {
+    if (y0 !== null && e.touches[0].clientY - y0 > 70) { y0 = null; proClose(); }
+  }, { passive: true });
+})();
 (function() {
   var q = null;
   try { q = new URLSearchParams(location.search).get('pro'); } catch (e) {}
@@ -3966,9 +4152,13 @@ function _paintProRow() {
     if (q === 'off') { try { localStorage.removeItem('cof_pro'); } catch (e) {} }
   }
   var code = (q && q !== 'off') ? q : loadPref('pro', null);
+  if (!code) _proKnown = true;
   setTimeout(_paintProRow, 0);
   if (!code) return;
-  _proCheck(code).then(function(r) { if (r.ok || q || r.expired) _proApply(code, r, !!q); });
+  _proCheck(code).then(function(r) {
+    if (r.ok || q || r.expired) _proApply(code, r, !!q);
+    else { _proKnown = true; renderTools(); _paintProRow(); }
+  });
 })();
 
 // ── Chord player ──────────────────────────────────────────────────────────────
@@ -4687,19 +4877,22 @@ function renderTools() {
     return;
   }
   el.style.display = '';
-  // Progressions is Pro: not shown at all without it (nothing can be bought yet, and a
-  // tab that leads to a lock is the placeholder a store rejects).
+  // Progressions is Pro. Its tab is shown to everyone (Dafa, 25 Nov: "1a"), and without
+  // Pro it carries a lock and opens the Pro sheet: the library is what Pro is for, so it
+  // is where people should find it. The lock waits until the stored code is checked.
   // The choice itself is kept: Pro is confirmed a moment after load (the token is hashed
   // asynchronously), and the open tab should come back once it is.
   var t = (tool === 'prog' && !_pro) ? null : tool;
+  var locked = !_pro && _proKnown;
   _paintWheelCtl(t);
   var h = '<div class="tl-head"><div class="tl-seg" role="group" aria-label="Tools">' +
     '<button type="button" class="' + (t === 'dice' ? 'on' : '') + '" aria-pressed="' + (t === 'dice') +
       '" onclick="setTool(\'dice\')">' + TL_ICON.dice + 'Dice</button>' +
     '<button type="button" class="' + (t === 'metro' ? 'on' : '') + '" aria-pressed="' + (t === 'metro') +
       '" onclick="setTool(\'metro\')">' + TL_ICON.metro + 'Metronome</button>' +
-    (_pro ? '<button type="button" class="' + (t === 'prog' ? 'on' : '') + '" aria-pressed="' + (t === 'prog') +
-      '" onclick="setTool(\'prog\')">' + TL_ICON.prog + 'Progressions</button>' : '') + '</div>';
+    '<button type="button" class="' + (t === 'prog' ? 'on' : '') + (locked ? ' locked' : '') + '" ' +
+      (locked ? 'aria-haspopup="dialog" aria-label="Progressions, Keymood Pro"' : 'aria-pressed="' + (t === 'prog') + '"') +
+      ' onclick="proOpen_tab()">' + (locked ? TL_ICON.lockTab : TL_ICON.prog) + 'Progressions</button></div>';
   // Tempo rides in the head with the switch, so it stays in reach while a list scrolls.
   var hp = t === 'prog' ? _progById(_pg.id) : null;
   if (t === 'metro') h += _tempoRow('tl-bpmv', _metroToolBpm, 'metroSetBpm(_metroToolBpm - 1)', 'metroSetBpm(_metroToolBpm + 1)');
