@@ -209,6 +209,13 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 :root.light .settings-pop { background:#ffffff;
   box-shadow:0 10px 30px rgba(0,0,0,.12), 0 2px 6px rgba(0,0,0,.06); }
 .set-row { display:flex; align-items:center; justify-content:space-between; gap:16px; }
+.pro-row { flex-wrap: wrap; }
+.pro-state { display:flex; align-items:center; gap:6px; font-size:11px; color:var(--text2); }
+/* 16px: iOS Safari zooms into any smaller field. */
+.pro-code { width: 9.5em; font: inherit; font-size: 16px; color: var(--text); background: var(--bg); border: 0.5px solid var(--bd2);
+            border-radius: 8px; padding: 6px 8px; min-height: 36px; }
+.pro-msg { flex-basis: 100%; font-size: 11px; color: var(--text3); text-align: end; }
+.pro-msg:empty { display: none; }
 .set-label { font-size:12px; color:var(--text2); }
 /* Fixed columns so the strips are all the same width and read as a comparison. */
 .pal-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:6px; }
@@ -694,9 +701,12 @@ canvas:focus-visible { outline-offset: 3px; }
           <button type="button" class="seg-btn"        id="seg-acc-off" onclick="setAccRing(false)" title="Strip the wheel back to the keys alone">Hide</button>
         </div>
       </div>
+      <!-- Pro: a tester or the owner pastes a code here, or opens a ?pro= link. Painted by
+           _paintProRow(). The web build only: a store build sells Pro in the store. -->
+      <div class="set-row pro-row" id="pro-row"></div>
       <div class="set-row" style="border-top:0.5px solid var(--bd);padding-top:11px">
         <span class="set-label">Version</span>
-        <span style="font-size:11px;color:var(--text3)">v2.13.3</span>
+        <span style="font-size:11px;color:var(--text3)">v2.14.0</span>
       </div>
       <!-- Required by the sample licence (CC BY 3.0): name the work, the author and the
            licence, with a link to it. -->
@@ -3828,7 +3838,76 @@ window.diceStop = diceStop; window.diceLoop = diceLoop;
 // parameter is taken out of the address at once, so a shared link never carries it.
 // ?pro=off turns it off on that device.
 var PRO_HASH = 'fae799733ceef90a2139f8fb5526ec6941303e4e26b7137d1ade4479b50ba2a7';
-var _pro = false;
+// Tester codes (Dafa, 25 Nov: "codes I can give testers, for a while"): "<payload>.<sig>",
+// the payload "label|YYYYMMDD" - the last day it works - in base64url, signed with ECDSA
+// P-256 by tools/pro-code.mjs. Only the public key is here: the app can check a code but
+// not make one, and no server is needed. A code past its day turns Pro off again by itself.
+// A code cannot be withdrawn early except by listing it here in a release.
+var PRO_PUB = { kty: 'EC', crv: 'P-256', x: 'hZuW7hrXyMpvIXUe9dcrzTXwofk23EudZSR5fOdL5P8', y: 'qpD8ZEXREEmrp3g2cmpiQAPkVY2MinBGowjxJMMymU8' };
+var PRO_REVOKED = [];                     // payloads ("T03|20261225") withdrawn early
+var _pro = false, _proInfo = null;        // _proInfo: {who, until} for a tester code
+function _b64uBytes(s) {
+  var b = atob(s.replace(/-/g, '+').replace(/_/g, '/') + '==='.slice((s.length + 3) % 4));
+  var a = new Uint8Array(b.length); for (var i = 0; i < b.length; i++) a[i] = b.charCodeAt(i);
+  return a;
+}
+function _todayYmd() { var d = new Date(); return d.getFullYear() * 10000 + (d.getMonth() + 1) * 100 + d.getDate(); }
+// Resolves to {ok, who, until, expired} for a code, never rejects.
+function _proCheck(code) {
+  var fail = Promise.resolve({ ok: false });
+  if (!code || !window.crypto || !crypto.subtle || !window.TextEncoder) return fail;
+  if (code.indexOf('.') < 0) {            // the owner's own token
+    return crypto.subtle.digest('SHA-256', new TextEncoder().encode(code)).then(function(buf) {
+      var hex = Array.prototype.map.call(new Uint8Array(buf), function(b) { return ('0' + b.toString(16)).slice(-2); }).join('');
+      return { ok: hex === PRO_HASH };
+    }, function() { return { ok: false }; });
+  }
+  var parts = code.split('.'), text;
+  try { text = new TextDecoder().decode(_b64uBytes(parts[0])); } catch (e) { return fail; }
+  var m = /^([A-Za-z0-9-]{1,16})\|(\d{8})$/.exec(text);
+  if (!m || PRO_REVOKED.indexOf(text) >= 0) return fail;
+  return crypto.subtle.importKey('jwk', PRO_PUB, { name: 'ECDSA', namedCurve: 'P-256' }, false, ['verify']).then(function(k) {
+    return crypto.subtle.verify({ name: 'ECDSA', hash: 'SHA-256' }, k, _b64uBytes(parts[1]), new TextEncoder().encode(parts[0]));
+  }).then(function(good) {
+    if (!good) return { ok: false };
+    var until = +m[2], left = until >= _todayYmd();
+    return { ok: left, expired: !left, who: m[1], until: m[2].slice(0, 4) + '-' + m[2].slice(4, 6) + '-' + m[2].slice(6) };
+  }, function() { return { ok: false }; });
+}
+function _proApply(code, r, announce) {
+  if (r.ok) {
+    _pro = true; _proInfo = r.who ? { who: r.who, until: r.until } : null; savePref('pro', code);
+    if (announce) say('Keymood Pro is on' + (r.until ? ' until ' + r.until : '') + ' on this device');
+  } else {
+    var had = _pro; _pro = false; _proInfo = null;
+    try { localStorage.removeItem('cof_pro'); } catch (e) {}
+    if (r.expired && (announce || had)) say('This Keymood Pro test code ended on ' + r.until);
+  }
+  renderTools(); render(); _paintProRow();
+}
+// From the Settings field; the link form is read at load below.
+function proUseCode(v) {
+  var code = String(v || '').trim().replace(/^.*[?&]pro=/, '');
+  _proCheck(code).then(function(r) {
+    _proApply(code, r, true);              // repaints the row, so its message is looked up after
+    var el = document.getElementById('pro-msg');
+    if (el) el.textContent = r.ok ? '' : r.expired ? 'That code ended on ' + r.until + '.' : 'That code is not valid.';
+  });
+}
+function proOff() { _proApply('', { ok: false }, false); say('Keymood Pro is off on this device'); }
+window.proUseCode = proUseCode; window.proOff = proOff;
+function _paintProRow() {
+  var el = document.getElementById('pro-row');
+  if (!el) return;
+  el.innerHTML = _pro
+    ? '<span class="set-label">Pro</span><span class="pro-state">On' + (_proInfo ? ' until ' + _proInfo.until : '') +
+      ' <button type="button" class="seg-btn" onclick="proOff()">Turn off</button></span>'
+    : '<span class="set-label">Pro code</span><span class="pro-state"><input type="text" id="pro-code" class="pro-code"' +
+      ' autocomplete="off" autocapitalize="off" spellcheck="false" placeholder="Paste a code" aria-label="Keymood Pro code"' +
+      ' onkeydown="if (event.key === \'Enter\') proUseCode(this.value)"><button type="button" class="seg-btn"' +
+      ' onclick="proUseCode(document.getElementById(\'pro-code\').value)">Use</button></span>' +
+      '<span class="pro-msg" id="pro-msg" role="status"></span>';
+}
 (function() {
   var q = null;
   try { q = new URLSearchParams(location.search).get('pro'); } catch (e) {}
@@ -3837,17 +3916,12 @@ var _pro = false;
       var u = new URL(location.href); u.searchParams.delete('pro');
       history.replaceState(null, '', u.pathname + u.search + u.hash);
     } catch (e) {}
-    if (q === 'off') { try { localStorage.removeItem('cof_pro'); } catch (e) {} return; }
+    if (q === 'off') { try { localStorage.removeItem('cof_pro'); } catch (e) {} }
   }
-  var tok = q || loadPref('pro', null);
-  if (!tok || !window.crypto || !crypto.subtle || !window.TextEncoder) return;
-  crypto.subtle.digest('SHA-256', new TextEncoder().encode(tok)).then(function(buf) {
-    var hex = Array.prototype.map.call(new Uint8Array(buf), function(b) { return ('0' + b.toString(16)).slice(-2); }).join('');
-    if (hex !== PRO_HASH) return;
-    _pro = true; savePref('pro', tok);
-    renderTools(); render();
-    if (q) say('Keymood Pro is on for this device');
-  }, function() {});
+  var code = (q && q !== 'off') ? q : loadPref('pro', null);
+  setTimeout(_paintProRow, 0);
+  if (!code) return;
+  _proCheck(code).then(function(r) { if (r.ok || q || r.expired) _proApply(code, r, !!q); });
 })();
 
 // ── Chord player ──────────────────────────────────────────────────────────────
