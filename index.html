@@ -426,15 +426,28 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
      width instead of filling the screen. */
   .layout { flex: 1; min-height: 0; display: flex; flex-direction: column; gap: 0; align-items: stretch; }
   .circle-col { flex: 0 0 auto; width: 100%; display: flex; justify-content: center; padding: 4px 0 10px; }
-  .panel-col { flex: 1 1 auto; min-height: 0; width: 100%; }
+  /* Everything under the wheel scrolls as ONE column: the tools card, the mode strip
+     and the sheet. Only the sheet used to scroll, and the tools card sat above it at
+     full height - with the Metronome open it took the whole space below the wheel, the
+     sheet shrank to nothing and Start was cut off with no way to reach it (Dafa's
+     iPhone, 25 Nov; seen the same in the iOS 26 simulator). The wheel stays put above,
+     so the beat display in its middle is always in view. The column runs to the screen
+     edges and the bottom itself, so it can clip sideways without cutting the sheet's
+     bleed, and it ends above the home indicator. */
+  .panel-col { flex: 1 1 auto; min-height: 0; margin: 0 -12px -12px; width: auto;
+               overflow-x: hidden; overflow-y: auto; overscroll-behavior: contain; }
+  .panel-col > .tools, .panel-col > .mode-strip-wrap { margin-left: 12px; margin-right: 12px; }
   /* Sheet, not a floating bordered card: bleeds to the screen edges and docks to
      the bottom, so unused space below short content reads as calm ground rather
-     than a visibly empty box. Content scrolls internally when it's taller than
-     the sheet - the page itself stays fixed (html/body overflow:hidden above). */
-  .panel { flex: 1 1 auto; min-height: 0; margin: 0 -12px -12px; border: none;
+     than a visibly empty box. It grows to fill the column but never shrinks below
+     its content - the column scrolls instead. */
+  .panel { flex: 1 0 auto; min-height: 0; margin: 0; border: none;
            border-top: 0.5px solid var(--bd); border-radius: 14px 16px 0 0;
            background: var(--bg2); }
   .pbody { padding: 12px 16px 16px; overflow-y: auto; }
+  /* Two classes, so the base .pbody rule further down (same single class, later in the
+     file) cannot win back the inner scroll: one scroller per column, not two nested. */
+  .panel-col .pbody { overflow: visible; padding-bottom: calc(11px + env(safe-area-inset-bottom, 0px)); }
   /* Mode strip: deterministic single row, equal columns - never wraps raggedly. */
   .mode-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
   .mode-strip-wrap { margin: 0 0 6px; }
@@ -3310,6 +3323,69 @@ function _playArp(semis, oct, at) {
 // first use). Keeping them separate is what stops a fast double-tap from starting
 // two schedulers and orphaning the first (an un-killable click track).
 var _metroTimer = null, _metroBeat = 0, _metroOn = false;
+
+// ── Keeping time when the phone wants to sleep ────────────────────────────────
+// Dafa, 25 Nov: "the iPhone screen goes dark and the sound stops". Two causes, two fixes.
+// 1. The screen locks, iOS suspends the page and its audio with it. While anything keeps
+//    time (the metronome, the loop) the app holds a Screen Wake Lock, so the screen does
+//    not lock. Safari 16.4+ (home-screen apps from iOS 18.4), Chrome and Edge 84+,
+//    Firefox 126+. Released the moment nothing plays, and the system drops it whenever
+//    the page is hidden, so it is asked for again on return.
+// 2. The scheduler ran on setInterval, which a hidden tab throttles (Chrome to once a
+//    minute after five minutes). A worker's timers are not throttled that way, so the
+//    lookahead ticks come from a tiny worker; setInterval remains the fallback.
+var _awake = { why: {}, lock: null };
+function _keepAwake(reason, on) {
+  if (on) _awake.why[reason] = true; else delete _awake.why[reason];
+  _syncWakeLock();
+}
+function _syncWakeLock() {
+  var want = Object.keys(_awake.why).length > 0;
+  if (!('wakeLock' in navigator)) return;
+  if (want && !_awake.lock && !document.hidden) {
+    _awake.lock = 'pending';
+    navigator.wakeLock.request('screen').then(function (l) {
+      if (!Object.keys(_awake.why).length) { l.release().catch(function () {}); _awake.lock = null; return; }
+      _awake.lock = l;
+      l.addEventListener('release', function () { if (_awake.lock === l) _awake.lock = null; });
+    }, function () { _awake.lock = null; });
+  } else if (!want && _awake.lock && _awake.lock !== 'pending') {
+    var l = _awake.lock; _awake.lock = null; l.release().catch(function () {});
+  }
+}
+var _tick = (function () {
+  var subs = {}, n = 0, live = 0, w = null, iv = null;
+  function fire() { for (var k in subs) subs[k](); }
+  try {
+    var src = 'var t=null;onmessage=function(e){if(e.data&&!t)t=setInterval(function(){postMessage(0)},25);' +
+              'else if(!e.data){clearInterval(t);t=null}}';
+    w = new Worker(URL.createObjectURL(new Blob([src], { type: 'text/javascript' })));
+    w.onmessage = fire;
+  } catch (e) { w = null; }
+  return {
+    on: function (fn) {
+      subs[++n] = fn;
+      if (++live === 1) { if (w) w.postMessage(1); else iv = setInterval(fire, 25); }
+      return n;
+    },
+    off: function (id) {
+      if (!subs[id]) return;
+      delete subs[id];
+      if (--live === 0) { if (w) w.postMessage(0); else { clearInterval(iv); iv = null; } }
+    }
+  };
+})();
+// Back from a lock or another app: if the clock under a running metronome stopped
+// (suspended, interrupted, stalled), start it again from its first pulse on a live
+// one, rather than leave the button lit over silence. A metronome that kept playing in
+// a background tab is left alone, so a glance at another tab costs no downbeat.
+document.addEventListener('visibilitychange', function () {
+  if (document.hidden) return;
+  _syncWakeLock();
+  if (_metroOn && _audioCtx && (_audioCtx.state !== 'running' || _ctxProblem(_audioCtx))) {
+    var b = _metroBpm, m = _metroM; _stopMetronome(); _metroStart(b, m);
+  }
+});
 // level 2 = first pulse of the bar, 1 = first pulse of a group (every beat of 4/4),
 // 0 = a pulse inside a group (the "and"s of 2+2+3). true/false still mean 2/1.
 function _playClick(when, level) {
@@ -3419,12 +3495,16 @@ function _metroStart(bpm, meter) {
   _metroBpm = bpm;
   _metroM = (meter && typeof meter === 'object') ? meter : meterCompile(parseMeter((meter || 4) + '/4'));
   _metroOn = true;
+  _keepAwake('metro', true);
   _withCtx(function() {
     if (!_metroOn || _metroTimer) return;  // stopped (or already started) while the context resumed
     var ctx = _getCtx();
     var nextTime = ctx.currentTime + 0.05;
     _metroBeat = 0;
-    _metroTimer = setInterval(function() {
+    _metroTimer = _tick.on(function() {
+      // Ticks that never came (a frozen page) leave nextTime in the past; catching up
+      // would fire every missed click at once. Skip them and carry on from now.
+      if (nextTime < ctx.currentTime) nextTime = ctx.currentTime + 0.05;
       while (nextTime < ctx.currentTime + 0.1) {
         var P = _metroM.pulses;
         if (_metroBeat >= P.length) _metroBeat = 0;
@@ -3433,7 +3513,7 @@ function _metroStart(bpm, meter) {
         _cueAt(ctx, nextTime, (function(i) { return function() { _metroCur = i; }; })(_metroBeat), 'metro');
         nextTime += p.w / _metroM.unit * 60 / _metroBpm; _metroBeat++;
       }
-    }, 25);
+    });
   });
 }
 
@@ -4311,8 +4391,8 @@ function djSuggest(cs,cm,moveIdx){
 }
 // Stop the metronome whenever its BPM context changes underneath it (switching
 // mood/lens/tab) - otherwise it silently keeps clicking at a now-unrelated tempo.
-function _stopMetronome(){ _metroOn=false; if(_metroTimer){ clearInterval(_metroTimer); _metroTimer=null; }
-  _metroCur = -1; if (_cues) _dropCues('metro'); }
+function _stopMetronome(){ _metroOn=false; if(_metroTimer){ _tick.off(_metroTimer); _metroTimer=null; }
+  _metroCur = -1; if (_cues) _dropCues('metro'); _keepAwake('metro', false); }
 function setAssistEmotion(i){
   _stopMetronome(); assistEmotion=(assistEmotion===i?null:i); assistShowMore=false;
   assistPadOpen=false; // picking a mood (from the pad) auto-collapses it back to the summary row
