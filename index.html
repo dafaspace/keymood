@@ -642,7 +642,7 @@ canvas:focus-visible { outline-offset: 3px; }
       </div>
       <div class="set-row" style="border-top:0.5px solid var(--bd);padding-top:11px">
         <span class="set-label">Version</span>
-        <span style="font-size:11px;color:var(--text3)">v2.13.2</span>
+        <span style="font-size:11px;color:var(--text3)">v2.13.3</span>
       </div>
       <!-- Required by the sample licence (CC BY 3.0): name the work, the author and the
            licence, with a link to it. -->
@@ -1950,7 +1950,9 @@ function render() {
     ctx.arc(CX, CY, mOut, mA0, mA1);
     ctx.arc(CX, CY, mIn,  mA1, mA0, true);
     ctx.closePath();
-    ctx.shadowColor   = dark ? 'rgba(0,0,0,.62)' : 'rgba(0,0,0,.30)';
+    // Light theme needs the deeper shadow and edge: at .30 and .14 a raised Am in the
+    // grey Zebra palette read only by its bold label (palette check, 25 Nov).
+    ctx.shadowColor   = dark ? 'rgba(0,0,0,.62)' : 'rgba(0,0,0,.42)';
     ctx.shadowBlur    = R * 0.05 * dpr;
     ctx.shadowOffsetY = R * 0.018 * dpr;
     ctx.fillStyle = sCol;
@@ -1958,7 +1960,7 @@ function render() {
     ctx.shadowColor = 'transparent';
     // A hairline in the theme's own edge colour keeps the raised edge crisp where its
     // colour meets a neighbour of nearly the same hue.
-    ctx.strokeStyle = dark ? 'rgba(255,255,255,.22)' : 'rgba(0,0,0,.14)';
+    ctx.strokeStyle = dark ? 'rgba(255,255,255,.22)' : 'rgba(0,0,0,.32)';
     ctx.lineWidth = 1 / pop; ctx.stroke();
     if (sPulse > 0.01) {
       ctx.strokeStyle = dark ? 'rgba(255,255,255,'+(0.95*sPulse)+')' : 'rgba(0,0,0,'+(0.65*sPulse)+')';
