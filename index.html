@@ -452,11 +452,14 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
                transition: margin-top .3s cubic-bezier(.2,.8,.2,1), box-shadow .3s; }
   .panel-col.up { margin-top: calc(-1 * var(--lift, 0px)); border-radius: 16px 16px 0 0;
                   box-shadow: 0 -8px 20px rgba(0,0,0,.35); }
-  .panel-col > .sheet-grip { display: flex; position: sticky; top: 0; z-index: 3; width: 100%; height: 26px; margin: 0 0 2px;
+  .panel-col > .sheet-grip { display: flex; position: relative; z-index: 3; width: 100%; height: 26px; margin: 0 0 2px; flex: 0 0 auto;
                 align-items: center; justify-content: center; background: var(--bg); border: 0; padding: 0;
                 border-radius: 16px 16px 0 0; cursor: pointer; -webkit-appearance: none; appearance: none; }
   .sheet-grip span { width: 38px; height: 5px; border-radius: 3px; background: var(--text3); opacity: .55; }
-  .panel-col .tl-head { top: 26px; }
+  /* The head sticks at the very top of the column and the grip scrolls away with the
+     content. With the grip sticky too, the head stuck 26px down, below the grip, which put
+     it 8px over "Change on roll" even unscrolled (measured 25 Nov). */
+  .panel-col .tl-head { top: 0; }
   @media (prefers-reduced-motion: reduce) { .panel-col { transition: none; } }
   /* Sheet, not a floating bordered card: bleeds to the screen edges and docks to
      the bottom, so unused space below short content reads as calm ground rather
@@ -710,6 +713,16 @@ canvas:focus-visible { outline-offset: 3px; }
           <button type="button" class="seg-btn"        id="seg-acc-off" onclick="setAccRing(false)" title="Strip the wheel back to the keys alone">Hide</button>
         </div>
       </div>
+      <!-- Keep the screen on while Keymood is open, not only while something plays (Dafa,
+           25 Nov: practising from the screen, the phone kept going dark). -->
+      <div class="set-row" id="awake-row">
+        <span class="set-label">Keep screen on</span>
+        <div class="seg" role="group" aria-label="Keep the screen on while Keymood is open">
+          <button type="button" class="seg-btn" id="seg-awake-on"  onclick="setAwake(true)">On</button>
+          <button type="button" class="seg-btn" id="seg-awake-off" onclick="setAwake(false)">Off</button>
+        </div>
+      </div>
+      <div class="set-row pro-msg" id="awake-note" hidden></div>
       <!-- Pro: a tester or the owner pastes a code here, or opens a ?pro= link. Painted by
            _paintProRow(). The web build only: a store build sells Pro in the store. -->
       <div class="set-row pro-row" id="pro-row"></div>
@@ -3473,6 +3486,31 @@ function _syncWakeLock() {
     var l = _awake.lock; _awake.lock = null; l.release().catch(function () {});
   }
 }
+// Settings, Keep screen on: the same wake lock, held for as long as Keymood is open and
+// in front. The system drops it when the page is hidden and the visibility handler
+// below asks again; a first touch asks too, for browsers that want a gesture first.
+var _awakePref = loadPref('awake', false);
+function setAwake(on) {
+  _awakePref = !!on; savePref('awake', _awakePref);
+  _keepAwake('pref', _awakePref);
+  _paintAwake();
+}
+function _paintAwake() {
+  var a = document.getElementById('seg-awake-on'), b = document.getElementById('seg-awake-off'), n = document.getElementById('awake-note');
+  if (a) { a.classList.toggle('active', _awakePref); a.setAttribute('aria-pressed', _awakePref); }
+  if (b) { b.classList.toggle('active', !_awakePref); b.setAttribute('aria-pressed', !_awakePref); }
+  // Said only where it fails: older iOS (before 16.4, or 18.4 for a home-screen app) and
+  // older browsers have no wake lock at all.
+  if (n) {
+    var no = _awakePref && !('wakeLock' in navigator);
+    n.hidden = !no;
+    n.textContent = no ? 'This browser cannot keep the screen on. On an iPhone: Settings, Display & Brightness, Auto-Lock.' : '';
+  }
+}
+window.setAwake = setAwake;
+if (_awakePref) _keepAwake('pref', true);
+document.addEventListener('pointerdown', function () { if (_awakePref && !_awake.lock) _syncWakeLock(); }, true);
+setTimeout(_paintAwake, 0);
 var _tick = (function () {
   var subs = {}, n = 0, live = 0, w = null, iv = null;
   function fire() { for (var k in subs) subs[k](); }
