@@ -659,9 +659,38 @@ canvas:focus-visible { outline-offset: 3px; }
 .pg-row.on { box-shadow: inset 0 0 0 1.5px var(--text); }
 .pg-detail { padding:8px 2px 10px; }
 .pg-ex { color:var(--text2); font-style:italic; }
-/* A twisted chord: its cell lit in the accent of a change, its device named under it. */
-.tl-prog div.tw { background: var(--bg3); box-shadow: inset 0 0 0 1px var(--text3); }
-.tl-prog div.tw i { color: var(--text2); }
+/* The played sequence: four bars a row, each bar one box that never breaks over a line.
+   A bar of two or three chords takes two columns and splits its box between them, so a
+   chord never gets less than a 44px target; four or more take the row. Each chord is a
+   button that plays from there. A twisted chord is lit, its bar ringed, and the device
+   named once, under the bar, on one line. Labels do not wrap: a bar whose labels still do
+   not fit takes the next size up (.fit, set by _fitBars from measured widths). */
+.pg-bars { display:grid; grid-template-columns:repeat(4, minmax(0, 1fr)); gap:3px; margin-bottom:10px; }
+.pg-bar { display:grid; align-content:start; min-width:0; background:var(--bg2); border-radius:8px; }
+.pg-bar.multi, .pg-bar.fit { grid-column: span 2; }
+.pg-bar.nr { grid-column-start: 1; }
+.pg-bar.multi.nr, .pg-bar.fit.nr { grid-column: 1 / span 2; }
+.pg-bar.multi.s4, .pg-bar.multi.fit { grid-column: 1 / -1; }
+/* Two classes, as .pg-row: .tools button would otherwise lay the lines side by side and
+   add a hit extension that would reach into the row below. */
+.tools .pg-ch { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:0;
+                justify-self:stretch; align-self:stretch; min-width:0; min-height:44px; text-box:normal; line-height:1.2;
+                text-align:center; padding:5px 1px; font-size:10px; color:var(--text2); background:none; white-space:nowrap;
+                border-radius:8px; transition: box-shadow .08s; }
+.tools .pg-ch::before { display:none; }
+.pg-ch b { display:block; font-size:12px; font-weight:500; color:var(--text); margin-bottom:2px; }
+.pg-ch span, .pg-ch i { display:block; max-width:100%; }
+.pg-ch i { font-style:normal; font-size:9px; color:var(--text3); margin-top:1px; }
+/* A bar of five or six chords (12/8 bulerías and soleares) already has the whole row. */
+.tools .pg-bar.dense .pg-ch { padding-inline: 0; }
+.pg-bar.dense .pg-ch b { font-size: 11px; }
+.pg-ch.now { box-shadow: inset 0 0 0 1.5px var(--text); }
+.pg-bar.tw { box-shadow: inset 0 0 0 1px var(--text3); }
+.pg-bar.tw.all { background: var(--bg3); }
+/* In a bar a twist only half changed, the new chord is a chip inside the ring. */
+.pg-bar.tw:not(.all) .pg-ch.tw { background: var(--bg3); margin: 2px; border-radius: 6px; padding-block: 3px; }
+.pg-tag { grid-column: 1 / -1; min-width:0; font-size:9px; color:var(--text2); text-align:center; padding:1px 2px 4px;
+          white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .pg-tw { font-size: 11px; color: var(--text2); line-height: 1.5; margin: 0 0 4px; }
 .pg-tw .tl-chip { margin-inline-start: 6px; }
 .tl-bpm { display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
@@ -1538,6 +1567,7 @@ function resize() {
   }
   var pcol = document.getElementById('panelcol');
   if (pcol) pcol.style.setProperty('--lift', Math.round(R * 0.60 + 2) + 'px');
+  _fitBars();                            // a new width can let a wide bar back into one column
   render();
   // The mark is larger on mobile, so its backing store has to follow the breakpoint.
   // Doing it here rather than only in a resize listener covers every path that
@@ -4288,7 +4318,9 @@ var CHORD_IV = {
   dom9: [0,4,10,14], min9: [0,3,10,14], maj9: [0,4,11,14], dom7b9: [0,4,10,13],
   sus4: [0,5,7], sus2: [0,2,7], dom7sus4: [0,5,7,10], add9: [0,4,7,14],
   // The Italian sixth: b6, 1 and #4 over the b6 - a dominant seventh without its fifth.
-  it6: [0,4,10]
+  // The German adds b3 (it sounds as a dominant seventh), the French 2 (a whole-tone
+  // chord); Twist uses them, spelled by their own names rather than as sevenths.
+  it6: [0,4,10], ger6: [0,4,7,10], fr6: [0,4,6,10]
 };
 // Voice-led chords: each takes the inversion nearest the one before it, the way a hand
 // moves, its lowest note between G3 and F#4, clear of the bass and inside the samples.
@@ -4326,7 +4358,9 @@ var _lp = null;
 function _lpStart(o) {
   _lpStop();
   if (_metroOn) _stopMetronome();            // one click track at a time
-  _lp = o; o.groups = []; o.k = 0; o.beat = 0;
+  // o.from / o.fromBeat / o.skip start it part way in: at a chord, a beat into the
+  // sequence (so the clicks keep the bar), and some beats into that chord.
+  _lp = o; o.groups = []; o.k = o.from || 0; o.beat = o.fromBeat || 0; o.skip = o.skip || 0;
   o.voices = _voiceChords(o.chords, o.loop);
   _keepAwake('loop', true);
   _withCtx(function() {
@@ -4350,7 +4384,10 @@ function _lpTick(o, ctx) {
     }
     // The key changed on the wheel: carry on in the new one from this chord.
     if (o.rebuild && o.rebuild()) o.voices = _voiceChords(o.chords, true);
-    var c = o.chords[o.k], v = o.voices[o.k], spb = 60 / o.bpm, dur = c.beats * spb, t = o.next;
+    // A chord entered part way (a start, or a rebuild that lands inside one) sounds only
+    // for what is left of it, so the bar keeps its place.
+    var c = o.chords[o.k], v = o.voices[o.k], len = c.beats - (o.skip || 0), spb = 60 / o.bpm, dur = len * spb, t = o.next;
+    o.skip = 0;
     var items = [];
     _voiceSink = items;
     if (_soundOn) {
@@ -4358,13 +4395,13 @@ function _lpTick(o, ctx) {
       v.notes.forEach(function(n, j) { _playNote(n, t + j * 0.012, dur * 0.94, -1, 0.5 + (Math.random() - 0.5) * 0.06); });
       // Clicks on the whole beats of the running count, so a chord of 1.5 beats does
       // not drag the beat with it; the downbeat of each bar is the accented one.
-      if (o.click) for (var gb = Math.ceil(o.beat - 1e-9); gb < o.beat + c.beats - 1e-9; gb++)
+      if (o.click) for (var gb = Math.ceil(o.beat - 1e-9); gb < o.beat + len - 1e-9; gb++)
         _playClick(t + (gb - o.beat) * spb, gb % o.bpb === 0 ? 2 : 1);
     }
     _voiceSink = null;
     o.groups.push({ until: t + dur + 1.5, items: items });
     (function(k) { _cueAt(ctx, t, function() { if (_lp === o && o.onChord) o.onChord(k); }, 'lp'); })(o.k);
-    o.beat += c.beats; o.next += dur; o.k++;
+    o.beat += len; o.next += dur; o.k++;
   }
   while (o.groups.length && o.groups[0].until < now) o.groups.shift();
 }
@@ -4604,7 +4641,7 @@ var PROG_MODE = { major: 'major', minor: 'minor', dorian: 'Dorian', mixolydian: 
   locrian: 'Locrian', blues: 'blues' };
 var CHORD_SYM = { maj: '', min: 'm', dim: '°', aug: '+', dom7: '7', min7: 'm7', maj7: 'maj7', hdim7: 'ø7',
   dim7: '°7', maj6: '6', min6: 'm6', minmaj7: 'm(maj7)', dom9: '9', min9: 'm9', maj9: 'maj9', dom7b9: '7♭9',
-  sus4: 'sus4', sus2: 'sus2', dom7sus4: '7sus4', add9: 'add9', it6: '(It+6)' };
+  sus4: 'sus4', sus2: 'sus2', dom7sus4: '7sus4', add9: 'add9', it6: '(It+6)', ger6: '(Ger+6)', fr6: '(Fr+6)' };
 var PROG_RX = /^([b#]?)(VII|VI|V|IV|III|II|I|vii|vi|v|iv|iii|ii|i)(°7|ø7|maj7|maj9|7sus4|7b9|sus4|sus2|add9|It6|m\(maj7\)|°|\+|7|6|9)?(?:\/([b#]?)([1-7]))?(?::([0-9.]+))?$/;
 var MAJ_STEPS = [0,2,4,5,7,9,11], LETTERS = 'CDEFGAB', SHARP_NAMES = ['C','C♯','D','E♭','E','F','F♯','G','A♭','A','B♭','B'];
 function progChord(s, bpb) {
@@ -4664,24 +4701,55 @@ function progPlay() {
   var p = _progById(_pg.id);
   if (!p) return;
   if (_lp && _lp.tag === 'prog') { _lpStop('prog'); return; }
-  var o = { tag: 'prog', chords: _progSequence(p), bpm: _progBpm(p), bpb: +p.meter.split('/')[0],
-    loop: _pg.loop, click: _pg.click, key: _progKey() + '#' + _tw.ver,
+  _progStart(p, 0);
+}
+// Where a beat falls in a sequence: the chord sounding there and how far into it.
+function _seqPos(cs, k) { for (var i = 0, b = 0; i < k && i < cs.length; i++) b += cs[i].beats; return b; }
+function _seqAt(cs, pos) {
+  for (var k = 0, b = 0; k < cs.length; k++) { if (b + cs[k].beats > pos + 1e-9) return { k: k, skip: Math.max(0, pos - b) }; b += cs[k].beats; }
+  return { k: 0, skip: 0 };
+}
+// The playback model (Dafa, 26 Nov: Twist sent the player back to the top of pass A).
+// The sequence is pass A, then pass B with every twist so far; it loops or ends as the
+// Loop switch says. Nothing restarts it but a tap: a new twist, Undo or a new key while
+// it plays carry on from the same beat, and the twist sounds when pass B reaches its bar
+// (this time round if it is still ahead). Twist pressed while stopped starts one bar
+// before the new twist, so the change is heard at once after what leads into it. A tap
+// on any chord of the grid plays from that chord.
+function _progStart(p, pos) {
+  var cs = _progSequence(p), at = _seqAt(cs, pos);
+  var o = { tag: 'prog', chords: cs, bpm: _progBpm(p), bpb: +p.meter.split('/')[0],
+    loop: _pg.loop, click: _pg.click, key: _progKey() + '#' + _tw.ver, from: at.k, fromBeat: pos, skip: at.skip,
     onChord: function(k) {
       _pg.playing = k; _paintProgPlaying();
       var c = o.chords[k], at = _chordSector(c.root, _ringType(c.type));
       if (at) pulseSector(at.slice, at.inner, 0);
     },
     onEnd: function() { _pg.playing = -1; renderTools(); render(); },
-    // A new key on the wheel, or a new twist: carry on with the new chords from here.
+    // A new key on the wheel, a new twist or Undo: carry on from the same beat with the
+    // new chords. Passes A and B are the same length, so a place in a pass B that Undo
+    // took away is the same place in A; a place inside a chord that has grown sounds the
+    // rest of that chord.
     rebuild: function() {
-      var k = _progKey() + '#' + _tw.ver;
-      if (k === o.key) return false;
-      o.key = k; o.chords = _progSequence(p);
-      if (o.k >= o.chords.length) o.k = 0;
+      var key = _progKey() + '#' + _tw.ver;
+      if (key === o.key) return false;
+      var pos = _seqPos(o.chords, o.k) + (o.skip || 0);
+      o.key = key; o.chords = _progSequence(p);
+      var to = _seqAt(o.chords, pos % _seqPos(o.chords, o.chords.length));
+      o.k = to.k; o.skip = to.skip;
       return true;
     } };
+  _pg.playing = at.k;
   _lpStart(o); renderTools(); render();
 }
+// A tap on a chord in the grid: play from it, and on from there as Loop says.
+function progFrom(k) {
+  var p = _progById(_pg.id);
+  if (!p) return;
+  if (_lp && _lp.tag === 'prog') _lpStop('prog');
+  _progStart(p, _seqPos(_progSequence(p), k));
+}
+window.progFrom = progFrom;
 
 // ── Twist (Pro) ───────────────────────────────────────────────────────────────
 // Dafa, 25 Nov, picked the simplest of three researched generators (scratchpad
@@ -4692,79 +4760,579 @@ function progPlay() {
 // next, and disliked when the context is already unsure (Cheung et al. 2019, Current
 // Biology). So the untwisted pass comes first every time round, to set up the
 // expectation the twist lands against, and twists go where expectation is strongest:
-// the cadence. Every twist keeps an anchor - a shared tone, a step in every voice, or a
-// dominant resolving - so it sounds chosen rather than wrong.
-var _tw = { id: null, list: [], ver: 0 };     // list: [{slot, op, arg}] on pass B
-var REL_DEG = [0,1,1,2,2,3,4,4,5,5,6,6], REL_FLAT = [0,1,0,1,0,0,1,0,1,0,1,0];
+// the cadence. Every twist keeps an anchor - a shared tone, a step in every voice, a
+// dominant resolving, or a move the library itself makes - so it sounds chosen rather
+// than wrong.
+//
+// Rewritten 26 Nov at Dafa's word: Twist "must draw on every substitution possible, not
+// two scenarios". Measured over the library first: the applied dominant and the added
+// seventh were 74% of all first presses, the tritone substitution and the backdoor could
+// pass the anchor check in under 10% of progressions (the check knew shared tones and
+// fifths, not semitone resolution), and tables of degrees fitted major-key I/IV/V only.
+// Now every slot asks the whole catalogue below, each device decides by general rules -
+// the chord's quality and function, the chords on either side, the key's own scale, where
+// the bar falls - and a device is drawn first and a place for it second, so a device that
+// fits in one bar is as likely as one that fits in every bar.
+var _tw = { id: null, list: [], ver: 0 };     // list: [{slot, dev, name, tag, chords, needs, bar}] on pass B
 var NUM_SUF = { maj: '', min: '', dim: '°', aug: '+', dom7: '7', min7: '7', maj7: 'maj7', hdim7: 'ø7', dim7: '°7',
   maj6: '6', min6: '6', minmaj7: '(maj7)', dom9: '9', min9: '9', maj9: 'maj9', dom7b9: '7♭9', sus4: 'sus4',
-  sus2: 'sus2', dom7sus4: '7sus4', add9: 'add9', it6: ' It+6' };
+  sus2: 'sus2', dom7sus4: '7sus4', add9: 'add9', it6: ' It+6', ger6: ' Ger+6', fr6: ' Fr+6' };
+var REL_DEG = [0,1,1,2,2,3,4,4,5,5,6,6], _NUMS = ['I','II','III','IV','V','VI','VII'];
+// The key's own scale, step by step from the tonic, and the parallel mode a borrowed
+// chord comes from: minor for a key whose tonic chord is major, major for a minor one.
+// The Phrygian family and Locrian have no plain parallel to borrow from.
+var TW_SCALE = { major: [0,2,4,5,7,9,11], minor: [0,2,3,5,7,8,10], dorian: [0,2,3,5,7,9,10],
+  mixolydian: [0,2,4,5,7,9,10], lydian: [0,2,4,6,7,9,11], phrygian: [0,1,3,5,7,8,10],
+  'phrygian-dominant': [0,1,4,5,7,8,10], 'harmonic-minor': [0,2,3,5,7,8,11], locrian: [0,1,3,5,6,8,10],
+  blues: [0,2,4,5,7,9,10] };
+var TW_PARALLEL = { major: 'minor', mixolydian: 'minor', lydian: 'minor', blues: 'minor',
+  minor: 'major', dorian: 'major', 'harmonic-minor': 'major' };
 function _isMinorType(type) { return /^(min|min7|min6|min9|minmaj7|dim|hdim7|dim7)$/.test(type); }
-// A chord made from a step above the tonic, spelled and named like the library's own.
-function _twChord(t, rel, type, beats) {
-  rel = ((rel % 12) + 12) % 12;
-  var deg = REL_DEG[rel], r = _spellDeg(t.L, t.pc, deg, rel), num = ['I','II','III','IV','V','VI','VII'][deg];
-  return { root: r.pc, bass: r.pc, rel: rel, type: type, beats: beats, twisted: true, name: r.name + CHORD_SYM[type],
-           label: (REL_FLAT[rel] ? '♭' : '') + (_isMinorType(type) ? num.toLowerCase() : num) + NUM_SUF[type] };
+// A chord's family: what decides whether it can be a target, a dominant, a triad to move.
+function _q(type) {
+  return /^(maj|dom7|maj7|maj6|dom9|maj9|add9|dom7b9)$/.test(type) ? 'maj' :
+         /^(min|min7|min6|minmaj7|min9)$/.test(type) ? 'min' : /^(dim|dim7|hdim7)$/.test(type) ? 'dim' :
+         /^(sus4|sus2|dom7sus4)$/.test(type) ? 'sus' : type;
 }
-function _pcsOf(c) { return CHORD_IV[c.type].map(function(x) { return (c.root + x) % 12; }); }
-function _shared(a, b) { var B = _pcsOf(b); return _pcsOf(a).filter(function(x) { return B.indexOf(x) >= 0; }).length; }
-// Each op: level (1 mild .. 5 bold), a name, and a transform of the chord in its slot.
-// It returns the chords that replace it (one, or two halves), or null where it does not
-// apply. `minor` says the progression's tonic chord is minor.
-var TWIST_OPS = [
-  { L: 1, name: 'Seventh', f: function(c, n, t) {
-      var ty = { maj: (c.rel === 7 || c.rel === 10) ? 'dom7' : 'maj7', min: 'min7', dim: 'hdim7' }[c.type];
-      return ty ? [_twChord(t, c.rel, ty, c.beats)] : null; } },
-  { L: 1, name: 'Diatonic substitute', f: function(c, n, t, minor) {
-      if (minor || !/^(maj|maj7|dom7)$/.test(c.type)) return null;
-      var m = { 0: [9, 'min'], 5: [2, 'min7'], 7: [11, 'dim'] }[c.rel];
-      return m ? [_twChord(t, m[0], m[1], c.beats)] : null; } },
-  { L: 2, name: 'Borrowed chord', f: function(c, n, t, minor, last) {
-      var m = minor ? ({ 5: [5, 'maj'], 7: [7, 'dom7'] }[c.rel] || (last && c.rel === 0 ? [0, 'maj'] : null))
-                    : { 5: [5, 'min'], 9: [8, 'maj'], 2: [2, 'hdim7'], 4: [3, 'maj'] }[c.rel];
-      if (!m || (c.rel === m[0] && c.type === m[1])) return null;
-      if (!minor && c.rel === 5 && c.type !== 'maj' && c.type !== 'maj7') return null;
-      return [_twChord(t, m[0], m[1], c.beats)]; } },
-  { L: 2, name: 'Applied dominant', f: function(c, n, t) {
-      if (!n || c.beats < 2 || /dim/.test(n.type) || n.rel === c.rel) return null;
-      var h = c.beats / 2, keep = _twChord(t, c.rel, c.type, h); keep.twisted = false;
-      return [keep, _twChord(t, n.rel + 7, 'dom7', h)]; } },
-  { L: 3, name: 'Tritone substitution', f: function(c, n, t) {
-      if (!n || !/^(dom7|maj)$/.test(c.type) || (c.root + 5) % 12 !== n.root) return null;
-      return [_twChord(t, c.rel + 6, 'dom7', c.beats)]; } },
-  { L: 3, name: 'Chromatic mediant', f: function(c, n, t, minor, last, arg) {
-      // A third away in the same quality, one tone kept: C to E or A♭; Am to Cm or Fm.
-      if (c.rel !== 0 || last || !/^(maj|min)$/.test(c.type)) return null;
-      var to = c.type === 'maj' ? (arg ? 4 : 8) : (arg ? 3 : 8);
-      return [_twChord(t, to, c.type, c.beats)]; } },
-  { L: 3, name: 'Backdoor', f: function(c, n, t) {
-      if (!n || c.rel !== 7 || n.rel !== 0 || !/^(maj|dom7)$/.test(c.type)) return null;
-      if (c.beats >= 2) return [_twChord(t, 5, 'min7', c.beats / 2), _twChord(t, 10, 'dom7', c.beats / 2)];
-      return [_twChord(t, 10, 'dom7', c.beats)]; } },
-  { L: 4, name: 'Slide', f: function(c, n, t) {
-      if (c.type === 'maj') return [_twChord(t, c.rel + 1, 'min', c.beats)];
-      if (c.type === 'min') return [_twChord(t, c.rel - 1, 'maj', c.beats)];
-      return null; } },
-  { L: 5, name: 'Hexatonic pole', f: function(c, n, t) {
-      if (c.type === 'maj') return [_twChord(t, c.rel + 8, 'min', c.beats)];
-      if (c.type === 'min') return [_twChord(t, c.rel + 4, 'maj', c.beats)];
-      return null; } }
+var _SEV = /^(dom7|min7|maj7|hdim7|dim7|minmaj7)$/;
+function _accOf(deg, rel) {
+  var d = ((rel - MAJ_STEPS[deg]) % 12 + 18) % 12 - 6;
+  return d === -2 ? '𝄫' : d === -1 ? '♭' : d === 1 ? '♯' : d === 2 ? '𝄪' : '';
+}
+// A chord in the key's own terms - a letter step (deg) and a pitch step (rel) above the
+// tonic - so a twist is spelled from its function and re-spelled in any key. One past a
+// single sharp or flat it takes the neighbouring letter: a tritone substitute reads A7,
+// not B𝄫7.
+function _rc(deg, rel, type, beats) {
+  deg = ((deg % 7) + 7) % 7; rel = ((rel % 12) + 12) % 12;
+  var d = ((rel - MAJ_STEPS[deg]) % 12 + 18) % 12 - 6;
+  if (d === 2) deg = (deg + 1) % 7; else if (d === -2) deg = (deg + 6) % 7; else if (d < -2 || d > 2) deg = REL_DEG[rel];
+  return { deg: deg, rel: rel, type: type, beats: beats };
+}
+function _pcs(c) {
+  var o = [];
+  CHORD_IV[c.type].forEach(function(x) { var p = (c.rel + x) % 12; if (o.indexOf(p) < 0) o.push(p); });
+  return o;
+}
+function _bassOf(c) { return c.bassRel !== undefined ? c.bassRel : c.rel; }
+function _same(a, b) { return a.rel === b.rel && a.type === b.type && _bassOf(a) === _bassOf(b); }
+function _inS(S, pc) { return !!S && S.indexOf(((pc % 12) + 12) % 12) >= 0; }
+function _pcDist(a, b) { var d = Math.abs(a - b) % 12; return Math.min(d, 12 - d); }
+function _shared(a, b) { var B = _pcs(b); return _pcs(a).filter(function(x) { return B.indexOf(x) >= 0; }).length; }
+function _diatonic(c, S) { return S[c.deg] === c.rel && _pcs(c).every(function(p) { return _inS(S, p); }); }
+function _target(c) { var q = _q(c.type); return q === 'maj' || q === 'min'; }
+// a points at b as its dominant: a major-family chord (or a sus) a fifth above it.
+function _domTo(a, b) { var q = _q(a.type); return (q === 'maj' || q === 'sus') && (a.rel + 5) % 12 === b.rel; }
+// A dominant in its own right: a seventh chord of the dominant family, or V of the key.
+function _isDomChord(a) { return /^(dom7|dom9|dom7b9|dom7sus4)$/.test(a.type) || (a.rel === 7 && /^(maj|sus4)$/.test(a.type)); }
+// The chord a scale builds on its degree d, with its seventh if asked; null if neither
+// a plain triad nor a seventh the app can play.
+function _scaleChord(S, d, sev) {
+  var r = S[d], t = (S[(d + 2) % 7] - r + 12) % 12, f = (S[(d + 4) % 7] - r + 12) % 12, s = (S[(d + 6) % 7] - r + 12) % 12;
+  var tri = t === 4 && f === 7 ? 'maj' : t === 3 && f === 7 ? 'min' : t === 3 && f === 6 ? 'dim' : t === 4 && f === 8 ? 'aug' : null;
+  if (!tri) return null;
+  if (!sev) return { rel: r, type: tri };
+  var ty = { maj11: 'maj7', maj10: 'dom7', min10: 'min7', min11: 'minmaj7', dim10: 'hdim7', dim9: 'dim7' }[tri + s];
+  return ty ? { rel: r, type: ty } : null;
+}
+function _copy(c, beats) { var k = {}; for (var p in c) k[p] = c[p]; if (beats !== undefined) k.beats = beats; return k; }
+function _keep(c, beats) { var k = _copy(c, beats); k.keep = true; return k; }
+// The same root in another colour; a slash bass stays if it is still a tone of the chord.
+function _recolour(c, type, beats) {
+  var r = _rc(c.deg, c.rel, type, beats === undefined ? c.beats : beats);
+  if (c.bassRel !== undefined && c.bassRel !== c.rel && _pcs(r).indexOf(c.bassRel) >= 0) { r.bassDeg = c.bassDeg; r.bassRel = c.bassRel; }
+  return r;
+}
+function _withBass(r, deg, rel) { r.bassDeg = ((deg % 7) + 7) % 7; r.bassRel = ((rel % 12) + 12) % 12; return r; }
+// Where a bar can take a second chord: a chord of one bar splits in half (2+1 in 3/4,
+// where the beat is not halved), a longer one gives up its last bar. A chord shorter
+// than a bar, or one that starts off the barline, stays whole - so a twist never puts
+// more than two chords in a bar, and the grid can show every bar on one line.
+function _halves(bpb) { return bpb === 3 ? [2, 1] : bpb % 2 ? null : [bpb / 2, bpb / 2]; }
+function _twSplit(c, bpb, start) {
+  if (start % bpb) return null;
+  if (c.beats === bpb) return _halves(bpb);
+  if (c.beats > bpb && c.beats % bpb === 0) return [c.beats - bpb, bpb];
+  return null;
+}
+// The move from one chord to the next, smallest total in semitones, each tone of the
+// smaller chord taken to a different tone of the larger (Tymoczko's measure).
+function _vl(a, b) {
+  var A = _pcs(a), B = _pcs(b), best = 99;
+  if (A.length > B.length) { var s = A; A = B; B = s; }
+  (function go(i, used, sum) {
+    if (sum >= best) return;
+    if (i === A.length) { best = sum; return; }
+    for (var j = 0; j < B.length; j++) if (!(used & (1 << j))) go(i + 1, used | (1 << j), sum + _pcDist(A[i], B[j]));
+  })(0, 0, 0);
+  return best;
+}
+// Moves the library makes at least twice, as degree and family: i to bVII, iv to V, bVII
+// to I. Smoothness alone forbids the commonest rock move (I to bVII moves every voice a
+// whole tone, research 1.1), so a familiar move counts as an anchor too.
+var _twFam = null;
+function _familiar(a, b) {
+  if (!_twFam) {
+    _twFam = {};
+    PROG_LIB.forEach(function(p) {
+      var bpb = +p.meter.split('/')[0], cs = p.chords.map(function(s) { return progChord(s, bpb); });
+      cs.forEach(function(c, i) {
+        var d = cs[(i + 1) % cs.length], k = ((c.rel % 12) + 12) % 12 + _q(c.type) + '>' + ((d.rel % 12) + 12) % 12 + _q(d.type);
+        _twFam[k] = (_twFam[k] || 0) + 1;
+      });
+    });
+  }
+  return (_twFam[a.rel + _q(a.type) + '>' + b.rel + _q(b.type)] || 0) >= 2;
+}
+function _anchored(a, b) {
+  if (_shared(a, b) > 0) return true;                                      // a tone held
+  if (_domTo(a, b) || (_q(a.type) === 'dim' && (a.rel + 1) % 12 === b.rel)) return true;   // a dominant resolving
+  if (_isDomChord(a) && _pcs(b).indexOf((a.rel + 5) % 12) >= 0) return true;   // deceptive: V's goal is still in it
+  if (_vl(a, b) <= 3) return true;                                         // every voice a step
+  return _familiar(a, b);
+}
+// The catalogue. Each device: a level (1 mild .. 5 bold; the first press may use 1-2, each
+// further press one more), its name, the short tag its bar shows, `needs` - the
+// neighbours its sense rests on (-1 before, +1 after), which no later twist may replace -
+// and gen(x), which returns every form it takes in this slot: [{chords, name, tag, L,
+// needs}], each field but chords optional. x: {c, prev, next, first, last, start, bpb, S,
+// par, minor, mode, home}; prev and next are the chords that actually sound beside it,
+// twisted or not; home says c is the tonic chord.
+// Where a borrowed chord comes from: for each family of key, the parallel modes an
+// arranger borrows from, the degrees each lends (0 = the tonic's), how bold it is, and
+// its name. A source that is the key's own scale lends nothing and drops out; the same
+// chord from two sources keeps the first, commoner name.
+var TW_BORROW = {
+  maj: [['minor', [0, 1, 2, 3, 4, 5, 6], 2, 'Borrowed chord'],         // ii°, bIII, iv, v, bVI, bVII, i
+        ['major', [4, 6], 2, 'Borrowed from major'],                    // V and vii° in Mixolydian and blues
+        ['harmonic-minor', [0, 6], 3, 'Borrowed from harmonic minor'],  // i(maj7), vii°7
+        ['phrygian', [1], 3, 'Borrowed from Phrygian'],                 // bII
+        ['lydian', [1, 3, 6], 3, 'Borrowed from Lydian']],              // II, #ivø7, vii
+  min: [['major', [1, 3, 4, 6], 2, 'Borrowed chord'],                   // ii, IV, V, vii°
+        ['minor', [3, 5], 2, 'Borrowed from minor'],                    // iv for Dorian's IV, bVI
+        ['harmonic-minor', [4, 6], 2, 'Borrowed from harmonic minor'],  // V7, vii°7
+        ['phrygian', [1], 3, 'Borrowed from Phrygian']]                 // bII
+};
+// The approaches into the next chord share their forms: the whole bar, unless it is the
+// tonic's (home still sounds, and the approach follows it - research 1.2, "stay
+// anchored"), and the second half of a bar that can split.
+function _approach(x, ch) {
+  var o = [], sp = _twSplit(x.c, x.bpb, x.start);
+  if (!x.home) o.push({ chords: [_copy(ch, x.c.beats)] });
+  if (sp) o.push({ chords: [_keep(x.c, sp[0]), _copy(ch, sp[1])] });
+  return o;
+}
+// Two chords that take the bar before the next one (a two-five and its relatives): the
+// whole of a one-bar chord that is not the tonic, or the last bar of a longer one.
+function _pairBar(x, a, b) {
+  var c = x.c, sp = _twSplit(c, x.bpb, x.start), h = _halves(x.bpb);
+  if (!sp || !h || (x.home && c.beats === x.bpb)) return [];
+  a = _copy(a, h[0]); b = _copy(b, h[1]);
+  return [{ chords: c.beats === x.bpb ? [a, b] : [_keep(c, c.beats - x.bpb), a, b] }];
+}
+var TWIST_DEVS = [
+  // ── Level 1: colour on the chord that is there ──
+  { id: 'seventh', L: 1, name: 'Seventh', tag: 'Seventh', needs: [], gen: function(x) {
+      // The seventh the key's scale supplies; a chord pointing a fifth down takes the
+      // dominant's. The tonic keeps its own (maj7, or 7 in Mixolydian and blues).
+      var c = x.c, ty = null;
+      if (c.type === 'maj') ty = c.rel !== 0 && _domTo(c, x.next) ? 'dom7' : _inS(x.S, c.rel + 11) ? 'maj7' : _inS(x.S, c.rel + 10) ? 'dom7' : 'maj7';
+      else if (c.type === 'min') ty = !_inS(x.S, c.rel + 10) && _inS(x.S, c.rel + 11) ? 'minmaj7' : 'min7';
+      else if (c.type === 'dim') ty = _inS(x.S, c.rel + 10) ? 'hdim7' : 'dim7';
+      return ty ? [{ chords: [_recolour(c, ty)] }] : []; } },
+  { id: 'ext', L: 1, name: 'Ninth', tag: 'Ninth', needs: [], gen: function(x) {
+      // Ninths and sixths from the scale (or the parallel one), a flat nine on a dominant
+      // that resolves to a minor chord.
+      var c = x.c, o = [], nine = _inS(x.S, c.rel + 2) || _inS(x.par, c.rel + 2), dom = _domTo(c, x.next);
+      if (c.type === 'dom7') o.push(dom && _q(x.next.type) === 'min' ? { chords: [_recolour(c, 'dom7b9')], name: 'Flat nine', tag: 'Flat nine' }
+                                                                    : { chords: [_recolour(c, 'dom9')] });
+      if ((c.type === 'min7' || c.type === 'maj7') && nine) o.push({ chords: [_recolour(c, c.type === 'min7' ? 'min9' : 'maj9')] });
+      if (c.type === 'maj' && !dom && nine) o.push({ chords: [_recolour(c, 'add9')], name: 'Added ninth', tag: 'Add nine' });
+      if ((c.type === 'maj' || c.type === 'min') && !dom && _inS(x.S, c.rel + 9))
+        o.push({ chords: [_recolour(c, c.type === 'maj' ? 'maj6' : 'min6')], name: 'Sixth', tag: 'Sixth' });
+      return o; } },
+  { id: 'sub', L: 1, name: 'Diatonic substitute', tag: 'Substitute', needs: [], gen: function(x) {
+      // The scale's chord a third above or below: two tones kept, the function near. A
+      // tonic its dominant has just pointed at is the deceptive cadence's, below.
+      var c = x.c, sev = _SEV.test(c.type), o = [];
+      if (!(sev || /^(maj|min|dim)$/.test(c.type)) || !_diatonic(c, x.S)) return o;
+      if (x.home && _isDomChord(x.prev) && _domTo(x.prev, c)) return o;
+      [2, 5].forEach(function(k) {
+        var s = _scaleChord(x.S, (c.deg + k) % 7, sev);
+        if (s && s.type !== 'aug') o.push({ chords: [_rc(c.deg + k, s.rel, s.type, c.beats)] });
+      });
+      return o; } },
+  { id: 'sus', L: 1, name: 'Suspension', tag: 'Sus4', needs: [], gen: function(x) {
+      // The fourth held over and resolved inside a bar, where a resolution is due: on a
+      // dominant, or on the chord a dominant lands on. A chord of several bars takes it in
+      // its last one - three bars of sus4 would be a new chord, not a suspension. A
+      // dominant may also stay suspended for its whole bar: V7sus4, the fourth (the goal's
+      // root) over the dominant's bass, a quartal colour that still goes home.
+      var c = x.c, o = [], sp = _twSplit(c, x.bpb, x.start), h = _halves(x.bpb);
+      if (!/^(maj|dom7|dom9)$/.test(c.type)) return o;
+      var domFn = !x.home && _domTo(c, x.next);
+      if (domFn && c.type !== 'maj') o.push({ chords: [_recolour(c, 'dom7sus4')], name: 'Sus dominant', tag: 'Sus V', L: 2 });
+      if (sp && h && c.type !== 'dom9' && (domFn || (_isDomChord(x.prev) && _domTo(x.prev, c)) || x.last)) {
+        var s4 = _recolour(c, c.type === 'maj' ? 'sus4' : 'dom7sus4', h[0]);
+        o.push({ chords: c.beats === x.bpb ? [s4, _keep(c, h[1])] : [_keep(c, c.beats - x.bpb), s4, _keep(c, h[1])] });
+      }
+      return o; } },
+  { id: 'inv', L: 1, name: 'Inversion', tag: 'Inversion', needs: [-1, 1], gen: function(x) {
+      // The third or seventh in the bass where that makes the bass line step.
+      var c = x.c, o = [], pb = _bassOf(x.prev), nb = _bassOf(x.next), cb = _bassOf(c);
+      if (/^(aug|it6|ger6|fr6|dim7|sus4|sus2|dom7sus4)$/.test(c.type)) return o;
+      CHORD_IV[c.type].forEach(function(iv) {
+        var step = { 3: 2, 4: 2, 10: 6, 11: 6 }[iv], b = (c.rel + iv) % 12;
+        if (!step || b === cb) return;
+        var d1 = _pcDist(pb, b), d2 = _pcDist(b, nb);
+        if (d1 > 2 || d2 > 2 || !(d1 || d2)) return;
+        o.push({ chords: [_withBass(_recolour(c, c.type), c.deg + step, b)] });
+      });
+      return o; } },
+  // ── Level 2: borrowed colour and the standard approaches ──
+  { id: 'borrow', L: 2, name: 'Borrowed chord', tag: 'Borrowed', needs: [], gen: function(x) {
+      // The chord on the same degree of a parallel mode (TW_BORROW). A minor key's own I
+      // is the Picardy third, below; a major key's i waits until after the end.
+      var c = x.c, sev = _SEV.test(c.type), o = [], seen = {};
+      if (!(sev || /^(maj|min|dim)$/.test(c.type)) || !_diatonic(c, x.S) || (c.deg === 0 && x.last)) return o;
+      (TW_BORROW[x.family] || []).forEach(function(b) {
+        if (b[1].indexOf(c.deg) < 0) return;
+        // Lydian's #iv stands in for IV as the half-diminished seventh (F#ø7 for F), the
+        // jazz substitute; the bare diminished triad would only pass through.
+        var s = _scaleChord(TW_SCALE[b[0]], c.deg, sev || (b[0] === 'lydian' && c.deg === 3));
+        if (!s || s.type === 'aug' || (s.rel === c.rel && s.type === c.type) || seen[s.rel + s.type]) return;
+        seen[s.rel + s.type] = 1;
+        var r = _rc(c.deg, s.rel, s.type, c.beats);
+        if (c.bassRel !== undefined && _pcs(r).indexOf(c.bassRel) >= 0) _withBass(r, c.bassDeg, c.bassRel);
+        o.push({ chords: [r], L: b[2], name: b[3] });
+      });
+      return o; } },
+  { id: 'picardy', L: 2, name: 'Picardy third', tag: 'Picardy', proper: true, needs: [], gen: function(x) {
+      var c = x.c;
+      return x.minor && x.last && c.rel === 0 && _q(c.type) === 'min' ? [{ chords: [_recolour(c, 'maj')] }] : []; } },
+  { id: 'lyddom', L: 2, name: 'Lydian dominant', tag: 'Lydian 7', needs: [], gen: function(x) {
+      // A major chord on IV, bVI, bVII or II made a dominant seventh that does not
+      // resolve: its scale is Lydian b7, whose #11 is the key's own note (F7 in C keeps
+      // B). bVII7 into the tonic is the backdoor's, and one that falls a fifth is applied.
+      var c = x.c;
+      if (!/^(maj|maj7)$/.test(c.type) || [2, 5, 8, 10].indexOf(c.rel) < 0 || _domTo(c, x.next)) return [];
+      if (c.rel === 10 && x.next.rel === 0) return [];
+      return [{ chords: [_recolour(c, 'dom7')] }]; } },
+  { id: 'appl', L: 2, name: 'Applied dominant', tag: 'Applied V', needs: [1], gen: function(x) {
+      // V7 of the next chord, whatever its degree, for the whole bar or its second half.
+      var c = x.c, X = x.next;
+      if (!_target(X) || X.rel === 0) return [];
+      var v = _rc(X.deg + 4, X.rel + 7, 'dom7');
+      return v.rel === c.rel && v.type === c.type ? [] : _approach(x, v); } },
+  { id: 'twofive', L: 2, name: 'Two-five', tag: 'Two-five', needs: [1], gen: function(x) {
+      // ii7 V7 of the next chord (iiø7 V7 before a minor one) in the bar before it.
+      var X = x.next;
+      if (!_target(X)) return [];
+      return _pairBar(x, _rc(X.deg + 1, X.rel + 2, _q(X.type) === 'min' ? 'hdim7' : 'min7'), _rc(X.deg + 4, X.rel + 7, 'dom7')); } },
+  { id: 'deceptive', L: 2, name: 'Deceptive cadence', tag: 'Deceptive', needs: [-1], gen: function(x) {
+      // The dominant goes where it was not expected. To a major goal: vi, or IV over its
+      // third (IV6, the bass rising a step like vi's), bolder bVI, and iii. To a minor one:
+      // bVI, bolder iv6.
+      var c = x.c, b = c.beats;
+      if (!_target(c) || !_isDomChord(x.prev) || (x.prev.rel + 5) % 12 !== c.rel) return [];
+      if (_q(c.type) === 'min') return [{ chords: [_rc(c.deg + 5, c.rel + 8, 'maj', b)] },
+        { chords: [_withBass(_rc(c.deg + 3, c.rel + 5, 'min', b), c.deg + 5, c.rel + 8)], L: 3 }];
+      return [{ chords: [_rc(c.deg + 5, c.rel + 9, 'min', b)] },
+              { chords: [_withBass(_rc(c.deg + 3, c.rel + 5, 'maj', b), c.deg + 5, c.rel + 9)] },
+              { chords: [_rc(c.deg + 5, c.rel + 8, 'maj', b)], L: 3 },
+              { chords: [_rc(c.deg + 2, c.rel + 4, 'min', b)], L: 3 }]; } },
+  { id: 'pedal', L: 2, name: 'Pedal point', tag: 'Pedal', needs: [], gen: function(x) {
+      // The tonic held in the bass from the chord beside it, or the dominant held under
+      // the chord before it (IV/5 or I/5 before V). A dominant held on after V is left out:
+      // the arrival would sit on its fifth and never land.
+      var c = x.c, o = [];
+      if (/^(aug|it6|ger6|fr6|dim|dim7|hdim7)$/.test(c.type)) return o;
+      [[0, 0], [7, 4]].forEach(function(b) {
+        if (_bassOf(c) === b[0] || c.rel === b[0]) return;
+        // It rests on one neighbour's bass; where both hold it, the one in pass A (never
+        // twisted) or the next is named, so the other stays free for a twist.
+        var p = b[0] === 0 && _bassOf(x.prev) === b[0], n = _bassOf(x.next) === b[0];
+        if (p || n) o.push({ chords: [_withBass(_recolour(c, c.type), b[1], b[0])], needs: p && (x.first || !n) ? [-1] : [1] });
+      });
+      return o; } },
+  // ── Level 3: chromatic approaches and colour from outside the key ──
+  { id: 'tritone', L: 3, name: 'Tritone substitution', tag: 'Tritone sub', needs: [1], gen: function(x) {
+      // A dominant replaced by the one a tritone away: the same two guide tones, the bass
+      // a semitone above its goal. Where no dominant was, the substitute of the dominant
+      // the next chord could have had takes the second half of the bar.
+      var c = x.c, X = x.next;
+      if (!_target(X)) return [];
+      if (!x.home && _q(c.type) === 'maj' && (c.rel + 5) % 12 === X.rel) return [{ chords: [_rc(c.deg + 4, c.rel + 6, 'dom7', c.beats)] }];
+      var s = _rc(X.deg + 1, X.rel + 1, 'dom7'), sp = _twSplit(c, x.bpb, x.start);
+      return sp ? [{ chords: [_keep(c, sp[0]), _copy(s, sp[1])] }] : x.home ? [] : [{ chords: [_copy(s, c.beats)] }]; } },
+  { id: 'extdom', L: 3, name: 'Extended dominants', tag: 'Dominant chain', needs: [1], gen: function(x) {
+      // V7 of V7 of the next chord, one falling into the other: D7 G7 to C.
+      var X = x.next;
+      if (!_target(X)) return [];
+      return _pairBar(x, _rc(X.deg + 1, X.rel + 2, 'dom7'), _rc(X.deg + 4, X.rel + 7, 'dom7')); } },
+  { id: 'ltdim', L: 3, name: 'Leading-tone diminished', tag: 'Diminished', needs: [1], gen: function(x) {
+      // vii°7 of the next chord: every tone a step from it.
+      if (!_target(x.next) || _q(x.c.type) === 'dim') return [];
+      return _approach(x, _rc(x.next.deg + 6, x.next.rel + 11, 'dim7')); } },
+  { id: 'ctdim', L: 3, name: 'Common-tone diminished', tag: 'CT dim', needs: [], gen: function(x) {
+      // The diminished seventh that keeps a major chord's root (#ii°7: D#°7 holds C), on
+      // the downbeat, opening into the chord itself in the second half of the bar.
+      var c = x.c, sp = _twSplit(c, x.bpb, x.start);
+      if (!sp || !/^(maj|maj7|maj6|add9)$/.test(c.type)) return [];
+      return [{ chords: [_rc(c.deg + 1, c.rel + 3, 'dim7', sp[0]), _keep(c, sp[1])] }]; } },
+  { id: 'passdim', L: 3, name: 'Passing diminished', tag: 'Passing dim', needs: [1], gen: function(x) {
+      // Between two chords a whole tone apart, the diminished seventh on the semitone
+      // between their roots, so the bass walks chromatically.
+      var c = x.c, X = x.next, sp = _twSplit(c, x.bpb, x.start), up = (X.rel - c.rel + 12) % 12;
+      if (!sp || _q(c.type) === 'dim' || _q(X.type) === 'dim' || (up !== 2 && up !== 10)) return [];
+      var d = _rc(c.deg, c.rel + (up === 2 ? 1 : -1), 'dim7', sp[1]);
+      d.enh = true;                          // F#°7 between G7 and F7, not Gb°7 with its Bbb
+      return [{ chords: [_keep(c, sp[0]), d] }]; } },
+  { id: 'backdoor', L: 3, name: 'Backdoor', tag: 'Backdoor', needs: [1], gen: function(x) {
+      // bVII7 of a major chord (iv7 bVII7 over a bar) instead of the way in through V. Its
+      // goal is a tonic or a chord at rest - the blues' IV7 counts, V does not.
+      var c = x.c, X = x.next;
+      if (_q(X.type) !== 'maj' || X.rel === 7 || (X.rel !== 0 && x.mode !== 'blues' && /^dom/.test(X.type))) return [];
+      var b7 = _rc(X.deg + 6, X.rel + 10, 'dom7');
+      if (b7.rel === c.rel && b7.type === c.type) return [];
+      return _approach(x, b7).concat(c.beats === x.bpb ? _pairBar(x, _rc(X.deg + 3, X.rel + 5, 'min7'), b7) : []); } },
+  { id: 'neap', L: 3, name: 'Neapolitan sixth', tag: 'Neapolitan', proper: true, needs: [1], gen: function(x) {
+      // bII over the fourth degree, before the key's dominant.
+      var c = x.c, X = x.next;
+      if (X.rel !== 7 || !/^(maj|sus)$/.test(_q(X.type)) || c.rel === 1) return [];
+      return _approach(x, _withBass(_rc(1, 1, 'maj'), 3, 5)); } },
+  { id: 'cliche', L: 3, name: 'Line cliché', tag: 'Cliché', needs: [1], gen: function(x) {
+      // A chord held for two bars or more with one inner voice moving a semitone at a
+      // time: on a minor chord the root falls (Am, Am(maj7), Am7, Am6); on a major one the
+      // fifth rises into IV (C, C+, C6, C7 to F).
+      var c = x.c, bpb = x.bpb, h = _halves(bpb), k = c.beats / bpb, ty;
+      if (x.start % bpb || k < 2 || k % 1 || !h || _bassOf(c) !== c.rel) return [];   // over its own root: the line is above it
+      if (c.type === 'min') ty = ['minmaj7', 'min7', 'min6'];
+      else if (c.type === 'maj' && x.next.rel === (c.rel + 5) % 12) ty = ['aug', 'maj6', 'dom7'];
+      else return [];
+      var len = k === 2 ? [h[0], h[1], h[0], h[1]] : k === 3 ? [bpb, bpb, h[0], h[1]] : [c.beats - 3 * bpb, bpb, bpb, bpb];
+      return [{ chords: [_keep(c, len[0])].concat(ty.map(function(t, i) { return _recolour(c, t, len[i + 1]); })) }]; } },
+  { id: 'mediant', L: 3, name: 'Chromatic mediant', tag: 'Mediant', needs: [], gen: function(x) {
+      // A third away in the same quality, outside the key, one tone kept: C to E, Ab, Eb
+      // or A; Am to C#m, Fm, Cm or F#m. A diatonic third is a substitute, not a mediant.
+      var c = x.c, o = [];
+      if (c.type !== 'maj' && c.type !== 'min') return o;
+      [[2, 4], [5, 8], [2, 3], [5, 9]].forEach(function(m) {
+        var r = _rc(c.deg + m[0], c.rel + m[1], c.type, c.beats);
+        r.enh = true;
+        if (!_pcs(r).every(function(p) { return _inS(x.S, p); })) o.push({ chords: [r] });
+      });
+      return o; } },
+  // ── Level 4: bolder chromatic moves ──
+  { id: 'aug6', L: 4, name: 'Augmented sixth', tag: 'Aug sixth', needs: [1], gen: function(x) {
+      // On bVI before the dominant, its outer tones (b6 and #4) opening to the dominant's
+      // root: Italian, German (with b3) or French (with 2). A whole bar only: the names are
+      // too long for half of one.
+      var c = x.c, X = x.next;
+      if (X.rel !== 7 || !/^(maj|sus)$/.test(_q(X.type)) || x.home || /^(it6|ger6|fr6)$/.test(c.type)) return [];
+      return [['it6', 'Italian sixth', 'It+6'], ['ger6', 'German sixth', 'Ger+6'], ['fr6', 'French sixth', 'Fr+6']].map(function(a) {
+        return { chords: [_rc(5, 8, a[0], c.beats)], name: a[1], tag: a[2] }; }); } },
+  { id: 'planing', L: 4, name: 'Chromatic planing', tag: 'Planing', needs: [1], gen: function(x) {
+      // The next chord's own shape a semitone above or below, sliding into it in parallel
+      // (Dbmaj7 to Cmaj7, B7 to C7): every voice a semitone.
+      var X = x.next, o = [];
+      if (!/^(maj|min)$/.test(_q(X.type))) return o;
+      [1, -1].forEach(function(d) {
+        var p = _rc(X.deg + d, X.rel + d, X.type);
+        p.enh = true;
+        if (!(p.rel === x.c.rel && p.type === x.c.type)) o = o.concat(_approach(x, p));
+      });
+      return o; } },
+  { id: 'tt25', L: 4, name: 'Tritone two-five', tag: 'Tritone ii-V', needs: [1], gen: function(x) {
+      // The two-five a tritone away, both chords substituted: Abm7 Db7 to C.
+      var X = x.next;
+      if (_q(X.type) !== 'maj') return [];
+      return _pairBar(x, _rc(X.deg + 5, X.rel + 8, 'min7'), _rc(X.deg + 1, X.rel + 1, 'dom7')); } },
+  { id: 'slide', L: 4, name: 'Slide', tag: 'Slide', needs: [], gen: function(x) {
+      // The chord beside it, its third held and the other two tones a semitone off.
+      return _nrt(x, function(q, c) { return q === 'maj' ? _rc(c.deg, c.rel + 1, 'min') : _rc(c.deg - 1, c.rel - 1, 'maj'); }); } },
+  { id: 'coltrane', L: 4, name: 'Coltrane changes', tag: 'Coltrane', proper: true, needs: [1], gen: function(x) {
+      // The two bars before a major chord become a cycle of major thirds, each new key
+      // reached through its own dominant (Giant Steps): Emaj7 Eb7 | Abmaj7 G7 to C. It
+      // takes one chord of two bars, or two one-bar chords (span 2), never the tonic's.
+      // Level 4, not 5: it needs two free bars, which the fourth press seldom has left.
+      var c = x.c, bpb = x.bpb, h = _halves(bpb), X, span = 1;
+      if (!h || x.start % bpb || x.home) return [];
+      if (c.beats === 2 * bpb) X = x.next;
+      else if (c.beats === bpb && x.pair && x.pair.c2.beats === bpb && !x.pair.home) { X = x.pair.next; span = 2; }
+      else return [];
+      if (_q(X.type) !== 'maj' || /^dom/.test(X.type)) return [];
+      var cyc = [_rc(X.deg + 2, X.rel + 4, 'maj7', h[0]), _rc(X.deg + 2, X.rel + 3, 'dom7', h[1]),
+                 _rc(X.deg + 5, X.rel + 8, 'maj7', h[0]), _rc(X.deg + 4, X.rel + 7, 'dom7', h[1])];
+      return [{ chords: cyc, span: span }]; } },
+  // ── Level 5: the most remote ──
+  { id: 'hexpole', L: 5, name: 'Hexatonic pole', tag: 'Hex pole', needs: [], gen: function(x) {
+      // The chord beside it with every tone moved a semitone: C to Abm, Cm to E.
+      return _nrt(x, function(q, c) { return q === 'maj' ? _rc(c.deg + 5, c.rel + 8, 'min') : _rc(c.deg + 2, c.rel + 4, 'maj'); }); } }
 ];
+
+// A neo-Riemannian move taken from the chord before or after, so its anchor is built in.
+function _nrt(x, f) {
+  var o = [];
+  [[x.prev, -1], [x.next, 1]].forEach(function(s) {
+    var q = _q(s[0].type);
+    if (q !== 'maj' && q !== 'min') return;
+    var r = f(q, s[0]);
+    r.beats = x.c.beats; r.enh = true;
+    if (r.rel !== x.c.rel || r.type !== x.c.type) o.push({ chords: [r], needs: [s[1]] });
+  });
+  return o;
+}
+// The library's chords in the key's own terms, with no key: what the twists are built from.
+function _twRel(p) {
+  var bpb = +p.meter.split('/')[0];
+  return p.chords.map(function(s) {
+    var c = progChord(s, bpb);
+    c.rel = ((c.rel % 12) + 12) % 12;
+    if (c.bassRel !== undefined) c.bassRel = ((c.bassRel % 12) + 12) % 12;
+    return c;
+  });
+}
+function _twAt(list, i) { for (var k = 0; k < list.length; k++) if (list[k].slot === i) return list[k]; return null; }
+// A form a device offered is kept if it changes something, spells with the app's own
+// chord types, repeats neither neighbour, and every join it made has an anchor.
+function _twValid(rep, c, prev, next) {
+  if (rep.length === 1 && _same(rep[0], c)) return false;
+  for (var k = 0; k < rep.length; k++) {
+    var r = rep[k];
+    if (!r.keep && (!CHORD_IV[r.type] || CHORD_SYM[r.type] === undefined || NUM_SUF[r.type] === undefined)) return false;
+    if (k && _same(rep[k - 1], r)) return false;
+  }
+  if (!rep[0].keep && _same(rep[0], prev)) return false;
+  if (!rep[rep.length - 1].keep && _same(rep[rep.length - 1], next)) return false;
+  var seq = [prev].concat(rep, [next]);
+  for (var j = 1; j < seq.length; j++) {
+    var a = seq[j - 1], b = seq[j];
+    if ((a === prev || a.keep) && (b === next || b.keep)) continue;    // a join the twist did not make
+    if (!_anchored(a, b)) return false;
+  }
+  return true;
+}
+// Every twist the next press could make, on pass B as it stands.
+function _twCands(p, list, lmax) {
+  var bpb = +p.meter.split('/')[0], fr = _twRel(p), n = fr.length, mode = p.tonic;
+  var S = TW_SCALE[mode] || TW_SCALE.major, par = TW_PARALLEL[mode] ? TW_SCALE[TW_PARALLEL[mode]] : null;
+  var minor = /^(minor|dorian|phrygian|harmonic-minor|locrian)$/.test(mode);
+  var family = /^(major|mixolydian|lydian|blues)$/.test(mode) ? 'maj' : /^(minor|dorian|harmonic-minor)$/.test(mode) ? 'min' : null;
+  // What sounds in each slot of pass B; a twist spanning two slots fills the first, and
+  // the second is covered (null).
+  var slots = fr.map(function(c) { return [c]; });
+  list.forEach(function(tw) { slots[tw.slot] = tw.chords; for (var s = 1; s < (tw.span || 1); s++) slots[tw.slot + s] = null; });
+  function before(i) { for (var j = i - 1; j >= 0; j--) if (slots[j]) return slots[j][slots[j].length - 1]; return fr[n - 1]; }
+  function after(i) { return i < n ? slots[i][0] : fr[0]; }
+  // A twisted slot is taken, and so is a slot a twist's sense rests on: a dominant keeps
+  // the chord it resolves to. Otherwise twists may sit side by side - each is built on
+  // the chords that actually sound beside it and anchored to them.
+  var locked = {};
+  list.forEach(function(tw) {
+    var end = tw.slot + (tw.span || 1) - 1;
+    for (var s = tw.slot; s <= end; s++) locked[s] = 1;
+    tw.needs.forEach(function(d) { locked[d < 0 ? tw.slot + d : end + d] = 1; });
+  });
+  var out = [], start = 0;
+  fr.forEach(function(c, i) {
+    var at = start;
+    start += c.beats;
+    if (locked[i]) return;
+    var prev = before(i), next = after(i + 1);
+    var x = { c: c, prev: prev, next: next, first: i === 0, last: i === n - 1, start: at, bpb: bpb, S: S, par: par, minor: minor,
+              family: family, mode: mode, home: c.rel === 0 && c.deg === 0,
+              // the next slot too, for a device that takes two (it must be free)
+              pair: i < n - 1 && !locked[i + 1] ? { c2: fr[i + 1], next: after(i + 2), home: fr[i + 1].rel === 0 && fr[i + 1].deg === 0 } : null };
+    // The cadence is where the ear is surest, so the last slots weigh most.
+    var sw = i === n - 1 ? 3 : i === n - 2 ? 2.5 : 1;
+    TWIST_DEVS.forEach(function(dev) {
+      if (dev.L > lmax) return;
+      dev.gen(x).forEach(function(f) {
+        var L = f.L || dev.L, span = f.span || 1;
+        if (L > lmax || !_twValid(f.chords, c, prev, span === 2 ? x.pair.next : next)) return;
+        var b = at;
+        for (var k = 0; k < f.chords.length && f.chords[k].keep; k++) b += f.chords[k].beats;
+        out.push({ slot: i, span: span, dev: dev.id, L: L, name: f.name || dev.name, tag: f.tag || dev.tag, proper: !!dev.proper,
+                   chords: f.chords, needs: f.needs || dev.needs, sw: span === 2 && i === n - 2 ? 3 : sw, bar: Math.floor(b / bpb) + 1 });
+      });
+    });
+  });
+  return out;
+}
+function _wpick(ws) {
+  var s = 0, k;
+  for (k = 0; k < ws.length; k++) s += ws[k];
+  var r = Math.random() * s;
+  for (k = 0; k < ws.length; k++) { r -= ws[k]; if (r <= 0) return k; }
+  return ws.length - 1;
+}
+// A device first, then a place for it. Bolder devices weigh more, one already used much
+// less, one that can reach the cadence a little more; the place is weighted to the cadence.
+function _twPick(cands, list) {
+  var by = {}, ids = [];
+  cands.forEach(function(c) { if (!by[c.dev]) { by[c.dev] = []; ids.push(c.dev); } by[c.dev].push(c); });
+  var id = ids[_wpick(ids.map(function(d) {
+    var cs = by[d], top = 0, L = 5;
+    cs.forEach(function(c) { top = Math.max(top, c.sw); L = Math.min(L, c.L); });
+    return (1 + L) * (list.some(function(x) { return x.dev === d; }) ? 0.3 : 1) * (0.5 + top / 6);
+  }))];
+  return by[id][_wpick(by[id].map(function(c) { return c.sw; }))];
+}
+// Letter steps above a chord's root for each of its tones, to spell them.
+var _TONE_STEP = { 0: 0, 2: 1, 3: 2, 4: 2, 5: 3, 6: 4, 7: 4, 8: 4, 9: 6, 10: 6, 11: 6, 13: 1, 14: 1 };
+// How hard a chord is to read in this key: one for each sharp or flat on its tones, two
+// for a double, a half more for E#, B#, Fb and Cb, and out of the question where a tone
+// would need a triple and _spellDeg gives up its letter.
+function _spellCost(t, deg, rel, type) {
+  var n = 0;
+  CHORD_IV[type].forEach(function(iv) {
+    var st = _TONE_STEP[iv], nm = _spellDeg(t.L, t.pc, deg + st, rel + iv).name;
+    n += nm.length - 1 + (/^(E♯|B♯|F♭|C♭)$/.test(nm) ? 0.5 : 0) + (nm.charAt(0) !== LETTERS[(t.L + deg + st) % 7] ? 20 : 0);
+  });
+  return n;
+}
+// A chord built from the key's terms, spelled and named like the library's own. A chord
+// whose letter comes from voice leading alone (a mediant, a slide, a pole, a passing
+// diminished) takes whichever spelling reads easier in this key: Em, not Fbm, in C.
+// Functional chords keep their letter - a leading-tone chord is spelled from its goal -
+// unless a far key would need a triple sharp or flat for it.
+function _twChord(t, s) {
+  var deg = s.deg, best = _spellCost(t, deg, s.rel, s.type);
+  if (s.enh || best >= 20) {
+    [6, 1].forEach(function(k) {
+      var d = (s.deg + k) % 7, acc = ((s.rel - MAJ_STEPS[d]) % 12 + 18) % 12 - 6, cost;
+      if (Math.abs(acc) <= 1 && (cost = _spellCost(t, d, s.rel, s.type)) < best) { best = cost; deg = d; }
+    });
+  }
+  var r = _spellDeg(t.L, t.pc, deg, s.rel), num = _NUMS[deg];
+  var c = { root: r.pc, bass: r.pc, rel: s.rel, deg: deg, type: s.type, beats: s.beats, twisted: true, name: r.name + CHORD_SYM[s.type],
+            label: { it6: 'It+6', ger6: 'Ger+6', fr6: 'Fr+6' }[s.type] ||
+                   _accOf(deg, s.rel) + (_isMinorType(s.type) ? num.toLowerCase() : num) + NUM_SUF[s.type] };
+  if (s.bassDeg !== undefined) {
+    var b = _spellDeg(t.L, t.pc, s.bassDeg, s.bassRel);
+    c.bass = b.pc; c.name += '/' + b.name; c.label += '/' + _accOf(s.bassDeg, s.bassRel) + (s.bassDeg + 1);
+  }
+  return c;
+}
 function _twFrame(p) {
   var t = _progTonic();
   return progBuild(p).map(function(c) { c.rel = ((c.root - t.pc) % 12 + 12) % 12; return c; });
 }
-// The frame's slots with the twists in place, as chords.
+// The frame's slots with the twists in place, as chords in the key on the wheel.
 function _twApply(frame, list) {
-  var t = _progTonic(), first = frame[0], minor = first && _isMinorType(first.type) && first.rel === 0, out = [];
+  var t = _progTonic(), out = [], covered = {};
+  list.forEach(function(tw) { for (var s = 1; s < (tw.span || 1); s++) covered[tw.slot + s] = 1; });
   frame.forEach(function(c, i) {
-    var tw = list.filter(function(x) { return x.slot === i; })[0];
+    var tw = _twAt(list, i);
+    if (covered[i]) return;                  // its bar belongs to the twist before it
     if (!tw) { out.push(c); return; }
-    var op = TWIST_OPS.filter(function(o) { return o.name === tw.op; })[0];
-    var rep = op && op.f(c, frame[i + 1] || frame[0], t, minor, i === frame.length - 1, tw.arg);
-    if (!rep) { out.push(c); return; }
-    rep.forEach(function(r) { if (r.twisted) r.twistName = tw.op; if (c.bass !== c.root && r === rep[0] && !r.twisted) r.bass = c.bass; out.push(r); });
+    tw.chords.forEach(function(s) {
+      if (s.keep) { out.push(_copy(c, s.beats)); return; }
+      var r = _twChord(t, s);
+      r.twistName = tw.name; r.twistTag = tw.tag;
+      out.push(r);
+    });
   });
   return out;
 }
@@ -4779,44 +5347,17 @@ function progTwist() {
   if (!p) return;
   if (_tw.id !== p.id) _tw = { id: p.id, list: [], ver: _tw.ver + 1 };
   if (_tw.list.length >= 4) { say('Four twists is the most; Undo starts again'); return; }
-  var frame = _twFrame(p), t = _progTonic(), n = frame.length;
-  var minor = _isMinorType(frame[0].type) && frame[0].rel === 0;
-  var lmax = Math.min(5, _tw.list.length + 2);            // each press may be bolder
-  var cands = [];
-  frame.forEach(function(c, i) {
-    // No twist beside another: each keeps untouched neighbours, so the anchor it was
-    // chosen for is still there when it sounds. (Measured on the whole library: twists
-    // side by side left a dominant pointing at a chord that had itself been replaced.)
-    if (_tw.list.some(function(x) { return Math.abs(x.slot - i) <= 1; })) return;
-    var next = frame[i + 1] || frame[0], last = i === n - 1;
-    // The cadence is where the ear is surest, so the last slots weigh most.
-    var sw = i === n - 1 ? 3 : i === n - 2 ? 2.5 : 1;
-    TWIST_OPS.forEach(function(op) {
-      if (op.L > lmax) return;
-      [0, 1].forEach(function(arg) {
-        if (arg && op.name !== 'Chromatic mediant') return;
-        var rep = op.f(c, next, t, minor, last, arg);
-        if (!rep) return;
-        // An anchor on each side: a shared tone, a dominant resolving, or a step.
-        var r0 = rep[0], r1 = rep[rep.length - 1], prev = frame[i - 1] || frame[n - 1];
-        var anchored = (_shared(prev, r0) > 0 || op.L >= 4) &&
-                       (_shared(r1, next) > 0 || (r1.root + 5) % 12 === next.root || op.L >= 4);
-        if (!anchored) return;
-        // Bolder devices weigh more; one already used weighs less, and the applied
-        // dominant, which fits almost anywhere, less again - it was 48% of all twists.
-        var used = _tw.list.some(function(x) { return x.op === op.name; });
-        cands.push({ slot: i, op: op.name, arg: arg, L: op.L,
-                     w: sw * (1 + op.L) * (used ? 0.3 : 1) * (op.name === 'Applied dominant' ? 0.5 : 1) });
-      });
-    });
-  });
+  var cands = _twCands(p, _tw.list, Math.min(5, _tw.list.length + 2));      // each press may be bolder
   if (!cands.length) { say(_tw.list.length ? 'That is all the twists this one takes; Undo starts again' : 'No twist fits here that would still sound chosen'); return; }
-  var sum = cands.reduce(function(s, c) { return s + c.w; }, 0), r = Math.random() * sum, pick = cands[0];
-  for (var k = 0; k < cands.length; k++) { r -= cands[k].w; if (r <= 0) { pick = cands[k]; break; } }
+  var pick = _twPick(cands, _tw.list);
   _tw.list.push(pick); _tw.ver++;
-  say(pick.op + ' in bar ' + (pick.slot + 1));
-  if (!(_lp && _lp.tag === 'prog')) progPlay(); else { renderTools(); render(); }
+  say(pick.name + ' in bar ' + pick.bar);
+  // Playing: it carries on where it is (the player's rebuild). Stopped: from one bar
+  // before the new twist in pass B - the end of pass A when the twist is in bar 1.
+  if (_lp && _lp.tag === 'prog') { renderTools(); render(); return; }
+  _progStart(p, Math.max(0, _seqPos(progBuild(p), p.chords.length) + (pick.bar - 2) * +p.meter.split('/')[0]));
 }
+// Undo takes every twist away; a player keeps its beat and goes on in pass A.
 function progUntwist() {
   _tw = { id: null, list: [], ver: _tw.ver + 1 };
   renderTools(); render();
@@ -4837,8 +5378,11 @@ function progTempo(d) {
   render();
 }
 function _paintProgPlaying() {
-  var cells = document.querySelectorAll('#tools .pg-detail .tl-prog > div');
-  for (var i = 0; i < cells.length; i++) cells[i].classList.toggle('now', i === _pg.playing);
+  var cells = document.querySelectorAll('#tools .pg-detail .pg-ch');
+  for (var i = 0; i < cells.length; i++) {
+    cells[i].classList.toggle('now', i === _pg.playing);
+    if (i === _pg.playing) cells[i].setAttribute('aria-current', 'true'); else cells[i].removeAttribute('aria-current');
+  }
   render();
 }
 window.progFamily = progFamily; window.progPick = progPick; window.progPlay = progPlay;
@@ -4855,6 +5399,61 @@ function _durLabel(beats, bpb) {
   if (beats === bpb) return '';
   if (beats % bpb === 0) return (beats / bpb) + ' bars';
   return beats + (beats === 1 ? ' beat' : ' beats');
+}
+// The played sequence bar by bar. A bar is one unit of the grid and never breaks over a
+// line, however many chords it holds (Dafa, 26 Nov: a split bar sent its second half to
+// the next row, so one bar read as two). Its chords share its box; a length shows only
+// where the box does not already say it - a chord of other than a bar on its own, or
+// unequal parts of one bar. Pass B starts a row of its own, under pass A.
+function _progBars(cs, nA, bpb, playing) {
+  var h = '';
+  [[0, nA], [nA, cs.length]].forEach(function(r, pass) {
+    var beat = 0, unit = [];
+    for (var k = r[0]; k < r[1]; k++) {
+      unit.push(k); beat += cs[k].beats;
+      if (k === r[1] - 1 || Math.abs(beat / bpb - Math.round(beat / bpb)) < 1e-6) {
+        h += _barHTML(cs, unit, bpb, playing, pass === 1 && unit[0] === nA);
+        unit = [];
+      }
+    }
+  });
+  return h;
+}
+function _barHTML(cs, unit, bpb, playing, newRow) {
+  var tags = [], names = [], even = unit.every(function(k) { return cs[k].beats === cs[unit[0]].beats; });
+  var cells = unit.map(function(k) {
+    var c = cs[k], dl = unit.length === 1 || !even ? _durLabel(c.beats, bpb) : '';
+    if (c.twisted && tags.indexOf(c.twistTag) < 0) { tags.push(c.twistTag); names.push(c.twistName); }
+    var now = playing && _pg.playing === k;
+    // Each chord is a button: a tap plays from it (progFrom).
+    return '<button type="button" class="pg-ch' + (now ? ' now' : '') + (c.twisted ? ' tw' : '') + '"' + (now ? ' aria-current="true"' : '') +
+           ' onclick="progFrom(' + k + ')" aria-label="Play from ' + c.name + ' (' + c.label + ')' + (c.twisted ? ', ' + c.twistName : '') +
+           '"><b>' + c.label + '</b><span>' + c.name + '</span>' + (dl ? '<i>' + dl + '</i>' : '') + '</button>';
+  });
+  // A bar of two or three chords takes two columns, so each chord keeps a 44px target
+  // (half a column is 37px on a 360px phone); four or more take the row. Three or more
+  // come only from the library's own busy bars: a twist never puts more than two in one.
+  var n = unit.length, span = n >= 4 ? ' multi s4' + (n >= 5 ? ' dense' : '') : n > 1 ? ' multi' : '';
+  var all = unit.every(function(k) { return cs[k].twisted; });
+  return '<div class="pg-bar' + span + (newRow ? ' nr' : '') + (tags.length ? ' tw' : '') + (all ? ' all' : '') +
+         '" style="grid-template-columns:repeat(' + unit.length + ',minmax(0,1fr))">' + cells.join('') +
+         (tags.length ? '<span class="pg-tag" title="' + names.join(', ') + '">' + tags.join(' + ') + '</span>' : '') + '</div>';
+}
+// A bar of several chords, or with a tag, whose text does not fit its column takes two
+// columns (two already, the row). Measured rather than guessed from the number of
+// letters, since the width depends on the font and the phone; all reads come before
+// all writes, so the layout is worked out once. Called after each paint and on resize.
+function _fitBars() {
+  var bars = document.querySelectorAll('#tools .pg-bar.multi, #tools .pg-bar.tw'), wide = [], i;
+  for (i = 0; i < bars.length; i++) bars[i].classList.remove('fit');
+  for (i = 0; i < bars.length; i++) {
+    var els = bars[i].querySelectorAll('.pg-ch, .pg-ch b, .pg-ch span, .pg-tag');
+    for (var j = 0; j < els.length; j++) {
+      var e = els[j];
+      if (e.scrollWidth > e.clientWidth + 0.5 || (e.classList.contains('pg-ch') && e.clientWidth && e.offsetWidth < 44)) { wide.push(bars[i]); break; }
+    }
+  }
+  wide.forEach(function(b) { b.classList.add('fit'); });
 }
 function _progHTML() {
   var fam = PROG_FAMILIES.filter(function(f) { return f[0] === _pg.fam; })[0] || PROG_FAMILIES[0];
@@ -4876,19 +5475,17 @@ function _progHTML() {
     if (!on) return;
     var cs = _progSequence(p), tws = _tw.id === p.id ? _tw.list : [];
     h += '<div class="pg-detail"><div class="tl-res">' + t.name + ' ' + PROG_MODE[p.tonic] +
-         ' <small>· ' + p.meter + '</small></div><div class="tl-prog">' + cs.map(function(c, k) {
-           var dl = _durLabel(c.beats, bpb), cls = (playing && _pg.playing === k ? 'now' : '') + (c.twisted ? ' tw' : '');
-           return '<div class="' + cls + '"><b>' + c.label + '</b>' + c.name +
-                  (c.twisted ? '<i>' + c.twistName + '</i>' : dl ? '<i>' + dl + '</i>' : '') + '</div>';
-         }).join('') + '</div>' +
-         (tws.length ? '<div class="pg-tw">The second time round: ' + tws.map(function(x) { return x.op.toLowerCase() + ' in bar ' + (x.slot + 1); }).join(', ') +
+         ' <small>· ' + p.meter + '</small></div><div class="pg-bars">' +
+         _progBars(cs, tws.length ? p.chords.length : cs.length, bpb, playing) + '</div>' +
+         (tws.length ? '<div class="pg-tw">The second time round: ' + tws.slice().sort(function(a, b) { return a.slot - b.slot; }).map(function(x) {
+                         return (x.proper ? x.name : x.name.charAt(0).toLowerCase() + x.name.slice(1)) + ' in bar ' + x.bar; }).join(', ') +
                        ' <button type="button" class="tl-chip" onclick="progUntwist()">Undo twists</button></div>' : '') +
          '<p class="tl-note">' + p.why + (p.ex ? ' <span class="pg-ex">' + p.ex + '</span>' : '') + '</p>' +
          '<div class="tl-chips" style="margin:8px 0 0"><button type="button" class="tl-chip' + (_pg.click ? ' on' : '') +
          '" aria-pressed="' + _pg.click + '" onclick="progToggle(\'click\')">Click on the beats</button></div></div>';
   });
-  h += '</div><p class="tl-note">Tap a progression to play it; the middle of the wheel plays and stops it. Twist, at the top right, ' +
-       'plays it again with a surprising change - each press one more. ' +
+  h += '</div><p class="tl-note">Tap a progression to play it, or any of its chords to play from there; the middle of the wheel ' +
+       'plays and stops it. Twist, at the top right, plays it again with a surprising change - each press one more. ' +
        'It plays in the key you pick on the wheel, and follows when you change key.</p>';
   return h + '</div>';
 }
@@ -5128,6 +5725,7 @@ function renderTools() {
   else if (t === 'metro') h += _metroHTML();
   else if (t === 'prog') h += _progHTML();
   el.innerHTML = h;
+  if (t === 'prog') _fitBars();
 }
 function _tempoRow(id, v, minus, plus) {
   return '<div class="tl-bpm"><button type="button" class="tl-pm" aria-label="Slower" onclick="' + minus + '">' + TL_ICON.minus +
