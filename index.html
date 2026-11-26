@@ -180,16 +180,18 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 /* position:relative makes this the popover's containing block, so the settings panel
    hangs off the gear instead of flying to the viewport's top-right corner (it had no
    positioned ancestor and no `top`, landing ~360px away on desktop). */
-.util { display:inline-flex; align-items:center; gap:1px; flex-shrink:0; position:relative; }
+.util { display:inline-flex; align-items:center; gap:0; flex-shrink:0; position:relative; }
 /* Visual size stays compact (5 icons share a tight header row), but the tappable
    area extends to ~40px via an invisible ::before - the "extend hit area, don't
    grow the icon" pattern all three design reviews recommended. */
 /* Measured at 28x26 with 14-15px glyphs on 1.1-1.3px strokes, and a 42x40 hit area -
    under Apple's 44x44 and visibly thin. Square 32 with a 17px glyph, and inset -6
    brings the target to exactly 44x44. Height was 26 against a width of 28 for no
-   reason; a round icon in a non-square box is off-centre by a pixel. */
-.util-btn { position:relative; background:none; border:none; cursor:pointer; width:32px; height:32px; padding:0; line-height:1; color:var(--text2); font-size:17px; border-radius: 8px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
-.util-btn::before { content:''; position:absolute; inset:-6px; }
+   reason; a round icon in a non-square box is off-centre by a pixel.
+   26 Nov: 30 wide, the hit area still 44x44 (inset -6 -7), and no gap, to make room for
+   "Get Pro" beside the wordmark: at 32 it cut KEYMOOD to "KEYM..." at 360 and 375px. */
+.util-btn { position:relative; background:none; border:none; cursor:pointer; width:30px; height:32px; padding:0; line-height:1; color:var(--text2); font-size:17px; border-radius: 8px; display:inline-flex; align-items:center; justify-content:center; flex-shrink:0; }
+.util-btn::before { content:''; position:absolute; inset:-6px -7px; }
 .util-btn:hover { background:var(--bg2); }
 .util-btn.active { color:var(--text); background:var(--bg3); }
 /* MUTED IS A STATE THE USER MUST NOT LOSE TRACK OF. It persists across reloads, and it
@@ -225,11 +227,13 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 /* The way into Pro (Dafa, 25 Nov: "a button to go Pro, then a code or a purchase"): a
    pill in the app bar, the locked Progressions tab and the Settings row all open one
    sheet. Gone, with the lock, once Pro is on. */
-.pro-pill { position: relative; font: inherit; font-size: 12px; font-weight: 600; letter-spacing: .04em; line-height: 1;
-            color: var(--pro); background: none; border: 1.5px solid var(--pro); border-radius: 999px;
-            padding: 8px 11px; margin-inline-end: 6px; cursor: pointer; flex-shrink: 0;
+/* Smaller than the icons beside it (Dafa, 26 Nov: "Get Pro smaller"): 11px on a 1px
+   line, about 22px tall; the invisible ::before keeps the tap target at 44px. */
+.pro-pill { position: relative; font: inherit; font-size: 11px; font-weight: 600; letter-spacing: .01em; line-height: 1;
+            color: var(--pro); background: none; border: 1px solid var(--pro); border-radius: 999px;
+            padding: 6px 8px; margin-inline-end: 5px; cursor: pointer; flex-shrink: 0;
             display: inline-flex; align-items: center; justify-content: center; text-box: trim-both cap alphabetic; }
-.pro-pill::before { content: ''; position: absolute; inset: -8px -4px; }
+.pro-pill::before { content: ''; position: absolute; inset: -11px -5px; }
 .pro-pill[hidden] { display: none; }
 /* At 320px the pill left the wordmark "KE..."; the coloured mark alone reads better. */
 @media (max-width: 340px) { .appbar:has(.pro-pill:not([hidden])) .wm-txt { display: none; } }
@@ -763,7 +767,10 @@ canvas:focus-visible { outline-offset: 3px; }
   <div class="util">
     <!-- Shown once the stored code (if any) has been checked, so a Pro device never
          flashes it. Painted by _paintProRow(). -->
-    <button type="button" class="pro-pill" id="btn-pro" onclick="proOpen()" aria-haspopup="dialog" title="Keymood Pro" hidden>Pro</button>
+    <!-- "Get Pro", not "Pro": a bare "Pro" read as a status. Dafa saw it lit on a device
+         without Pro and took the locked Progressions for a fault (26 Nov). A label for
+         something to do says what it does. -->
+    <button type="button" class="pro-pill" id="btn-pro" onclick="proOpen()" aria-haspopup="dialog" aria-label="Get Keymood Pro" hidden>Get Pro</button>
     <button class="util-btn" id="bm-quiz" onclick="toggleQuiz()" title="Ear-training quiz" aria-label="Quiz" aria-pressed="false"><svg class="bar-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21.42 10.922a1 1 0 0 0-.019-1.838L12.83 5.18a2 2 0 0 0-1.66 0L2.6 9.08a1 1 0 0 0 0 1.832l8.57 3.908a2 2 0 0 0 1.66 0z"/><path d="M22 10v6"/><path d="M6 12.5V16a6 3 0 0 0 12 0v-3.5"/></svg></button>
     <button class="util-btn" id="btn-share" onclick="shareLink()" title="Copy link to this key" aria-label="Share"><svg class="bar-ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 13a5 5 0 0 0 7.54.54l3-3a5 5 0 0 0-7.07-7.07l-1.72 1.71"/><path d="M14 11a5 5 0 0 0-7.54-.54l-3 3a5 5 0 0 0 7.07 7.07l1.71-1.71"/></svg></button>
     <button class="util-btn" id="btn-theme" onclick="toggleTheme()" title="Toggle light/dark" aria-label="Theme"></button>
@@ -802,7 +809,7 @@ canvas:focus-visible { outline-offset: 3px; }
       <div class="set-row pro-row" id="pro-row"></div>
       <div class="set-row" style="border-top:0.5px solid var(--bd);padding-top:11px">
         <span class="set-label">Version</span>
-        <span style="font-size:11px;color:var(--text3)">v2.17.0</span>
+        <span style="font-size:11px;color:var(--text3)">v2.17.1</span>
       </div>
       <!-- Required by the sample licence (CC BY 3.0): name the work, the author and the
            licence, with a link to it. -->
@@ -907,6 +914,14 @@ canvas:focus-visible { outline-offset: 3px; }
 </div>
 
 <script>
+// ── The store build ───────────────────────────────────────────────────────────
+// The same page runs inside the iOS app (mobile/, Capacitor). There it is NATIVE: no
+// service worker (the files are in the app), no tester codes or ?pro= links (App Store
+// 3.1.1: Pro is sold only through the store), and no Pro entry at all until the store
+// purchase is built - a lock that leads to "not on sale" is the placeholder review
+// rejects (2.1).
+var NATIVE = !!(window.Capacitor && window.Capacitor.isNativePlatform && window.Capacitor.isNativePlatform());
+var PRO_OFFERED = !NATIVE;
 // ── Moving to keymood.app ─────────────────────────────────────────────────────
 // Browser storage belongs to one address. The copy still served at
 // dafaspace.github.io/keymood/ (and the /fifths/ bridge in front of it) is the only
@@ -4090,9 +4105,10 @@ function proUseCode(v) {
 window.proUseCode = proUseCode;
 function _paintProRow() {
   var pill = document.getElementById('btn-pro');
-  if (pill) pill.hidden = _pro || !_proKnown;
+  if (pill) pill.hidden = _pro || !_proKnown || !PRO_OFFERED;
   var el = document.getElementById('pro-row');
   if (!el) return;
+  el.hidden = !_pro && !PRO_OFFERED;
   // No Turn off button (Dafa, 25 Nov: why have one?): one stray tap cost a tester their
   // code. A tester sees when it ends; the owner checks the free app with ?pro=off.
   el.innerHTML = _pro
@@ -4148,6 +4164,7 @@ window.proOpen = proOpen; window.proClose = proClose; window.proOpen_tab = proOp
   }, { passive: true });
 })();
 (function() {
+  if (NATIVE) { _proKnown = true; return; }    // the store sells Pro there, not codes
   var q = null;
   try { q = new URLSearchParams(location.search).get('pro'); } catch (e) {}
   if (q !== null) {
@@ -4986,16 +5003,16 @@ function renderTools() {
   // The choice itself is kept: Pro is confirmed a moment after load (the token is hashed
   // asynchronously), and the open tab should come back once it is.
   var t = (tool === 'prog' && !_pro) ? null : tool;
-  var locked = !_pro && _proKnown;
+  var locked = !_pro && _proKnown, showProg = _pro || PRO_OFFERED;
   _paintWheelCtl(t);
   var h = '<div class="tl-head"><div class="tl-seg" role="group" aria-label="Tools">' +
     '<button type="button" class="' + (t === 'dice' ? 'on' : '') + '" aria-pressed="' + (t === 'dice') +
       '" onclick="setTool(\'dice\')">' + TL_ICON.dice + 'Dice</button>' +
     '<button type="button" class="' + (t === 'metro' ? 'on' : '') + '" aria-pressed="' + (t === 'metro') +
       '" onclick="setTool(\'metro\')">' + TL_ICON.metro + 'Metronome</button>' +
-    '<button type="button" class="' + (t === 'prog' ? 'on' : '') + (locked ? ' locked' : '') + '" ' +
+    (showProg ? '<button type="button" class="' + (t === 'prog' ? 'on' : '') + (locked ? ' locked' : '') + '" ' +
       (locked ? 'aria-haspopup="dialog" aria-label="Progressions, Keymood Pro"' : 'aria-pressed="' + (t === 'prog') + '"') +
-      ' onclick="proOpen_tab()">' + (locked ? TL_ICON.lockTab : TL_ICON.prog) + 'Progressions</button></div>';
+      ' onclick="proOpen_tab()">' + (locked ? TL_ICON.lockTab : TL_ICON.prog) + 'Progressions</button>' : '') + '</div>';
   // Tempo rides in the head with the switch, so it stays in reach while a list scrolls.
   var hp = t === 'prog' ? _progById(_pg.id) : null;
   if (t === 'metro') h += _tempoRow('tl-bpmv', _metroToolBpm, 'metroSetBpm(_metroToolBpm - 1)', 'metroSetBpm(_metroToolBpm + 1)');
@@ -6047,7 +6064,7 @@ if (document.readyState === 'loading') {
 // ── Service worker (PWA) + auto-update ──────────────────────────────────────────
 // Makes home-screen installs update themselves: when a new SW takes control we
 // reload once, and we poll for a new version whenever the app regains focus.
-if ('serviceWorker' in navigator) {
+if (!NATIVE && 'serviceWorker' in navigator) {
   window.addEventListener('load', function() {
     var hadController = !!navigator.serviceWorker.controller;
     var refreshed = false;
