@@ -2399,6 +2399,7 @@ function handlePick(h, noToggle) {
   var _same = selected && selected.slice === h.slice && selected.modeIdx === newModeIdx
               && !!selected.fromInner === _newFromInner;
   diceStop();
+  _haptic();
   if (!_same) {
     selected = { slice: h.slice, tonicSlice: h.slice, modeIdx: newModeIdx, fromInner: _newFromInner };
     lastModeIdx = newModeIdx;
@@ -3632,8 +3633,17 @@ function _keepAwake(reason, on) {
   if (on) _awake.why[reason] = true; else delete _awake.why[reason];
   _syncWakeLock();
 }
+// The iOS app keeps the screen on natively (StorePlugin.swift, DevicePlugin: the idle
+// timer), which holds whatever the web view supports, and also on iOS versions whose
+// web view has no Screen Wake Lock.
+var _device = (NATIVE && window.Capacitor && Capacitor.registerPlugin) ? Capacitor.registerPlugin('Device') : null;
+var _haptics = (NATIVE && window.Capacitor && Capacitor.registerPlugin) ? Capacitor.registerPlugin('Haptics') : null;
+// A light tick when a key is chosen on the wheel, in the iOS app only (iOS Safari gives the
+// web no haptics). The touch on the instrument answers the finger, as a real control does.
+function _haptic() { if (_haptics) try { _haptics.impact({ style: 'LIGHT' }).catch(function () {}); } catch (e) {} }
 function _syncWakeLock() {
   var want = Object.keys(_awake.why).length > 0;
+  if (_device) { if (want !== !!_awake.native) { _awake.native = want; _device.keepAwake({ on: want }).catch(function () {}); } return; }
   if (!('wakeLock' in navigator)) return;
   if (want && !_awake.lock && !document.hidden) {
     _awake.lock = 'pending';
@@ -3662,7 +3672,7 @@ function _paintAwake() {
   // Said only where it fails: older iOS (before 16.4, or 18.4 for a home-screen app) and
   // older browsers have no wake lock at all.
   if (n) {
-    var no = _awakePref && !('wakeLock' in navigator);
+    var no = _awakePref && !('wakeLock' in navigator) && !NATIVE;
     n.hidden = !no;
     n.textContent = no ? 'This browser cannot keep the screen on. On an iPhone: Settings, Display & Brightness, Auto-Lock.' : '';
   }

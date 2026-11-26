@@ -108,10 +108,30 @@ public class StorePlugin: CAPPlugin, CAPBridgedPlugin {
     }
 }
 
+// Keeps the screen on while the metronome, the drone or a progression plays, or always if
+// Settings says so (index.html, _syncWakeLock). The idle timer, not the web's Screen Wake
+// Lock, which some iOS versions do not give a web view.
+@objc(DevicePlugin)
+public class DevicePlugin: CAPPlugin, CAPBridgedPlugin {
+    public let identifier = "DevicePlugin"
+    public let jsName = "Device"
+    public let pluginMethods: [CAPPluginMethod] = [
+        CAPPluginMethod(name: "keepAwake", returnType: CAPPluginReturnPromise)
+    ]
+    @objc func keepAwake(_ call: CAPPluginCall) {
+        let on = call.getBool("on") ?? false
+        DispatchQueue.main.async {
+            UIApplication.shared.isIdleTimerDisabled = on
+            call.resolve()
+        }
+    }
+}
+
 // Capacitor finds npm plugins by itself; a plugin that lives in the app target is registered
 // here. Main.storyboard names this class instead of CAPBridgeViewController.
 class MainViewController: CAPBridgeViewController {
     override open func capacitorDidLoad() {
         bridge?.registerPluginInstance(StorePlugin())
+        bridge?.registerPluginInstance(DevicePlugin())
     }
 }
