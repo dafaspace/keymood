@@ -1,8 +1,9 @@
 [
  {
   "id": "axis-progression",
-  "name": "I-V-vi-IV (Axis progression)",
+  "name": "Four-chord pop loop",
   "aka": [
+   "I-V-vi-IV (Axis progression)",
    "vi-IV-I-V (sensitive female chord progression)",
    "V-vi-IV-I",
    "IV-I-V-vi",
@@ -38,6 +39,9 @@
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.09%3A_Four-Chord_Schemas",
    "https://music.ragnet.co.jp/standard-chord-songs?disp=more",
    "https://www.hearandplay.com/main/the-application-of-common-chord-progressions-in-gospel-music"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
@@ -82,8 +86,9 @@
  },
  {
   "id": "i-iv-vi-v",
-  "name": "I-IV-vi-V",
+  "name": "50s progression, IV first",
   "aka": [
+   "I-IV-vi-V",
    "IV-vi-V-I",
    "vi-V-I-IV",
    "V-I-IV-vi"
@@ -99,8 +104,7 @@
   "meter": "4/4",
   "bpm": 110,
   "examples": [
-   "More Than a Feeling - Boston",
-   "She Drives Me Crazy - Fine Young Cannibals"
+   "More Than a Feeling - Boston"
   ],
   "why": "The 50s loop with vi and IV swapped, so the minor chord arrives late and V pulls straight back home.",
   "moods": [
@@ -111,12 +115,17 @@
   "sources": [
    "https://en.wikipedia.org/wiki/50s_progression",
    "https://www.hooktheory.com/theorytab/view/boston/more-than-a-feeling"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "sleep-walk-changes",
-  "name": "I-vi-iv-V (Sleep Walk changes)",
-  "aka": [],
+  "name": "50s progression, minor iv",
+  "aka": [
+   "I-vi-iv-V (Sleep Walk changes)"
+  ],
   "family": "pop-rock",
   "tonic": "major",
   "chords": [
@@ -140,6 +149,9 @@
    "https://en.wikipedia.org/wiki/50s_progression",
    "https://www.hooktheory.com/theorytab/view/santo-and-johnny/sleep-walk",
    "https://www.jonmaclennan.com/blog/sleepwalk-chords"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
@@ -162,7 +174,6 @@
   "meter": "4/4",
   "bpm": 140,
   "examples": [
-   "Wild Thing - The Troggs",
    "La Bamba - Ritchie Valens",
    "Twist and Shout - The Isley Brothers"
   ],
@@ -183,8 +194,10 @@
  },
  {
   "id": "sonics-i-biii-iv-biii",
-  "name": "I-bIII-IV-bIII (Sonics' Louie Louie)",
-  "aka": [],
+  "name": "Garage-rock loop with bIII",
+  "aka": [
+   "I-bIII-IV-bIII (Sonics' Louie Louie)"
+  ],
   "family": "pop-rock",
   "tonic": "major",
   "chords": [
@@ -206,6 +219,9 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Louie_Louie"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
@@ -234,7 +250,7 @@
    "Hey Jude (coda) - The Beatles",
    "Sweet Home Alabama - Lynyrd Skynyrd"
   ],
-  "why": "Each chord falls a fourth to the next, two plagal steps in a row, so the loop feels open and anthemic rather than resolved.",
+  "why": "bVII falls a fourth to IV and IV a fourth to I, two plagal steps in a row, so the loop feels open and anthemic rather than resolved.",
   "moods": [
    "Heroic",
    "Triumph",
@@ -252,8 +268,10 @@
  },
  {
   "id": "mixolydian-i-bvii-iv-v",
-  "name": "I-bVII-IV-V (Mixolydian)",
-  "aka": [],
+  "name": "Mixolydian loop to V",
+  "aka": [
+   "I-bVII-IV-V (Mixolydian)"
+  ],
   "family": "pop-rock",
   "tonic": "mixolydian",
   "chords": [
@@ -273,12 +291,16 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Mixolydian_mode"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "chromatic-descending-5-6",
-  "name": "I-V-bVII-IV (chromatic descending 5-6 sequence)",
+  "name": "Double plagal with V",
   "aka": [
+   "I-V-bVII-IV (chromatic descending 5-6 sequence)",
    "Double plagal with V",
    "Waterfalls loop"
   ],
@@ -304,6 +326,9 @@
   "sources": [
    "https://en.wikipedia.org/wiki/List_of_chord_progressions",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.13%3A_Pentatonic_Harmony"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -369,8 +394,9 @@
  },
  {
   "id": "creep-progression",
-  "name": "I-III-IV-iv (Creep progression)",
+  "name": "Mediant climb, major III",
   "aka": [
+   "I-III-IV-iv (Creep progression)",
    "Chromatic Puff (I-III-IV)"
   ],
   "family": "pop-rock",
@@ -396,12 +422,16 @@
    "https://www.hooktheory.com/theorytab/view/radiohead/creep",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.11%3A_Puff_Schemas",
    "https://en.wikipedia.org/wiki/Eight-bar_blues"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "major-line-cliche",
-  "name": "Major line cliche (I-I+-vi-I+)",
+  "name": "Major line cliche",
   "aka": [
+   "Major line cliche (I-I+-vi-I+)",
    "Ascending line cliche"
   ],
   "family": "pop-rock",
@@ -425,6 +455,9 @@
    "https://en.wikipedia.org/wiki/Line_clich%C3%A9",
    "https://www.hubguitar.com/fretboard/major-line-cliche",
    "https://www.thejazzpianosite.com/jazz-piano-lessons/jazz-chord-progressions/line-cliches/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
@@ -462,8 +495,9 @@
  },
  {
   "id": "hotel-california",
-  "name": "Hotel California progression",
+  "name": "Minor falling-fourths loop",
   "aka": [
+   "Hotel California progression",
    "Spanish progression (as described for this song)"
   ],
   "family": "pop-rock",
@@ -492,6 +526,9 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Hotel_California",
    "https://www.hooktheory.com/theorytab/view/eagles/hotel-california"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
@@ -588,8 +625,9 @@
  },
  {
   "id": "i-i7-iv-iv",
-  "name": "I-I7-IV-iv",
+  "name": "Plagal sigh from I7",
   "aka": [
+   "I-I7-IV-iv",
    "Plagal turnaround with a dominant-seventh tonic"
   ],
   "family": "pop-rock",
@@ -603,7 +641,7 @@
   "meter": "4/4",
   "bpm": 100,
   "examples": [
-   "The Japanese Grand March (earliest cited source)"
+   "In My Life - The Beatles"
   ],
   "why": "The tonic grows a seventh that pulls it to IV, and IV then turns minor, a churchy, bittersweet way back to the start.",
   "moods": [
@@ -616,12 +654,17 @@
    "https://en.wikipedia.org/wiki/Plagal_cadence",
    "https://www.recmusicbeatles.com/public/files/awp/iml.html",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.08%3A_Blues-Based_Schemas"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "puff",
-  "name": "I-iii-IV (Puff schema)",
-  "aka": [],
+  "name": "Mediant climb",
+  "aka": [
+   "I-iii-IV (Puff schema)"
+  ],
   "family": "pop-rock",
   "tonic": "major",
   "chords": [
@@ -646,12 +689,17 @@
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.11%3A_Puff_Schemas",
    "https://www.hooktheory.com/theorytab/view/peter-paul-and-mary/puff-the-magic-dragon",
    "https://www.hooktheory.com/theorytab/view/marvin-gaye/lets-get-it-on"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "minor-puff",
-  "name": "i-bIII-iv (minor Puff)",
-  "aka": [],
+  "name": "Minor mediant climb",
+  "aka": [
+   "i-bIII-iv (minor Puff)"
+  ],
   "family": "pop-rock",
   "tonic": "minor",
   "chords": [
@@ -673,7 +721,8 @@
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.11%3A_Puff_Schemas"
   ],
   "review": [
-   "second pass 25 Nov 2026: House of the Rising Sun has a major IV; example removed"
+   "second pass 25 Nov 2026: House of the Rising Sun has a major IV; example removed",
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
@@ -706,8 +755,10 @@
  },
  {
   "id": "comfortably-numb-descent",
-  "name": "i-bVII-bVI-iv",
-  "aka": [],
+  "name": "Aeolian descent to iv",
+  "aka": [
+   "i-bVII-bVI-iv"
+  ],
   "family": "pop-rock",
   "tonic": "minor",
   "chords": [
@@ -731,12 +782,17 @@
    "https://en.wikipedia.org/wiki/Andalusian_cadence",
    "https://www.hooktheory.com/theorytab/view/pink-floyd/comfortably-numb",
    "https://www.native-instruments.com/blogs/blog/minor-chord-progressions"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "pentatonic-minor-ascent",
-  "name": "i-bIII-IV-bVI",
-  "aka": [],
+  "name": "Minor mediant climb, major IV",
+  "aka": [
+   "i-bIII-IV-bVI"
+  ],
   "family": "pop-rock",
   "tonic": "minor",
   "chords": [
@@ -760,13 +816,15 @@
    "https://www.native-instruments.com/blogs/blog/minor-chord-progressions"
   ],
   "review": [
-   "second pass 25 Nov 2026: no source calls it pentatonic; claim removed"
+   "second pass 25 Nov 2026: no source calls it pentatonic; claim removed",
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "minor-hopscotch",
-  "name": "bVI-V-i-bIII (minor Hopscotch)",
+  "name": "Minor hopscotch loop",
   "aka": [
+   "bVI-V-i-bIII (minor Hopscotch)",
    "VI-V-i-III"
   ],
   "family": "pop-rock",
@@ -788,12 +846,16 @@
   ],
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.09%3A_Four-Chord_Schemas"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "major-descending-tetrachord",
-  "name": "I-iii/7-IV/6-V7 (major descending bass)",
+  "name": "Diatonic lament in major",
   "aka": [
+   "I-iii/7-IV/6-V7 (major descending bass)",
    "I-iii/7-II7/6-V7 (I'll Follow the Sun variant)"
   ],
   "family": "pop-rock",
@@ -819,12 +881,17 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Lament_bass",
    "https://www.recmusicbeatles.com/public/files/awp/g.html"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "magical-mystery-descent",
-  "name": "Descending chromatic bass in major",
-  "aka": [],
+  "name": "Chromatic lament in major",
+  "aka": [
+   "Descending chromatic bass in major"
+  ],
   "family": "pop-rock",
   "tonic": "major",
   "chords": [
@@ -848,12 +915,16 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Lament_bass",
    "https://www.recmusicbeatles.com/public/files/awp/mmt.html"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "stairway-descent",
-  "name": "Minor chromatic line descent",
+  "name": "Chromatic bass descent",
   "aka": [
+   "Minor chromatic line descent",
    "Stairway descending line"
   ],
   "family": "pop-rock",
@@ -881,12 +952,17 @@
   "sources": [
    "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html",
    "https://en.wikipedia.org/wiki/Lament_bass"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "while-my-guitar-descent",
-  "name": "i-i/b7-IV7/6-bVI (While My Guitar Gently Weeps)",
-  "aka": [],
+  "name": "Dorian bass descent",
+  "aka": [
+   "i-i/b7-IV7/6-bVI (While My Guitar Gently Weeps)"
+  ],
   "family": "pop-rock",
   "tonic": "minor",
   "chords": [
@@ -909,12 +985,17 @@
   "sources": [
    "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html",
    "https://en.wikipedia.org/wiki/Lament_bass"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "dream-on-descent",
-  "name": "i-i/b7-viø7-bVImaj7 (descending line)",
-  "aka": [],
+  "name": "Melodic-minor bass descent",
+  "aka": [
+   "i-i/b7-viø7-bVImaj7 (descending line)"
+  ],
   "family": "pop-rock",
   "tonic": "minor",
   "chords": [
@@ -936,7 +1017,8 @@
    "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html"
   ],
   "review": [
-   "second pass 25 Nov 2026: Hooktheory contradicts the Dream On attribution after chord 2; song removed"
+   "second pass 25 Nov 2026: Hooktheory contradicts the Dream On attribution after chord 2; song removed",
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -1020,9 +1102,7 @@
   ],
   "meter": "4/4",
   "bpm": 130,
-  "examples": [
-   "April in Paris (minor form, mm. 11-12) - Vernon Duke"
-  ],
+  "examples": [],
   "why": "The dominant is swapped for the dominant a tritone away, so the bass slides down by half steps into the tonic.",
   "moods": [
    "Wealth",
@@ -1039,8 +1119,9 @@
  },
  {
   "id": "backdoor-progression",
-  "name": "Backdoor progression (iv7-bVII7-I)",
+  "name": "Backdoor progression",
   "aka": [
+   "Backdoor progression (iv7-bVII7-I)",
    "Backdoor ii-V",
    "iv7-bVII7-I"
   ],
@@ -1071,7 +1152,8 @@
    "https://guitarcomposerstoolbox.com/jazz-standards/corcovado-in-c/"
   ],
   "review": [
-   "second pass 25 Nov 2026: teaching sites define it as iv7-bVII7-I; the IV before it is Corcovado only"
+   "second pass 25 Nov 2026: teaching sites define it as iv7-bVII7-I; the IV before it is Corcovado only",
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
@@ -1114,8 +1196,9 @@
  },
  {
   "id": "i-vi7-ii7-v7",
-  "name": "I-VI7-ii7-V7 turnaround",
+  "name": "Secondary-dominant turnaround",
   "aka": [
+   "I-VI7-ii7-V7 turnaround",
    "Stock jazz-blues turnaround"
   ],
   "family": "jazz",
@@ -1142,12 +1225,16 @@
    "https://jazz-guitar-licks.com/blog/lessons/i-vi-ii-v-turnaround-variations-lesson-with-tabs-shapes-and-audio.html",
    "https://www.learnjazzstandards.com/blog/jazz-turnarounds/",
    "https://www.pianogroove.com/?p=3985"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "iii-vi-ii-v",
-  "name": "iii-vi-ii-V",
+  "name": "Mediant turnaround",
   "aka": [
+   "iii-vi-ii-V",
    "3-6-2-5"
   ],
   "family": "jazz",
@@ -1170,12 +1257,16 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Turnaround_(music)",
    "https://violetrecording.com/rnb-chord-progressions/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "ragtime-progression",
-  "name": "Ragtime progression (VI7-II7-V7-I)",
+  "name": "Ragtime progression",
   "aka": [
+   "Ragtime progression (VI7-II7-V7-I)",
    "I-VI7-II7-V7",
    "Sweet Georgia Brown changes",
    "Chained secondary dominants"
@@ -1207,12 +1298,16 @@
    "https://en.wikipedia.org/wiki/Chord_progression",
    "https://jazz-guitar-licks.com/blog/lessons/i-vi-ii-v-turnaround-variations-lesson-with-tabs-shapes-and-audio.html",
    "https://www.jazzstandards.com/compositions-0/sweetgeorgiabrown.htm"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "ragtime-three-chord",
-  "name": "II7-V7-I",
+  "name": "Three-chord ragtime progression",
   "aka": [
+   "II7-V7-I",
    "Three-chord ragtime progression",
    "V7/V-V7-I"
   ],
@@ -1238,12 +1333,16 @@
    "https://en.wikipedia.org/wiki/Turnaround_(music)",
    "https://www.thejazzpianosite.com/jazz-piano-lessons/jazz-chords/chord-substitution/",
    "https://jazz-guitar-licks.com/blog/lessons/i-vi-ii-v-turnaround-variations-lesson-with-tabs-shapes-and-audio.html"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "raised-four-diminished-cadence",
-  "name": "#iv°7-V-I",
+  "name": "Sharp-four diminished cadence",
   "aka": [
+   "#iv°7-V-I",
    "viio7/V-V-I"
   ],
   "family": "jazz",
@@ -1265,12 +1364,16 @@
   "sources": [
    "https://en.wikipedia.org/wiki/List_of_chord_progressions",
    "https://human.libretexts.org/Under_Construction/Fundamentals_Function_and_Form_(Mount)/03:_Modulation_and_Chromatic_Harmony/3.01:_Applied_Chords"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "ii-biii-aug-i",
-  "name": "ii-bIII+-I",
+  "name": "Augmented dominant substitute",
   "aka": [
+   "ii-bIII+-I",
    "bIII+ as dominant substitute"
   ],
   "family": "jazz",
@@ -1291,6 +1394,9 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/List_of_chord_progressions"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -1328,8 +1434,10 @@
  },
  {
   "id": "chromatic-ii-v-chain",
-  "name": "iii7-bIII7-ii7-bII7-Imaj7",
-  "aka": [],
+  "name": "Tritone-sub walk-down",
+  "aka": [
+   "iii7-bIII7-ii7-bII7-Imaj7"
+  ],
   "family": "jazz",
   "tonic": "major",
   "chords": [
@@ -1353,6 +1461,9 @@
    "https://www.jazzstandards.com/compositions-0/autumnleaves.htm",
    "https://www.learnjazzstandards.com/blog/jazz-turnarounds/",
    "https://learnjazzstandards.com/blog/bossa-nova-chord-progressions"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -1405,8 +1516,9 @@
  },
  {
   "id": "rhythm-changes-bridge",
-  "name": "Rhythm changes bridge (Sears Roebuck bridge)",
+  "name": "Rhythm changes bridge",
   "aka": [
+   "Rhythm changes bridge (Sears Roebuck bridge)",
    "III7-VI7-II7-V7",
    "Five-chord ragtime progression (III7-VI7-II7-V7-I)"
   ],
@@ -1436,12 +1548,16 @@
    "https://en.wikipedia.org/wiki/Ragtime_progression",
    "https://www.thejazzpianosite.com/jazz-piano-lessons/jazz-chord-progressions/rhythm-changes/",
    "https://www.jazzstandards.com/compositions-0/igotrhythm.htm"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "montgomery-ward-bridge",
-  "name": "Montgomery-Ward bridge",
+  "name": "Rising ii-V bridge",
   "aka": [
+   "Montgomery-Ward bridge",
    "Riepel's Monte (jazz form)",
    "I7-IV-II7-V7"
   ],
@@ -1473,6 +1589,9 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Montgomery-Ward_bridge",
    "https://www.jazzstandards.com/compositions-0/onthesunnysideofthestreet.htm"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
@@ -1518,8 +1637,9 @@
  },
  {
   "id": "coltrane-changes",
-  "name": "Coltrane changes (Countdown substitution)",
+  "name": "Coltrane changes",
   "aka": [
+   "Coltrane changes (Countdown substitution)",
    "Coltrane matrix",
    "Giant Steps cycle"
   ],
@@ -1549,12 +1669,17 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Coltrane_changes",
    "https://www.thejazzpianosite.com/jazz-piano-lessons/jazz-chord-progressions/coltrane-changes/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "tune-up-changes",
-  "name": "Tune Up changes (ii-V-I down a whole step)",
-  "aka": [],
+  "name": "Descending ii-V-I sequence",
+  "aka": [
+   "Tune Up changes (ii-V-I down a whole step)"
+  ],
   "family": "jazz",
   "tonic": "major",
   "chords": [
@@ -1579,6 +1704,9 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Coltrane_changes",
    "http://www.learnjazzstandards.com/jazz-standards-2/tune-up/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
@@ -1616,8 +1744,9 @@
  },
  {
   "id": "chromatic-turnaround",
-  "name": "I-bIII7-II7-bII7 turnaround",
+  "name": "Chromatic turnaround",
   "aka": [
+   "I-bIII7-II7-bII7 turnaround",
    "Tritone-substituted I-vi-ii-V"
   ],
   "family": "jazz",
@@ -1640,12 +1769,17 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Turnaround_(music)",
    "https://www.learnjazzstandards.com/blog/jazz-turnarounds/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "passing-diminished-turnaround",
-  "name": "I-biii°7-ii7-V7 turnaround",
-  "aka": [],
+  "name": "Passing-diminished turnaround",
+  "aka": [
+   "I-biii°7-ii7-V7 turnaround"
+  ],
   "family": "jazz",
   "tonic": "major",
   "chords": [
@@ -1668,12 +1802,16 @@
    "https://en.wikipedia.org/wiki/Cadence",
    "https://www.learnjazzstandards.com/blog/jazz-turnarounds/",
    "https://www.thejazzpianosite.com/jazz-piano-lessons/jazz-chords/passing-chords/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "autumn-leaves-a",
-  "name": "Autumn Leaves A section",
+  "name": "Major then minor ii-V-I",
   "aka": [
+   "Autumn Leaves A section",
    "Circle of fifths in minor (jazz form)"
   ],
   "family": "jazz",
@@ -1702,12 +1840,17 @@
    "https://en.wikipedia.org/wiki/Autumn_Leaves_(1945_song)",
    "https://www.jazzstandards.com/compositions-0/autumnleaves.htm",
    "https://www.learnjazzstandards.com/jazz-standards/autumn-leaves/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "all-the-things-a",
-  "name": "All the Things You Are A section",
-  "aka": [],
+  "name": "Circle of fifths to a new key",
+  "aka": [
+   "All the Things You Are A section"
+  ],
   "family": "jazz",
   "tonic": "major",
   "chords": [
@@ -1725,7 +1868,7 @@
   "examples": [
    "All the Things You Are - Jerome Kern"
   ],
-  "why": "Roots fall by fourths from vi to IV, then one dominant lifts the tune a major third into a new key.",
+  "why": "Roots fall by fifths from vi to IV, then one dominant lifts the tune a major third into a new key.",
   "moods": [
    "Romantic",
    "Wealth",
@@ -1737,13 +1880,16 @@
    "https://www.jazzstandards.com/compositions-0/allthethingsyouare.htm"
   ],
   "review": [
-   "second pass 25 Nov 2026: bar 6 is Dm7-G7 in A-flat"
+   "second pass 25 Nov 2026: bar 6 is Dm7-G7 in A-flat",
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "lady-bird-changes",
-  "name": "Lady Bird changes",
-  "aka": [],
+  "name": "Sixteen-bar backdoor form",
+  "aka": [
+   "Lady Bird changes"
+  ],
   "family": "jazz",
   "tonic": "major",
   "chords": [
@@ -1779,12 +1925,17 @@
    "http://www.learnjazzstandards.com/jazz-standards-2/lady-bird/",
    "https://antonjazz.com/2012/01/backdoor-ii-v-progression/",
    "https://www.learnjazzstandards.com/blog/tadd-dameron-turnaround-chord-progression-workout/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "solar-changes",
-  "name": "Solar changes",
-  "aka": [],
+  "name": "Minor twelve-bar ii-V chain",
+  "aka": [
+   "Solar changes"
+  ],
   "family": "jazz",
   "tonic": "minor",
   "chords": [
@@ -1817,12 +1968,16 @@
    "https://en.wikipedia.org/wiki/Solar_(composition)",
    "https://www.jazz-guitar-licks.com/blog/lessons/solar-miles-davis-guitar-chord-melody-lesson.html",
    "https://www.learnjazzstandards.com/jazz-standards/solar/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "so-what-form",
-  "name": "So What / Impressions form",
+  "name": "Dorian AABA, up a half step",
   "aka": [
+   "So What / Impressions form",
    "Modal AABA, Dorian a half step apart"
   ],
   "family": "jazz",
@@ -1848,12 +2003,17 @@
    "https://en.wikipedia.org/wiki/So_What_(Miles_Davis_composition)",
    "https://en.wikipedia.org/wiki/Dorian_mode",
    "https://www.learnjazzstandards.com/jazz-standards/so-what/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "maiden-voyage-changes",
-  "name": "Maiden Voyage changes",
-  "aka": [],
+  "name": "Suspended-chord modal form",
+  "aka": [
+   "Maiden Voyage changes"
+  ],
   "family": "jazz",
   "tonic": "mixolydian",
   "chords": [
@@ -1880,12 +2040,16 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Maiden_Voyage_(composition)",
    "https://en.wikipedia.org/wiki/Dorian_mode"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "take-the-a-train-a",
-  "name": "Take the A Train A section",
+  "name": "Swing A section with II7",
   "aka": [
+   "Take the A Train A section",
    "I-II7-ii-V-I"
   ],
   "family": "jazz",
@@ -1913,6 +2077,9 @@
    "https://www.jazzadvice.com/lessons/how-to-play-the-girl-from-ipanema/",
    "https://www.hooktheory.com/theorytab/view/duke-ellington/take-the-a-train",
    "https://pianowithjonny.com/piano-lessons/the-jobim-chord-progression/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
@@ -2018,8 +2185,10 @@
  },
  {
   "id": "bebop-blues",
-  "name": "Bebop (jazz) blues",
-  "aka": [],
+  "name": "Bebop blues",
+  "aka": [
+   "Bebop (jazz) blues"
+  ],
   "family": "blues",
   "tonic": "blues",
   "chords": [
@@ -2058,13 +2227,15 @@
    "https://acousticguitar.com/?p=105246"
   ],
   "review": [
-   "second pass 25 Nov 2026: bar 8 is iii7-VI7b9, two beats each"
+   "second pass 25 Nov 2026: bar 8 is iii7-VI7b9, two beats each",
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "bird-blues",
-  "name": "Bird blues (Bird changes)",
+  "name": "Bird blues",
   "aka": [
+   "Bird blues (Bird changes)",
    "Blues for Alice changes"
   ],
   "family": "blues",
@@ -2111,7 +2282,8 @@
    "https://www.premierguitar.com/lessons/beyond-blues-how-to-play-bird-blues"
   ],
   "review": [
-   "second pass 25 Nov 2026: turnaround vi7, not VI7 (two sources)"
+   "second pass 25 Nov 2026: turnaround vi7, not VI7 (two sources)",
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
@@ -2149,8 +2321,9 @@
  },
  {
   "id": "eight-bar-key-to-the-highway",
-  "name": "Eight-bar blues (Key to the Highway)",
+  "name": "Eight-bar blues",
   "aka": [
+   "Eight-bar blues (Key to the Highway)",
    "Generic eight-bar blues"
   ],
   "family": "blues",
@@ -2182,12 +2355,17 @@
    "https://www.bluesguitarinstitute.com/8-bar-blues/",
    "https://www.bluesharmonica.com/key_highway_blues_standards",
    "https://guitarworld.com/magazine/deep-getting-know-eight-bar-blues-progression"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "eight-bar-worried-life",
-  "name": "Eight-bar blues (Worried Life Blues)",
-  "aka": [],
+  "name": "Eight-bar blues, IV in bar 3",
+  "aka": [
+   "Eight-bar blues (Worried Life Blues)"
+  ],
   "family": "blues",
   "tonic": "blues",
   "chords": [
@@ -2215,12 +2393,16 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Eight-bar_blues"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "eight-bar-heartbreak-hotel",
-  "name": "Eight-bar blues (Heartbreak Hotel)",
+  "name": "Eight-bar blues, long tonic",
   "aka": [
+   "Eight-bar blues (Heartbreak Hotel)",
    "Get a Haircut variant (ends V-V)"
   ],
   "family": "blues",
@@ -2244,12 +2426,17 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Eight-bar_blues"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "eight-bar-walkin-by-myself",
-  "name": "Eight-bar blues (Walkin' by Myself)",
-  "aka": [],
+  "name": "Eight-bar blues, quick ending",
+  "aka": [
+   "Eight-bar blues (Walkin' by Myself)"
+  ],
   "family": "blues",
   "tonic": "blues",
   "chords": [
@@ -2272,12 +2459,17 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Eight-bar_blues"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "eight-bar-trouble-in-mind",
-  "name": "Eight-bar blues (Trouble in Mind)",
-  "aka": [],
+  "name": "Eight-bar blues, minor iv, VI7",
+  "aka": [
+   "Eight-bar blues (Trouble in Mind)"
+  ],
   "family": "blues",
   "tonic": "blues",
   "chords": [
@@ -2308,12 +2500,17 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Eight-bar_blues"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "eight-bar-sitting-on-top",
-  "name": "Eight-bar blues (Sitting on Top of the World)",
-  "aka": [],
+  "name": "Eight-bar blues, minor iv",
+  "aka": [
+   "Eight-bar blues (Sitting on Top of the World)"
+  ],
   "family": "blues",
   "tonic": "blues",
   "chords": [
@@ -2341,12 +2538,17 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Eight-bar_blues"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "eight-bar-aint-nobodys-business",
-  "name": "Eight-bar blues (Ain't Nobody's Business)",
-  "aka": [],
+  "name": "Eight-bar blues, major III",
+  "aka": [
+   "Eight-bar blues (Ain't Nobody's Business)"
+  ],
   "family": "blues",
   "tonic": "blues",
   "chords": [
@@ -2372,12 +2574,17 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Eight-bar_blues"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "eight-bar-twelve-minus-four",
-  "name": "Eight-bar blues (twelve-bar minus its first four)",
-  "aka": [],
+  "name": "Eight-bar blues, starts on IV",
+  "aka": [
+   "Eight-bar blues (twelve-bar minus its first four)"
+  ],
   "family": "blues",
   "tonic": "blues",
   "chords": [
@@ -2404,12 +2611,17 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Eight-bar_blues"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "sixteen-bar-extended-tonic",
-  "name": "Sixteen-bar blues (extended tonic)",
-  "aka": [],
+  "name": "Sixteen-bar blues, long tonic",
+  "aka": [
+   "Sixteen-bar blues (extended tonic)"
+  ],
   "family": "blues",
   "tonic": "blues",
   "chords": [
@@ -2435,12 +2647,16 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Sixteen-bar_blues",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/06%3A_Jazz/6.08%3A_Blues_Harmony"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "sixteen-bar-repeated-middle",
-  "name": "Sixteen-bar blues (repeated middle)",
+  "name": "Sixteen-bar blues, middle twice",
   "aka": [
+   "Sixteen-bar blues (repeated middle)",
    "Lonesome Road Blues form"
   ],
   "family": "blues",
@@ -2469,12 +2685,17 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Sixteen-bar_blues"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "sixteen-bar-repeated-turnaround",
-  "name": "Sixteen-bar blues (repeated turnaround)",
-  "aka": [],
+  "name": "Sixteen-bar blues, long turnaround",
+  "aka": [
+   "Sixteen-bar blues (repeated turnaround)"
+  ],
   "family": "blues",
   "tonic": "blues",
   "chords": [
@@ -2503,12 +2724,16 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Sixteen-bar_blues"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "i-iv-vamp",
-  "name": "I-IV vamp (plagal)",
+  "name": "Plagal vamp",
   "aka": [
+   "I-IV vamp (plagal)",
    "1-4 gospel progression",
    "Amen cadence (IV-I)",
    "Plagal half cadence (I-IV)",
@@ -2539,12 +2764,16 @@
    "https://en.wikipedia.org/wiki/Plagal_cadence",
    "https://en.wikipedia.org/wiki/Cadence",
    "https://en.wikipedia.org/wiki/Soukous"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "gospel-four-five-flat-six-flat-seven-one",
-  "name": "IV-V-bVI-bVII-I (4-5-b6-b7-1)",
+  "name": "Gospel step-up ending",
   "aka": [
+   "IV-V-bVI-bVII-I (4-5-b6-b7-1)",
    "Gospel step-up ending"
   ],
   "family": "gospel-soul-rnb",
@@ -2567,12 +2796,16 @@
   ],
   "sources": [
    "https://www.hearandplay.com/main/the-application-of-common-chord-progressions-in-gospel-music"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "minor-three-chord",
-  "name": "i-iv-V7 (minor three-chord)",
+  "name": "Minor three-chord song",
   "aka": [
+   "i-iv-V7 (minor three-chord)",
    "Quiet storm i7-iv7-V7",
    "Blatnye akkordy (Am-Dm-E)"
   ],
@@ -2598,12 +2831,17 @@
    "https://pereborom.ru/blatnoj-boj-i-tri-blatnyh-akkorda/",
    "https://guitarmusic.ru/lessons/am-e-dm.htm",
    "https://akkordam.ru/akkordy/tri-blatnyh-akkorda/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "i-vi-two-chord",
-  "name": "I-vi two-chord vamp",
-  "aka": [],
+  "name": "Relative-minor vamp",
+  "aka": [
+   "I-vi two-chord vamp"
+  ],
   "family": "gospel-soul-rnb",
   "tonic": "major",
   "chords": [
@@ -2624,6 +2862,9 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Chord_progression",
    "https://www.recmusicbeatles.com/public/files/awp/iwbl.html"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -2666,8 +2907,9 @@
  },
  {
   "id": "galant-romanesca",
-  "name": "Romanesca (galant schema)",
+  "name": "Romanesca schema",
   "aka": [
+   "Romanesca (galant schema)",
    "Gjerdingen's Romanesca"
   ],
   "family": "baroque-galant",
@@ -2690,12 +2932,16 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "prinner",
-  "name": "Prinner",
+  "name": "Prinner schema",
   "aka": [
+   "Prinner",
    "Modulating Prinner (the same schema in the dominant key, I-V/7-#iv°/6-V)"
   ],
   "family": "baroque-galant",
@@ -2719,12 +2965,17 @@
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.11%3A_Galant_Schemas",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "fonte",
-  "name": "Fonte",
-  "aka": [],
+  "name": "Fonte schema",
+  "aka": [
+   "Fonte"
+  ],
   "family": "baroque-galant",
   "tonic": "major",
   "chords": [
@@ -2745,12 +2996,17 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "monte",
-  "name": "Monte",
-  "aka": [],
+  "name": "Monte schema",
+  "aka": [
+   "Monte"
+  ],
   "family": "baroque-galant",
   "tonic": "major",
   "chords": [
@@ -2771,12 +3027,17 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "ponte",
-  "name": "Ponte",
-  "aka": [],
+  "name": "Ponte schema",
+  "aka": [
+   "Ponte"
+  ],
   "family": "baroque-galant",
   "tonic": "major",
   "chords": [
@@ -2796,12 +3057,17 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "galant-do-re-mi",
-  "name": "Do-Re-Mi (galant schema)",
-  "aka": [],
+  "name": "Do-Re-Mi schema",
+  "aka": [
+   "Do-Re-Mi (galant schema)"
+  ],
   "family": "baroque-galant",
   "tonic": "major",
   "chords": [
@@ -2821,12 +3087,16 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "meyer",
-  "name": "Meyer",
+  "name": "Meyer schema",
   "aka": [
+   "Meyer",
    "Jupiter",
    "Aprile",
    "Pastorella (same tonic-dominant-dominant-tonic frame)",
@@ -2854,12 +3124,17 @@
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.11%3A_Galant_Schemas",
    "https://en.wikipedia.org/wiki/Galant_Schemata",
    "https://fourscoreandmore.org/partimenti/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "sol-fa-mi",
-  "name": "Sol-Fa-Mi",
-  "aka": [],
+  "name": "Sol-Fa-Mi schema",
+  "aka": [
+   "Sol-Fa-Mi"
+  ],
   "family": "baroque-galant",
   "tonic": "major",
   "chords": [
@@ -2880,12 +3155,17 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "fenaroli",
-  "name": "Fenaroli",
-  "aka": [],
+  "name": "Fenaroli schema",
+  "aka": [
+   "Fenaroli"
+  ],
   "family": "baroque-galant",
   "tonic": "major",
   "chords": [
@@ -2906,12 +3186,17 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "quiescenza",
-  "name": "Quiescenza",
-  "aka": [],
+  "name": "Quiescenza schema",
+  "aka": [
+   "Quiescenza"
+  ],
   "family": "baroque-galant",
   "tonic": "major",
   "chords": [
@@ -2932,12 +3217,17 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "indugio",
-  "name": "Indugio",
-  "aka": [],
+  "name": "Indugio schema",
+  "aka": [
+   "Indugio"
+  ],
   "family": "baroque-galant",
   "tonic": "major",
   "chords": [
@@ -2957,6 +3247,9 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
@@ -2987,8 +3280,9 @@
  },
  {
   "id": "cadenza-composta",
-  "name": "Cadenza composta (cadential six-four)",
+  "name": "Cadential six-four",
   "aka": [
+   "Cadenza composta (cadential six-four)",
    "Cadential 64"
   ],
   "family": "baroque-galant",
@@ -3013,6 +3307,9 @@
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata",
    "https://www.hooktheory.com/theorytab/common-chord-progressions"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -3070,8 +3367,9 @@
  },
  {
   "id": "galant-deceptive-cadence",
-  "name": "Deceptive cadence (galant)",
+  "name": "Deceptive cadence",
   "aka": [
+   "Deceptive cadence (galant)",
    "Inganno"
   ],
   "family": "baroque-galant",
@@ -3094,6 +3392,9 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Cadence"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
@@ -3237,8 +3538,9 @@
  },
  {
   "id": "lament-bass-diatonic",
-  "name": "Lament bass (diatonic)",
+  "name": "Diatonic lament bass",
   "aka": [
+   "Lament bass (diatonic)",
    "Descending minor tetrachord",
    "Phrygian tetrachord"
   ],
@@ -3266,12 +3568,16 @@
    "https://en.wikipedia.org/wiki/Lament_bass",
    "https://www.hooktheory.com/theorytab/view/carlos-gardel/por-una-cabeza",
    "https://en.wikipedia.org/wiki/Andalusian_cadence"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "lament-bass-chromatic",
-  "name": "Chromatic lament bass (Dido's Lament)",
+  "name": "Chromatic lament bass",
   "aka": [
+   "Chromatic lament bass (Dido's Lament)",
    "Passus duriusculus",
    "Chromatic fourth"
   ],
@@ -3300,6 +3606,9 @@
   "sources": [
    "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html",
    "https://en.wikipedia.org/wiki/Lament_bass"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
@@ -3413,9 +3722,7 @@
   ],
   "meter": "4/4",
   "bpm": 110,
-  "examples": [
-   "Do-Re-Mi - Richard Rodgers (compared)"
-  ],
+  "examples": [],
   "why": "Roots rise a fourth and fall a third, so each pair of chords sits a step above the last in a cheerful climb.",
   "moods": [
    "Happy",
@@ -3428,8 +3735,9 @@
  },
  {
   "id": "la-folia",
-  "name": "La Folia (later folia)",
+  "name": "La Folia",
   "aka": [
+   "La Folia (later folia)",
    "Follia",
    "Folies d'Espagne"
   ],
@@ -3470,12 +3778,16 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Folia",
    "https://www.folias.nl/html1.html"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "romanesca-ground",
-  "name": "Romanesca (Renaissance ground)",
+  "name": "Romanesca ground",
   "aka": [
+   "Romanesca (Renaissance ground)",
    "Guardame las vacas"
   ],
   "family": "renaissance",
@@ -3505,6 +3817,9 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Romanesca"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
@@ -3797,8 +4112,10 @@
  },
  {
   "id": "dorian-i-biii-bvii-iv",
-  "name": "i-bIII-bVII-IV (Mad World)",
-  "aka": [],
+  "name": "Dorian four-chord loop",
+  "aka": [
+   "i-bIII-bVII-IV (Mad World)"
+  ],
   "family": "modal",
   "tonic": "dorian",
   "chords": [
@@ -3821,12 +4138,17 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Dorian_mode",
    "https://www.hooktheory.com/theorytab/view/tears-for-fears/mad-world"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "aeolian-i-bvi-shuttle",
-  "name": "i-bVI shuttle",
-  "aka": [],
+  "name": "Minor flat-six shuttle",
+  "aka": [
+   "i-bVI shuttle"
+  ],
   "family": "modal",
   "tonic": "minor",
   "chords": [
@@ -3847,6 +4169,9 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Dorian_mode",
    "https://www.hooktheory.com/theorytab/view/the-beatles/eleanor-rigby"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -3985,8 +4310,10 @@
  },
  {
   "id": "aeolian-i-bvi-iv-bvii",
-  "name": "i-bVI-iv-bVII",
-  "aka": [],
+  "name": "Aeolian metal loop",
+  "aka": [
+   "i-bVI-iv-bVII"
+  ],
   "family": "metal",
   "tonic": "minor",
   "chords": [
@@ -4007,6 +4334,9 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Heavy_metal_music",
    "https://www.hooktheory.com/blog/minor-chord-progressions/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -4044,8 +4374,9 @@
  },
  {
   "id": "chromatic-mediant-bvi",
-  "name": "I-bVI (chromatic mediant)",
+  "name": "Chromatic mediant, major third",
   "aka": [
+   "I-bVI (chromatic mediant)",
    "Flat-submediant shift",
    "I-III (the same major-third pair heard from the other chord)"
   ],
@@ -4069,12 +4400,16 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Chromatic_mediant",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/05%3A_Chromaticism/5.15%3A_Mediants"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "chromatic-mediant-biii",
-  "name": "I-bIII (chromatic mediant)",
+  "name": "Chromatic mediant, minor third",
   "aka": [
+   "I-bIII (chromatic mediant)",
    "I-VI (the same minor-third pair heard from the other chord)"
   ],
   "family": "film-epic",
@@ -4098,12 +4433,16 @@
    "https://en.wikipedia.org/wiki/Chromatic_mediant",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/05%3A_Chromaticism/5.15%3A_Mediants",
    "https://mtosmt.org/issues/mto.13.19.4/mto.13.19.4.lehman.html"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "hexatonic-pole",
-  "name": "I-bvi (doubly chromatic mediant)",
+  "name": "Hexatonic pole",
   "aka": [
+   "I-bvi (doubly chromatic mediant)",
    "Hexatonic pole"
   ],
   "family": "film-epic",
@@ -4125,6 +4464,9 @@
    "https://en.wikipedia.org/wiki/Chromatic_mediant",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/05%3A_Chromaticism/5.14%3A_Neo-Riemannian_Triadic_Progressions",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/05%3A_Chromaticism/5.15%3A_Mediants"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -4183,8 +4525,9 @@
  },
  {
   "id": "minor-plagal-shuttle",
-  "name": "I-iv (minor plagal)",
+  "name": "Minor plagal cadence",
   "aka": [
+   "I-iv (minor plagal)",
    "Minor plagal cadence (iv-I)",
    "Freygish I-iv"
   ],
@@ -4212,12 +4555,17 @@
    "https://en.wikipedia.org/wiki/Cadence",
    "https://en.wikipedia.org/wiki/Plagal_cadence",
    "https://blankp.substack.com/p/old-time-klezmer-harmonica-b60"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "man-of-steel-progression",
-  "name": "I-bVI-IV",
-  "aka": [],
+  "name": "Heroic flat-six loop",
+  "aka": [
+   "I-bVI-IV"
+  ],
   "family": "film-epic",
   "tonic": "major",
   "chords": [
@@ -4238,13 +4586,16 @@
    "https://www.hooktheory.com/blog/cinematic-chord-progressions/"
   ],
   "review": [
-   "second pass 25 Nov 2026: the Man of Steel TheoryTab gives I-IV6/4; attribution removed"
+   "second pass 25 Nov 2026: the Man of Steel TheoryTab gives I-IV6/4; attribution removed",
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "interstellar-progression",
-  "name": "bVImaj7-v-i-v7",
-  "aka": [],
+  "name": "Ambient minor loop",
+  "aka": [
+   "bVImaj7-v-i-v7"
+  ],
   "family": "film-epic",
   "tonic": "minor",
   "chords": [
@@ -4266,12 +4617,16 @@
   ],
   "sources": [
    "https://www.hooktheory.com/blog/cinematic-chord-progressions/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "mario-cadence",
-  "name": "bVI-bVII-I (Mario cadence)",
+  "name": "Aeolian cadence, major ending",
   "aka": [
+   "bVI-bVII-I (Mario cadence)",
    "Aeolian cadence with a Picardy third",
    "Backdoor IV-V"
   ],
@@ -4297,6 +4652,9 @@
    "https://en.wikipedia.org/wiki/List_of_chord_progressions",
    "https://en.wikipedia.org/wiki/Backdoor_progression",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.12%3A_Modal_Schemas"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
@@ -4369,8 +4727,9 @@
  },
  {
   "id": "solea-por-arriba-letra",
-  "name": "Solea por arriba (letra accompaniment)",
+  "name": "Solea letra",
   "aka": [
+   "Solea por arriba (letra accompaniment)",
    "Soleares in E"
   ],
   "family": "flamenco-latin",
@@ -4399,12 +4758,17 @@
    "https://www.studioflamenco.com/soleares",
    "https://canteytoque.es/soleares.htm",
    "https://guitarcomposerstoolbox.com/flamenco/solea/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "flamenco-cambio",
-  "name": "Flamenco cambio (bIII-bVI-bII-I)",
-  "aka": [],
+  "name": "Flamenco cambio",
+  "aka": [
+   "Flamenco cambio (bIII-bVI-bII-I)"
+  ],
   "family": "flamenco-latin",
   "tonic": "phrygian-dominant",
   "chords": [
@@ -4426,13 +4790,15 @@
    "https://www.studioflamenco.com/soleares"
   ],
   "review": [
-   "second pass 25 Nov 2026: canteytoque.es gives G-C-F-E in E, bIII-bVI-bII-I"
+   "second pass 25 Nov 2026: canteytoque.es gives G-C-F-E in E, bIII-bVI-bII-I",
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "farruca-compas",
-  "name": "Farruca compas (V7-i)",
+  "name": "Farruca compas",
   "aka": [
+   "Farruca compas (V7-i)",
    "Minor tonic-dominant vamp"
   ],
   "family": "flamenco-latin",
@@ -4452,12 +4818,17 @@
   ],
   "sources": [
    "https://www.studioflamenco.com/farruca"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "farruca-llamada",
-  "name": "Farruca llamada (iv-i-V7-i)",
-  "aka": [],
+  "name": "Farruca llamada",
+  "aka": [
+   "Farruca llamada (iv-i-V7-i)"
+  ],
   "family": "flamenco-latin",
   "tonic": "minor",
   "chords": [
@@ -4477,6 +4848,9 @@
   ],
   "sources": [
    "https://www.studioflamenco.com/farruca"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
@@ -4514,8 +4888,10 @@
  },
  {
   "id": "flamenco-guajira",
-  "name": "Guajira (flamenco) letra",
-  "aka": [],
+  "name": "Flamenco guajira letra",
+  "aka": [
+   "Guajira (flamenco) letra"
+  ],
   "family": "flamenco-latin",
   "tonic": "major",
   "chords": [
@@ -4548,12 +4924,17 @@
    "https://www.studioflamenco.com/guajiras",
    "https://www.thomaslorenzo.com/?p=899",
    "https://richterguitar.com/flamenco-guitar/flamenco-guitar-toques-and-palos/guajiras/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "girl-from-ipanema-a",
-  "name": "Girl from Ipanema A section",
-  "aka": [],
+  "name": "Bossa A section with II7",
+  "aka": [
+   "Girl from Ipanema A section"
+  ],
   "family": "flamenco-latin",
   "tonic": "major",
   "chords": [
@@ -4577,12 +4958,17 @@
   "sources": [
    "https://www.jazzadvice.com/lessons/how-to-play-the-girl-from-ipanema/",
    "https://learnjazzstandards.com/blog/bossa-nova-chord-progressions"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "blue-bossa-changes",
-  "name": "Blue Bossa changes",
-  "aka": [],
+  "name": "Sixteen-bar minor bossa",
+  "aka": [
+   "Blue Bossa changes"
+  ],
   "family": "flamenco-latin",
   "tonic": "minor",
   "chords": [
@@ -4614,12 +5000,16 @@
   "sources": [
    "https://www.learnjazzstandards.com/blog/blue-bossa-chords/",
    "https://www.jazz-guitar-licks.com/blog/lessons/blue-bossa-guitar-chord-study-for-beginners.html"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "i-iv-v-iv",
-  "name": "I-IV-V-IV",
+  "name": "Three-chord dance loop",
   "aka": [
+   "I-IV-V-IV",
    "Louie Louie changes",
    "Congolese harmonic cycle (C-F-G-F)",
    "Son guajeo I-IV-V-IV"
@@ -4635,7 +5025,7 @@
   "meter": "4/4",
   "bpm": 120,
   "examples": [
-   "Louie Louie - Richard Berry / The Kingsmen",
+   "Wild Thing - The Troggs",
    "El Loco Cha Cha - Rene Touzet"
   ],
   "why": "The V falls back to IV instead of resolving, so the loop circles endlessly, ideal for a dance groove or a montuno.",
@@ -4651,6 +5041,9 @@
    "https://www.musicradar.com/how-to/afro-cuban-piano-tips-how-to-master-the-montuno",
    "https://www.thejazzpianosite.com/?p=2361",
    "https://en.wikipedia.org/wiki/Congolese_rumba"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -4722,8 +5115,9 @@
  },
  {
   "id": "tonic-dominant-vamp",
-  "name": "I-V7 two-chord vamp",
+  "name": "Tonic-dominant vamp",
   "aka": [
+   "I-V7 two-chord vamp",
    "Tonic-dominant oom-pah",
    "Alegrias compas (E-B7 in twelve counts)"
   ],
@@ -4749,12 +5143,16 @@
    "https://www.studioflamenco.com/about2-cgzh",
    "https://www.thejazzpianosite.com/?p=2361",
    "https://en.wikipedia.org/wiki/Soukous"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "freygish-vamp",
-  "name": "Freygish vamp (I-bvii)",
+  "name": "Freygish vamp",
   "aka": [
+   "Freygish vamp (I-bvii)",
    "Ahava Rabboh vamp",
    "D-Cm in D freygish"
   ],
@@ -4778,12 +5176,16 @@
    "https://twochords.substack.com/p/shimke-khazer",
    "https://blankp.substack.com/p/old-time-klezmer-harmonica-b60",
    "https://en.wikipedia.org/wiki/Phrygian_dominant_scale"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "hijaz-vamp",
-  "name": "Hijaz vamp (I-bII)",
+  "name": "Hijaz vamp",
   "aka": [
+   "Hijaz vamp (I-bII)",
    "Phrygian-dominant vamp",
    "Flamenco E-F vamp",
    "Rebetiko tavern vamp"
@@ -4809,12 +5211,16 @@
    "https://www.hooktheory.com/theorytab/view/dick-dale/misirlou",
    "https://guitarcomposerstoolbox.com/guitar-scales/e-hijaz/",
    "https://en.wikipedia.org/wiki/Phrygian_dominant_scale"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "royal-road",
-  "name": "Royal road progression (IVmaj7-V7-iii7-vi)",
+  "name": "Royal road progression",
   "aka": [
+   "Royal road progression (IVmaj7-V7-iii7-vi)",
    "Odo shinko",
    "Koakuma chord progression",
    "4536",
@@ -4844,6 +5250,9 @@
   "sources": [
    "https://en.wikipedia.org/wiki/Royal_road_progression",
    "https://music.ragnet.co.jp/standard-chord-songs?disp=more"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
@@ -4878,8 +5287,10 @@
  },
  {
   "id": "royal-road-secondary-dominants",
-  "name": "IVmaj7-V7-III7-VI7 (royal road with secondary dominants)",
-  "aka": [],
+  "name": "Royal road with secondary dominants",
+  "aka": [
+   "IVmaj7-V7-III7-VI7 (royal road with secondary dominants)"
+  ],
   "family": "japanese-kpop",
   "tonic": "major",
   "chords": [
@@ -4901,12 +5312,16 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Royal_road_progression"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: length)."
   ]
  },
  {
   "id": "just-the-two-of-us",
-  "name": "Just the Two of Us progression",
+  "name": "Soul-jazz III7 loop",
   "aka": [
+   "Just the Two of Us progression",
    "Marunouchi Sadistic progression (maru-sa shinko)",
    "IVmaj7-III7-vi7-I7 (Marunouchi form without the v7)"
   ],
@@ -4935,12 +5350,16 @@
   "sources": [
    "https://www.nippon.com/ja/japan-topics/g01096/",
    "https://music.ragnet.co.jp/standard-chord-songs?disp=more"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "four-five-six-one",
-  "name": "IV-V-vi-I (4561 progression)",
+  "name": "Hopscotch loop",
   "aka": [
+   "IV-V-vi-I (4561 progression)",
    "Hopscotch schema",
    "I-IV-V-vi (deceptive-cadence loop)",
    "VI-VII-i-III (minor reading)"
@@ -4969,12 +5388,17 @@
   "sources": [
    "https://music.ragnet.co.jp/standard-chord-songs?disp=more",
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/07%3A_Popular_Music/7.09%3A_Four-Chord_Schemas"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
   "id": "interstate-love-song-descent",
-  "name": "i-V/7-I7/b7-viø7-bVI (Interstate Love Song)",
-  "aka": [],
+  "name": "Half-diminished chromatic lament",
+  "aka": [
+   "i-V/7-I7/b7-viø7-bVI (Interstate Love Song)"
+  ],
   "family": "pop-rock",
   "tonic": "minor",
   "chords": [
@@ -4998,6 +5422,9 @@
   "sources": [
    "https://musictheory.pugetsound.edu/mt21c/DescendingChromaticBassLines.html",
    "https://www.hooktheory.com/theorytab/view/stone-temple-pilots/interstate-love-song"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
@@ -5028,8 +5455,10 @@
  },
  {
   "id": "fandango-estribillo-circle",
-  "name": "Fandango estribillo with circle of fifths",
-  "aka": [],
+  "name": "Fandango estribillo by fifths",
+  "aka": [
+   "Fandango estribillo with circle of fifths"
+  ],
   "family": "flamenco-latin",
   "tonic": "phrygian-dominant",
   "chords": [
@@ -5052,6 +5481,9 @@
   ],
   "sources": [
    "https://www.studioflamenco.com/fandangos"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: clarity)."
   ]
  },
  {
@@ -5081,8 +5513,10 @@
  },
  {
   "id": "royal-road-minor-form",
-  "name": "iv7-v7-bIIImaj7-bVI (royal road, minor-key form)",
-  "aka": [],
+  "name": "Royal road, minor-key form",
+  "aka": [
+   "iv7-v7-bIIImaj7-bVI (royal road, minor-key form)"
+  ],
   "family": "japanese-kpop",
   "tonic": "minor",
   "chords": [
@@ -5102,6 +5536,9 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Royal_road_progression"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: length)."
   ]
  },
  {
@@ -5137,8 +5574,9 @@
  },
  {
   "id": "jupiter",
-  "name": "Jupiter (galant schema)",
+  "name": "Jupiter schema",
   "aka": [
+   "Jupiter (galant schema)",
    "Do-Re-Fa-Mi",
    "Gjerdingen's Jupiter"
   ],
@@ -5164,12 +5602,16 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "pastorella",
-  "name": "Pastorella (galant schema)",
+  "name": "Pastorella schema",
   "aka": [
+   "Pastorella (galant schema)",
    "Mi-Re-Fa-Mi"
   ],
   "family": "baroque-galant",
@@ -5192,12 +5634,16 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "modulating-prinner",
-  "name": "Modulating Prinner",
+  "name": "Modulating Prinner schema",
   "aka": [
+   "Modulating Prinner",
    "Prinner moved up a fifth",
    "Prinner to the dominant"
   ],
@@ -5223,12 +5669,16 @@
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://fourscoreandmore.org/partimenti/",
    "https://en.wikipedia.org/wiki/Galant_Schemata"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "passo-indietro",
-  "name": "Passo Indietro",
+  "name": "Passo Indietro schema",
   "aka": [
+   "Passo Indietro",
    "Step back",
    "V4/2-I6"
   ],
@@ -5250,12 +5700,16 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://fourscoreandmore.org/partimenti/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "galant-comma",
-  "name": "Comma (galant cadence)",
+  "name": "Comma schema",
   "aka": [
+   "Comma (galant cadence)",
    "Comma",
    "V6/5-I"
   ],
@@ -5277,12 +5731,17 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://fourscoreandmore.org/partimenti/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "galant-evaded-cadence",
-  "name": "Evaded cadence (galant)",
-  "aka": [],
+  "name": "Evaded cadence",
+  "aka": [
+   "Evaded cadence (galant)"
+  ],
   "family": "baroque-galant",
   "tonic": "major",
   "chords": [
@@ -5303,12 +5762,16 @@
   "sources": [
    "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/02%3A_Counterpoint_and_Galant_Schemas/2.12%3A_Galant_Schemas__Summary",
    "https://fourscoreandmore.org/partimenti/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "chan-chan-son-vamp",
-  "name": "Chan Chan son vamp (i-bIII-iv-V7)",
+  "name": "Cuban son minor loop",
   "aka": [
+   "Chan Chan son vamp (i-bIII-iv-V7)",
    "Chan Chan changes",
    "Dm-F-Gm-A7 (son cubano)"
   ],
@@ -5334,12 +5797,16 @@
   "sources": [
    "https://acordes.lacuerda.net/buenavista_social_club/chan_chan",
    "https://jamzone.musicwill.org/songs/chan-chan"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "salsa-minor-montuno",
-  "name": "Minor salsa montuno (i-iv-V-iv)",
+  "name": "Minor salsa montuno",
   "aka": [
+   "Minor salsa montuno (i-iv-V-iv)",
    "Cm-Fm-G-Fm salsa piano progression",
    "Minor I-IV-V-IV montuno"
   ],
@@ -5362,12 +5829,16 @@
   ],
   "sources": [
    "https://hearandplay.com/main/now-you-can-play-salsa-without-learning-any-new-chords/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "how-insensitive-descent",
-  "name": "How Insensitive descent (Insensatez)",
+  "name": "Bossa minor chromatic descent",
   "aka": [
+   "How Insensitive descent (Insensatez)",
    "Insensatez A section",
    "Jobim chromatic minor descent"
   ],
@@ -5399,12 +5870,16 @@
    "https://guitarcomposerstoolbox.com/jazz-standards/how-insensitive-in-d/",
    "https://guitarcomposerstoolbox.com/jazz-standards/how-insensitive-in-c/",
    "https://www.kvraudio.com/forum/viewtopic.php?p=4010530"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "wave-a-section",
-  "name": "Wave A section (Vou te contar)",
+  "name": "Bossa A section with minor iv",
   "aka": [
+   "Wave A section (Vou te contar)",
    "Vou te contar",
    "Jobim flat-six diminished to minor v"
   ],
@@ -5439,12 +5914,16 @@
   "sources": [
    "https://guitarcomposerstoolbox.com/jazz-standards/wave-in-d/",
    "https://learnjazzstandards.com/blog/bossa-nova-chord-progressions"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: rights)."
   ]
  },
  {
   "id": "choro-iv-iio-i-cadence",
-  "name": "Choro cadence iv-iiø7-i",
+  "name": "Choro cadence",
   "aka": [
+   "Choro cadence iv-iiø7-i",
    "Minor plagal close through iiø7",
    "iv - iiø - i (choro corpus)"
   ],
@@ -5466,12 +5945,16 @@
   ],
   "sources": [
    "https://musmat.org/journal/v10/03-Windholz.html"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "tsyganochka-circle",
-  "name": "Tsyganochka circle (iv-i-V7-I7)",
+  "name": "Tsyganochka circle",
   "aka": [
+   "Tsyganochka circle (iv-i-V7-I7)",
    "Цыганочка",
    "Tsyganochka (Dm-Am-E7-A7)",
    "iv-i-V7-i-I7 (second-guitar form)"
@@ -5487,7 +5970,7 @@
   "meter": "4/4",
   "bpm": 120,
   "examples": [
-   "Tsyganochka (Russian Gypsy dance tune, traditional)"
+   "Tsyganochka (Russian Romani dance tune, traditional)"
   ],
   "why": "The minor subdominant falls to the tonic and the dominant seventh lands on a major tonic seventh that pulls straight back into iv, so the circle spins and speeds up.",
   "moods": [
@@ -5499,12 +5982,16 @@
    "https://nagitaru.ru/cziganochka/",
    "https://gitara-vrn.ru/song_analysis/v-butusov-devuska-po-gorodu-akkordy-boj-na-gitare-taby.html",
    "https://en.wikipedia.org/wiki/Tsyganochka"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "vengerka-dve-gitary-verse",
-  "name": "Gypsy vengerka verse (Dve gitary)",
+  "name": "Vengerka verse",
   "aka": [
+   "Gypsy vengerka verse (Dve gitary)",
    "Цыганская венгерка",
    "Две гитары",
    "Tsyganskaya vengerka"
@@ -5536,12 +6023,16 @@
   "sources": [
    "https://www.guitarprofy.ru/dve-gitary-akkordy/",
    "https://en.wikipedia.org/wiki/Tsyganochka"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  },
  {
   "id": "marabi-cycle",
-  "name": "Marabi cycle (I-IV-I64-V7)",
+  "name": "Marabi cycle",
   "aka": [
+   "Marabi cycle (I-IV-I64-V7)",
    "Kwela progression (I-IV-I64-V)",
    "Mbube cycle",
    "I-IV-I/5-V"
@@ -5569,6 +6060,9 @@
    "https://en.wikipedia.org/wiki/Mbube_(song)",
    "https://en.wikipedia.org/wiki/Kwela",
    "https://en.wikipedia.org/wiki/Marabi"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026 (names review: consistency)."
   ]
  }
 ]
