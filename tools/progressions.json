@@ -1468,8 +1468,9 @@
  },
  {
   "id": "rhythm-changes-a",
-  "name": "Rhythm changes A section",
+  "name": "Swing turnaround A section",
   "aka": [
+   "Rhythm changes A section",
    "I Got Rhythm A section"
   ],
   "family": "jazz",
@@ -1511,13 +1512,15 @@
    "https://www.jazzstandards.com/compositions-0/igotrhythm.htm"
   ],
   "review": [
-   "second pass 25 Nov 2026: bars 7-8 I6-vi7 ii7-V7 as in the original; the old ending was a final-chorus variant"
+   "second pass 25 Nov 2026: bars 7-8 I6-vi7 ii7-V7 as in the original; the old ending was a final-chorus variant",
+   "Renamed 26 Nov 2026: no jazz song or musician names in names (Dafa)."
   ]
  },
  {
   "id": "rhythm-changes-bridge",
-  "name": "Rhythm changes bridge",
+  "name": "Dominant-chain bridge",
   "aka": [
+   "Rhythm changes bridge",
    "Rhythm changes bridge (Sears Roebuck bridge)",
    "III7-VI7-II7-V7",
    "Five-chord ragtime progression (III7-VI7-II7-V7-I)"
@@ -1550,7 +1553,8 @@
    "https://www.jazzstandards.com/compositions-0/igotrhythm.htm"
   ],
   "review": [
-   "Renamed 26 Nov 2026 (names review: rights)."
+   "Renamed 26 Nov 2026 (names review: rights).",
+   "Renamed 26 Nov 2026: no jazz song or musician names in names (Dafa)."
   ]
  },
  {
@@ -1637,8 +1641,9 @@
  },
  {
   "id": "coltrane-changes",
-  "name": "Coltrane changes",
+  "name": "Major-thirds cycle",
   "aka": [
+   "Coltrane changes",
    "Coltrane changes (Countdown substitution)",
    "Coltrane matrix",
    "Giant Steps cycle"
@@ -1671,7 +1676,8 @@
    "https://www.thejazzpianosite.com/jazz-piano-lessons/jazz-chord-progressions/coltrane-changes/"
   ],
   "review": [
-   "Renamed 26 Nov 2026 (names review: rights)."
+   "Renamed 26 Nov 2026 (names review: rights).",
+   "Renamed 26 Nov 2026: no jazz song or musician names in names (Dafa)."
   ]
  },
  {
@@ -1711,8 +1717,9 @@
  },
  {
   "id": "tadd-dameron-turnaround",
-  "name": "Tadd Dameron turnaround",
+  "name": "Flat-side turnaround",
   "aka": [
+   "Tadd Dameron turnaround",
    "Lady Bird turnaround",
    "I-bIII7-bVImaj7-bII7"
   ],
@@ -1740,6 +1747,9 @@
    "https://en.wikipedia.org/wiki/Lady_Bird_(composition)",
    "https://www.learnjazzstandards.com/blog/tadd-dameron-turnaround-chord-progression-workout/",
    "https://www.learnjazzstandards.com/blog/jazz-turnarounds/"
+  ],
+  "review": [
+   "Renamed 26 Nov 2026: no jazz song or musician names in names (Dafa)."
   ]
  },
  {
@@ -2233,8 +2243,9 @@
  },
  {
   "id": "bird-blues",
-  "name": "Bird blues",
+  "name": "Descending ii-V blues",
   "aka": [
+   "Bird blues",
    "Bird blues (Bird changes)",
    "Blues for Alice changes"
   ],
@@ -2283,7 +2294,8 @@
   ],
   "review": [
    "second pass 25 Nov 2026: turnaround vi7, not VI7 (two sources)",
-   "Renamed 26 Nov 2026 (names review: consistency)."
+   "Renamed 26 Nov 2026 (names review: consistency).",
+   "Renamed 26 Nov 2026: no jazz song or musician names in names (Dafa)."
   ]
  },
  {
