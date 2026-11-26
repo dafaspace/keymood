@@ -1,0 +1,9 @@
+{
+  "appId": "app.keymood.mobile",
+  "appName": "Keymood",
+  "webDir": "www",
+  "backgroundColor": "#1c1c1a",
+  "ios": {
+    "contentInset": "never"
+  }
+}
