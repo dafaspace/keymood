@@ -1,0 +1,38 @@
+{
+  "identifier" : "6F1C2A90",
+  "nonRenewingSubscriptions" : [
+
+  ],
+  "products" : [
+    {
+      "displayPrice" : "9.99",
+      "familyShareable" : false,
+      "internalID" : "6755000001",
+      "localizations" : [
+        {
+          "description" : "The progression library, loop, drone and twist.",
+          "displayName" : "Keymood Pro",
+          "locale" : "en_US"
+        }
+      ],
+      "productID" : "app.keymood.mobile.pro",
+      "referenceName" : "Keymood Pro",
+      "type" : "NonConsumable"
+    }
+  ],
+  "settings" : {
+    "_failTransactionsEnabled" : false,
+    "_locale" : "en_US",
+    "_storefront" : "USA",
+    "_storeKitErrors" : [
+
+    ]
+  },
+  "subscriptionGroups" : [
+
+  ],
+  "version" : {
+    "major" : 3,
+    "minor" : 0
+  }
+}

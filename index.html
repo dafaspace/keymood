@@ -2,7 +2,9 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<!-- viewport-fit=cover with env() padding on body: the iOS app's web view spans the whole
+     screen (Capacitor, contentInset never), so without it the app bar sat under the clock. -->
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Keymood - Circle of Fifths</title>
 <meta name="description" content="A circle of fifths you can hear: any key, its chords and modes, and the next key for the mood you want.">
 <link rel="canonical" href="https://keymood.app/">
@@ -96,7 +98,8 @@ html, body { transition: background-color .28s ease, color .28s ease; }
 @media (prefers-reduced-motion: reduce) { html, body { transition: none; } }
 /* body had no base font-size and no base line-height at all, so everything inherited
    the UA's 16px and `normal` (~1.18 for this stack) unless it said otherwise. */
-body { font: 400 15px/1.4 var(--font); background: var(--bg); color: var(--text); min-height: 100vh; padding: 16px; overflow-x: hidden; }
+body { font: 400 15px/1.4 var(--font); background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden;
+       padding: calc(16px + env(safe-area-inset-top, 0px)) calc(16px + env(safe-area-inset-right, 0px)) 16px calc(16px + env(safe-area-inset-left, 0px)); }
 
 /* SIZE-SPECIFIC TRACKING. Before this, letter-spacing appeared four times in the whole
    file and every other one of ~130 text nodes ran at `normal` - which is wrong at BOTH
@@ -268,6 +271,11 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
               background: var(--pro); color: var(--pro-ink); font-size: 14px; font-weight: 600; line-height: 1;
               text-decoration: none; text-box: trim-both cap alphabetic; }
 .pro-free { font-size: 11.5px; color: var(--text3); margin: 10px 0 0; }
+.pro-sheet button.pro-notify { width: 100%; border: none; font: inherit; font-size: 14px; font-weight: 600; cursor: pointer; }
+.pro-sheet button.pro-notify:disabled { opacity: .55; cursor: default; }
+.pro-restore { font: inherit; font-size: 12.5px; color: var(--text2); background: none; border: none; cursor: pointer;
+               padding: 14px 16px; margin-top: 4px; text-decoration: underline; text-underline-offset: 3px; line-height: 1; }
+#pro-buy-store .pro-msg { text-align: center; }
 .pro-codebox { border-top: 0.5px solid var(--bd); margin-top: 18px; padding-top: 14px; }
 .pro-lbl { display: block; font-size: 10px; font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--text3); margin-bottom: 8px; }
 .pro-coderow { display: flex; gap: 8px; }
@@ -492,7 +500,8 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
      on html+body kills ALL page scroll - vertical and horizontal. */
   html { overflow: hidden; }
   body { height: var(--app-h, 100dvh); min-height: 0; max-height: var(--app-h, 100dvh);
-         overflow: hidden; display: flex; flex-direction: column; padding: 12px; }
+         overflow: hidden; display: flex; flex-direction: column;
+         padding: calc(12px + env(safe-area-inset-top, 0px)) calc(12px + env(safe-area-inset-right, 0px)) 12px calc(12px + env(safe-area-inset-left, 0px)); }
   /* Tighten the two header rows into one compact block instead of two 10px-margin
      rows - recovers real height for the wheel without hiding anything. */
   .appbar { margin-bottom: 4px; }
@@ -854,14 +863,24 @@ canvas:focus-visible { outline-offset: 3px; }
       <li><b>Drone</b><span>A held tonic, with the mode's own fifth, under the key you pick on the wheel.</span></li>
       <li><b>Twist</b><span>The same progression again, with an unexpected turn in it.</span></li>
     </ul>
-    <div class="pro-buy">
+    <!-- The App Store build (NATIVE): a real purchase. The price on the button is the one
+         StoreKit gives for the buyer's country, which Apple requires shown in full (HIG,
+         In-app purchase); Dafa's "no price yet" is about the web, where nothing can be
+         bought. Restore is required for a one-off purchase (guideline 3.1.1). -->
+    <div class="pro-buy" id="pro-buy-store" hidden>
+      <button type="button" class="pro-notify" id="pro-buy-btn" onclick="proBuy()">Get Keymood Pro</button>
+      <p class="pro-free">One purchase, for good, on your Apple account.<br>Everything free in Keymood stays free.</p>
+      <button type="button" class="pro-restore" onclick="proRestore()">Restore purchase</button>
+      <p class="pro-msg" id="pro-smsg" role="status"></p>
+    </div>
+    <div class="pro-buy" id="pro-buy-web">
       <!-- No price until Pro can be bought (Dafa, 25 Nov: "the price should not show yet"). -->
       <p class="pro-price">Not on sale yet.</p>
       <a class="pro-notify" href="mailto:hello@dafaspace.com?subject=Keymood%20Pro&amp;body=Please%20tell%20me%20when%20Keymood%20Pro%20is%20on%20sale.">Tell me when it is</a>
       <!-- The address in words too: on a computer with no mail app the button does nothing. -->
       <p class="pro-free">Opens an email to hello@dafaspace.com.<br>Everything free in Keymood stays free.</p>
     </div>
-    <div class="pro-codebox">
+    <div class="pro-codebox" id="pro-codebox">
       <label class="pro-lbl" for="pro-code">Have a code?</label>
       <div class="pro-coderow">
         <input type="text" id="pro-code" class="pro-code" autocomplete="off" autocapitalize="off" spellcheck="false"
@@ -4094,15 +4113,19 @@ function proUseCode(v) {
       return;
     }
     _proApply(code, r, true);
-    proClose();
-    // Show what was just unlocked: the library is the first thing Pro names.
-    if (tool !== 'prog') {
-      if (toolsVisible()) setTool('prog');
-      else { tool = 'prog'; savePref('tool', tool); }
-    }
+    _proUnlocked();
   });
 }
 window.proUseCode = proUseCode;
+// After any unlock (a code, a purchase, a restore): close the sheet and show what was
+// just unlocked - the library is the first thing Pro names.
+function _proUnlocked() {
+  proClose();
+  if (tool !== 'prog') {
+    if (toolsVisible()) setTool('prog');
+    else { tool = 'prog'; savePref('tool', tool); }
+  }
+}
 function _paintProRow() {
   var pill = document.getElementById('btn-pro');
   if (pill) pill.hidden = _pro || !_proKnown || !PRO_OFFERED;
@@ -4146,6 +4169,63 @@ function proClose() {
   _proBack = null;
 }
 function proOpen_tab() { if (_pro) setTool('prog'); else proOpen(); }
+// ── Pro in the App Store build ────────────────────────────────────────────────
+// mobile/ios/App/App/StorePlugin.swift: one non-consumable, StoreKit 2. The Apple account's
+// entitlements are the only truth; the cof_pro_store flag only paints Pro at once on launch,
+// before StoreKit answers, and is cleared when it answers no (a refund). Pro is offered only
+// once the store returns the product with its price, so a build whose product is missing
+// or not yet approved shows no Pro entry at all rather than a button that fails.
+var PRO_PRODUCT = 'app.keymood.mobile.pro';
+var _store = null;
+function _storeOwn(on, announce) {
+  var was = _pro;
+  _pro = !!on; _proInfo = null; _proKnown = true;
+  try { if (on) localStorage.setItem('cof_pro_store', '1'); else localStorage.removeItem('cof_pro_store'); } catch (e) {}
+  if (announce && on && !was) say('Keymood Pro is on');
+  renderTools(); render(); _paintProRow();
+}
+function _storeInit() {
+  var buyStore = document.getElementById('pro-buy-store');
+  if (buyStore) buyStore.hidden = false;
+  ['pro-buy-web', 'pro-codebox'].forEach(function(id) { var el = document.getElementById(id); if (el) el.hidden = true; });
+  if (!window.Capacitor || !Capacitor.registerPlugin) { _proKnown = true; return; }
+  _store = Capacitor.registerPlugin('Store');
+  try { if (localStorage.getItem('cof_pro_store') === '1') { _pro = true; _proKnown = true; } } catch (e) {}
+  _store.owned().then(function(r) { _storeOwn((r.ids || []).indexOf(PRO_PRODUCT) >= 0, false); },
+                      function() { _proKnown = true; _paintProRow(); });
+  _store.products({ ids: [PRO_PRODUCT] }).then(function(r) {
+    var p = (r.products || [])[0];
+    if (!p) return;
+    PRO_OFFERED = true;
+    var b = document.getElementById('pro-buy-btn'); if (b) b.textContent = 'Buy for ' + p.displayPrice;
+    renderTools(); _paintProRow();
+  }, function() {});
+  _store.addListener('owned', function(r) { _storeOwn((r.ids || []).indexOf(PRO_PRODUCT) >= 0, true); });
+}
+function proBuy() {
+  if (!_store) return;
+  var b = document.getElementById('pro-buy-btn'), m = document.getElementById('pro-smsg');
+  b.disabled = true; m.textContent = '';
+  _store.purchase({ id: PRO_PRODUCT }).then(function(r) {
+    b.disabled = false;
+    if (r.status === 'purchased') { _storeOwn(true, true); _proUnlocked(); }
+    else if (r.status === 'pending') m.textContent = 'Waiting for approval. Pro turns on by itself once the purchase goes through.';
+    else if (r.status === 'unverified') m.textContent = 'The App Store could not confirm this purchase. Try Restore purchase.';
+  }, function() {
+    b.disabled = false;
+    m.textContent = 'The App Store did not answer. Check the connection and try again.';
+  });
+}
+function proRestore() {
+  if (!_store) return;
+  var m = document.getElementById('pro-smsg');
+  m.textContent = 'Checking with the App Store...';
+  _store.restore().then(function(r) {
+    if ((r.ids || []).indexOf(PRO_PRODUCT) >= 0) { m.textContent = ''; _storeOwn(true, true); _proUnlocked(); }
+    else m.textContent = 'No Keymood Pro purchase on this Apple account.';
+  }, function() { m.textContent = 'The App Store did not answer. Check the connection and try again.'; });
+}
+window.proBuy = proBuy; window.proRestore = proRestore;
 window.proOpen = proOpen; window.proClose = proClose; window.proOpen_tab = proOpen_tab;
 (function() {
   var sh = document.getElementById('pro-sheet');
@@ -4164,7 +4244,7 @@ window.proOpen = proOpen; window.proClose = proClose; window.proOpen_tab = proOp
   }, { passive: true });
 })();
 (function() {
-  if (NATIVE) { _proKnown = true; return; }    // the store sells Pro there, not codes
+  if (NATIVE) { _storeInit(); return; }        // the store sells Pro there, not codes
   var q = null;
   try { q = new URLSearchParams(location.search).get('pro'); } catch (e) {}
   if (q !== null) {
