@@ -2049,7 +2049,8 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Maiden_Voyage_(composition)",
-   "https://en.wikipedia.org/wiki/Dorian_mode"
+   "https://en.wikipedia.org/wiki/Dorian_mode",
+   "https://www.brunojazz.com/vt-MaidenVoyage.htm"
   ],
   "review": [
    "Renamed 26 Nov 2026 (names review: rights)."
@@ -2437,7 +2438,8 @@
    "Nostalgic"
   ],
   "sources": [
-   "https://en.wikipedia.org/wiki/Eight-bar_blues"
+   "https://en.wikipedia.org/wiki/Eight-bar_blues",
+   "https://www.guitartabsexplorer.com/elvis-presley/heartbreak-hotel-chords"
   ],
   "review": [
    "Renamed 26 Nov 2026 (names review: rights)."
@@ -2735,7 +2737,9 @@
    "Sneaky"
   ],
   "sources": [
-   "https://en.wikipedia.org/wiki/Sixteen-bar_blues"
+   "https://en.wikipedia.org/wiki/Sixteen-bar_blues",
+   "https://www.bluesharmonica.com/slight_variations_12_bar_blues_form_watermelon_man_transcription",
+   "https://guitarcomposerstoolbox.com/jazz-standards/watermelon-man-rb-in-f/"
   ],
   "review": [
    "Renamed 26 Nov 2026 (names review: consistency)."
@@ -3828,7 +3832,9 @@
    "Peaceful"
   ],
   "sources": [
-   "https://en.wikipedia.org/wiki/Romanesca"
+   "https://en.wikipedia.org/wiki/Romanesca",
+   "https://vihuelagriffiths.com/vihuela/music/33240/",
+   "https://renaissance-ukukele.blogspot.com/2019/09/renaissance-chord-sequences-grounds.html"
   ],
   "review": [
    "Renamed 26 Nov 2026 (names review: consistency)."
@@ -4062,7 +4068,8 @@
   ],
   "sources": [
    "https://en.wikipedia.org/wiki/Tristan_chord",
-   "https://en.wikipedia.org/wiki/Augmented_sixth_chord"
+   "https://en.wikipedia.org/wiki/Augmented_sixth_chord",
+   "https://mtosmt.org/issues/mto.95.1.1/mto.95.1.1.rothgeb.html"
   ]
  },
  {
@@ -4799,7 +4806,8 @@
    "Mysterious"
   ],
   "sources": [
-   "https://www.studioflamenco.com/soleares"
+   "https://www.studioflamenco.com/soleares",
+   "https://canteytoque.es/soleares.htm"
   ],
   "review": [
    "second pass 25 Nov 2026: canteytoque.es gives G-C-F-E in E, bIII-bVI-bII-I",
@@ -4829,7 +4837,8 @@
    "Sad"
   ],
   "sources": [
-   "https://www.studioflamenco.com/farruca"
+   "https://www.studioflamenco.com/farruca",
+   "https://en.wikipedia.org/wiki/Farruca"
   ],
   "review": [
    "Renamed 26 Nov 2026 (names review: consistency)."
@@ -4859,7 +4868,8 @@
    "Romantic"
   ],
   "sources": [
-   "https://www.studioflamenco.com/farruca"
+   "https://www.studioflamenco.com/farruca",
+   "https://en.wikipedia.org/wiki/Farruca"
   ],
   "review": [
    "Renamed 26 Nov 2026 (names review: consistency)."
@@ -5187,7 +5197,12 @@
   "sources": [
    "https://twochords.substack.com/p/shimke-khazer",
    "https://blankp.substack.com/p/old-time-klezmer-harmonica-b60",
-   "https://en.wikipedia.org/wiki/Phrygian_dominant_scale"
+   "https://en.wikipedia.org/wiki/Phrygian_dominant_scale",
+   "https://www.klezmer.com/post/klezmer-scales",
+   "https://www.ilanacravitz.com/klezmer-modes",
+   "https://www.mtosmt.org/issues/mto.25.31.3/mto.25.31.3.malin.html",
+   "https://trillian.mit.edu/~jc/music/abc/Klezmer/HeyserBulgar.abc",
+   "https://rembetiko.gr/t/%CF%80%CF%89%CF%82-%CE%BC%CF%80%CE%BF%CF%81%CF%8E-%CE%BD%CE%B1-%CE%B4%CE%B7%CE%BC%CE%B9%CE%BF%CF%85%CF%81%CE%B3%CE%AE%CF%83%CF%89-%CF%83%CF%85%CE%B3%CF%87%CE%BF%CF%81%CE%B4%CE%AF%CE%B5%CF%82/46849"
   ],
   "review": [
    "Renamed 26 Nov 2026 (names review: consistency)."
@@ -5222,7 +5237,9 @@
   "sources": [
    "https://www.hooktheory.com/theorytab/view/dick-dale/misirlou",
    "https://guitarcomposerstoolbox.com/guitar-scales/e-hijaz/",
-   "https://en.wikipedia.org/wiki/Phrygian_dominant_scale"
+   "https://en.wikipedia.org/wiki/Phrygian_dominant_scale",
+   "https://rebetiko.sealabs.net/?wiki=%CE%A7%CE%B9%CF%84%CE%B6%CE%AC%CE%B6",
+   "https://rembetiko.gr/t/%CE%B2%CE%B1%CF%83%CE%B9%CE%BA%CE%AD%CF%82-%CF%83%CF%85%CE%B3%CF%87%CE%BF%CF%81%CE%B4%CE%AF%CE%B5%CF%82-%CE%B4%CF%81%CF%8C%CE%BC%CF%89%CE%BD/5252"
   ],
   "review": [
    "Renamed 26 Nov 2026 (names review: consistency)."
@@ -6076,5 +6093,578 @@
   "review": [
    "Renamed 26 Nov 2026 (names review: consistency)."
   ]
+ },
+ {
+  "id": "freygish-i-iv-bvii-cadence",
+  "name": "Freygish cadence",
+  "aka": [
+   "Freygish cadence (I-iv-bvii-I)",
+   "D-Gm-Cm-D in D freygish",
+   "Ahava Raba three-chord cadence"
+  ],
+  "family": "klezmer-eastern",
+  "tonic": "phrygian-dominant",
+  "chords": [
+   "I:9",
+   "iv:6",
+   "bvii:6",
+   "I:18",
+   "bvii:3",
+   "I:6"
+  ],
+  "meter": "3/8",
+  "bpm": 160,
+  "examples": [
+   "Firn di mekhutonim aheym (A part, klezmer hora, traditional)",
+   "Der heyser bulgar (end of part C) - Naftule Brandwein Orchestra, 1923"
+  ],
+  "why": "The major freygish tonic moves to the minor chord on its fourth, then to the minor chord a whole step below the tonic, whose flat second falls by half step back home.",
+  "moods": [
+   "Nostalgic",
+   "Mysterious",
+   "Romantic"
+  ],
+  "sources": [
+   "https://trillian.mit.edu/~jc/music/abc/Klezmer/FirnDiMekhutonim.abc",
+   "https://trillian.mit.edu/~jc/music/abc/Klezmer/HeyserBulgar.abc",
+   "https://www.klezmer.com/post/klezmer-scales",
+   "https://www.ilanacravitz.com/klezmer-modes",
+   "https://rebetiko.sealabs.net/?wiki=%CE%A7%CE%B9%CF%84%CE%B6%CE%AC%CE%B6"
+  ],
+  "review": [
+   "third pass 26 Nov 2026: the order comes from two klezmer transcriptions (Firn di mekhutonim part A; Heyser Bulgar part C, after Sapoznik's The Compleat Klezmer). klezmer.com, ilanacravitz.com and the Greek hitzaz page give the same chords and their roles, not an order. Meter 3/8 as transcribed."
+  ]
+ },
+ {
+  "id": "freygish-iv-i-bvii-i",
+  "name": "Freygish bulgar turn",
+  "aka": [
+   "Freygish iv-I-bvii-I (bulgar B part)",
+   "I-iv-I-bvii (Hava Nagila verse, the same loop from the tonic)",
+   "Gm-D-Cm-D in D freygish"
+  ],
+  "family": "klezmer-eastern",
+  "tonic": "phrygian-dominant",
+  "chords": [
+   "iv:8",
+   "I:2",
+   "bvii:2",
+   "I:4"
+  ],
+  "meter": "2/4",
+  "bpm": 126,
+  "examples": [
+   "Der heyser bulgar (part B) - Naftule Brandwein Orchestra, 1923",
+   "Hava Nagila (verse, as I-iv-I-bvii) - traditional"
+  ],
+  "why": "A long stretch on the minor fourth chord gives way to the major tonic, and the minor chord a whole step below pulls back to it by half step.",
+  "moods": [
+   "Running",
+   "Happy",
+   "Nostalgic"
+  ],
+  "sources": [
+   "https://trillian.mit.edu/~jc/music/abc/Klezmer/HeyserBulgar.abc",
+   "https://www.hooktheory.com/theorytab/view/abraham-zevi-idelsohn/hava-nagila",
+   "https://www.guitartabs.cc/tabs/m/moshe_nathanson/hava_nagila_crd_ver_2.html",
+   "https://www.guitartabsexplorer.com/misc-traditional/hava-nagila-chords",
+   "https://www.klezmer.com/post/klezmer-scales"
+  ],
+  "review": [
+   "third pass 26 Nov 2026: lengths from the Heyser Bulgar transcription (after Sapoznik); the three Hava Nagila sources give the rotation I-iv-I-bvii without lengths"
+  ]
+ },
+ {
+  "id": "mi-sheberakh-bulgar-turn",
+  "name": "Mi sheberakh turn",
+  "aka": [
+   "Mi sheberakh turn (i-II7-v-II7-i)",
+   "Ukrainian Dorian (altered Dorian) bulgar turn",
+   "Dm-E7-Am-E7-Dm in D mi sheberakh"
+  ],
+  "family": "klezmer-eastern",
+  "tonic": "dorian",
+  "chords": [
+   "i:4",
+   "II7:2",
+   "v:2",
+   "II7:2",
+   "i:2",
+   "V7:4",
+   "i:4",
+   "V7:4",
+   "i:4"
+  ],
+  "meter": "2/4",
+  "bpm": 126,
+  "examples": [
+   "Odessa Bulgar #1 (part B) - Abe Schwartz Orchestra, 1922"
+  ],
+  "why": "The dominant seventh on the second degree carries the raised fourth of the mode, leans on the minor fifth and falls back to the minor tonic before a harmonic-minor V7 closes the phrase.",
+  "moods": [
+   "Mysterious",
+   "Running",
+   "Sad"
+  ],
+  "sources": [
+   "https://trillian.mit.edu/~jc/music/abc/Klezmer/Bulg_Odessa1.abc",
+   "https://www.klezmer.com/post/klezmer-scales",
+   "https://en.wikipedia.org/wiki/Ukrainian_Dorian_scale"
+  ],
+  "review": [
+   "third pass 26 Nov 2026: order and lengths from one transcription (Sapoznik, The Compleat Klezmer, via John Chambers); klezmer.com names i, II7 and v as the mode's primary chords. The library has no Ukrainian Dorian tonic, so dorian is the nearest; the mode raises the 4th."
+  ]
+ },
+ {
+  "id": "mogen-ovos-bvii-return",
+  "name": "Klezmer minor return",
+  "aka": [
+   "Minor return through bvii (bIII-bVII7-bIII-bvii-i)",
+   "Mogen ovos cadence with the flat second",
+   "F-C7-F-Cm-Dm in D minor"
+  ],
+  "family": "klezmer-eastern",
+  "tonic": "minor",
+  "chords": [
+   "bIII:4",
+   "bVII7:4",
+   "bIII:1",
+   "bvii:1",
+   "i:2"
+  ],
+  "meter": "2/4",
+  "bpm": 120,
+  "examples": [
+   "Russian Sher (end of part B) - Abe Schwartz"
+  ],
+  "why": "After a passage in the relative major, a minor chord on the subtonic brings in the flat second, which falls by half step onto the minor tonic.",
+  "moods": [
+   "Nostalgic",
+   "Romantic",
+   "Running"
+  ],
+  "sources": [
+   "https://trillian.mit.edu/~jc/music/abc/Klezmer/Sher1.abc",
+   "https://www.ilanacravitz.com/klezmer-modes",
+   "https://www.mtosmt.org/issues/mto.25.31.3/mto.25.31.3.malin.html"
+  ],
+  "review": [
+   "third pass 26 Nov 2026: one transcription (from handwritten manuscripts); ilanacravitz.com says VII minor comes into play when the second is flatted, and Malin calls the subtonic the gateway to the relative major. Neither gives this exact phrase. Low confidence."
+  ]
+ },
+ {
+  "id": "omnibus-progression",
+  "name": "Omnibus progression",
+  "aka": [
+   "Omnibus",
+   "Chromatic voice exchange around V7",
+   "Full-octave omnibus (the dominant reinterpreted every three half steps)"
+  ],
+  "family": "classical-romantic",
+  "tonic": "major",
+  "chords": [
+   "I:2",
+   "V7/7:2",
+   "bVII7:2",
+   "ii/6:2",
+   "bVII7/b6:2",
+   "V7:2",
+   "I:4"
+  ],
+  "meter": "4/4",
+  "bpm": 72,
+  "examples": [
+   "Piano Sonata in A minor D 845, first movement (transition) - Franz Schubert"
+  ],
+  "why": "The bass slides down by half steps while an upper voice climbs against it, so the dominant seventh melts through a second dominant and a minor six-four and comes back, as if the floor moved under a held chord.",
+  "moods": [
+   "Tension",
+   "Mysterious",
+   "Suspense"
+  ],
+  "sources": [
+   "https://en.wikipedia.org/wiki/Omnibus_progression",
+   "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/05%3A_Chromaticism/5.12%3A_The_Omnibus_Progression"
+  ],
+  "review": "Chords follow Wikipedia's C-major example (labels C, G6/5, Bb7, Dm, Bb 6/4, G7, C over the bass C-B-Bb-A-Ab-G-C). The labels do not line up one-to-one with the bass, so bVII7/b6 is my reading of the Bb chord over Ab. Open Music Theory describes the mirror form (bass rising, leading tone falling) with the same chord set and gives no chords in text. Durations are mine."
+ },
+ {
+  "id": "common-tone-diminished-seventh",
+  "name": "Common-tone diminished seventh",
+  "aka": [
+   "CT°7",
+   "I-#ii°7-I",
+   "Embellishing diminished seventh over a held tonic",
+   "V-#vi°7-V (the same device around the dominant)"
+  ],
+  "family": "classical-romantic",
+  "tonic": "major",
+  "chords": [
+   "I:4",
+   "#ii°7/1:4",
+   "I:8"
+  ],
+  "meter": "4/4",
+  "bpm": 76,
+  "examples": [
+   "The Sycamore, bars 1-4 - Scott Joplin (around the cadential six-four)"
+  ],
+  "why": "A diminished seventh slips in over the held tonic note and every other voice moves by half step back into the same chord, a flash of color with no change of function.",
+  "moods": [
+   "Romantic",
+   "Nostalgic",
+   "Magical"
+  ],
+  "sources": [
+   "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/05%3A_Chromaticism/5.04%3A_Common-Tone_Chords_(CT7_and_CT6)",
+   "https://www.personal.kent.edu/~sbirch/Common/Encyclopedia/Voice%20Leading/Common-tone%20Diminished%207th%20Chords.htm"
+  ],
+  "review": "The tonic in the bass (4/2 position) is my choice: Open Music Theory says the common tone is not always the bass. Kent spells the chord #ii°7 (or #iv°7) resolving to I, and #vi°7 resolving to V. The Joplin example embellishes the cadential six-four, not a root-position tonic."
+ },
+ {
+  "id": "ciaccona",
+  "name": "Ciaccona",
+  "aka": [
+   "Chacona",
+   "Early chaconne ground",
+   "I-V-vi-V",
+   "I-V-vi-IV-V and I-V-vi-iii-IV-V (longer ciaccona formulas)"
+  ],
+  "family": "baroque-galant",
+  "tonic": "major",
+  "chords": [
+   "I:3",
+   "V:3",
+   "vi:3",
+   "V:3"
+  ],
+  "meter": "3/4",
+  "bpm": 132,
+  "examples": [
+   "Su la cetra amorosa - Tarquinio Merula",
+   "Laudate pueri primo a 5 (1641) - Claudio Monteverdi"
+  ],
+  "why": "Tonic and dominant frame a dip to the relative minor and a return to the dominant, a short triple-time loop that never closes, so it runs straight into its next repeat.",
+  "moods": [
+   "Happy",
+   "Running",
+   "Romantic"
+  ],
+  "sources": [
+   "https://bop.unibe.ch/EJM/article/download/6207/8453/21232",
+   "https://sscm-jscm.org/jscm-issues/volume-18-no-1/the-expressive-use-of-ostinato-techniques-in-seicento-composition/",
+   "https://sscm-jscm.org/jscm-issues/volume-18-no-1/the-expressive-use-of-ostinato-techniques-in-seicento-composition-footnotes/"
+  ],
+  "review": "The EJM article quotes Hudson's ciaccona sequences as I-V-VI-V (g-d-e-d), I-V-VI-IV-V and I-V-VI-III-IV-V; e is minor, so VI is vi. JSCM (footnote 27, citing Walker) calls I-V-vi-V-I the simpler early pattern and gives I-V-vi-iii-IV-V-I in the main text. The examples are pieces JSCM lists as using ciaccona patterns, which may be the longer form. One bar per chord and the tempo are mine."
+ },
+ {
+  "id": "bergamasca",
+  "name": "Bergamasca",
+  "aka": [
+   "Bergamask",
+   "I-IV-V-I ground",
+   "Passacaglia (Hudson's I-IV-V-I model)",
+   "Four-note I-IV-V-I ostinato"
+  ],
+  "family": "renaissance",
+  "tonic": "major",
+  "chords": [
+   "I:2",
+   "IV:2",
+   "V:2",
+   "I:2"
+  ],
+  "meter": "4/4",
+  "bpm": 120,
+  "examples": [
+   "Laetatus sum a 5 istrumenti, et 6 voci (1650) - Claudio Monteverdi (the I-IV-V-I ostinato, 186 times)"
+  ],
+  "why": "Tonic, subdominant, dominant and home in two bars, the plainest full cadence there is, turned into a ground that dancers and players could repeat as long as they liked.",
+  "moods": [
+   "Happy",
+   "Running",
+   "Nostalgic"
+  ],
+  "sources": [
+   "https://en.wikipedia.org/wiki/Bergamask",
+   "https://renaissance-ukukele.blogspot.com/2019/09/renaissance-chord-sequences-grounds.html",
+   "https://bop.unibe.ch/EJM/article/download/6207/8453/21232",
+   "https://sscm-jscm.org/jscm-issues/volume-18-no-1/the-expressive-use-of-ostinato-techniques-in-seicento-composition/"
+  ],
+  "review": "Plays the same chords as three-chord-i-iv-v, whose aka already lists I-IV-V-I, and in the same order as eight-bar-heartbreak-hotel (with other bar lengths). Kept as an entry because the sources treat the bergamasca as a named ground, but it could be an aka instead. Two bars per cycle follows Britannica, seen only in a search excerpt (the page refused the fetch). JSCM does not call the Monteverdi ostinato a bergamasca; it confirms only the I-IV-V-I chords. Hudson (via EJM) gives I-IV-V-I as his passacaglia model."
+ },
+ {
+  "id": "fantasy-fifth",
+  "name": "Fantasy Fifth",
+  "aka": [
+   "m5M (Murphy's tonal-triadic class)",
+   "i-IV",
+   "Minor tonic to major subdominant"
+  ],
+  "family": "film-epic",
+  "tonic": "minor",
+  "chords": [
+   "i:8",
+   "IV:8"
+  ],
+  "meter": "4/4",
+  "bpm": 70,
+  "examples": [
+   "Binary Sunset (Star Wars: A New Hope) - John Williams",
+   "Night at the Museum (title cue) - Alan Silvestri"
+  ],
+  "why": "The raised sixth turns the minor key's fourth chord major, so a dark tonic opens onto a bright chord a fourth up, the sound of a door into another world.",
+  "moods": [
+   "Magical",
+   "Hopeful",
+   "Epic"
+  ],
+  "sources": [
+   "https://theory.esm.rochester.edu/integral/?p=8598",
+   "https://www.hooktheory.com/blog/cinematic-chord-progressions/"
+  ],
+  "review": "Same two chords as dorian-shuttle (i7-IV7) without sevenths. Kept separate because Patrick (Integral 36, after Murphy) names it as a film device that marks entry into a fantasy world; it could be an aka instead. Hooktheory analyses Binary Sunset as i-IV (i-IV-V-i in full) but does not use the name. Durations and tempo are mine."
+ },
+ {
+  "id": "hexatonic-cycle",
+  "name": "Hexatonic cycle",
+  "aka": [
+   "PL cycle",
+   "Cohn's hexatonic cycle",
+   "I-i-bVI-bvi-III-iii",
+   "Major-third cycle by parallel and leading-tone steps"
+  ],
+  "family": "classical-romantic",
+  "tonic": "major",
+  "chords": [
+   "I:2",
+   "i:2",
+   "bVI:2",
+   "bvi:2",
+   "III:2",
+   "iii:2"
+  ],
+  "meter": "4/4",
+  "bpm": 72,
+  "examples": [
+   "Concerto for Violin and Cello, first movement, bars 270-276 - Johannes Brahms"
+  ],
+  "why": "Each step changes one note by a half step, alternating major and minor, so six triads circle back to the start without any key taking hold.",
+  "moods": [
+   "Mysterious",
+   "Magical",
+   "Suspense"
+  ],
+  "sources": [
+   "https://human.libretexts.org/Bookshelves/Music/Music_Theory/Open_Music_Theory_2e_(Gotham_et_al.)/05%3A_Chromaticism/5.14%3A_Neo-Riemannian_Triadic_Progressions",
+   "https://en.wikipedia.org/wiki/Neo-Riemannian_theory"
+  ],
+  "review": "Neither page writes the six chords out. I derived them from the P and L operations both describe (C P-> c L-> Ab P-> ab L-> E P-> e L-> C). Open Music Theory says the Brahms passage joins two Ab major triads by P and L steps; Wikipedia cites Cohn's major-third (hexatonic) cycles. The two-chord pole I-bvi is already hexatonic-pole."
+ },
+ {
+  "id": "shona-mbira-cycle",
+  "name": "Shona mbira cycle",
+  "aka": [
+   "Standard mbira harmonic cycle (Andrew Tracey)",
+   "1-3-5, 1-3-6, 1-4-6, 2-4-6",
+   "Nhemamusasa cycle",
+   "48-pulse kushaura cycle"
+  ],
+  "family": "other",
+  "tonic": "major",
+  "chords": [
+   "I:4",
+   "iii:4",
+   "vi:4",
+   "I:4",
+   "IV:4",
+   "vi:4",
+   "ii:4",
+   "IV:4",
+   "vi:4",
+   "I:4",
+   "iii:4",
+   "V:4"
+  ],
+  "meter": "12/8",
+  "bpm": 240,
+  "examples": [
+   "Nhemamusasa (traditional Shona mbira piece)"
+  ],
+  "why": "Four three-chord phrases each lift one root by a step, so the cycle climbs gently through the scale and drops back to the start, a loop with no strong cadence that can turn for hours.",
+  "moods": [
+   "Peaceful",
+   "Process",
+   "Magical"
+  ],
+  "sources": [
+   "https://kalimbamagic.com/?p=466",
+   "https://en.wikipedia.org/wiki/Kushaura",
+   "https://mtosmt.org/issues/mto.10.16.4/mto.10.16.4.scherzinger.php"
+  ],
+  "review": "Mbira harmonies are mostly dyads (fifths, octaves) on tunings that vary by instrument, so equal-tempered triads are an approximation, and the chord qualities are my diatonic reading. Kalimbamagic gives Tracey's cycle as root degrees 1-3-5 / 1-3-6 / 1-4-6 / 2-4-6. Wikipedia's Nhemamusasa line (C E A, C F A, D F A, C E G) is the same cycle begun on the second phrase, the order used here. Four pulses per chord follows Scherzinger (three harmonies per twelve pulses). Tempo is a guess."
+ },
+ {
+  "id": "tritone-sub-two-turnaround",
+  "name": "Tritone-sub turnaround",
+  "aka": [
+   "I-vi-bVI7-V turnaround",
+   "Tritone-substituted II7 turnaround",
+   "I-vi-bVI7#11-V",
+   "Cmaj7-Am7-Ab7-G7"
+  ],
+  "family": "jazz",
+  "tonic": "major",
+  "chords": [
+   "Imaj7:2",
+   "vi7:2",
+   "bVI7:2",
+   "V7:2"
+  ],
+  "meter": "4/4",
+  "bpm": 140,
+  "examples": [],
+  "why": "The secondary dominant II7 is swapped for the dominant a tritone away, so the bass falls by half steps from vi to V and the turnaround slides home chromatically.",
+  "moods": [
+   "Romantic",
+   "Nostalgic",
+   "Wealth"
+  ],
+  "sources": [
+   "https://www.learnjazzstandards.com/blog/jazz-turnarounds/",
+   "https://en.wikipedia.org/wiki/Turnaround_(music)"
+  ],
+  "review": "Wikipedia writes bVI7#11; the #11 is dropped because the grammar has no such suffix."
+ },
+ {
+  "id": "ascending-passing-diminished-turnaround",
+  "name": "Rising diminished turnaround",
+  "aka": [
+   "Ascending passing-diminished turnaround",
+   "I-#i°7-ii7-V7",
+   "Imaj7-I#dim7-IIm7-V7",
+   "Bbmaj7-Bdim7-Cm7-F7"
+  ],
+  "family": "jazz",
+  "tonic": "major",
+  "chords": [
+   "Imaj7:2",
+   "#i°7:2",
+   "ii7:2",
+   "V7:2"
+  ],
+  "meter": "4/4",
+  "bpm": 140,
+  "examples": [],
+  "why": "A diminished seventh on the raised tonic stands in for VI7 and pushes the bass up a half step into ii, the pull of a secondary dominant with a smoother line.",
+  "moods": [
+   "Romantic",
+   "Nostalgic",
+   "Happy"
+  ],
+  "sources": [
+   "https://jazz-guitar-licks.com/blog/lessons/the-most-important-chord-progressions-in-jazz-music.html",
+   "https://en.wikipedia.org/wiki/Passing_chord"
+  ],
+  "review": "jazz-guitar-licks gives the four chords exactly (Bbmaj7-Bdim7-Cm7-F7). Wikipedia shows the same #i°7 to ii7 move inside a longer line (Cmaj7-D#dim7-Em7-C#dim7-Dm7-G7), not as a stand-alone turnaround. The descending form I-biii°7-ii7-V7 is already passing-diminished-turnaround."
+ },
+ {
+  "id": "minor-i-vi-ii-v-turnaround",
+  "name": "Minor half-diminished turnaround",
+  "aka": [
+   "Minor turnaround (i-viø7-iiø7-V7)",
+   "Minor I-vi-ii-V",
+   "i-viø7-ii7-V7 (melodic-minor form)",
+   "Fm-Dm7b5-Gm7b5-C7"
+  ],
+  "family": "jazz",
+  "tonic": "minor",
+  "chords": [
+   "i:2",
+   "viø7:2",
+   "iiø7:2",
+   "V7:2"
+  ],
+  "meter": "4/4",
+  "bpm": 120,
+  "examples": [],
+  "why": "The minor-key form of the I-vi-ii-V cycle: half-diminished chords on the raised sixth and on the second step fall by fifths into the dominant, dark but still turning.",
+  "moods": [
+   "Sad",
+   "Romantic",
+   "Detective"
+  ],
+  "sources": [
+   "https://en.wikipedia.org/wiki/Vi%E2%80%93ii%E2%80%93V%E2%80%93I",
+   "https://guitarplayer.com/lessons/blues-turnarounds-part-2"
+  ],
+  "review": "Wikipedia's minor version is CmM7-Am7b5-Dm7-G7b13, with ii as a minor seventh from melodic minor. Guitar Player's minor-blues turnarounds (Santana: Fm-Dm7b5-...-C7#5; Robben Ford: Bm-G#m7b5-C#m7b5) use a half-diminished ii, the form written here. Extensions dropped."
+ },
+ {
+  "id": "gospel-walk-up-to-five",
+  "name": "Gospel walk-up to V",
+  "aka": [
+   "Gospel walk-up to V (3-4-#4-5)",
+   "3-4-#4-5-5",
+   "I/3-IV-#iv°7-I/5-V7",
+   "I7-I7/3-IV-#iv°7-V7 (walk-up turnaround)"
+  ],
+  "family": "gospel-soul-rnb",
+  "tonic": "major",
+  "chords": [
+   "I/3:4",
+   "IV:2",
+   "#iv°7:2",
+   "I/5:4",
+   "V7:4"
+  ],
+  "meter": "4/4",
+  "bpm": 80,
+  "examples": [],
+  "why": "The bass climbs 3, 4, raised 4, 5 under the chords, so each step tightens the pull and the dominant lands at the top of the climb.",
+  "moods": [
+   "Hopeful",
+   "Triumph",
+   "Nostalgic"
+  ],
+  "sources": [
+   "https://hearandplay.com/main/top-4-gospel-progressions/",
+   "https://pianogroove.com/blues-piano-lessons/gospel-passing-chords-substitutions/"
+  ],
+  "review": "Hear and Play gives C/E-F-F#dim7-C/G-G7(#9#5). PianoGroove gives F7-F7/A-Bb-Bdim7-C7 as a turnaround to V and once spells the diminished chord Bbdim7. Its IV-#iv°7-I/5 core overlaps stomp-progression and raised-four-diminished-cadence. Durations are mine."
+ },
+ {
+  "id": "le-sol-fi-sol",
+  "name": "Le-Sol-Fi-Sol",
+  "aka": [
+   "Byros's le-sol-fi-sol schema",
+   "b6-5-#4-5 bass",
+   "VI-i6/4-#iv°7-V7"
+  ],
+  "family": "baroque-galant",
+  "tonic": "minor",
+  "chords": [
+   "bVI:4",
+   "i/5:4",
+   "#iv°7:4",
+   "V7:4"
+  ],
+  "meter": "4/4",
+  "bpm": 66,
+  "examples": [
+   "Symphony No. 3 (Eroica) - Ludwig van Beethoven",
+   "Requiem - Wolfgang Amadeus Mozart"
+  ],
+  "why": "The bass steps down from the flat sixth to the fifth, slips to the raised fourth and climbs back, so the first three chords act like an augmented-sixth approach that wraps the dominant in shadow.",
+  "moods": [
+   "Tension",
+   "Mysterious",
+   "Horror"
+  ],
+  "sources": [
+   "https://en.wikipedia.org/wiki/Vasili_Byros",
+   "https://www.cambridge.org/core/services/aop-cambridge-core/content/view/7AAC9E0268D4D79E40A264A91F2AAA40/S147857062300012Xa.pdf/topics-and-schemata.pdf"
+  ],
+  "review": "Bass and chords come from Wikipedia's Byros article (most common harmonization VI-i6/4-#ivo7-V(7)). Mirka (Eighteenth-Century Music, 2023) confirms the schema and its chromatic, minor-mode, ombra character but gives no chords, so the chords rest on one page. The minor mode is my inference from 'VI' and 'i6/4'. Durations are mine."
  }
 ]
