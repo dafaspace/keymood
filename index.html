@@ -4060,8 +4060,9 @@ window.diceRoll = diceRoll;
 // through the shared chord player, so with Pro's Loop on it repeats until stopped.
 // Muted, it still walks the highlight through the chords so the progression can be
 // read; it just makes no sound.
-function dicePlay() {
+function dicePlay(from) {
   if (!selected || !_dice.tpl) return;
+  from = from || 0;
   var info = _selChordList(selected);
   var chords = _dice.tpl.map(function(d) {
     var root = (info.tonicPc + info.mode.iv[d]) % 12;
@@ -4069,17 +4070,19 @@ function dicePlay() {
   });
   var stamp = _diceStamp();
   var o = { tag: 'dice', chords: chords, bpm: _dice.bpm, bpb: 4, click: true, loop: _pro && _dice.loop,
+    from: from, fromBeat: from * 4,
     onChord: function(k) {
       _dice.playing = k; _paintDicePlaying();
       var at = _chordSector(chords[k].root, chords[k].type);
       if (at) pulseSector(at.slice, at.inner, 0);
     },
-    onEnd: function() {
+    onEnd: function(ended) {
       // Stopped, the hub keeps the last chord and its keys, to look at and learn
-      // (Dafa, 27 Nov), until the key, the dice or a new start changes it.
+      // (Dafa, 27 Nov), until the key, the dice or a new start changes it. Stop is a
+      // pause: Continue plays on from that chord. Run out by itself, it starts over.
       var k = _dice.playing, c = k >= 0 ? info.chords[_dice.tpl[k]] : null;
       _dice.held = c && o.voices && o.voices[k] ? { num: c.num, name: c.name, notes: o.voices[k].notes,
-        win: _lpWin(o), stamp: stamp } : null;
+        win: _lpWin(o), stamp: stamp, k: k, resume: !ended } : null;
       _dice.playing = -1; renderTools(); render();
     } };
   _dice.held = null;
@@ -4087,6 +4090,9 @@ function dicePlay() {
   renderTools();
 }
 window.dicePlay = dicePlay;
+function _dicePausedAt() { var h = _dice.held; return h && h.resume && !_lp && h.stamp === _diceStamp() ? h.k : -1; }
+function diceContinue() { var k = _dicePausedAt(); dicePlay(k > 0 ? k : 0); }
+window.diceContinue = diceContinue;
 function _diceStamp() { return selected ? tonicSliceOf(selected) + ':' + selected.modeIdx + ':' + (_dice.tpl || []).join(',') : ''; }
 function diceStop() {
   if (!_dice) return;               // called by an early render before the tools block ran
@@ -4437,7 +4443,7 @@ function _lpStop(tag, ended) {
   }
   _dropCues('lp');
   _keepAwake('loop', false);
-  if (o.onEnd) o.onEnd();
+  if (o.onEnd) o.onEnd(!!ended);       // ended: ran out by itself; else stopped
 }
 
 // ── Progressions (Pro) ────────────────────────────────────────────────────────
@@ -4720,8 +4726,10 @@ function progPlay() {
   var p = _progById(_pg.id);
   if (!p) return;
   if (_lp && _lp.tag === 'prog') { _lpStop('prog'); return; }
-  _progStart(p, 0);
+  var k = _pgPausedAt();
+  _progStart(p, k > 0 ? _seqPos(_progSequence(p), k) : 0);
 }
+function _pgPausedAt() { var h = _pg.held; return h && h.resume && !_lp && h.stamp === _progStamp() ? h.k : -1; }
 // Where a beat falls in a sequence: the chord sounding there and how far into it.
 function _seqPos(cs, k) { for (var i = 0, b = 0; i < k && i < cs.length; i++) b += cs[i].beats; return b; }
 function _seqAt(cs, pos) {
@@ -4744,12 +4752,14 @@ function _progStart(p, pos) {
       var c = o.chords[k], at = _chordSector(c.root, _ringType(c.type));
       if (at) pulseSector(at.slice, at.inner, 0);
     },
-    onEnd: function() {
+    onEnd: function(ended) {
       // Stopped, the hub keeps the last chord and its keys, to look at and learn
       // (Dafa, 27 Nov), until the key, the progression, a twist or a new start changes it.
+      // Stop is a pause (Dafa, 27 Nov): Play goes on from that chord, marked in the grid.
+      // Run out by itself, Play starts from the top.
       var k = _pg.playing, c = k >= 0 ? o.chords[k] : null;
       _pg.held = c && o.voices && o.voices[k] ? { label: c.label, name: c.name, notes: o.voices[k].notes,
-        win: _lpWin(o), stamp: p.id + '|' + o.key } : null;
+        win: _lpWin(o), stamp: p.id + '|' + o.key, k: k, resume: !ended } : null;
       _pg.playing = -1; renderTools(); render();
     },
     // A new key on the wheel, a new twist or Undo: carry on from the same beat with the
@@ -5450,7 +5460,7 @@ function _barHTML(cs, unit, bpb, playing, newRow) {
   var cells = unit.map(function(k) {
     var c = cs[k], dl = unit.length === 1 || !even ? _durLabel(c.beats, bpb) : '';
     if (c.twisted && tags.indexOf(c.twistTag) < 0) { tags.push(c.twistTag); names.push(c.twistName); }
-    var now = playing && _pg.playing === k;
+    var now = (playing ? _pg.playing : _pgPausedAt()) === k;
     // Each chord is a button: a tap plays from it (progFrom).
     return '<button type="button" class="pg-ch' + (now ? ' now' : '') + (c.twisted ? ' tw' : '') + '"' + (now ? ' aria-current="true"' : '') +
            ' onclick="progFrom(' + k + ')" aria-label="Play from ' + c.name + ' (' + c.label + ')' + (c.twisted ? ', ' + c.twistName : '') +
@@ -5804,12 +5814,12 @@ function _diceHTML() {
          ' <small>· ' + _dice.bpm + ' bpm</small></div>';
     h += '<div class="tl-prog">' + _dice.tpl.map(function(d, k) {
       var c = info.chords[d];
-      return '<div class="' + (_dice.playing === k ? 'now' : '') + '"><b>' + c.num + '</b>' + c.name + '</div>';
+      return '<div class="' + ((_dice.playing >= 0 ? _dice.playing : _dicePausedAt()) === k ? 'now' : '') + '"><b>' + c.num + '</b>' + c.name + '</div>';
     }).join('') + '</div>';
-    var dPlaying = _lp && _lp.tag === 'dice';
+    var dPlaying = _lp && _lp.tag === 'dice', dPaused = !dPlaying && _dicePausedAt() >= 0;
     h += '<div class="tl-btns"><button type="button" class="tl-btn pri" onclick="diceRoll()">' + TL_ICON.dice +
-         'Roll</button><button type="button" class="tl-btn" onclick="' + (dPlaying ? 'diceStop()' : 'dicePlay()') + '">' +
-         (dPlaying ? 'Stop' : 'Play again') + '</button></div>';
+         'Roll</button><button type="button" class="tl-btn" onclick="' + (dPlaying ? 'diceStop()' : dPaused ? 'diceContinue()' : 'dicePlay()') + '">' +
+         (dPlaying ? 'Stop' : dPaused ? 'Continue' : 'Play again') + '</button></div>';
   } else {
     h += '<div class="tl-btns"><button type="button" class="tl-btn pri" onclick="diceRoll()">' + TL_ICON.dice +
          'Roll</button></div>' +
