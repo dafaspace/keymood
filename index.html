@@ -5998,10 +5998,10 @@ function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
       c2.fillStyle = ink; c2.font = '500 ' + big + 'px ' + ff; c2.fillText(line1, CX, CY - r * 0.22);
       c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff; c2.fillText(line2, CX, CY + r * 0.10);
     } else {
-      c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff; c2.fillText('Tap to roll', CX, CY + r * 0.10);
+      c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff; c2.fillText('Tap to roll', CX, CY + r * 0.22);
     }
     // The dice glyph: the same drawing as the button icon, at display size.
-    var kb = (dv && line1) || dh, s = r * (kb ? 0.20 : 0.30), gx = CX - s / 2, gy = CY + r * (kb ? 0.45 : line1 ? 0.30 : -0.30);
+    var kb = (dv && line1) || dh, s = r * (kb ? 0.20 : 0.30), gx = CX - s / 2, gy = CY + r * (kb ? 0.45 : line1 ? 0.30 : -0.38);   // idle: a clear gap above 'Tap to roll' (Dafa, 27 Nov)
     c2.strokeStyle = ink; c2.lineWidth = Math.max(1.2, R * 0.006);
     c2.beginPath();
     if (c2.roundRect) c2.roundRect(gx, gy, s, s, s * 0.25); else c2.rect(gx, gy, s, s);
