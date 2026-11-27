@@ -4064,16 +4064,27 @@ function dicePlay() {
     var root = (info.tonicPc + info.mode.iv[d]) % 12;
     return { root: root, bass: root, type: info.mode.ct[d], beats: 4 };
   });
-  _lpStart({ tag: 'dice', chords: chords, bpm: _dice.bpm, bpb: 4, click: true, loop: _pro && _dice.loop,
+  var stamp = _diceStamp();
+  var o = { tag: 'dice', chords: chords, bpm: _dice.bpm, bpb: 4, click: true, loop: _pro && _dice.loop,
     onChord: function(k) {
       _dice.playing = k; _paintDicePlaying();
       var at = _chordSector(chords[k].root, chords[k].type);
       if (at) pulseSector(at.slice, at.inner, 0);
     },
-    onEnd: function() { _dice.playing = -1; renderTools(); render(); } });
+    onEnd: function() {
+      // Stopped, the hub keeps the last chord and its keys, to look at and learn
+      // (Dafa, 27 Nov), until the key, the dice or a new start changes it.
+      var k = _dice.playing, c = k >= 0 ? info.chords[_dice.tpl[k]] : null;
+      _dice.held = c && o.voices && o.voices[k] ? { num: c.num, name: c.name, notes: o.voices[k].notes,
+        win: _lpWin(o), stamp: stamp } : null;
+      _dice.playing = -1; renderTools(); render();
+    } };
+  _dice.held = null;
+  _lpStart(o);
   renderTools();
 }
 window.dicePlay = dicePlay;
+function _diceStamp() { return selected ? tonicSliceOf(selected) + ':' + selected.modeIdx + ':' + (_dice.tpl || []).join(',') : ''; }
 function diceStop() {
   if (!_dice) return;               // called by an early render before the tools block ran
   _lpStop('dice');
@@ -4694,6 +4705,7 @@ _dice.loop = loadPref('diceLoop', false);
 function _progById(id) { for (var i = 0; i < PROG_LIB.length; i++) if (PROG_LIB[i].id === id) return PROG_LIB[i]; return null; }
 function _progBpm(p) { return _pg.bpm[p.id] || p.bpm; }
 function _progKey() { var t = _progTonic(); return t.pc + ':' + t.name; }
+function _progStamp() { return _pg.id + '|' + _progKey() + '#' + _tw.ver; }
 function progFamily(f) { _pg.fam = f; savePref('progFam', f); renderTools(); }
 function progPick(id) {
   if (_pg.id === id) { if (_lp && _lp.tag === 'prog') { _lpStop('prog'); return; } progPlay(); return; }
@@ -4729,7 +4741,14 @@ function _progStart(p, pos) {
       var c = o.chords[k], at = _chordSector(c.root, _ringType(c.type));
       if (at) pulseSector(at.slice, at.inner, 0);
     },
-    onEnd: function() { _pg.playing = -1; renderTools(); render(); },
+    onEnd: function() {
+      // Stopped, the hub keeps the last chord and its keys, to look at and learn
+      // (Dafa, 27 Nov), until the key, the progression, a twist or a new start changes it.
+      var k = _pg.playing, c = k >= 0 ? o.chords[k] : null;
+      _pg.held = c && o.voices && o.voices[k] ? { label: c.label, name: c.name, notes: o.voices[k].notes,
+        win: _lpWin(o), stamp: p.id + '|' + o.key } : null;
+      _pg.playing = -1; renderTools(); render();
+    },
     // A new key on the wheel, a new twist or Undo: carry on from the same beat with the
     // new chords. Passes A and B are the same length, so a place in a pass B that Undo
     // took away is the same place in A; a place inside a chord that has grown sounds the
@@ -4743,7 +4762,7 @@ function _progStart(p, pos) {
       o.k = to.k; o.skip = to.skip;
       return true;
     } };
-  _pg.playing = at.k;
+  _pg.playing = at.k; _pg.held = null;
   _lpStart(o); renderTools(); render();
 }
 // A tap on a chord in the grid: play from it, and on from there as Loop says.
@@ -5859,17 +5878,19 @@ function _lpWin(o) {
   if (o._winOf !== o.voices) { o._win = _kbdWin(o.voices.map(function(v) { return v.notes; })); o._winOf = o.voices; }
   return o._win;
 }
-function _keyCol(m, dark) {
-  var c = SYNTH[MROOT.indexOf(((m % 12) + 12) % 12)];
-  return (dark && !GREY_PALETTES[curPalette]) ? lightenHex(c, 0.16) : c;
-}
 function _keyRect(c2, x, y, w, h, rad) {
   c2.beginPath();
   if (c2.roundRect) c2.roundRect(x, y, w, h, [0, 0, rad, rad]); else c2.rect(x, y, w, h);
 }
 // The keyboard, centred on cx, its top edge at top.
+// Every lit key in ONE fixed colour (Dafa, 27 Nov: a colour per key confused). Not the
+// root's wheel colour: measured on the Itten palette, E's yellow on a white key is 1.30:1
+// and E-flat's blue on a black key 1.35:1. KEY_LIT has relative luminance 0.19, so it is
+// above 3:1 (WCAG 1.4.11) against both key colours in both themes: 4.3 and 3.3 light,
+// 3.4 and 4.5 dark - which is why the dark theme's white keys are #e8e6e0, not dimmer.
+var KEY_LIT = '#d9480f';
 function _drawKeys(c2, cx, top, w, h, notes, win, dark) {
-  var whites = [];
+  var whites = [], lit = KEY_LIT;
   for (var m = win.lo; m <= win.hi; m++) if (!_BLK[m % 12]) whites.push(m);
   var kw = w / whites.length, x0 = cx - w / 2, gap = Math.max(1, kw * 0.1), on = {};
   notes.forEach(function(n) { on[n] = true; });
@@ -5877,7 +5898,7 @@ function _drawKeys(c2, cx, top, w, h, notes, win, dark) {
   c2.save();
   whites.forEach(function(m, i) {
     _keyRect(c2, x0 + i * kw + gap / 2, top, kw - gap, h, kw * 0.2);
-    c2.fillStyle = on[m] ? _keyCol(m, dark) : (dark ? '#c4c1ba' : '#ffffff'); c2.fill();
+    c2.fillStyle = on[m] ? lit : (dark ? '#e8e6e0' : '#ffffff'); c2.fill();
     if (!dark && !on[m]) { c2.strokeStyle = 'rgba(0,0,0,.2)'; c2.lineWidth = 0.75; c2.stroke(); }
   });
   var bw = kw * 0.62, bh = h * 0.6;
@@ -5888,7 +5909,7 @@ function _drawKeys(c2, cx, top, w, h, notes, win, dark) {
     c2.fillStyle = ground;                                // a hairline of ground around it
     c2.fillRect(x - gap / 2, top, bw + gap, bh + gap / 2);
     _keyRect(c2, x, top, bw, bh, bw * 0.2);
-    c2.fillStyle = on[b] ? _keyCol(b, dark) : (dark ? '#0d0d0c' : '#2b2a27'); c2.fill();
+    c2.fillStyle = on[b] ? lit : (dark ? '#0d0d0c' : '#2b2a27'); c2.fill();
   });
   c2.restore();
 }
@@ -5948,7 +5969,13 @@ function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
       line2 = (mi === 0 ? 'major' : mi === 4 ? 'minor' : MODES[mi].name) + ' · ' + _dice.bpm + ' bpm';
     }
     var dv = _lp && _lp.tag === 'dice' && _dice.playing >= 0 && _lp.voices ? _lp.voices[_dice.playing] : null;
-    if (dv && line1) {
+    var dh = !dv && !_lp && _dice.held && _dice.held.stamp === _diceStamp() ? _dice.held : null;
+    if (dh) {
+      // Stopped: the last chord stays, as it was while it sounded.
+      c2.fillStyle = ink; c2.font = '500 ' + (big * 0.85) + 'px ' + ff; c2.fillText(dh.num, CX, CY - r * 0.55);
+      c2.fillStyle = sub; c2.font = '400 ' + (small * 1.2) + 'px ' + ff; c2.fillText(dh.name, CX, CY - r * 0.28);
+      _drawKeys(c2, CX, CY - r * 0.10, r * 1.62, r * 0.42, dh.notes, dh.win, dark);
+    } else if (dv && line1) {
       // Playing: the numeral, the name, the keys the piano plays; the dice glyph drops
       // to the bottom, smaller (a tap still rolls).
       c2.fillStyle = ink; c2.font = '500 ' + (big * 0.85) + 'px ' + ff; c2.fillText(line1, CX, CY - r * 0.55);
@@ -5961,7 +5988,7 @@ function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
       c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff; c2.fillText('Tap to roll', CX, CY + r * 0.10);
     }
     // The dice glyph: the same drawing as the button icon, at display size.
-    var s = r * (dv ? 0.20 : 0.30), gx = CX - s / 2, gy = CY + r * (dv ? 0.45 : line1 ? 0.30 : -0.30);
+    var kb = (dv && line1) || dh, s = r * (kb ? 0.20 : 0.30), gx = CX - s / 2, gy = CY + r * (kb ? 0.45 : line1 ? 0.30 : -0.30);
     c2.strokeStyle = ink; c2.lineWidth = Math.max(1.2, R * 0.006);
     c2.beginPath();
     if (c2.roundRect) c2.roundRect(gx, gy, s, s, s * 0.25); else c2.rect(gx, gy, s, s);
@@ -5985,6 +6012,13 @@ function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
       c2.fillStyle = ink; c2.font = '500 ' + big + 'px ' + ff; c2.fillText(pl.label, CX, CY - r * 0.26);
       c2.fillStyle = sub; c2.font = '400 ' + (small * 1.25) + 'px ' + ff; c2.fillText(pl.name, CX, CY + r * 0.08);
       _hubGlyph(c2, CX, CY + r * 0.50, r * 0.15, true, ink, dark ? '#1f1f1d' : '#f6f4ef');
+    } else if (pp && _pg.held && _pg.held.stamp === _progStamp()) {
+      // Stopped: the last chord stays with its keys, and the glyph is Play.
+      var ph = _pg.held;
+      c2.fillStyle = ink; c2.font = '500 ' + (big * 0.85) + 'px ' + ff; c2.fillText(ph.label, CX, CY - r * 0.55);
+      c2.fillStyle = sub; c2.font = '400 ' + (small * 1.2) + 'px ' + ff; c2.fillText(ph.name, CX, CY - r * 0.28);
+      _drawKeys(c2, CX, CY - r * 0.10, r * 1.62, r * 0.42, ph.notes, ph.win, dark);
+      _hubGlyph(c2, CX, CY + r * 0.63, r * 0.13, false, ink, dark ? '#1f1f1d' : '#f6f4ef');
     } else if (pp) {
       var tn = _progTonic();
       c2.fillStyle = ink; c2.font = '500 ' + (big * 0.8) + 'px ' + ff; c2.fillText(tn.name + ' ' + PROG_MODE[pp.tonic], CX, CY - r * 0.18);
