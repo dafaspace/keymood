@@ -540,10 +540,13 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
                 align-items: center; justify-content: center; background: var(--bg); border: 0; padding: 0;
                 border-radius: 16px 16px 0 0; cursor: pointer; -webkit-appearance: none; appearance: none; }
   .sheet-grip span { width: 38px; height: 5px; border-radius: 3px; background: var(--text3); opacity: .55; }
-  /* The head sticks at the very top of the column and the grip scrolls away with the
-     content. With the grip sticky too, the head stuck 26px down, below the grip, which put
-     it 8px over "Change on roll" even unscrolled (measured 25 Nov). */
-  .panel-col .tl-head { top: 0; }
+  /* The grip stays at the top of the raised sheet, the head sticks under it. With the grip
+     scrolling away, a scrolled list left no visible way back to the wheel's lower half
+     (Dafa, 27 Nov: "как нажать одну из пяти нижних тональностей?"). The head's own place
+     is 29px down (measured 27 Nov), so a sticky top of 26px never moves it unscrolled; on
+     25 Nov it sat higher and a sticky grip pushed it over "Change on roll". */
+  .panel-col > .sheet-grip { position: sticky; top: 0; }
+  .panel-col .tl-head { top: 26px; }
   @media (prefers-reduced-motion: reduce) { .panel-col { transition: none; } }
   /* Sheet, not a floating bordered card: bleeds to the screen edges and docks to
      the bottom, so unused space below short content reads as calm ground rather
