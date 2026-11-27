@@ -1810,7 +1810,7 @@ function _animTick(ts) {
   _drainCues(ts);              // and every tool cue (chord change, metronome beat)
   render();
   if (selPop.settled() && relDraw.settled() && !_pulsesActive() && !_cues.length &&
-      !_plAnimating(performance.now())) { _animRAF = null; _animPrev = 0; }
+      !_plAnimating(performance.now()) && !_kbdFading(performance.now())) { _animRAF = null; _animPrev = 0; }
   else _animRAF = requestAnimationFrame(_animTick);
 }
 function _kickAnim() {
@@ -2359,6 +2359,7 @@ function render() {
     ctx.lineWidth  = 0.5; ctx.stroke();
   }
   _drawPianoRing(ctx, dark, accR);
+  _drawTapKeys(ctx, CX, CY, R, accR, ff, dark);
 
   // Canvas pixels say nothing to a screen reader - keep an accessible name that
   // reports the current selection, plus how to drive it from the keyboard.
@@ -2826,7 +2827,7 @@ function updatePanel() {
     var _cS = (MROOT[actualSlice] + MODES[modeIdx].iv[i]) % 12;
     var _cT = chords[i].type;
     chordsHTML += '<button type="button" class="cp" style="background:'+cc.bg+';color:'+cc.tx
-      +';cursor:pointer" onclick="playChordPill('+_cS+',\'' + _cT + '\')"'
+      +';cursor:pointer" onclick="playChordPill('+_cS+',\'' + _cT + '\',\'' + chords[i].name + '\')"'
       +' aria-label="Play '+chords[i].name+', the '+numSpoken(chords[i].num)+' chord"><span>'
       +chords[i].num+'</span>'+chords[i].name+'</button>';
   }
@@ -2860,7 +2861,7 @@ function updatePanel() {
     // relationship to anything, styled exactly like the pills next to them that DO
     // respond. Now the relationship is on screen, and the chord plays: a secondary
     // dominant is a sound you want to hear resolve, not a label.
-    sdHTML += '<button type="button" class="sd-item" onclick="playChordPill('+sdList[i].rootSemi+',\'dom7\')"'
+    sdHTML += '<button type="button" class="sd-item" onclick="playChordPill('+sdList[i].rootSemi+',\'dom7\',\'' + sdList[i].chord + '\')"'
       + ' aria-label="Play '+sdList[i].chord+', '+numSpoken(sdList[i].num)+', resolves to '+sdList[i].resolves+'">'
       + sdList[i].chord + '<span class="sd-to">→ '+sdList[i].resolves+'</span></button>';
   }
@@ -3608,8 +3609,11 @@ function _playNote(semi, when, dur, baseOct, vel) {
 }
 
 // at: {slice, inner} - the sector to acknowledge, or null for none.
-function _playArp(semis, oct, at) {
+function _playArp(semis, oct, at, name) {
   var gap = 0.11;
+  // The chord on the hub's keyboard, the notes the right hand plays here (the root an
+  // octave down is the left hand's). Shown with the sound off too: it is information.
+  _kbdShow(semis.map(function(s) { return 12 * ((oct || 4) + 1) + s; }), name);
   // ONE acknowledgement, on the thing you pressed, whether or not the sound plays -
   // muting must never take the feedback away, which is why this sits outside the audio
   // branch. The other two notes no longer flash: see the note above _pulseAt for why sequencing
@@ -5826,6 +5830,98 @@ function _metroHTML() {
   return h;
 }
 
+// ── Keys in the hub (Dafa, 26 Nov) ──────────────────────────────────────────────
+// The chord that sounds, on a small keyboard in the middle of the wheel: the notes the
+// piano actually plays, the voiced chord of the right hand (the bass is in the chord's
+// name: D♭/F). No finger numbers (Dafa: not needed). A lit key takes its note's colour
+// on the wheel, so the keyboard and the ring agree. While the dice or a progression
+// play, the window stays the same for the whole sequence, so the hand's movement reads
+// as movement and not as a picture that jumps. A tap on the wheel or a chord shows its
+// chord over the hub while it rings, then the key signature comes back.
+var _BLK = [0,1,0,1,0,0,1,0,1,0,1,0];
+var _kbd = null;   // the tapped chord: {notes (MIDI), name, until (performance.now ms)}
+var KBD_FADE = 300;
+// The keys a set of chords needs, a white key of air either side, at least ten white
+// keys wide so a lone triad does not fill the hub with three fat keys.
+function _kbdWin(lists) {
+  var lo = 999, hi = -999;
+  lists.forEach(function(ns) { ns.forEach(function(n) { if (n < lo) lo = n; if (n > hi) hi = n; }); });
+  if (lo > hi) { lo = 60; hi = 71; }
+  lo--; while (_BLK[lo % 12]) lo--;
+  hi++; while (_BLK[hi % 12]) hi++;
+  function whites() { var w = 0; for (var m = lo; m <= hi; m++) if (!_BLK[m % 12]) w++; return w; }
+  for (var up = true; whites() < 10; up = !up) {
+    if (up) { hi++; while (_BLK[hi % 12]) hi++; } else { lo--; while (_BLK[lo % 12]) lo--; }
+  }
+  return { lo: lo, hi: hi };
+}
+function _lpWin(o) {
+  if (o._winOf !== o.voices) { o._win = _kbdWin(o.voices.map(function(v) { return v.notes; })); o._winOf = o.voices; }
+  return o._win;
+}
+function _keyCol(m, dark) {
+  var c = SYNTH[MROOT.indexOf(((m % 12) + 12) % 12)];
+  return (dark && !GREY_PALETTES[curPalette]) ? lightenHex(c, 0.16) : c;
+}
+function _keyRect(c2, x, y, w, h, rad) {
+  c2.beginPath();
+  if (c2.roundRect) c2.roundRect(x, y, w, h, [0, 0, rad, rad]); else c2.rect(x, y, w, h);
+}
+// The keyboard, centred on cx, its top edge at top.
+function _drawKeys(c2, cx, top, w, h, notes, win, dark) {
+  var whites = [];
+  for (var m = win.lo; m <= win.hi; m++) if (!_BLK[m % 12]) whites.push(m);
+  var kw = w / whites.length, x0 = cx - w / 2, gap = Math.max(1, kw * 0.1), on = {};
+  notes.forEach(function(n) { on[n] = true; });
+  var ground = dark ? '#1f1f1d' : '#f6f4ef';
+  c2.save();
+  whites.forEach(function(m, i) {
+    _keyRect(c2, x0 + i * kw + gap / 2, top, kw - gap, h, kw * 0.2);
+    c2.fillStyle = on[m] ? _keyCol(m, dark) : (dark ? '#c4c1ba' : '#ffffff'); c2.fill();
+    if (!dark && !on[m]) { c2.strokeStyle = 'rgba(0,0,0,.2)'; c2.lineWidth = 0.75; c2.stroke(); }
+  });
+  var bw = kw * 0.62, bh = h * 0.6;
+  whites.forEach(function(m, i) {
+    var b = m + 1;
+    if (i === whites.length - 1 || !_BLK[b % 12]) return;
+    var x = x0 + (i + 1) * kw - bw / 2;
+    c2.fillStyle = ground;                                // a hairline of ground around it
+    c2.fillRect(x - gap / 2, top, bw + gap, bh + gap / 2);
+    _keyRect(c2, x, top, bw, bh, bw * 0.2);
+    c2.fillStyle = on[b] ? _keyCol(b, dark) : (dark ? '#0d0d0c' : '#2b2a27'); c2.fill();
+  });
+  c2.restore();
+}
+function _kbdShow(notes, name) {
+  var now = performance.now(), hold = 2300;                 // _playArp's ring, give or take
+  _kbd = { notes: notes, name: name || '', until: now + hold };
+  var k = _kbd;
+  render();
+  setTimeout(function() {
+    if (_kbd !== k) return;
+    if (reducedMotion()) { _kbd = null; render(); } else _kickAnim();
+  }, hold);
+}
+function _kbdFading(now) { return !!_kbd && now >= _kbd.until && now < _kbd.until + KBD_FADE; }
+// The tapped chord over the hub (or over an idle tool's display), fading out when it
+// has rung. Not while the dice or a progression play: their display has its own keys.
+// Not while the piano's loading ring is in the hub: a tap then plays nothing anyway.
+function _drawTapKeys(c2, CX, CY, R, accR, ff, dark) {
+  if (!_kbd || _lp || _pl.on) return;
+  var now = performance.now(), a = now < _kbd.until ? 1 : 1 - (now - _kbd.until) / KBD_FADE;
+  if (a <= 0) { _kbd = null; return; }
+  var r = accR - 1, ink = dark ? '#e8e6e0' : '#1a1917', big = Math.max(18, R * 0.13);
+  c2.save();
+  c2.globalAlpha = a;
+  c2.beginPath(); c2.arc(CX, CY, r, 0, Math.PI * 2);
+  c2.fillStyle = dark ? '#1f1f1d' : '#f6f4ef'; c2.fill();
+  c2.strokeStyle = dark ? 'rgba(255,255,255,.14)' : 'rgba(0,0,0,.12)'; c2.lineWidth = 1; c2.stroke();
+  c2.textAlign = 'center'; c2.textBaseline = 'middle';
+  c2.fillStyle = ink; c2.font = '500 ' + big + 'px ' + ff; c2.fillText(_kbd.name, CX, CY - r * 0.42);
+  _drawKeys(c2, CX, CY - r * 0.12, r * 1.62, r * 0.44, _kbd.notes, _kbdWin([_kbd.notes]), dark);
+  c2.restore();
+}
+
 // The display: the middle of the wheel while a tool is open. It covers the key-
 // signature ring, which comes back when the tool is closed.
 function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
@@ -5851,14 +5947,21 @@ function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
       line1 = sp.tonic;
       line2 = (mi === 0 ? 'major' : mi === 4 ? 'minor' : MODES[mi].name) + ' · ' + _dice.bpm + ' bpm';
     }
-    if (line1) {
+    var dv = _lp && _lp.tag === 'dice' && _dice.playing >= 0 && _lp.voices ? _lp.voices[_dice.playing] : null;
+    if (dv && line1) {
+      // Playing: the numeral, the name, the keys the piano plays; the dice glyph drops
+      // to the bottom, smaller (a tap still rolls).
+      c2.fillStyle = ink; c2.font = '500 ' + (big * 0.85) + 'px ' + ff; c2.fillText(line1, CX, CY - r * 0.55);
+      c2.fillStyle = sub; c2.font = '400 ' + (small * 1.2) + 'px ' + ff; c2.fillText(line2, CX, CY - r * 0.28);
+      _drawKeys(c2, CX, CY - r * 0.10, r * 1.62, r * 0.42, dv.notes, _lpWin(_lp), dark);
+    } else if (line1) {
       c2.fillStyle = ink; c2.font = '500 ' + big + 'px ' + ff; c2.fillText(line1, CX, CY - r * 0.22);
       c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff; c2.fillText(line2, CX, CY + r * 0.10);
     } else {
       c2.fillStyle = sub; c2.font = '400 ' + small + 'px ' + ff; c2.fillText('Tap to roll', CX, CY + r * 0.10);
     }
     // The dice glyph: the same drawing as the button icon, at display size.
-    var s = r * 0.30, gx = CX - s / 2, gy = CY + r * (line1 ? 0.30 : -0.30) ;
+    var s = r * (dv ? 0.20 : 0.30), gx = CX - s / 2, gy = CY + r * (dv ? 0.45 : line1 ? 0.30 : -0.30);
     c2.strokeStyle = ink; c2.lineWidth = Math.max(1.2, R * 0.006);
     c2.beginPath();
     if (c2.roundRect) c2.roundRect(gx, gy, s, s, s * 0.25); else c2.rect(gx, gy, s, s);
@@ -5871,7 +5974,14 @@ function _drawToolDisplay(c2, CX, CY, R, accR, ff, dark) {
     // Playing: the chord that sounds, as a numeral over its name. Idle: the key it will
     // play in and what a tap does.
     var pp = _progById(_pg.id), pl = _lp && _lp.tag === 'prog' && _pg.playing >= 0 ? _lp.chords[_pg.playing] : null;
-    if (pl) {
+    var pv = pl && _lp.voices && _lp.voices[_pg.playing];
+    if (pv) {
+      // The numeral, the name, the keys the piano plays, and Stop.
+      c2.fillStyle = ink; c2.font = '500 ' + (big * 0.85) + 'px ' + ff; c2.fillText(pl.label, CX, CY - r * 0.55);
+      c2.fillStyle = sub; c2.font = '400 ' + (small * 1.2) + 'px ' + ff; c2.fillText(pl.name, CX, CY - r * 0.28);
+      _drawKeys(c2, CX, CY - r * 0.10, r * 1.62, r * 0.42, pv.notes, _lpWin(_lp), dark);
+      _hubGlyph(c2, CX, CY + r * 0.63, r * 0.13, true, ink, dark ? '#1f1f1d' : '#f6f4ef');
+    } else if (pl) {
       c2.fillStyle = ink; c2.font = '500 ' + big + 'px ' + ff; c2.fillText(pl.label, CX, CY - r * 0.26);
       c2.fillStyle = sub; c2.font = '400 ' + (small * 1.25) + 'px ' + ff; c2.fillText(pl.name, CX, CY + r * 0.08);
       _hubGlyph(c2, CX, CY + r * 0.50, r * 0.15, true, ink, dark ? '#1f1f1d' : '#f6f4ef');
@@ -5942,18 +6052,19 @@ function playTonic(slice, modeIdx, fromInner) {
   // The flash goes on the sector that was pressed. A minor key picked while the minor
   // ring is hidden is marked on its parent outer sector (see hiddenMinorSel), so it
   // flashes there too.
-  _playArp(_triad(root, mode.ct[0]), 4, { slice: slice, inner: !!fromInner && minorRingShown() });
+  var ct = mode.ct[0], nm = keySpelling(as, modeIdx).tonic + ({ min: 'm', dim: '°' }[ct] || '');
+  _playArp(_triad(root, ct), 4, { slice: slice, inner: !!fromInner && minorRingShown() }, nm);
 }
 
 // Called when clicking a diatonic chord pill. The chord's own sector rings: a major
 // chord on the outer ring at its root, a minor one on the inner ring beside its
 // relative major. A diminished chord has no sector on this wheel, and a minor chord has
 // none while the minor ring is hidden - lighting a neighbour would name the wrong chord.
-function playChordPill(semi, type) {
+function playChordPill(semi, type, name) {
   var s = ((semi % 12) + 12) % 12, at = null;
   if (type === 'maj' || type === 'dom7') at = { slice: MROOT.indexOf(s), inner: false };
   else if (type === 'min' && minorRingShown())  at = { slice: MROOT.indexOf((s + 3) % 12), inner: true };
-  _playArp(_triad(semi, type), 4, at);   // mute handled in _playArp, see playTonic
+  _playArp(_triad(semi, type), 4, at, name);   // mute handled in _playArp, see playTonic
 }
 
 // Play mode scale ascending - highlights characteristic note of each mode
