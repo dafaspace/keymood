@@ -697,6 +697,8 @@ canvas:focus-visible { outline-offset: 3px; }
 .set-src summary { cursor:pointer; padding:6px 0; }
 .set-src p { font-size:11px; color:var(--text3); line-height:1.5; margin:6px 0 2px; }
 .set-src a { color:inherit; }
+/* A small inline link with a 44px touch band: padding outside, margins pull the text back. */
+.tap-link { color:inherit; display:inline-block; padding:14px 6px; margin:-14px -6px; }
 .pg-detail { padding:8px 2px 10px; }
 .pg-ex { color:var(--text2); font-style:italic; }
 /* The played sequence: four bars a row, each bar one box that never breaks over a line.
@@ -737,7 +739,7 @@ canvas:focus-visible { outline-offset: 3px; }
 .tl-pm { padding:12px 16px; border-radius:999px; background:var(--bg2); color:var(--text); }
 .tl-bpmv { font-size:26px; font-weight:500; color:var(--text); font-variant-numeric: tabular-nums; }
 .tl-bpmv small { font-size:11px; color:var(--text3); margin-inline-start:4px; font-weight:400; }
-.tl-range { width:100%; margin:0 0 12px; accent-color: var(--text); }
+.tl-range { width:100%; margin:-14px 0 -2px; height:44px; accent-color: var(--text); }   /* a 44px touch band around the 16px track, the layout as before */
 .tl-note { font-size:11px; color:var(--text3); line-height:1.4; margin:8px 0 0; }
 /* 16px: iOS Safari zooms the page into any field set smaller. */
 .tl-meter { display:block; width:100%; font:inherit; font-size:16px; color:var(--text); background:var(--bg);
@@ -868,6 +870,12 @@ canvas:focus-visible { outline-offset: 3px; }
         <label class="set-label" for="notes-sel" data-t="set.noteNames">Note names</label>
         <select id="notes-sel" class="set-sel" onchange="setNoteSystem(this.value)"></select>
       </div>
+      <!-- Chord symbols: letters by default in every language, the chosen note names on request
+           (Dafa, 28 Nov 2026). Hidden while the note names are letters (_i18nSettings). -->
+      <div class="set-row" id="chords-row" hidden>
+        <label class="set-label" for="chords-sel" data-t="set.chordSymbols">Chord symbols</label>
+        <select id="chords-sel" class="set-sel" onchange="setChordSystem(this.value)"></select>
+      </div>
       <div class="set-row">
         <span class="set-label" data-t="set.notation">Notation</span>
         <div class="seg" id="notation-seg" role="group" aria-label="Notation" data-t-attr="aria-label:set.notation">
@@ -900,14 +908,14 @@ canvas:focus-visible { outline-offset: 3px; }
       <div class="set-row pro-row" id="pro-row"></div>
       <div class="set-row" style="border-top:0.5px solid var(--bd);padding-top:11px">
         <span class="set-label" data-t="set.version">Version</span>
-        <span style="font-size:11px;color:var(--text3)">v2.20.0</span>
+        <span style="font-size:11px;color:var(--text3)">v2.21.0</span>
       </div>
       <!-- Required by the sample licence (CC BY 3.0): name the work, the author and the
            licence, with a link to it. -->
       <div class="set-row">
         <span class="set-label" data-t="set.piano">Piano</span>
         <span style="font-size:11px;color:var(--text3);text-align:end"><span data-t="set.pianoCredit">Salamander Grand Piano by Alexander Holm,</span>
-          <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener" style="color:inherit">CC BY 3.0</a></span>
+          <a href="https://creativecommons.org/licenses/by/3.0/" target="_blank" rel="noopener" class="tap-link">CC BY 3.0</a></span>
       </div>
       <!-- Credit for the progressions' dots: the attribution text in full, since the counts
            include ChoCo (the corpus method, kept outside this repo). Shown with Pro, where the
@@ -1446,7 +1454,7 @@ var I18N_EN = {
 "tw.picardy.in": "Picardy third",
 "tw.picardy.tag": "Picardy",
 "tw.lyddom": "Lydian dominant",
-"tw.lyddom.in": "lydian dominant",
+"tw.lyddom.in": "Lydian dominant",
 "tw.lyddom.tag": "Lydian 7",
 "tw.appl": "Applied dominant",
 "tw.appl.in": "applied dominant",
@@ -1491,13 +1499,13 @@ var I18N_EN = {
 "tw.aug6.in": "augmented sixth",
 "tw.aug6.tag": "Aug sixth",
 "tw.it6": "Italian sixth",
-"tw.it6.in": "italian sixth",
+"tw.it6.in": "Italian sixth",
 "tw.it6.tag": "It+6",
 "tw.ger6": "German sixth",
-"tw.ger6.in": "german sixth",
+"tw.ger6.in": "German sixth",
 "tw.ger6.tag": "Ger+6",
 "tw.fr6": "French sixth",
-"tw.fr6.in": "french sixth",
+"tw.fr6.in": "French sixth",
 "tw.fr6.tag": "Fr+6",
 "tw.planing": "Chromatic planing",
 "tw.planing.in": "chromatic planing",
@@ -1567,8 +1575,8 @@ var I18N_EN = {
 "tip.three": "distant - clear colour shift",
 "tip.far": "far - bold jump",
 "tip.samePitch": "same pitch",
-//: {n} is signed: "+3", "-2". English writes "semitones" for one too.
-"tip.pitch.one": "pitch {n} semitones",
+//: {n} is signed: "+3", "-2".
+"tip.pitch.one": "pitch {n} semitone",
 "tip.pitch.other": "pitch {n} semitones",
 //: {mode} a mode's name: "Phrygian colour".
 "tip.colour": "{mode} colour",
@@ -1673,10 +1681,11 @@ var NOTE_SYSTEMS = {
 //            system for its key-title form (ru: до♯ in a list, до-диез мажор in a title).
 //            minor 'lower' writes a minor key's note in lower case, as German does (a-Moll,
 //            fis-Moll; Dur keeps its capital). The words are key.major / key.minor / key.mode.
-//   chords - (c) 'letters' writes chord symbols in letters whatever the note names (C, B♭m7,
-//            as Brazilian cifras do although notes are Dó Ré Mi); 'notes' uses the chosen names
-//            (Italian: Do, Lam, Sol7); a system's id writes them in that one (German lettersH:
-//            H7, B♭maj7). Spanish stays in letters (Dafa, 28 Nov 2026).
+//   chords - (c) the default of the Chord symbols setting: 'letters' in every language (Dafa,
+//            28 Nov 2026: "для всех буквы по умолчанию, а сольфеджио опционально"), so C, B♭m7
+//            whatever the note names, as Brazilian cifras do; a system's id writes them in that
+//            one (German lettersH: H7, B♭maj7). The setting can switch to the chosen note
+//            names (Lam, Do7), the Italian habit, in any language (_chordSys).
 //   solfege - 'degrees' where Do Re Mi name fixed notes: the Solfège notation shows scale
 //            degrees 1-7 there (Dafa, 28 Nov 2026; solDegrees).
 // Roman numerals (I-V-vi-IV) are the same in every language.
@@ -1688,7 +1697,7 @@ var LANG_MUSIC = {
   es:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' },
   fr:      { notes: 'french',     keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' },
   de:      { notes: 'german',     keys: { notes: null, minor: 'lower' }, chords: 'lettersH', solfege: 'movable' },
-  it:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'notes', solfege: 'degrees' },
+  it:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' },
   'pt-BR': { notes: 'portuguese', keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' },
   tr:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' },
   ja:      { notes: 'letters',    keys: { notes: null, minor: null }, chords: 'letters', solfege: 'movable' },
@@ -1700,7 +1709,7 @@ var LANG_MUSIC = {
 // LANG is a code of LANGS, or a pseudo-locale for layout work: ?lang=xx draws every text
 // 40% longer with accents and brackets, ?lang=xx-rtl the same right to left. Neither is
 // offered in the picker, stored, or reachable in the store build.
-var LANG = 'en', LANG_PSEUDO = false, _tr = null, _noteSys = 'letters', _HTML_EN = {};
+var LANG = 'en', LANG_PSEUDO = false, _tr = null, _noteSys = 'letters', _chordSys = 'letters', _HTML_EN = {};
 function langLocale() { return LANG_PSEUDO ? 'en' : LANG; }
 function langRtl() { return LANG === 'xx-rtl' || !!RTL_LANGS[LANG]; }
 function _music() { return LANG_MUSIC[LANG] || LANG_MUSIC.en; }
@@ -1781,7 +1790,7 @@ function _iso(s) {
 }
 function noteName(s) { return _iso(_sysName(_noteSys, s)); }
 function chordName(root, sym, bass) {
-  var c = _music().chords, sys = c === 'notes' ? _noteSys : c || 'letters';
+  var c = _chordSys === 'notes' ? 'notes' : _music().chords, sys = c === 'notes' ? _noteSys : c || 'letters';
   return _iso(_sysName(sys, root) + (sym || '') + (bass ? '/' + _sysName(sys, bass) : ''));
 }
 // title: a key title in words takes the language's key-title system (keys.notes); a short
@@ -1890,6 +1899,17 @@ function _i18nSettings() {
       var S = NOTE_SYSTEMS[id];
       return '<option value="' + id + '"' + (S.rtl ? ' dir="rtl"' : '') + (id === _noteSys ? ' selected' : '') + '>' + S.label + '</option>';
     }).join('');
+  // Chord symbols: shown only when the note names are syllables, where the choice changes
+  // something. Each option is its own example (Am C7 / Lam Do7), so it needs no words.
+  var cs = document.getElementById('chords-sel'), cr = document.getElementById('chords-row');
+  if (cs && cr) {
+    var lsys = _music().chords || 'letters', syl = _sysName(_noteSys, 'A') !== _sysName(lsys, 'A');
+    cr.hidden = !syl;
+    var ex = function(sys) { return _sysName(sys, 'A') + 'm ' + _sysName(sys, 'C') + '7'; };
+    cs.innerHTML = [['letters', ex(lsys)], ['notes', ex(_noteSys)]].map(function(o) {
+      return '<option value="' + o[0] + '"' + (o[0] === _chordSys ? ' selected' : '') + '>' + o[1] + '</option>';
+    }).join('');
+  }
 }
 // The device's language when it has a translation, else English.
 function _detectLang() {
@@ -1944,7 +1964,12 @@ function setNoteSystem(id) {
   _noteSys = id; savePref('notes', id);
   i18nRepaint();
 }
-window.setLang = setLang; window.setNoteSystem = setNoteSystem;
+function setChordSystem(id) {
+  if (id !== 'letters' && id !== 'notes') return;
+  _chordSys = id; savePref('chords', id);
+  i18nRepaint();
+}
+window.setLang = setLang; window.setNoteSystem = setNoteSystem; window.setChordSystem = setChordSystem;
 /* I18N_CORE:end */
 (function() {
   var q = null;
@@ -1954,6 +1979,7 @@ window.setLang = setLang; window.setNoteSystem = setNoteSystem;
   else { var saved = loadPref('lang', null); LANG = I18N_READY.indexOf(saved) >= 0 ? saved : _detectLang(); }
   var ns = loadPref('notes', null);
   _noteSys = NOTE_SYSTEMS[ns] && NOTE_SYSTEMS[ns].picker !== false ? ns : _music().notes;
+  _chordSys = loadPref('chords', 'letters') === 'notes' ? 'notes' : 'letters';
   _i18nScan();
   if (LANG !== 'en' && !LANG_PSEUDO) _i18nLoad(LANG);
   // English touches nothing: the markup already is the English page.
@@ -3593,12 +3619,21 @@ function _fitModeStrip() {
   var strip = document.getElementById('modestrip');
   if (!strip) return;
   strip.classList.remove('two');
+  [].forEach.call(strip.querySelectorAll('.mb-mode'), function(e) { e.style.fontSize = ''; });
   if (window.innerWidth > 620 || !strip.children.length) return;
   var over = false;
   [].forEach.call(strip.querySelectorAll('.mb-mode'), function(e) {
     if (e.scrollWidth > (e.parentElement.clientWidth - 4) * 1.4) over = true;
   });
-  if (over) strip.classList.add('two');
+  if (over) { strip.classList.add('two'); return; }
+  // Seven across, but a name a little wider than its box (English Mixolydian at 375px: 53px
+  // in 44) is drawn smaller until it fits, never under 8px, instead of running past the
+  // button's edges. A hyphenated break was tried: without a hyphenation dictionary the
+  // browser cut "Mixolydi-an" anywhere.
+  [].forEach.call(strip.querySelectorAll('.mb-mode'), function(e) {
+    var avail = e.parentElement.clientWidth - 2, sw = e.scrollWidth;
+    if (sw > avail + 0.5) e.style.fontSize = Math.max(8, 10 * avail / sw).toFixed(1) + 'px';
+  });
 }
 
 function togglePanelMore() {
@@ -5724,7 +5759,7 @@ var _pg = { fam: loadPref('progFam', 'pop'), id: loadPref('progId', null), loop:
 _dice.loop = loadPref('diceLoop', false);
 function _progById(id) { for (var i = 0; i < PROG_LIB.length; i++) if (PROG_LIB[i].id === id) return PROG_LIB[i]; return null; }
 function _progBpm(p) { return _pg.bpm[p.id] || p.bpm; }
-function _progKey() { var k = _progTonic(); return k.pc + ':' + k.name + ':' + LANG + ':' + _noteSys; }
+function _progKey() { var k = _progTonic(); return k.pc + ':' + k.name + ':' + LANG + ':' + _noteSys + ':' + _chordSys; }
 function _progStamp() { return _pg.id + '|' + _progKey() + '#' + _tw.ver; }
 function progFamily(f) { _pg.fam = f; savePref('progFam', f); renderTools(); }
 function progPick(id) {

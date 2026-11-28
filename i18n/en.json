@@ -47,6 +47,10 @@
     "text": "Note names",
     "hash": "8c110f6b8a"
   },
+  "set.chordSymbols": {
+    "text": "Chord symbols",
+    "hash": "016784427f"
+  },
   "set.notation": {
     "text": "Notation",
     "hash": "9f3163ffda"
@@ -1413,8 +1417,8 @@
     "hash": "30b25d3992"
   },
   "tw.lyddom.in": {
-    "text": "lydian dominant",
-    "hash": "0d20386928"
+    "text": "Lydian dominant",
+    "hash": "30b25d3992"
   },
   "tw.lyddom.tag": {
     "text": "Lydian 7",
@@ -1593,8 +1597,8 @@
     "hash": "f90e358931"
   },
   "tw.it6.in": {
-    "text": "italian sixth",
-    "hash": "92ea7ebe7b"
+    "text": "Italian sixth",
+    "hash": "f90e358931"
   },
   "tw.it6.tag": {
     "text": "It+6",
@@ -1605,8 +1609,8 @@
     "hash": "5c3094ad75"
   },
   "tw.ger6.in": {
-    "text": "german sixth",
-    "hash": "4859b4d53b"
+    "text": "German sixth",
+    "hash": "5c3094ad75"
   },
   "tw.ger6.tag": {
     "text": "Ger+6",
@@ -1617,8 +1621,8 @@
     "hash": "ad5c6eeb2d"
   },
   "tw.fr6.in": {
-    "text": "french sixth",
-    "hash": "3d54b3c18f"
+    "text": "French sixth",
+    "hash": "ad5c6eeb2d"
   },
   "tw.fr6.tag": {
     "text": "Fr+6",
@@ -1877,14 +1881,14 @@
     "hash": "f61b871485"
   },
   "tip.pitch.one": {
-    "text": "pitch {n} semitones",
-    "hash": "8e0ae6176c",
-    "note": "{n} is signed: \"+3\", \"-2\". English writes \"semitones\" for one too.",
+    "text": "pitch {n} semitone",
+    "hash": "6dc979e91c",
+    "note": "{n} is signed: \"+3\", \"-2\".",
     "plural": true
   },
   "tip.pitch.other": {
     "text": "pitch {n} semitones",
-    "hash": "8e0ae6176c",
+    "hash": "6dc979e91c",
     "plural": true
   },
   "tip.colour": {

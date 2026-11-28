@@ -92,7 +92,7 @@ const ctx = { window: {}, console: { warn() {}, log() {} }, Intl, I18N_EN: enBlo
   qName: s => s.replace(/♯/g, '#').replace(/♭/g, 'b'), loadPref: (k, d) => d, savePref() {} };
 vm.createContext(ctx);
 vm.runInContext(core + ';this.X={LANGS,LANG_ORDER,RTL_LANGS,NOTE_SYSTEMS,LANG_MUSIC,_sysName,_pseudo,t,tn,tx,chordName,keyName,keyShort,noteName,' +
-  'set:function(o){for(var k in o){if(k==="LANG")LANG=o[k];if(k==="LANG_PSEUDO")LANG_PSEUDO=o[k];if(k==="_tr")_tr=o[k];if(k==="_noteSys")_noteSys=o[k];}_pcache={};}}', ctx);
+  'set:function(o){for(var k in o){if(k==="LANG")LANG=o[k];if(k==="LANG_PSEUDO")LANG_PSEUDO=o[k];if(k==="_tr")_tr=o[k];if(k==="_noteSys")_noteSys=o[k];if(k==="_chordSys")_chordSys=o[k];}_pcache={};}}', ctx);
 const X = ctx.X;
 if (JSON.stringify(Object.keys(X.LANGS)) !== JSON.stringify(SET)) fail('LANGS is not the portfolio set: ' + Object.keys(X.LANGS).join(' '));
 if (JSON.stringify(X.LANG_ORDER) !== JSON.stringify(SET)) fail('LANG_ORDER is not the portfolio set');
@@ -143,7 +143,10 @@ eq(X.keyName('F♯', 'major'), 'фа-диез мажор', 'Russian key title in
 eq(X.noteName('F♯'), 'фа♯', 'Russian note name with a sign');
 eq(X.keyShort('F♯', false), 'фа♯', 'Russian short key keeps the sign');
 X.set({ LANG: 'it', _noteSys: 'latin', _tr: null });
-eq(X.chordName('A', 'm'), 'Lam', 'Italian chord in note names');
+eq(X.chordName('A', 'm'), 'Am', 'Italian chord in letters by default (Dafa, 28 Nov 2026)');
+X.set({ _chordSys: 'notes' });
+eq(X.chordName('A', 'm'), 'Lam', 'Chord symbols set to note names');
+X.set({ _chordSys: 'letters' });
 X.set({ LANG: 'de', _noteSys: 'german', _tr: null });
 eq(X.chordName('B', '7'), 'H7', 'German chord: H for B');
 eq(X.chordName('B♭', 'maj7'), 'B♭maj7', 'German chord: B♭ for B flat');
