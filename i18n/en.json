@@ -1,0 +1,3656 @@
+{
+  "meta.title": {
+    "text": "Keymood - Circle of Fifths",
+    "hash": "ff5c49b98c"
+  },
+  "app.getProAria": {
+    "text": "Get Keymood Pro",
+    "hash": "7b795cfcbe"
+  },
+  "app.getPro": {
+    "text": "Get Pro",
+    "hash": "c3a96fb818"
+  },
+  "app.quizTip": {
+    "text": "Ear-training quiz",
+    "hash": "e9ebab2b71"
+  },
+  "app.quiz": {
+    "text": "Quiz",
+    "hash": "25c86f6a92"
+  },
+  "app.shareTip": {
+    "text": "Copy link to this key",
+    "hash": "328c81a29c"
+  },
+  "app.share": {
+    "text": "Share",
+    "hash": "09ca55ca52"
+  },
+  "app.themeTip": {
+    "text": "Toggle light/dark",
+    "hash": "4a6e11dc55"
+  },
+  "app.theme": {
+    "text": "Theme",
+    "hash": "a797e30923"
+  },
+  "app.settings": {
+    "text": "Settings",
+    "hash": "c7f73bb54d"
+  },
+  "set.language": {
+    "text": "Language",
+    "hash": "89b86ab0e6"
+  },
+  "set.noteNames": {
+    "text": "Note names",
+    "hash": "8c110f6b8a"
+  },
+  "set.notation": {
+    "text": "Notation",
+    "hash": "9f3163ffda"
+  },
+  "set.notesTip": {
+    "text": "Standard note names",
+    "hash": "3936b1d7b0"
+  },
+  "set.notes": {
+    "text": "Notes",
+    "hash": "70440046a3"
+  },
+  "set.camelotTip": {
+    "text": "Camelot DJ notation",
+    "hash": "0ade680d0a"
+  },
+  "set.camelot": {
+    "text": "Camelot",
+    "hash": "b856282cad"
+  },
+  "set.solfegeTip": {
+    "text": "Movable-do solfège: Do is the tonic, so the wheel and scale show degrees",
+    "hash": "90d59e251b"
+  },
+  "set.solfege": {
+    "text": "Solfège",
+    "hash": "620c639942"
+  },
+  "set.keySigs": {
+    "text": "Key signatures",
+    "hash": "5b9874ad31"
+  },
+  "set.keySigsAria": {
+    "text": "Key signature ring",
+    "hash": "634830228b"
+  },
+  "set.showTip": {
+    "text": "Show the accidental count for every key on the inner ring",
+    "hash": "a39e42873f"
+  },
+  "set.show": {
+    "text": "Show",
+    "hash": "d97d1ee339"
+  },
+  "set.hideTip": {
+    "text": "Strip the wheel back to the keys alone",
+    "hash": "0a1a2e492f"
+  },
+  "set.hide": {
+    "text": "Hide",
+    "hash": "34d8b60fe2"
+  },
+  "set.awake": {
+    "text": "Keep screen on",
+    "hash": "d984efac3b"
+  },
+  "set.awakeAria": {
+    "text": "Keep the screen on while Keymood is open",
+    "hash": "2db78d1167"
+  },
+  "set.on": {
+    "text": "On",
+    "hash": "e0049a6651"
+  },
+  "set.off": {
+    "text": "Off",
+    "hash": "e3de5ab0ca"
+  },
+  "set.version": {
+    "text": "Version",
+    "hash": "2da600bf94"
+  },
+  "set.piano": {
+    "text": "Piano",
+    "hash": "71e5b1f872"
+  },
+  "set.pianoCredit": {
+    "text": "Salamander Grand Piano by Alexander Holm,",
+    "hash": "7697064188"
+  },
+  "set.palette": {
+    "text": "Palette",
+    "hash": "bd6f1035d2"
+  },
+  "pal.ittenTip": {
+    "text": "Default - true complements: opposite colours are a tritone apart",
+    "hash": "32aafe91bd"
+  },
+  "pal.itten": {
+    "text": "Itten",
+    "hash": "39d7a50fb9"
+  },
+  "pal.pastelTip": {
+    "text": "Calm - colour follows the circle, so a fifth is a small hue step",
+    "hash": "70150615c8"
+  },
+  "pal.pastel": {
+    "text": "Pastel",
+    "hash": "5beab5ad64"
+  },
+  "pal.scriabinTip": {
+    "text": "Scriabin's own colours for each key (1910) - historical, not a geometry",
+    "hash": "02acd691e6"
+  },
+  "pal.scriabin": {
+    "text": "Scriabin",
+    "hash": "df35531cbb"
+  },
+  "pal.zodiacTip": {
+    "text": "One colour per major-third family - each shade is an augmented triad (C-E-A♭)",
+    "hash": "0394d096b3"
+  },
+  "pal.zodiac": {
+    "text": "Zodiac",
+    "hash": "d1628e5e6e"
+  },
+  "pal.zebraTip": {
+    "text": "Greyscale - maximum label contrast, no colour coding",
+    "hash": "1c56c20b92"
+  },
+  "pal.zebra": {
+    "text": "Zebra",
+    "hash": "b2d43dc84d"
+  },
+  "pro.close": {
+    "text": "Close",
+    "hash": "bbfa773e5a"
+  },
+  "pro.sub": {
+    "text": "Practice that does not go stale.",
+    "hash": "7373344777"
+  },
+  "pro.libText": {
+    "text": "Jazz, baroque and galant, blues, modal, flamenco, film, folk and more, with why each one works.",
+    "hash": "15d899d608"
+  },
+  "pro.loop": {
+    "text": "Loop and click",
+    "hash": "88469d7e99"
+  },
+  "pro.loopText": {
+    "text": "Play along with a progression or the dice on repeat, at your tempo.",
+    "hash": "29a583c753"
+  },
+  "pro.drone": {
+    "text": "Drone",
+    "hash": "7816c4fc58"
+  },
+  "pro.droneText": {
+    "text": "A held tonic, with the mode's own fifth, under the key you pick on the wheel.",
+    "hash": "e98767c407"
+  },
+  "pro.twist": {
+    "text": "Twist",
+    "hash": "737f29e4fc"
+  },
+  "pro.twistText": {
+    "text": "The same progression again, with an unexpected turn in it.",
+    "hash": "7e0dbde6d7"
+  },
+  "pro.oneOff": {
+    "text": "One purchase, for good, on your Apple account.",
+    "hash": "eba3596f91"
+  },
+  "pro.allFree": {
+    "text": "Everything free in Keymood stays free.",
+    "hash": "27e1a6bf8f"
+  },
+  "pro.restore": {
+    "text": "Restore purchase",
+    "hash": "deed233450"
+  },
+  "pro.notOnSale": {
+    "text": "Not on sale yet.",
+    "hash": "f9598699bb"
+  },
+  "pro.tellMe": {
+    "text": "Tell me when it is",
+    "hash": "0e5ac630d8"
+  },
+  "pro.opensEmail": {
+    "text": "Opens an email to hello@dafaspace.com.",
+    "hash": "59dff5384f"
+  },
+  "pro.haveCode": {
+    "text": "Have a code?",
+    "hash": "740c0cbac1"
+  },
+  "pro.codePlaceholder": {
+    "text": "Paste a code or link",
+    "hash": "cf101beb39"
+  },
+  "pro.use": {
+    "text": "Use",
+    "hash": "1d4d43cc6f"
+  },
+  "tab.view": {
+    "text": "View",
+    "hash": "69bd4ef9fb"
+  },
+  "tab.tonal": {
+    "text": "Tonal",
+    "hash": "db35de686a"
+  },
+  "tab.modal": {
+    "text": "Modal",
+    "hash": "d44c2c5216"
+  },
+  "tab.assist": {
+    "text": "Assist",
+    "hash": "04503968ec"
+  },
+  "app.loadingPiano": {
+    "text": "Loading the piano",
+    "hash": "cb48801922"
+  },
+  "panel.info": {
+    "text": "Info",
+    "hash": "4b631f6984"
+  },
+  "panel.clickKey": {
+    "text": "Click a key on the circle",
+    "hash": "df82c36ef3"
+  },
+  "key.major": {
+    "text": "{note} major",
+    "hash": "8f5ce3343a",
+    "note": "{note} is a note name (\"C\", \"F♯\"). A major key in words."
+  },
+  "key.minor": {
+    "text": "{note} minor",
+    "hash": "017a843e3c",
+    "note": "{note} is a note name. A minor key in words."
+  },
+  "key.mode": {
+    "text": "{note} {mode}",
+    "hash": "2b99ba4d31",
+    "note": "{note} is a note name, {mode} a mode's name (\"D Dorian\", \"G Ionian\", \"A harmonic minor\")."
+  },
+  "key.shortMinor": {
+    "text": "{note}m",
+    "hash": "b2ca0b7495",
+    "note": "A minor key written short, on the wheel and in lists (\"Am\"). Keep it short."
+  },
+  "mode.ionian": {
+    "text": "Ionian",
+    "hash": "4af4ab5a56"
+  },
+  "mode.ionian.mood": {
+    "text": "Bright",
+    "hash": "8d87070201"
+  },
+  "mode.lydian": {
+    "text": "Lydian",
+    "hash": "253fa34d4b"
+  },
+  "mode.lydian.mood": {
+    "text": "Dreamy",
+    "hash": "130b1227d5"
+  },
+  "mode.mixolydian": {
+    "text": "Mixolydian",
+    "hash": "5ff73f848c"
+  },
+  "mode.mixolydian.mood": {
+    "text": "Groovy",
+    "hash": "9c53c00c11"
+  },
+  "mode.dorian": {
+    "text": "Dorian",
+    "hash": "53f03649fc"
+  },
+  "mode.dorian.mood": {
+    "text": "Soulful",
+    "hash": "f32927e094"
+  },
+  "mode.aeolian": {
+    "text": "Aeolian",
+    "hash": "ab27162fc1"
+  },
+  "mode.aeolian.mood": {
+    "text": "Sad",
+    "hash": "8057f8b2a5"
+  },
+  "mode.phrygian": {
+    "text": "Phrygian",
+    "hash": "5b7d43cee6"
+  },
+  "mode.phrygian.mood": {
+    "text": "Dark",
+    "hash": "ae1ef01432"
+  },
+  "mode.locrian": {
+    "text": "Locrian",
+    "hash": "316f7fdda8"
+  },
+  "mode.locrian.mood": {
+    "text": "Unstable",
+    "hash": "ef59cb131d"
+  },
+  "pmode.major": {
+    "text": "major",
+    "hash": "18c9d4621e",
+    "note": "The mode a progression lives in, after a note name (\"C major\", \"A harmonic minor\")."
+  },
+  "pmode.minor": {
+    "text": "minor",
+    "hash": "fee63d97ca"
+  },
+  "pmode.dorian": {
+    "text": "Dorian",
+    "hash": "53f03649fc"
+  },
+  "pmode.mixolydian": {
+    "text": "Mixolydian",
+    "hash": "5ff73f848c"
+  },
+  "pmode.lydian": {
+    "text": "Lydian",
+    "hash": "253fa34d4b"
+  },
+  "pmode.phrygian": {
+    "text": "Phrygian",
+    "hash": "5b7d43cee6"
+  },
+  "pmode.phrygian-dominant": {
+    "text": "Phrygian dominant",
+    "hash": "2337c2e1b8"
+  },
+  "pmode.harmonic-minor": {
+    "text": "harmonic minor",
+    "hash": "7540a39e22"
+  },
+  "pmode.locrian": {
+    "text": "Locrian",
+    "hash": "316f7fdda8"
+  },
+  "pmode.blues": {
+    "text": "blues",
+    "hash": "2e00f41599"
+  },
+  "num.flat": {
+    "text": "flat {num}",
+    "hash": "32dabf51c4",
+    "note": "A Roman numeral read aloud: \"flat VII\"."
+  },
+  "num.sharp": {
+    "text": "sharp {num}",
+    "hash": "5eb36e42f7"
+  },
+  "wheel.aria": {
+    "text": "Circle of fifths. Selected: {key} {mode}. Arrow keys change key, up and down switch major and minor, Enter replays it.",
+    "hash": "1acd3727ac"
+  },
+  "wheel.ariaNone": {
+    "text": "Circle of fifths. No key selected. Arrow keys change key, up and down switch major and minor, Enter replays it.",
+    "hash": "b1092d17cc"
+  },
+  "say.accShown": {
+    "text": "Key signatures shown",
+    "hash": "0216e4ac1d"
+  },
+  "say.accHidden": {
+    "text": "Key signatures hidden",
+    "hash": "cf8f6bde31"
+  },
+  "say.key": {
+    "text": "{key}, {acc}",
+    "hash": "bb7adf8131",
+    "note": "{key} is a key in words, {acc} its signature (\"3♯\") or \"no accidentals\"."
+  },
+  "say.noAcc": {
+    "text": "no accidentals",
+    "hash": "9d4ea1e6ef"
+  },
+  "say.nothing": {
+    "text": "Nothing selected",
+    "hash": "3d95f46c04"
+  },
+  "say.dice.one": {
+    "text": "{key}, {n} beat per minute",
+    "hash": "4360d0a2b6",
+    "plural": true
+  },
+  "say.dice.other": {
+    "text": "{key}, {n} beats per minute",
+    "hash": "4360d0a2b6",
+    "plural": true
+  },
+  "say.proOn": {
+    "text": "Keymood Pro is on",
+    "hash": "d63524cfe9"
+  },
+  "say.proOnDevice": {
+    "text": "Keymood Pro is on on this device",
+    "hash": "5cc4a536f7"
+  },
+  "say.proOnUntil": {
+    "text": "Keymood Pro is on until {date} on this device",
+    "hash": "e98bb27a89",
+    "note": "{date} is the last day a test code works, written 2026-12-25."
+  },
+  "say.proEnded": {
+    "text": "This Keymood Pro test code ended on {date}",
+    "hash": "d336d2b544"
+  },
+  "say.moodCleared": {
+    "text": "Mood cleared",
+    "hash": "a58ec47d23"
+  },
+  "say.moodPicked": {
+    "text": "{mood} selected. Suggestions updated.",
+    "hash": "f2f7b76f8a"
+  },
+  "say.backTo": {
+    "text": "Back to {key}",
+    "hash": "106e700cb3"
+  },
+  "say.twistMax": {
+    "text": "Four twists is the most; Undo starts again",
+    "hash": "68ce5b4793"
+  },
+  "say.twistAll": {
+    "text": "That is all the twists this one takes; Undo starts again",
+    "hash": "4c75dfc666"
+  },
+  "say.twistNone": {
+    "text": "No twist fits here that would still sound chosen",
+    "hash": "2d61615232"
+  },
+  "app.mute": {
+    "text": "Mute",
+    "hash": "0f0973483d"
+  },
+  "app.unmuteTip": {
+    "text": "Sound is OFF - tap to unmute",
+    "hash": "c4c3ee4cb6"
+  },
+  "app.unmute": {
+    "text": "Sound is off, tap to unmute",
+    "hash": "4d3400a98f"
+  },
+  "share.copied": {
+    "text": "Copied!",
+    "hash": "b7c3ca0ee3",
+    "note": "Shown for a moment in a small round button: keep it very short."
+  },
+  "share.failed": {
+    "text": "Copy failed",
+    "hash": "bd5acbff63"
+  },
+  "set.awakeNo": {
+    "text": "This browser cannot keep the screen on. On an iPhone: Settings, Display & Brightness, Auto-Lock.",
+    "hash": "4daf15588b"
+  },
+  "panel.tapKey": {
+    "text": "Tap a key on the circle",
+    "hash": "751a509713"
+  },
+  "panel.keyParen": {
+    "text": "{key} ({mode})",
+    "hash": "301cb3e622",
+    "note": "\"C major (Ionian)\": {key} is a key in words, {mode} the mode's name."
+  },
+  "panel.modeOf": {
+    "text": "{num} mode of <strong>{key}</strong>",
+    "hash": "6983306db5",
+    "note": "\"II mode of G major\": {num} a Roman numeral, {key} a major key in words."
+  },
+  "panel.sig": {
+    "text": "{acc} ({notes}) · {mood}",
+    "hash": "cc7acba469",
+    "note": "\"3♯ (F♯ C♯ G♯) · Bright\": the signature, its notes, the mode's mood word."
+  },
+  "panel.minorRing": {
+    "text": "Minor ring",
+    "hash": "d828c5d20e"
+  },
+  "panel.minorRingTip": {
+    "text": "Show the minor (inner) ring",
+    "hash": "96bfe4f21a"
+  },
+  "panel.scale": {
+    "text": "Scale",
+    "hash": "a29f025627"
+  },
+  "panel.chords": {
+    "text": "Diatonic chords",
+    "hash": "a2994de29d"
+  },
+  "panel.more": {
+    "text": "More",
+    "hash": "4bab2d8fe1"
+  },
+  "panel.less": {
+    "text": "Less",
+    "hash": "526cb7425a"
+  },
+  "panel.quickNav": {
+    "text": "Quick nav",
+    "hash": "23988645f6"
+  },
+  "panel.parMinor": {
+    "text": "Parallel minor",
+    "hash": "0dd839dc20"
+  },
+  "panel.parMajor": {
+    "text": "Parallel major",
+    "hash": "1884318273"
+  },
+  "panel.dominant": {
+    "text": "Dominant",
+    "hash": "afa7e9c38b"
+  },
+  "panel.subdominant": {
+    "text": "Subdominant",
+    "hash": "44cdfdb0f7"
+  },
+  "panel.secDoms": {
+    "text": "Secondary dominants",
+    "hash": "471ca3f083"
+  },
+  "panel.playNote": {
+    "text": "Play {note}",
+    "hash": "25ddaac0e2"
+  },
+  "panel.playNoteRole": {
+    "text": "Play {note}, {role}",
+    "hash": "ff9c016b0c",
+    "note": "{role} is one of panel.roleTonic, panel.roleThird, panel.roleFifth."
+  },
+  "panel.roleTonic": {
+    "text": "the tonic",
+    "hash": "6887711caa"
+  },
+  "panel.roleThird": {
+    "text": "the third of the tonic chord",
+    "hash": "6b5ef4d877"
+  },
+  "panel.roleFifth": {
+    "text": "the fifth of the tonic chord",
+    "hash": "b8dea759f9"
+  },
+  "panel.playChord": {
+    "text": "Play {chord}, the {num} chord",
+    "hash": "6a9dd006fa",
+    "note": "{chord} is a chord symbol (\"Dm\"), {num} its Roman numeral read aloud (\"ii\")."
+  },
+  "panel.playSecDom": {
+    "text": "Play {chord}, {num}, resolves to {target}",
+    "hash": "94818a70b1"
+  },
+  "panel.transpose": {
+    "text": "Transpose",
+    "hash": "fa257429d8"
+  },
+  "panel.transposeUp": {
+    "text": "Transpose up a half step",
+    "hash": "9dfd503788"
+  },
+  "panel.transposeDown": {
+    "text": "Transpose down a half step",
+    "hash": "9e1acb2585"
+  },
+  "quiz.title": {
+    "text": "Quiz",
+    "hash": "25c86f6a92"
+  },
+  "quiz.exit": {
+    "text": "Exit",
+    "hash": "f83b6fe3ae"
+  },
+  "quiz.exitAria": {
+    "text": "Exit quiz",
+    "hash": "819f4555e6"
+  },
+  "quiz.next": {
+    "text": "Next",
+    "hash": "bc981983e7"
+  },
+  "quiz.right": {
+    "text": "Correct!",
+    "hash": "d7a7079239"
+  },
+  "quiz.shownAbove": {
+    "text": "Correct answer shown above",
+    "hash": "a780575e86"
+  },
+  "quiz.onWheel": {
+    "text": "Correct answer highlighted on the wheel",
+    "hash": "6e70bb4223"
+  },
+  "quiz.saidRight": {
+    "text": "Correct. Score {score} of {total}.",
+    "hash": "4f2949734e"
+  },
+  "quiz.saidWrong": {
+    "text": "Not quite. The answer is {answer}. Score {score} of {total}.",
+    "hash": "72603a51ee"
+  },
+  "quiz.accCount": {
+    "text": "How many accidentals does {key} have?",
+    "hash": "1452ff737d",
+    "note": "{key} is a key in words (\"F# major\"); the quiz writes sharps and flats as # and b."
+  },
+  "quiz.none": {
+    "text": "none",
+    "hash": "71f8e7976e"
+  },
+  "quiz.dominant": {
+    "text": "What is the dominant key of {key}?",
+    "hash": "ba9fc428fe"
+  },
+  "quiz.subdominant": {
+    "text": "What is the subdominant key of {key}?",
+    "hash": "133aca4e66"
+  },
+  "quiz.relMinor": {
+    "text": "What is the relative minor of {key}?",
+    "hash": "1ec1ebec5d"
+  },
+  "quiz.dorian": {
+    "text": "{key} is the II mode of which major key?",
+    "hash": "5c58919b7f"
+  },
+  "quiz.mixolydian": {
+    "text": "{key} is the V mode of which major key?",
+    "hash": "abeb0ab464"
+  },
+  "quiz.aeolian": {
+    "text": "{key} is the VI mode of which major key?",
+    "hash": "36d2de723b"
+  },
+  "quiz.tritone": {
+    "text": "Which key is a tritone away from {key}?",
+    "hash": "f84503321e"
+  },
+  "quiz.fifthChord": {
+    "text": "Name the diatonic V chord in {key}.",
+    "hash": "fdcacea613"
+  },
+  "quiz.parMinor": {
+    "text": "What is the parallel minor of {key}?",
+    "hash": "45019f9aad"
+  },
+  "quiz.parMajor": {
+    "text": "What is the parallel major of {key}?",
+    "hash": "dac908adbf"
+  },
+  "quiz.relMajor": {
+    "text": "Relative major of {key}?",
+    "hash": "23b2df0f9a"
+  },
+  "quiz.lydian": {
+    "text": "Which degree is raised in Lydian compared to major?",
+    "hash": "02ef557e2b"
+  },
+  "quiz.mixoLow": {
+    "text": "Which degree is lowered in Mixolydian compared to major?",
+    "hash": "4539b2b433"
+  },
+  "quiz.phrygian": {
+    "text": "What makes Phrygian darker than Aeolian?",
+    "hash": "03f3a6af86"
+  },
+  "quiz.low2": {
+    "text": "Lowered 2nd (b2)",
+    "hash": "d062c68e2c"
+  },
+  "quiz.low4": {
+    "text": "Lowered 4th (b4)",
+    "hash": "783f351ef9"
+  },
+  "quiz.low5": {
+    "text": "Lowered 5th (b5)",
+    "hash": "017985b05f"
+  },
+  "quiz.low6": {
+    "text": "Lowered 6th (b6)",
+    "hash": "c12e6ed9fb"
+  },
+  "quiz.neapolitan": {
+    "text": "What is the Neapolitan (bII) chord in {key}?",
+    "hash": "0a6e9c2463"
+  },
+  "pro.paste": {
+    "text": "Paste the code or the link you were given.",
+    "hash": "0baf847711"
+  },
+  "pro.ended": {
+    "text": "That code ended on {date}.",
+    "hash": "e136676ca7"
+  },
+  "pro.invalid": {
+    "text": "That code is not valid.",
+    "hash": "03530aade5"
+  },
+  "pro.label": {
+    "text": "Pro",
+    "hash": "66d0c5e6b1"
+  },
+  "pro.on": {
+    "text": "On",
+    "hash": "e0049a6651"
+  },
+  "pro.onUntil": {
+    "text": "On until {date}",
+    "hash": "26b5033ec3"
+  },
+  "pro.see": {
+    "text": "See Keymood Pro",
+    "hash": "5de9b02fbc"
+  },
+  "pro.count.one": {
+    "text": "{n} progression in any key",
+    "hash": "09325d2ca3",
+    "plural": true
+  },
+  "pro.count.other": {
+    "text": "{n} progressions in any key",
+    "hash": "09325d2ca3",
+    "plural": true
+  },
+  "pro.get": {
+    "text": "Get Keymood Pro",
+    "hash": "7b795cfcbe"
+  },
+  "pro.buyFor": {
+    "text": "Buy for {price}",
+    "hash": "b3ad466711",
+    "note": "{price} is the App Store's price for the buyer's country, as the store writes it."
+  },
+  "pro.pending": {
+    "text": "Waiting for approval. Pro turns on by itself once the purchase goes through.",
+    "hash": "fd6cd6328d"
+  },
+  "pro.unverified": {
+    "text": "The App Store could not confirm this purchase. Try Restore purchase.",
+    "hash": "57eafca921"
+  },
+  "pro.noAnswer": {
+    "text": "The App Store did not answer. Check the connection and try again.",
+    "hash": "b1bd8308bc"
+  },
+  "pro.checking": {
+    "text": "Checking with the App Store...",
+    "hash": "29b5560450"
+  },
+  "pro.noPurchase": {
+    "text": "No Keymood Pro purchase on this Apple account.",
+    "hash": "d8685e4633"
+  },
+  "tools.aria": {
+    "text": "Tools",
+    "hash": "4fa8cc860c"
+  },
+  "tools.dice": {
+    "text": "Dice",
+    "hash": "7927f13871"
+  },
+  "tools.metro": {
+    "text": "Metronome",
+    "hash": "470aedded4"
+  },
+  "tools.prog": {
+    "text": "Progressions",
+    "hash": "3cb48ad52b"
+  },
+  "tools.progLocked": {
+    "text": "Progressions, Keymood Pro",
+    "hash": "3567fb3cf3"
+  },
+  "tools.slower": {
+    "text": "Slower",
+    "hash": "cf606d0913"
+  },
+  "tools.faster": {
+    "text": "Faster",
+    "hash": "adc7ac2ae5"
+  },
+  "unit.bpm": {
+    "text": "bpm",
+    "hash": "46e490cac4"
+  },
+  "unit.nbpm": {
+    "text": "{n} bpm",
+    "hash": "ff82795a08"
+  },
+  "ctl.loop": {
+    "text": "Loop",
+    "hash": "dc7f77b4cc",
+    "note": "The two buttons in the wheel's top corners: a word under an icon, 10px. Keep them short."
+  },
+  "ctl.roll": {
+    "text": "Roll",
+    "hash": "03d4b05666"
+  },
+  "ctl.tap": {
+    "text": "Tap",
+    "hash": "6aeb017fb9"
+  },
+  "ctl.drone": {
+    "text": "Drone",
+    "hash": "7816c4fc58"
+  },
+  "ctl.twist": {
+    "text": "Twist",
+    "hash": "737f29e4fc"
+  },
+  "ctl.loopDiceAria": {
+    "text": "Loop the progression",
+    "hash": "4c3581f989"
+  },
+  "ctl.rollAria": {
+    "text": "Roll the dice",
+    "hash": "a255233a00"
+  },
+  "ctl.tapAria": {
+    "text": "Tap tempo",
+    "hash": "bee03e8bbf"
+  },
+  "ctl.droneAria": {
+    "text": "Drone on the tonic",
+    "hash": "02779b5fb0"
+  },
+  "ctl.loopAria": {
+    "text": "Loop",
+    "hash": "dc7f77b4cc"
+  },
+  "ctl.twistAria": {
+    "text": "Twist: play it again with a surprising change",
+    "hash": "00cd03fa3c"
+  },
+  "grip.more": {
+    "text": "Show more of the list",
+    "hash": "baf591e149"
+  },
+  "grip.less": {
+    "text": "Show the whole wheel",
+    "hash": "22298b45e2"
+  },
+  "hub.tapRoll": {
+    "text": "Tap to roll",
+    "hash": "0069d10fe7",
+    "note": "The middle of the wheel, drawn on one line in a small circle: keep it short."
+  },
+  "hub.diceSub": {
+    "text": "{mode} · {n} bpm",
+    "hash": "249c27e786"
+  },
+  "hub.pick": {
+    "text": "Pick a progression",
+    "hash": "29a91fd865"
+  },
+  "hub.metroSub": {
+    "text": "BPM · {meter}",
+    "hash": "77fe875e1c"
+  },
+  "dice.changeOnRoll": {
+    "text": "Change on roll",
+    "hash": "8213b11d2c"
+  },
+  "dice.key": {
+    "text": "Key",
+    "hash": "c67dd20ee8",
+    "note": "The four dice chips share one row on a 360px phone: keep them short."
+  },
+  "dice.majmin": {
+    "text": "Maj/min",
+    "hash": "8e3e8e34fc"
+  },
+  "dice.majminName": {
+    "text": "Major or minor",
+    "hash": "6072adde6d"
+  },
+  "dice.mode": {
+    "text": "Mode",
+    "hash": "a7b93d2128"
+  },
+  "dice.chords": {
+    "text": "Chords",
+    "hash": "34ec58a8e1"
+  },
+  "dice.tempo": {
+    "text": "Tempo",
+    "hash": "899658e27a"
+  },
+  "dice.changes": {
+    "text": "Changes on the next roll",
+    "hash": "8c331928fe"
+  },
+  "dice.stays": {
+    "text": "Stays as it is",
+    "hash": "2f853d9cca"
+  },
+  "dice.chipOn": {
+    "text": "{name}, changes on the next roll",
+    "hash": "f52901526c",
+    "note": "{name} is a chip's name (dice.key, dice.majminName ...)."
+  },
+  "dice.chipOff": {
+    "text": "{name}, stays as it is",
+    "hash": "ac083877b9"
+  },
+  "dice.roll": {
+    "text": "Roll",
+    "hash": "03d4b05666"
+  },
+  "dice.stop": {
+    "text": "Stop",
+    "hash": "9e253470c8"
+  },
+  "dice.again": {
+    "text": "Play again",
+    "hash": "576766d387"
+  },
+  "dice.help": {
+    "text": "A key, a mode, four chords and a tempo - leaning toward the ones you have not played lately. Tap Roll or the middle of the wheel.",
+    "hash": "f41bb19b9f"
+  },
+  "metro.tempoAria": {
+    "text": "Tempo in beats per minute",
+    "hash": "c8a51f596e"
+  },
+  "metro.meter": {
+    "text": "Meter",
+    "hash": "df8fad2cc2"
+  },
+  "metro.groupedAria": {
+    "text": "{meter}, grouped {full}, tap for another grouping",
+    "hash": "ded0b40887",
+    "note": "{meter} a meter as written (\"7/8\"), {full} with its grouping (\"2+2+3/8\")."
+  },
+  "metro.groupingsAria": {
+    "text": "{meter}, several groupings",
+    "hash": "3cca2cfde9"
+  },
+  "metro.placeholder": {
+    "text": "3+3+2/8 or 6/8 3/4",
+    "hash": "5af6a8bee3"
+  },
+  "metro.anyAria": {
+    "text": "Any meter, for example 3+3+2/8 or 6/8 3/4",
+    "hash": "9f85762ff3"
+  },
+  "metro.invalid": {
+    "text": "Write it as 7/8, 2+2+3/8 or 6/8 3/4 - up to 64 pulses in all.",
+    "hash": "b40837104e"
+  },
+  "metro.start": {
+    "text": "Start",
+    "hash": "952f375412"
+  },
+  "metro.stop": {
+    "text": "Stop",
+    "hash": "9e253470c8"
+  },
+  "metro.tapTempo": {
+    "text": "Tap tempo",
+    "hash": "bee03e8bbf"
+  },
+  "metro.counts.1": {
+    "text": "The tempo counts wholes.",
+    "hash": "6a703b37b1",
+    "note": "What the tempo number counts, one sentence each."
+  },
+  "metro.counts.2": {
+    "text": "The tempo counts halves.",
+    "hash": "b0faaf8bdc"
+  },
+  "metro.counts.4": {
+    "text": "The tempo counts quarters.",
+    "hash": "e55b1f9626"
+  },
+  "metro.counts.8": {
+    "text": "The tempo counts eighths.",
+    "hash": "60284e6bd1"
+  },
+  "metro.counts.16": {
+    "text": "The tempo counts sixteenths.",
+    "hash": "8cade84d38"
+  },
+  "metro.counts.32": {
+    "text": "The tempo counts 32nds.",
+    "hash": "8e56667b75"
+  },
+  "metro.counts.64": {
+    "text": "The tempo counts 64ths.",
+    "hash": "d3cda7f3e0"
+  },
+  "metro.dotted.1": {
+    "text": "The tempo counts dotted wholes.",
+    "hash": "42ef600399"
+  },
+  "metro.dotted.2": {
+    "text": "The tempo counts dotted halves.",
+    "hash": "bf35a42ee9"
+  },
+  "metro.dotted.4": {
+    "text": "The tempo counts dotted quarters.",
+    "hash": "109d70a25a"
+  },
+  "metro.dotted.8": {
+    "text": "The tempo counts dotted eighths.",
+    "hash": "6db67f6435"
+  },
+  "metro.dotted.16": {
+    "text": "The tempo counts dotted sixteenths.",
+    "hash": "6c7942f224"
+  },
+  "metro.dotted.32": {
+    "text": "The tempo counts dotted 32nds.",
+    "hash": "d416a980e8"
+  },
+  "metro.dotted.64": {
+    "text": "The tempo counts dotted 64ths.",
+    "hash": "81c0b0bf2c"
+  },
+  "metro.tuplet": {
+    "text": "The tempo counts 1/{n} notes.",
+    "hash": "0b26683508",
+    "note": "An irrational meter's pulse: \"1/3 notes\"."
+  },
+  "metro.beats": {
+    "text": "The tempo counts beats.",
+    "hash": "581ed27fc0"
+  },
+  "drone.label": {
+    "text": "Drone",
+    "hash": "7816c4fc58"
+  },
+  "drone.on": {
+    "text": "On",
+    "hash": "e0049a6651"
+  },
+  "drone.off": {
+    "text": "Off",
+    "hash": "e3de5ab0ca"
+  },
+  "drone.fifth": {
+    "text": "With the fifth",
+    "hash": "1a54d1be5d"
+  },
+  "drone.note": {
+    "text": "Holds {note}, the tonic of {key}. Pick another key on the wheel and it follows.",
+    "hash": "105988ad16",
+    "note": "{note} the tonic's name, {key} the key in words (\"D major\", \"D Dorian\")."
+  },
+  "pg.style": {
+    "text": "Style",
+    "hash": "99a0efc6cf"
+  },
+  "pg.fam.pop": {
+    "text": "Pop & rock",
+    "hash": "eb99377fcf"
+  },
+  "pg.fam.jazz": {
+    "text": "Jazz",
+    "hash": "0f940a4107"
+  },
+  "pg.fam.blues": {
+    "text": "Blues & soul",
+    "hash": "832c0c6049"
+  },
+  "pg.fam.classical": {
+    "text": "Classical",
+    "hash": "1dd4129242"
+  },
+  "pg.fam.modal": {
+    "text": "Modal",
+    "hash": "d44c2c5216"
+  },
+  "pg.fam.flamenco": {
+    "text": "Flamenco & Latin",
+    "hash": "78703fa0ea"
+  },
+  "pg.fam.film": {
+    "text": "Film",
+    "hash": "b9aec11128"
+  },
+  "pg.fam.folk": {
+    "text": "Folk & world",
+    "hash": "f190bc40c3"
+  },
+  "pg.fam.jpop": {
+    "text": "J-pop",
+    "hash": "873152e5dc"
+  },
+  "pg.bars.one": {
+    "text": "{n} bar",
+    "hash": "c254146c32",
+    "plural": true
+  },
+  "pg.bars.other": {
+    "text": "{n} bars",
+    "hash": "c254146c32",
+    "plural": true
+  },
+  "pg.beats.one": {
+    "text": "{n} beat",
+    "hash": "44b77191a0",
+    "plural": true
+  },
+  "pg.beats.other": {
+    "text": "{n} beats",
+    "hash": "44b77191a0",
+    "plural": true
+  },
+  "pg.playFrom": {
+    "text": "Play from {chord} ({label})",
+    "hash": "eb19b49324",
+    "note": "{chord} a chord symbol, {label} its Roman numeral."
+  },
+  "pg.playFromTwist": {
+    "text": "Play from {chord} ({label}), {twist}",
+    "hash": "c1f75898fd",
+    "note": "The same, with the name of the twist that made the chord."
+  },
+  "pg.secondTime": {
+    "text": "The second time round: {list}",
+    "hash": "effd5724bc",
+    "note": "{list} is a list of pg.twistIn, joined the way the language joins a list."
+  },
+  "pg.twistIn": {
+    "text": "{name} in bar {bar}",
+    "hash": "8bfd15fb1d",
+    "note": "{name} a twist's name in the middle of a sentence (tw.<id>.in), {bar} a bar number. Also spoken with the name's first form (tw.<id>)."
+  },
+  "pg.undo": {
+    "text": "Undo twists",
+    "hash": "1d5cfb0c38"
+  },
+  "pg.click": {
+    "text": "Click on the beats",
+    "hash": "863ad5e970"
+  },
+  "pg.help": {
+    "text": "Tap a progression to play it, or any of its chords to play from there; the middle of the wheel plays and stops it. Twist, at the top right, plays it again with a surprising change - each press one more. It plays in the key you pick on the wheel, and follows when you change key.",
+    "hash": "eb7f8eb506"
+  },
+  "tw.seventh": {
+    "text": "Seventh",
+    "hash": "4716f06a93"
+  },
+  "tw.seventh.in": {
+    "text": "seventh",
+    "hash": "11aee24917"
+  },
+  "tw.seventh.tag": {
+    "text": "Seventh",
+    "hash": "4716f06a93"
+  },
+  "tw.ext": {
+    "text": "Ninth",
+    "hash": "77fce1a6ed"
+  },
+  "tw.ext.in": {
+    "text": "ninth",
+    "hash": "a511b41abd"
+  },
+  "tw.ext.tag": {
+    "text": "Ninth",
+    "hash": "77fce1a6ed"
+  },
+  "tw.flat9": {
+    "text": "Flat nine",
+    "hash": "aa39568fa2"
+  },
+  "tw.flat9.in": {
+    "text": "flat nine",
+    "hash": "4a0b5d7066"
+  },
+  "tw.flat9.tag": {
+    "text": "Flat nine",
+    "hash": "aa39568fa2"
+  },
+  "tw.add9": {
+    "text": "Added ninth",
+    "hash": "e35c390c04"
+  },
+  "tw.add9.in": {
+    "text": "added ninth",
+    "hash": "e182c75aa2"
+  },
+  "tw.add9.tag": {
+    "text": "Add nine",
+    "hash": "dfa971bbd1"
+  },
+  "tw.sixth": {
+    "text": "Sixth",
+    "hash": "212e6bf39f"
+  },
+  "tw.sixth.in": {
+    "text": "sixth",
+    "hash": "04053a7b8a"
+  },
+  "tw.sixth.tag": {
+    "text": "Sixth",
+    "hash": "212e6bf39f"
+  },
+  "tw.sub": {
+    "text": "Diatonic substitute",
+    "hash": "7bffab85b4"
+  },
+  "tw.sub.in": {
+    "text": "diatonic substitute",
+    "hash": "cff52093e5"
+  },
+  "tw.sub.tag": {
+    "text": "Substitute",
+    "hash": "8017bd7de9"
+  },
+  "tw.sus": {
+    "text": "Suspension",
+    "hash": "1e88c1effb"
+  },
+  "tw.sus.in": {
+    "text": "suspension",
+    "hash": "066b4eb7b4"
+  },
+  "tw.sus.tag": {
+    "text": "Sus4",
+    "hash": "ea0cac7774"
+  },
+  "tw.susdom": {
+    "text": "Sus dominant",
+    "hash": "73fabd18b4"
+  },
+  "tw.susdom.in": {
+    "text": "sus dominant",
+    "hash": "c6c3d3de4b"
+  },
+  "tw.susdom.tag": {
+    "text": "Sus V",
+    "hash": "af33489f54"
+  },
+  "tw.inv": {
+    "text": "Inversion",
+    "hash": "9cd2bd97c2"
+  },
+  "tw.inv.in": {
+    "text": "inversion",
+    "hash": "6b348594e0"
+  },
+  "tw.inv.tag": {
+    "text": "Inversion",
+    "hash": "9cd2bd97c2"
+  },
+  "tw.borrow": {
+    "text": "Borrowed chord",
+    "hash": "99c2063db4"
+  },
+  "tw.borrow.in": {
+    "text": "borrowed chord",
+    "hash": "5a757f2c31"
+  },
+  "tw.borrow.tag": {
+    "text": "Borrowed",
+    "hash": "50d58ef5d0"
+  },
+  "tw.borrowMajor": {
+    "text": "Borrowed from major",
+    "hash": "eae11badfc"
+  },
+  "tw.borrowMajor.in": {
+    "text": "borrowed from major",
+    "hash": "e69fef7096"
+  },
+  "tw.borrowHarm": {
+    "text": "Borrowed from harmonic minor",
+    "hash": "a49b3cc139"
+  },
+  "tw.borrowHarm.in": {
+    "text": "borrowed from harmonic minor",
+    "hash": "ae14d6068e"
+  },
+  "tw.borrowPhryg": {
+    "text": "Borrowed from Phrygian",
+    "hash": "8e0daaeb97"
+  },
+  "tw.borrowPhryg.in": {
+    "text": "borrowed from Phrygian",
+    "hash": "b762930544"
+  },
+  "tw.borrowLyd": {
+    "text": "Borrowed from Lydian",
+    "hash": "1f0c72a603"
+  },
+  "tw.borrowLyd.in": {
+    "text": "borrowed from Lydian",
+    "hash": "57da84eedd"
+  },
+  "tw.borrowMinor": {
+    "text": "Borrowed from minor",
+    "hash": "1144cbc3b6"
+  },
+  "tw.borrowMinor.in": {
+    "text": "borrowed from minor",
+    "hash": "cb2faafa20"
+  },
+  "tw.picardy": {
+    "text": "Picardy third",
+    "hash": "1533d6e2dd"
+  },
+  "tw.picardy.in": {
+    "text": "Picardy third",
+    "hash": "1533d6e2dd"
+  },
+  "tw.picardy.tag": {
+    "text": "Picardy",
+    "hash": "a1f48e0606"
+  },
+  "tw.lyddom": {
+    "text": "Lydian dominant",
+    "hash": "30b25d3992"
+  },
+  "tw.lyddom.in": {
+    "text": "lydian dominant",
+    "hash": "0d20386928"
+  },
+  "tw.lyddom.tag": {
+    "text": "Lydian 7",
+    "hash": "015737eb19"
+  },
+  "tw.appl": {
+    "text": "Applied dominant",
+    "hash": "647d464591"
+  },
+  "tw.appl.in": {
+    "text": "applied dominant",
+    "hash": "7327a90020"
+  },
+  "tw.appl.tag": {
+    "text": "Applied V",
+    "hash": "3016ec8728"
+  },
+  "tw.twofive": {
+    "text": "Two-five",
+    "hash": "44e15973c8"
+  },
+  "tw.twofive.in": {
+    "text": "two-five",
+    "hash": "9a930ee56d"
+  },
+  "tw.twofive.tag": {
+    "text": "Two-five",
+    "hash": "44e15973c8"
+  },
+  "tw.deceptive": {
+    "text": "Deceptive cadence",
+    "hash": "5c69278bf1"
+  },
+  "tw.deceptive.in": {
+    "text": "deceptive cadence",
+    "hash": "e0dac405da"
+  },
+  "tw.deceptive.tag": {
+    "text": "Deceptive",
+    "hash": "1476e6f86b"
+  },
+  "tw.pedal": {
+    "text": "Pedal point",
+    "hash": "b346b135eb"
+  },
+  "tw.pedal.in": {
+    "text": "pedal point",
+    "hash": "9aaee1c834"
+  },
+  "tw.pedal.tag": {
+    "text": "Pedal",
+    "hash": "40744d6322"
+  },
+  "tw.tritone": {
+    "text": "Tritone substitution",
+    "hash": "a6dd1e8fad"
+  },
+  "tw.tritone.in": {
+    "text": "tritone substitution",
+    "hash": "1cdf1d07ac"
+  },
+  "tw.tritone.tag": {
+    "text": "Tritone sub",
+    "hash": "0570384e43"
+  },
+  "tw.extdom": {
+    "text": "Extended dominants",
+    "hash": "cf392b0f4e"
+  },
+  "tw.extdom.in": {
+    "text": "extended dominants",
+    "hash": "28ae0ddbb1"
+  },
+  "tw.extdom.tag": {
+    "text": "Dominant chain",
+    "hash": "3da1fc7cfa"
+  },
+  "tw.ltdim": {
+    "text": "Leading-tone diminished",
+    "hash": "5fc94db3f7"
+  },
+  "tw.ltdim.in": {
+    "text": "leading-tone diminished",
+    "hash": "8dfbe848cb"
+  },
+  "tw.ltdim.tag": {
+    "text": "Diminished",
+    "hash": "2e7d43d0bf"
+  },
+  "tw.ctdim": {
+    "text": "Common-tone diminished",
+    "hash": "a57474861c"
+  },
+  "tw.ctdim.in": {
+    "text": "common-tone diminished",
+    "hash": "13714d822c"
+  },
+  "tw.ctdim.tag": {
+    "text": "CT dim",
+    "hash": "ad5a374bbb"
+  },
+  "tw.passdim": {
+    "text": "Passing diminished",
+    "hash": "c72cc23211"
+  },
+  "tw.passdim.in": {
+    "text": "passing diminished",
+    "hash": "7ce2b1712a"
+  },
+  "tw.passdim.tag": {
+    "text": "Passing dim",
+    "hash": "369debe7c2"
+  },
+  "tw.backdoor": {
+    "text": "Backdoor",
+    "hash": "0a67ce5c67"
+  },
+  "tw.backdoor.in": {
+    "text": "backdoor",
+    "hash": "21bf21f8a9"
+  },
+  "tw.backdoor.tag": {
+    "text": "Backdoor",
+    "hash": "0a67ce5c67"
+  },
+  "tw.neap": {
+    "text": "Neapolitan sixth",
+    "hash": "60e2f095e9"
+  },
+  "tw.neap.in": {
+    "text": "Neapolitan sixth",
+    "hash": "60e2f095e9"
+  },
+  "tw.neap.tag": {
+    "text": "Neapolitan",
+    "hash": "1aba4bbde1"
+  },
+  "tw.cliche": {
+    "text": "Line cliché",
+    "hash": "d406f82760"
+  },
+  "tw.cliche.in": {
+    "text": "line cliché",
+    "hash": "ddca75ef7f"
+  },
+  "tw.cliche.tag": {
+    "text": "Cliché",
+    "hash": "45fa30ca74"
+  },
+  "tw.mediant": {
+    "text": "Chromatic mediant",
+    "hash": "ed59388483"
+  },
+  "tw.mediant.in": {
+    "text": "chromatic mediant",
+    "hash": "171d2dbecb"
+  },
+  "tw.mediant.tag": {
+    "text": "Mediant",
+    "hash": "fa288d1bbc"
+  },
+  "tw.aug6": {
+    "text": "Augmented sixth",
+    "hash": "67b8b12784"
+  },
+  "tw.aug6.in": {
+    "text": "augmented sixth",
+    "hash": "0ab6441d6c"
+  },
+  "tw.aug6.tag": {
+    "text": "Aug sixth",
+    "hash": "b9589f3df9"
+  },
+  "tw.it6": {
+    "text": "Italian sixth",
+    "hash": "f90e358931"
+  },
+  "tw.it6.in": {
+    "text": "italian sixth",
+    "hash": "92ea7ebe7b"
+  },
+  "tw.it6.tag": {
+    "text": "It+6",
+    "hash": "93a323fd6e"
+  },
+  "tw.ger6": {
+    "text": "German sixth",
+    "hash": "5c3094ad75"
+  },
+  "tw.ger6.in": {
+    "text": "german sixth",
+    "hash": "4859b4d53b"
+  },
+  "tw.ger6.tag": {
+    "text": "Ger+6",
+    "hash": "c838d71758"
+  },
+  "tw.fr6": {
+    "text": "French sixth",
+    "hash": "ad5c6eeb2d"
+  },
+  "tw.fr6.in": {
+    "text": "french sixth",
+    "hash": "3d54b3c18f"
+  },
+  "tw.fr6.tag": {
+    "text": "Fr+6",
+    "hash": "490fb0d8bf"
+  },
+  "tw.planing": {
+    "text": "Chromatic planing",
+    "hash": "751c5990f0"
+  },
+  "tw.planing.in": {
+    "text": "chromatic planing",
+    "hash": "55bdc7ef4e"
+  },
+  "tw.planing.tag": {
+    "text": "Planing",
+    "hash": "f8ab3e921c"
+  },
+  "tw.tt25": {
+    "text": "Tritone two-five",
+    "hash": "feb9924ec7"
+  },
+  "tw.tt25.in": {
+    "text": "tritone two-five",
+    "hash": "e659c9b1eb"
+  },
+  "tw.tt25.tag": {
+    "text": "Tritone ii-V",
+    "hash": "dd6ab058ac"
+  },
+  "tw.slide": {
+    "text": "Slide",
+    "hash": "a5d5b46a77"
+  },
+  "tw.slide.in": {
+    "text": "slide",
+    "hash": "e75e1be665"
+  },
+  "tw.slide.tag": {
+    "text": "Slide",
+    "hash": "a5d5b46a77"
+  },
+  "tw.coltrane": {
+    "text": "Coltrane changes",
+    "hash": "778bfb4027"
+  },
+  "tw.coltrane.in": {
+    "text": "Coltrane changes",
+    "hash": "778bfb4027"
+  },
+  "tw.coltrane.tag": {
+    "text": "Coltrane",
+    "hash": "d8fcbb6b36"
+  },
+  "tw.hexpole": {
+    "text": "Hexatonic pole",
+    "hash": "1a6d1c30a6"
+  },
+  "tw.hexpole.in": {
+    "text": "hexatonic pole",
+    "hash": "605b9f55ab"
+  },
+  "tw.hexpole.tag": {
+    "text": "Hex pole",
+    "hash": "d47c99f2d3"
+  },
+  "assist.title": {
+    "text": "Transition Assistant",
+    "hash": "b9e50dd471"
+  },
+  "assist.moods": {
+    "text": "Moods",
+    "hash": "ba8c0defc9"
+  },
+  "assist.moodsTip": {
+    "text": "Mood tags - for video / non-musicians",
+    "hash": "1ef386fd52"
+  },
+  "assist.relations": {
+    "text": "Relations",
+    "hash": "6519fe11ef"
+  },
+  "assist.relationsTip": {
+    "text": "Named harmonic relations - for composers",
+    "hash": "e48ae295c5"
+  },
+  "assist.dj": {
+    "text": "DJ",
+    "hash": "9f46ca3ef6"
+  },
+  "assist.djTip": {
+    "text": "Camelot mixing moves - for DJs",
+    "hash": "2e17474b2f"
+  },
+  "assist.empty": {
+    "text": "Tap a key on the circle - that’s what’s playing now.",
+    "hash": "afb68d1eea"
+  },
+  "assist.nowPlaying": {
+    "text": "Now playing",
+    "hash": "1c388f146f"
+  },
+  "assist.backTo": {
+    "text": "Go back to {key}",
+    "hash": "e0139cf7d0"
+  },
+  "assist.relation": {
+    "text": "Relation",
+    "hash": "33a5a7571b"
+  },
+  "assist.move": {
+    "text": "Mixing move",
+    "hash": "efeb941e06"
+  },
+  "assist.pickMood": {
+    "text": "Pick a mood…",
+    "hash": "7cf77a3496"
+  },
+  "assist.close": {
+    "text": "Close",
+    "hash": "bbfa773e5a"
+  },
+  "assist.change": {
+    "text": "Change",
+    "hash": "64fbd995d3"
+  },
+  "assist.choose": {
+    "text": "Choose",
+    "hash": "78b7c9f6d6"
+  },
+  "assist.intense": {
+    "text": "Intense",
+    "hash": "42b74e4d07",
+    "note": "The four ends of the mood pad, in capitals over coloured dots: keep them short."
+  },
+  "assist.calm": {
+    "text": "Calm",
+    "hash": "7930bf9fc2"
+  },
+  "assist.dark": {
+    "text": "Dark",
+    "hash": "ae1ef01432"
+  },
+  "assist.bright": {
+    "text": "Bright",
+    "hash": "8d87070201"
+  },
+  "assist.sound": {
+    "text": "The sound",
+    "hash": "3a4d00fdf6"
+  },
+  "assist.tempoTip": {
+    "text": "Tap to hear this mood's tempo",
+    "hash": "543c136940"
+  },
+  "assist.bpmRange": {
+    "text": "{lo}-{hi} BPM",
+    "hash": "de37661ac6"
+  },
+  "assist.pickMove": {
+    "text": "Pick a move above to see where to go next.",
+    "hash": "cad8f861d0"
+  },
+  "assist.nextKey": {
+    "text": "Next key",
+    "hash": "3d880772f1"
+  },
+  "assist.legend": {
+    "text": "brighter/darker = tone shift &nbsp;·&nbsp; Seamless{arrow}Cut = how big the jump",
+    "hash": "6298d93295",
+    "note": "{arrow} is drawn by the app (an arrow that turns round in a right-to-left language). \"Seamless\" and \"Cut\" are hard.0 and hard.5."
+  },
+  "assist.moreBolder": {
+    "text": "More - bolder keys",
+    "hash": "0f079ec47a"
+  },
+  "assist.less": {
+    "text": "Less",
+    "hash": "526cb7425a"
+  },
+  "move.muchBrighter": {
+    "text": "much brighter",
+    "hash": "da921c44a2",
+    "note": "How the light changes from the key you are in to the suggested one."
+  },
+  "move.brighter": {
+    "text": "brighter",
+    "hash": "f545eda98f"
+  },
+  "move.same": {
+    "text": "same light",
+    "hash": "059518684c"
+  },
+  "move.darker": {
+    "text": "darker",
+    "hash": "520f62c5b9"
+  },
+  "move.muchDarker": {
+    "text": "much darker",
+    "hash": "84e98b9fec"
+  },
+  "hard.0": {
+    "text": "Seamless",
+    "hash": "662a2c3a94",
+    "note": "How big the join is, from no seam (Seamless) to a scene change (Cut). One word on a small chip."
+  },
+  "hard.1": {
+    "text": "Soft",
+    "hash": "968c009e49"
+  },
+  "hard.2": {
+    "text": "Medium",
+    "hash": "d404968ea9"
+  },
+  "hard.3": {
+    "text": "Hard",
+    "hash": "20a89915f1"
+  },
+  "hard.4": {
+    "text": "Very Hard",
+    "hash": "4008178087"
+  },
+  "hard.5": {
+    "text": "Cut",
+    "hash": "38d13bda5c"
+  },
+  "tip.relMinor": {
+    "text": "relative minor - same key signature",
+    "hash": "1c988d7075"
+  },
+  "tip.relMajor": {
+    "text": "relative major - same key signature",
+    "hash": "e829a2c024"
+  },
+  "tip.dominant": {
+    "text": "dominant - one accidental apart",
+    "hash": "bb6768ce87"
+  },
+  "tip.subdominant": {
+    "text": "subdominant - one accidental apart",
+    "hash": "40952ffd27"
+  },
+  "tip.two": {
+    "text": "two steps round the circle",
+    "hash": "3c220d0d41"
+  },
+  "tip.three": {
+    "text": "distant - clear colour shift",
+    "hash": "533f636e3d"
+  },
+  "tip.far": {
+    "text": "far - bold jump",
+    "hash": "779f53cd8e"
+  },
+  "tip.samePitch": {
+    "text": "same pitch",
+    "hash": "f61b871485"
+  },
+  "tip.pitch.one": {
+    "text": "pitch {n} semitones",
+    "hash": "8e0ae6176c",
+    "note": "{n} is signed: \"+3\", \"-2\". English writes \"semitones\" for one too.",
+    "plural": true
+  },
+  "tip.pitch.other": {
+    "text": "pitch {n} semitones",
+    "hash": "8e0ae6176c",
+    "plural": true
+  },
+  "tip.colour": {
+    "text": "{mode} colour",
+    "hash": "9aa871b815",
+    "note": "{mode} a mode's name: \"Phrygian colour\"."
+  },
+  "rel.neighbours": {
+    "text": "Neighbours",
+    "hash": "4788fa9e4a"
+  },
+  "rel.neighbours.text": {
+    "text": "Dominant & subdominant - the keys a fifth away (V and IV). The most basic move; every blues and pop chorus-lift uses them. From C: G and F.",
+    "hash": "ccb00a76de"
+  },
+  "rel.minmed": {
+    "text": "Minor mediant",
+    "hash": "1c2d5b5889"
+  },
+  "rel.minmed.text": {
+    "text": "A minor third away (C↔E♭ / C↔A). A smooth-but-surprising shift for wonder or scale, no dominant needed. Cinematic - the lift to a final chorus up a minor third.",
+    "hash": "aca4dd4e55"
+  },
+  "rel.majmed": {
+    "text": "Major mediant",
+    "hash": "00154126e8"
+  },
+  "rel.majmed.text": {
+    "text": "A major third away (C↔E / C↔A♭). The epic chromatic mediant - soaring, otherworldly. Star Wars cues; Coltrane’s Giant Steps cycles through them.",
+    "hash": "b0c347c111"
+  },
+  "rel.tritone": {
+    "text": "Tritone",
+    "hash": "2903321f3c"
+  },
+  "rel.tritone.text": {
+    "text": "A tritone away (C↔F♯). Jazz tritone substitution: swap G7 for D♭7 over a ii-V-I for a chromatic bass. Also the classic menace colour.",
+    "hash": "514c85b805"
+  },
+  "rel.dim7": {
+    "text": "Dim7 pivot",
+    "hash": "c7f72e85fa"
+  },
+  "rel.dim7.text": {
+    "text": "The symmetric diminished 7th belongs to several keys at once - drop it and modulate almost anywhere. The Romantic-era teleport; silent-film peril stings.",
+    "hash": "f91c2fc15b"
+  },
+  "rel.neapolitan": {
+    "text": "Neapolitan",
+    "hash": "1aba4bbde1"
+  },
+  "rel.neapolitan.text": {
+    "text": "♭II, a half-step above the tonic (C→D♭), usually before a cadence. Dark, dramatic weight - Beethoven; the flamenco Spanish sound.",
+    "hash": "824770512d"
+  },
+  "rel.nrlP": {
+    "text": "Parallel (P)",
+    "hash": "66ebbec453"
+  },
+  "rel.nrlP.text": {
+    "text": "Same root, major ↔ minor (C↔Cm). The most direct mood-flip: a hero’s theme turns minor when they fall. Same melody, opposite feeling.",
+    "hash": "387966d138"
+  },
+  "rel.nrlR": {
+    "text": "Relative (R)",
+    "hash": "80bd66a3a7"
+  },
+  "rel.nrlR.text": {
+    "text": "Relative major/minor, same key signature (C↔Am). The smoothest move - all seven notes shared. Countless verse/chorus pairs.",
+    "hash": "94252ce315"
+  },
+  "rel.nrlL": {
+    "text": "Leading-tone (L)",
+    "hash": "d2c7f1c4c5"
+  },
+  "rel.nrlL.text": {
+    "text": "C↔Em - shares two notes (E and G). A bittersweet, economical voice-leading move; P-L-R chains give smooth chromatic film harmony.",
+    "hash": "61d9a5e809"
+  },
+  "dj.lift": {
+    "text": "Lift energy",
+    "hash": "ac87cd240a"
+  },
+  "dj.lift.sub": {
+    "text": "+1 step · smooth",
+    "hash": "3291ed567d"
+  },
+  "dj.drop": {
+    "text": "Drop energy",
+    "hash": "2e34b7a0a6"
+  },
+  "dj.drop.sub": {
+    "text": "-1 step · smooth",
+    "hash": "ca519720d1"
+  },
+  "dj.bigLift": {
+    "text": "Bigger lift",
+    "hash": "ff156f6d3d"
+  },
+  "dj.bigLift.sub": {
+    "text": "+2 steps · bolder",
+    "hash": "f4db918e97"
+  },
+  "dj.bigDrop": {
+    "text": "Bigger drop",
+    "hash": "a90a77ca8c"
+  },
+  "dj.bigDrop.sub": {
+    "text": "-2 steps · bolder",
+    "hash": "df5aeff7c2"
+  },
+  "dj.switch": {
+    "text": "Switch mood",
+    "hash": "d55aac765a"
+  },
+  "dj.switch.sub": {
+    "text": "major / minor flip",
+    "hash": "8e7a892962"
+  },
+  "mood.action.name": {
+    "text": "Action",
+    "hash": "97c89a4d66"
+  },
+  "mood.action.traj": {
+    "text": "maximum energy explosion",
+    "hash": "a1963da9dd",
+    "note": "A mood's .traj is the arc its music takes, shown under the mode in Assist."
+  },
+  "mood.tension.name": {
+    "text": "Tension",
+    "hash": "471e1c6039"
+  },
+  "mood.tension.traj": {
+    "text": "holds at peak, never releases",
+    "hash": "5ee8937147"
+  },
+  "mood.suspense.name": {
+    "text": "Suspense",
+    "hash": "abd40b2a3a"
+  },
+  "mood.suspense.traj": {
+    "text": "builds slowly toward dramatic peak",
+    "hash": "f46e62a0d9"
+  },
+  "mood.horror.name": {
+    "text": "Horror",
+    "hash": "cf80dcfced"
+  },
+  "mood.horror.traj": {
+    "text": "sudden terror, unpredictable",
+    "hash": "31186772c5"
+  },
+  "mood.detective.name": {
+    "text": "Detective",
+    "hash": "4306cdbf11"
+  },
+  "mood.detective.traj": {
+    "text": "active search - dramatic reveal",
+    "hash": "2578513514"
+  },
+  "mood.sneaky.name": {
+    "text": "Sneaky",
+    "hash": "809395b6dc"
+  },
+  "mood.sneaky.traj": {
+    "text": "cautious stealth, no climax",
+    "hash": "6a96c04493"
+  },
+  "mood.mysterious.name": {
+    "text": "Mysterious",
+    "hash": "89f329e471"
+  },
+  "mood.mysterious.traj": {
+    "text": "static unanswered question",
+    "hash": "93073a2d1c"
+  },
+  "mood.sad.name": {
+    "text": "Sad",
+    "hash": "8057f8b2a5"
+  },
+  "mood.sad.traj": {
+    "text": "sustained grief, descending arc",
+    "hash": "88dddad656"
+  },
+  "mood.nostalgic.name": {
+    "text": "Nostalgic",
+    "hash": "07f3547aef"
+  },
+  "mood.nostalgic.traj": {
+    "text": "reflective, unresolved longing",
+    "hash": "ae0cf60ec3"
+  },
+  "mood.running.name": {
+    "text": "Running",
+    "hash": "73989d9c59"
+  },
+  "mood.running.traj": {
+    "text": "sustained neutral energy, no narrative peak",
+    "hash": "a3fda677e0"
+  },
+  "mood.peaceful.name": {
+    "text": "Peaceful",
+    "hash": "049d15a482"
+  },
+  "mood.peaceful.traj": {
+    "text": "restful stillness, no build",
+    "hash": "b6baa11a1d"
+  },
+  "mood.romantic.name": {
+    "text": "Romantic",
+    "hash": "b0c22e56bf"
+  },
+  "mood.romantic.traj": {
+    "text": "yearning rise and fall, tender",
+    "hash": "270a485cdb"
+  },
+  "mood.hopeful.name": {
+    "text": "Hopeful",
+    "hash": "2fc428d1a5"
+  },
+  "mood.hopeful.traj": {
+    "text": "forward-looking, builds toward light",
+    "hash": "01b747d7ff"
+  },
+  "mood.quirky.name": {
+    "text": "Quirky",
+    "hash": "735224ad8a"
+  },
+  "mood.quirky.traj": {
+    "text": "unpredictable, playful",
+    "hash": "f85691486c"
+  },
+  "mood.magical.name": {
+    "text": "Magical",
+    "hash": "1265b5fc7a"
+  },
+  "mood.magical.traj": {
+    "text": "curiosity opening into wonder",
+    "hash": "028b46632a"
+  },
+  "mood.happy.name": {
+    "text": "Happy",
+    "hash": "be31a86c98"
+  },
+  "mood.happy.traj": {
+    "text": "bright celebratory energy, sustained",
+    "hash": "9b007e6996"
+  },
+  "mood.heroic.name": {
+    "text": "Heroic",
+    "hash": "5b617bc29a"
+  },
+  "mood.heroic.traj": {
+    "text": "struggle rising, striving not yet won",
+    "hash": "9971876fbf"
+  },
+  "mood.triumph.name": {
+    "text": "Triumph",
+    "hash": "1f04a67e44"
+  },
+  "mood.triumph.traj": {
+    "text": "victory achieved, held at summit",
+    "hash": "7c2f50ed7e"
+  },
+  "mood.epic.name": {
+    "text": "Epic",
+    "hash": "b3efd0d2dd"
+  },
+  "mood.epic.traj": {
+    "text": "vast presence, grandeur held",
+    "hash": "dfe34d52d1"
+  },
+  "lib.axis-progression.name": {
+    "text": "Four-chord pop loop",
+    "hash": "e2dea63d9e",
+    "note": "A library name that starts with its numerals keeps them in front with the name in brackets (\"I-IV-V (three-chord song)\"); the app shows only what is in the brackets."
+  },
+  "lib.axis-progression.why": {
+    "text": "Three major chords frame one minor chord, so the loop sounds hopeful with a single shadow, and every rotation can serve as the start.",
+    "hash": "e35d93ae17"
+  },
+  "lib.fifties-progression.name": {
+    "text": "50s progression",
+    "hash": "2b79ee82ac"
+  },
+  "lib.fifties-progression.why": {
+    "text": "The tonic drops to its relative minor and climbs back through IV and V, the gentle rocking loop of 1950s ballads.",
+    "hash": "d6d4c6714a"
+  },
+  "lib.i-iv-vi-v.name": {
+    "text": "50s progression, IV first",
+    "hash": "5c9f7876c9"
+  },
+  "lib.i-iv-vi-v.why": {
+    "text": "The 50s loop with vi and IV swapped, so the minor chord arrives late and V pulls straight back home.",
+    "hash": "1ae8b6e431"
+  },
+  "lib.sleep-walk-changes.name": {
+    "text": "50s progression, minor iv",
+    "hash": "2ba2d9cc3a"
+  },
+  "lib.sleep-walk-changes.why": {
+    "text": "The 50s loop with its IV turned minor, which adds a dreamy, bittersweet sigh before the dominant.",
+    "hash": "e1b49d7d0d"
+  },
+  "lib.three-chord-i-iv-v.name": {
+    "text": "I-IV-V (three-chord song)",
+    "hash": "c28a0cbdd8"
+  },
+  "lib.three-chord-i-iv-v.why": {
+    "text": "Tonic, subdominant and dominant in their plainest order, the three-chord engine of rock and roll, folk and country.",
+    "hash": "23c7ef5115"
+  },
+  "lib.sonics-i-biii-iv-biii.name": {
+    "text": "Garage-rock loop with bIII",
+    "hash": "01007ba3c4"
+  },
+  "lib.sonics-i-biii-iv-biii.why": {
+    "text": "Swapping the V of the Louie Louie loop for a borrowed bIII gives the garage-rock riff a darker, bluesier edge.",
+    "hash": "dbbee64467"
+  },
+  "lib.double-plagal.name": {
+    "text": "I-bVII-IV (double plagal)",
+    "hash": "f9f9ffe63c"
+  },
+  "lib.double-plagal.why": {
+    "text": "bVII falls a fourth to IV and IV a fourth to I, two plagal steps in a row, so the loop feels open and anthemic rather than resolved.",
+    "hash": "9b00a69049"
+  },
+  "lib.mixolydian-i-bvii-iv-v.name": {
+    "text": "Mixolydian loop to V",
+    "hash": "b5d26a00ed"
+  },
+  "lib.mixolydian-i-bvii-iv-v.why": {
+    "text": "A Mixolydian descent through bVII and IV that turns back up to V, mixing rock swagger with a real cadence.",
+    "hash": "934ec5c835"
+  },
+  "lib.chromatic-descending-5-6.name": {
+    "text": "Double plagal with V",
+    "hash": "95e78e647a"
+  },
+  "lib.chromatic-descending-5-6.why": {
+    "text": "Two pairs of chords a fifth apart, the second pair a whole step below the first, so the loop slides down with a relaxed, open sound.",
+    "hash": "c2a3680ce8"
+  },
+  "lib.aeolian-shuttle.name": {
+    "text": "i-bVII-bVI-bVII (Aeolian shuttle)",
+    "hash": "8d86ae59ac"
+  },
+  "lib.aeolian-shuttle.why": {
+    "text": "The minor tonic steps down two whole steps and back up, a brooding rock loop with no leading tone.",
+    "hash": "f88f2d5b23"
+  },
+  "lib.aeolian-descent.name": {
+    "text": "i-bVII-bVI (Aeolian descent)",
+    "hash": "396bb72bd0"
+  },
+  "lib.aeolian-descent.why": {
+    "text": "Three chords walk straight down the natural minor scale, a heavy, fatalistic fall that loops back up to the tonic.",
+    "hash": "34fa27ca2b"
+  },
+  "lib.creep-progression.name": {
+    "text": "Mediant climb, major III",
+    "hash": "a555e2e5ff"
+  },
+  "lib.creep-progression.why": {
+    "text": "A major III brightens the loop and then IV turns minor, so hope and disappointment trade places every bar.",
+    "hash": "dd1e16ba01"
+  },
+  "lib.major-line-cliche.name": {
+    "text": "Major line cliche",
+    "hash": "4f99f70e30"
+  },
+  "lib.major-line-cliche.why": {
+    "text": "One inner voice creeps up from the fifth to the sixth and back over a held tonic bass, giving a single chord a sense of motion.",
+    "hash": "1c5f1d44f3"
+  },
+  "lib.extended-plagal.name": {
+    "text": "bVI-bIII-bVII-IV-I (extended plagal)",
+    "hash": "98baa0c1d9"
+  },
+  "lib.extended-plagal.why": {
+    "text": "Five major chords a fourth apart chain plagal steps all the way home, a long rolling fall into the tonic.",
+    "hash": "ac6355d679"
+  },
+  "lib.hotel-california.name": {
+    "text": "Minor falling-fourths loop",
+    "hash": "9e8023ee35"
+  },
+  "lib.hotel-california.why": {
+    "text": "Each pair of chords falls a fourth, so the minor loop drifts through bright major chords before the dominant pulls it back.",
+    "hash": "c7311cd189"
+  },
+  "lib.bvii-v7-i-cadence.name": {
+    "text": "bVII-V7-I cadence",
+    "hash": "9ba709df36"
+  },
+  "lib.bvii-v7-i-cadence.why": {
+    "text": "A borrowed bVII leans onto the dominant seventh before home, the twangy cadence of 1960s rock and Western scores.",
+    "hash": "c1a793a2e8"
+  },
+  "lib.biii-v7-i-cadence.name": {
+    "text": "bIII-V7-I cadence",
+    "hash": "596c0ac0e4"
+  },
+  "lib.biii-v7-i-cadence.why": {
+    "text": "A borrowed bIII sets up the dominant with a surprising, slightly dark lift before it resolves.",
+    "hash": "bb78b595bf"
+  },
+  "lib.plagal-sigh.name": {
+    "text": "IV-iv-I (plagal sigh)",
+    "hash": "40c7babc17"
+  },
+  "lib.plagal-sigh.why": {
+    "text": "The IV darkens to iv, its sixth sinking a half step onto the fifth of the tonic, a sentimental sigh before home.",
+    "hash": "f463de6578"
+  },
+  "lib.i-i7-iv-iv.name": {
+    "text": "Plagal sigh from I7",
+    "hash": "936dc17cbf"
+  },
+  "lib.i-i7-iv-iv.why": {
+    "text": "The tonic grows a seventh that pulls it to IV, and IV then turns minor, a churchy, bittersweet way back to the start.",
+    "hash": "b44d3b88aa"
+  },
+  "lib.puff.name": {
+    "text": "Mediant climb",
+    "hash": "1ed9567346"
+  },
+  "lib.puff.why": {
+    "text": "The mediant triad slips in between tonic and subdominant, a soft, folky step that delays the lift to IV.",
+    "hash": "399c4c2145"
+  },
+  "lib.minor-puff.name": {
+    "text": "Minor mediant climb",
+    "hash": "98c1325d6a"
+  },
+  "lib.minor-puff.why": {
+    "text": "The minor tonic rises to its relative major and on to iv, a ballad shape that sounds warm and fatalistic at once.",
+    "hash": "8afa4da5e3"
+  },
+  "lib.aeolian-lament.name": {
+    "text": "i-bVII-bVI-v (Aeolian lament)",
+    "hash": "4c6e0ea057"
+  },
+  "lib.aeolian-lament.why": {
+    "text": "The Andalusian descent ending on a minor v, so the cadence stays modal and never sharpens to a leading tone.",
+    "hash": "d10892bb60"
+  },
+  "lib.comfortably-numb-descent.name": {
+    "text": "Aeolian descent to iv",
+    "hash": "5317b1bb7c"
+  },
+  "lib.comfortably-numb-descent.why": {
+    "text": "The lament descent skips the dominant and lands on iv, so the loop sinks without any pull back to the tonic.",
+    "hash": "84a57d6582"
+  },
+  "lib.pentatonic-minor-ascent.name": {
+    "text": "Minor mediant climb, major IV",
+    "hash": "059a7862ba"
+  },
+  "lib.pentatonic-minor-ascent.why": {
+    "text": "The roots climb i, bIII, IV, bVI, and the major IV gives a Dorian brightness on the way up.",
+    "hash": "07ecf72cca"
+  },
+  "lib.minor-hopscotch.name": {
+    "text": "Minor hopscotch loop",
+    "hash": "dc1318707f"
+  },
+  "lib.minor-hopscotch.why": {
+    "text": "The Hopscotch loop heard in minor with a true dominant, so the climb into the tonic gets a sharp leading-tone pull.",
+    "hash": "3067d49e20"
+  },
+  "lib.major-descending-tetrachord.name": {
+    "text": "Diatonic lament in major",
+    "hash": "81de7bc49d"
+  },
+  "lib.major-descending-tetrachord.why": {
+    "text": "The bass walks down 1-7-6-5 under gentle inversions, a major-key cousin of the lament that lands on a half cadence.",
+    "hash": "a010f3391b"
+  },
+  "lib.magical-mystery-descent.name": {
+    "text": "Chromatic lament in major",
+    "hash": "d4430ba8c7"
+  },
+  "lib.magical-mystery-descent.why": {
+    "text": "The bass slides down chromatically under the tonic while IV turns minor, a wistful major-key cousin of the lament.",
+    "hash": "9757ff7af9"
+  },
+  "lib.stairway-descent.name": {
+    "text": "Chromatic bass descent",
+    "hash": "d3b12b8ca2"
+  },
+  "lib.stairway-descent.why": {
+    "text": "The bass creeps down by half steps under a held minor tonic, turning one chord into a slow, haunted descent.",
+    "hash": "054afcfa2f"
+  },
+  "lib.while-my-guitar-descent.name": {
+    "text": "Dorian bass descent",
+    "hash": "2cb0ba2b88"
+  },
+  "lib.while-my-guitar-descent.why": {
+    "text": "The bass steps down from the minor tonic through a Dorian IV7 to the flat sixth, a weary, sliding lament.",
+    "hash": "718f1b3abc"
+  },
+  "lib.dream-on-descent.name": {
+    "text": "Melodic-minor bass descent",
+    "hash": "3fbbe74426"
+  },
+  "lib.dream-on-descent.why": {
+    "text": "A half-diminished chord on the raised sixth sits in the middle of the falling bass, borrowing melodic-minor colour on the way down.",
+    "hash": "5e06804e0d"
+  },
+  "lib.ii-v-i-major.name": {
+    "text": "ii-V-I",
+    "hash": "3569df9d21"
+  },
+  "lib.ii-v-i-major.why": {
+    "text": "The supertonic and dominant sevenths fall by fifths into a major-seventh tonic, the basic cadence of jazz.",
+    "hash": "c20de0d8bb"
+  },
+  "lib.minor-ii-v-i.name": {
+    "text": "Minor ii-V-i",
+    "hash": "0f52d2741d"
+  },
+  "lib.minor-ii-v-i.why": {
+    "text": "A half-diminished ii and an altered dominant fall into a minor tonic, darker and more urgent than the major cadence.",
+    "hash": "6dd06f8b7e"
+  },
+  "lib.tritone-substitution.name": {
+    "text": "ii-bII7-I (tritone substitution)",
+    "hash": "3a5fe31ca5"
+  },
+  "lib.tritone-substitution.why": {
+    "text": "The dominant is swapped for the dominant a tritone away, so the bass slides down by half steps into the tonic.",
+    "hash": "83d245bbd5"
+  },
+  "lib.backdoor-progression.name": {
+    "text": "Backdoor progression",
+    "hash": "338e4a1138"
+  },
+  "lib.backdoor-progression.why": {
+    "text": "The tonic is approached from the flat side through borrowed minor chords, a softer, more wistful arrival than V-I.",
+    "hash": "bb27b8aa82"
+  },
+  "lib.i-vi-ii-v.name": {
+    "text": "I-vi-ii-V turnaround",
+    "hash": "e9912af844"
+  },
+  "lib.i-vi-ii-v.why": {
+    "text": "A two-bar circle of fifths that leaves the tonic and arrives back on the dominant, the standard way to keep a tune turning over.",
+    "hash": "bcb1932c6d"
+  },
+  "lib.i-vi7-ii7-v7.name": {
+    "text": "Secondary-dominant turnaround",
+    "hash": "ea91fd2a9e"
+  },
+  "lib.i-vi7-ii7-v7.why": {
+    "text": "Turning vi into a dominant seventh gives the turnaround a secondary-dominant pull into ii, a brighter, more urgent swing.",
+    "hash": "125b56f89e"
+  },
+  "lib.iii-vi-ii-v.name": {
+    "text": "Mediant turnaround",
+    "hash": "f3d615953c"
+  },
+  "lib.iii-vi-ii-v.why": {
+    "text": "The circle of fifths started from the mediant, so the turnaround avoids the tonic until the very end.",
+    "hash": "bd903f625b"
+  },
+  "lib.ragtime-progression.name": {
+    "text": "Ragtime progression",
+    "hash": "521a2c17ce"
+  },
+  "lib.ragtime-progression.why": {
+    "text": "A chain of dominant sevenths, each resolving down a fifth to the next, bounces back to the tonic.",
+    "hash": "69d5104338"
+  },
+  "lib.ragtime-three-chord.name": {
+    "text": "Three-chord ragtime progression",
+    "hash": "a449c2085c"
+  },
+  "lib.ragtime-three-chord.why": {
+    "text": "The supertonic becomes a dominant seventh, so it pushes into V like a second leading chord before home.",
+    "hash": "a120e71202"
+  },
+  "lib.raised-four-diminished-cadence.name": {
+    "text": "Sharp-four diminished cadence",
+    "hash": "9bf66fa47f"
+  },
+  "lib.raised-four-diminished-cadence.why": {
+    "text": "A diminished seventh on the raised fourth leans onto the dominant by half step, a ragtime and parlour cadence.",
+    "hash": "d24a5f28b3"
+  },
+  "lib.ii-biii-aug-i.name": {
+    "text": "Augmented dominant substitute",
+    "hash": "8885669199"
+  },
+  "lib.ii-biii-aug-i.why": {
+    "text": "An augmented chord on bIII shares the dominant's leading tone and adds a raised fifth, a smoky substitute for V.",
+    "hash": "1dd3476386"
+  },
+  "lib.back-cycled-ii-v-chain.name": {
+    "text": "Back-cycled ii-V chain",
+    "hash": "70ee0fccb2"
+  },
+  "lib.back-cycled-ii-v-chain.why": {
+    "text": "Each dominant of the ragtime chain gets its own ii, so pairs of chords fall by fifths in a long spiral home.",
+    "hash": "cf6ec26c13"
+  },
+  "lib.chromatic-ii-v-chain.name": {
+    "text": "Tritone-sub walk-down",
+    "hash": "952afef15e"
+  },
+  "lib.chromatic-ii-v-chain.why": {
+    "text": "Tritone substitutes put every other chord a half step lower, so the bass walks chromatically down to the tonic.",
+    "hash": "85bc6a1ef4"
+  },
+  "lib.rhythm-changes-a.name": {
+    "text": "Swing turnaround A section",
+    "hash": "c5cbe9a831"
+  },
+  "lib.rhythm-changes-a.why": {
+    "text": "Fast two-beat turnarounds circle the tonic, then a I7-IV-iv move borrows the plagal sigh before the cadence.",
+    "hash": "f55008175d"
+  },
+  "lib.rhythm-changes-bridge.name": {
+    "text": "Dominant-chain bridge",
+    "hash": "ac6f7534fd"
+  },
+  "lib.rhythm-changes-bridge.why": {
+    "text": "Two bars of each dominant seventh walk the circle of fifths back toward the home key.",
+    "hash": "c6f0dd2dd9"
+  },
+  "lib.montgomery-ward-bridge.name": {
+    "text": "Rising ii-V bridge",
+    "hash": "0a1a80df81"
+  },
+  "lib.montgomery-ward-bridge.why": {
+    "text": "Two ii-V pairs climb a whole step from IV to V, the jazz descendant of the galant Monte sequence.",
+    "hash": "3b10a4642b"
+  },
+  "lib.stomp-progression.name": {
+    "text": "Stomp progression",
+    "hash": "58d3faf55e"
+  },
+  "lib.stomp-progression.why": {
+    "text": "A IV7, raised-fourth diminished and tonic six-four shuffle ends in a ragtime turnaround, the swing-era riff chorus.",
+    "hash": "a0b80602df"
+  },
+  "lib.coltrane-changes.name": {
+    "text": "Major-thirds cycle",
+    "hash": "30802f18bd"
+  },
+  "lib.coltrane-changes.why": {
+    "text": "Keys a major third apart are each touched by their own dominant, so one cadence spins through three tonal centres.",
+    "hash": "e54e0a7288"
+  },
+  "lib.tune-up-changes.name": {
+    "text": "Descending ii-V-I sequence",
+    "hash": "6b4122084a"
+  },
+  "lib.tune-up-changes.why": {
+    "text": "The same ii-V-I is played and then moved down a whole step, so the key centre sinks like a staircase.",
+    "hash": "f8719a3de7"
+  },
+  "lib.tadd-dameron-turnaround.name": {
+    "text": "Flat-side turnaround",
+    "hash": "24de8c220f"
+  },
+  "lib.tadd-dameron-turnaround.why": {
+    "text": "Chords borrowed from the flat side fall by fifths and then by half step, a lush chromatic way back to the tonic.",
+    "hash": "e99b0ac5e6"
+  },
+  "lib.chromatic-turnaround.name": {
+    "text": "Chromatic turnaround",
+    "hash": "6a6739d287"
+  },
+  "lib.chromatic-turnaround.why": {
+    "text": "Tritone substitutes for vi and V make the bass slide down by half steps from bIII to the tonic.",
+    "hash": "b43e6c4cbe"
+  },
+  "lib.passing-diminished-turnaround.name": {
+    "text": "Passing-diminished turnaround",
+    "hash": "949c343767"
+  },
+  "lib.passing-diminished-turnaround.why": {
+    "text": "A diminished seventh slides down by half step into ii, a gospel-tinged passing chord inside the turnaround.",
+    "hash": "cb1b91e94c"
+  },
+  "lib.autumn-leaves-a.name": {
+    "text": "Major then minor ii-V-I",
+    "hash": "97749dca2b"
+  },
+  "lib.autumn-leaves-a.why": {
+    "text": "A ii-V-I in the relative major is answered by a ii-V-i in the minor, two cadences linked by the circle of fifths.",
+    "hash": "ffce7a9609"
+  },
+  "lib.all-the-things-a.name": {
+    "text": "Circle of fifths to a new key",
+    "hash": "3949926f90"
+  },
+  "lib.all-the-things-a.why": {
+    "text": "Roots fall by fifths from vi to IV, then one dominant lifts the tune a major third into a new key.",
+    "hash": "08310b6745"
+  },
+  "lib.lady-bird-changes.name": {
+    "text": "Sixteen-bar backdoor form",
+    "hash": "3db6ffec5d"
+  },
+  "lib.lady-bird-changes.why": {
+    "text": "Backdoor ii-Vs visit the flat keys and a closing Dameron turnaround slides home, a sixteen-bar loop full of soft chromatic colour.",
+    "hash": "4ea2e418bb"
+  },
+  "lib.solar-changes.name": {
+    "text": "Minor twelve-bar ii-V chain",
+    "hash": "be90604571"
+  },
+  "lib.solar-changes.why": {
+    "text": "A minor-major tonic opens a chain of ii-V-I cadences that keeps stepping down to new keys until a minor ii-V brings it back.",
+    "hash": "a57fc15a48"
+  },
+  "lib.so-what-form.name": {
+    "text": "Dorian AABA, up a half step",
+    "hash": "a729f02f3b"
+  },
+  "lib.so-what-form.why": {
+    "text": "Sixteen bars on one Dorian minor seventh, eight a half step higher and eight back, so the colour comes from the mode rather than from chord changes.",
+    "hash": "3cdbdc5eb7"
+  },
+  "lib.maiden-voyage-changes.name": {
+    "text": "Suspended-chord modal form",
+    "hash": "380f5c1ec7"
+  },
+  "lib.maiden-voyage-changes.why": {
+    "text": "Suspended dominant chords move in four-bar blocks, so the harmony floats without ever cadencing.",
+    "hash": "48680eeafc"
+  },
+  "lib.take-the-a-train-a.name": {
+    "text": "Swing A section with II7",
+    "hash": "763fae735f"
+  },
+  "lib.take-the-a-train-a.why": {
+    "text": "Two bars of II7 with a raised fourth in the melody give the tonic a bright, whole-tone lift before a ii-V brings it home.",
+    "hash": "4aded290f3"
+  },
+  "lib.minor-line-cliche.name": {
+    "text": "Minor line cliche",
+    "hash": "df42a4a5cf"
+  },
+  "lib.minor-line-cliche.why": {
+    "text": "One voice slides down by half steps from the root inside a held minor chord, the classic sound of a brooding intro.",
+    "hash": "b154dd0017"
+  },
+  "lib.twelve-bar-blues.name": {
+    "text": "Twelve-bar blues",
+    "hash": "1d5cfac704"
+  },
+  "lib.twelve-bar-blues.why": {
+    "text": "Four bars of tonic, two of subdominant and a dominant-subdominant turnaround, the call-and-response frame of the blues.",
+    "hash": "950f02f9dd"
+  },
+  "lib.twelve-bar-quick-change.name": {
+    "text": "Twelve-bar blues, quick change",
+    "hash": "37bbf6a26a"
+  },
+  "lib.twelve-bar-quick-change.why": {
+    "text": "Bar 2 jumps to IV and back, so the form moves sooner and swings harder than the slow change.",
+    "hash": "ea5fcd74fa"
+  },
+  "lib.bebop-blues.name": {
+    "text": "Bebop blues",
+    "hash": "dbcc8e20d2"
+  },
+  "lib.bebop-blues.why": {
+    "text": "The twelve-bar form with ii-V approaches, a raised-fourth diminished and secondary dominants, so every bar points to the next.",
+    "hash": "66703aa07c"
+  },
+  "lib.bird-blues.name": {
+    "text": "Descending ii-V blues",
+    "hash": "810180ec32"
+  },
+  "lib.bird-blues.why": {
+    "text": "Descending ii-V pairs replace the plain blues chords, spiralling down by whole and half steps before the turnaround.",
+    "hash": "765d13c028"
+  },
+  "lib.minor-blues.name": {
+    "text": "Minor blues",
+    "hash": "e734ff379b"
+  },
+  "lib.minor-blues.why": {
+    "text": "The blues form in a minor key, with a bVI7 falling by half step onto the dominant for a darker turnaround.",
+    "hash": "e114b865fa"
+  },
+  "lib.eight-bar-key-to-the-highway.name": {
+    "text": "Eight-bar blues",
+    "hash": "96c363ce4a"
+  },
+  "lib.eight-bar-key-to-the-highway.why": {
+    "text": "The dominant arrives in bar 2, so the short form swings between I, V and IV in quick, conversational phrases.",
+    "hash": "0e20380679"
+  },
+  "lib.eight-bar-worried-life.name": {
+    "text": "Eight-bar blues, IV in bar 3",
+    "hash": "b6788affdf"
+  },
+  "lib.eight-bar-worried-life.why": {
+    "text": "Two bars each of tonic and subdominant, then a quick I-IV, I-V turnaround, probably the most common eight-bar blues.",
+    "hash": "5ed822b842"
+  },
+  "lib.eight-bar-heartbreak-hotel.name": {
+    "text": "Eight-bar blues, long tonic",
+    "hash": "5a3267ad16"
+  },
+  "lib.eight-bar-heartbreak-hotel.why": {
+    "text": "Four bars of brooding tonic before a short IV-V-I close, a stark eight-bar blues with all its weight up front.",
+    "hash": "8ad811190d"
+  },
+  "lib.eight-bar-walkin-by-myself.name": {
+    "text": "Eight-bar blues, quick ending",
+    "hash": "77adafd334"
+  },
+  "lib.eight-bar-walkin-by-myself.why": {
+    "text": "Four bars on the tonic and then one bar each of IV, V, I and V, an unorthodox eight-bar shape that rushes the ending.",
+    "hash": "b68071f8da"
+  },
+  "lib.eight-bar-trouble-in-mind.name": {
+    "text": "Eight-bar blues, minor iv, VI7",
+    "hash": "f1979e67b4"
+  },
+  "lib.eight-bar-trouble-in-mind.why": {
+    "text": "A minor iv and a secondary dominant give this gospel-tinged eight-bar blues a sweeter, more song-like turn.",
+    "hash": "bc1ba36fb2"
+  },
+  "lib.eight-bar-sitting-on-top.name": {
+    "text": "Eight-bar blues, minor iv",
+    "hash": "c4c52b0c3e"
+  },
+  "lib.eight-bar-sitting-on-top.why": {
+    "text": "The tonic seventh leads to IV and a borrowed iv before a dominant and a double turnaround, a country-blues eight-bar.",
+    "hash": "14af4432fc"
+  },
+  "lib.eight-bar-aint-nobodys-business.name": {
+    "text": "Eight-bar blues, major III",
+    "hash": "5f04b9047c"
+  },
+  "lib.eight-bar-aint-nobodys-business.why": {
+    "text": "A major III, a borrowed iv and a vi-ii-V turnaround give the eight bars a torch-song shape.",
+    "hash": "0cdbd91b33"
+  },
+  "lib.eight-bar-twelve-minus-four.name": {
+    "text": "Eight-bar blues, starts on IV",
+    "hash": "eebb4df724"
+  },
+  "lib.eight-bar-twelve-minus-four.why": {
+    "text": "Starting on the subdominant drops the listener straight into the second line of a twelve-bar blues.",
+    "hash": "dbc5e9fd74"
+  },
+  "lib.sixteen-bar-extended-tonic.name": {
+    "text": "Sixteen-bar blues, long tonic",
+    "hash": "5c60446274"
+  },
+  "lib.sixteen-bar-extended-tonic.why": {
+    "text": "Eight bars of stop-time tonic before the usual twelve-bar ending, so the tension builds on one chord.",
+    "hash": "301e05f25a"
+  },
+  "lib.sixteen-bar-repeated-middle.name": {
+    "text": "Sixteen-bar blues, middle twice",
+    "hash": "0263596e1a"
+  },
+  "lib.sixteen-bar-repeated-middle.why": {
+    "text": "The IV-to-I line is sung twice before the turnaround, a folk-blues form that stretches the middle.",
+    "hash": "dbbd59c66c"
+  },
+  "lib.sixteen-bar-repeated-turnaround.name": {
+    "text": "Sixteen-bar blues, long turnaround",
+    "hash": "48e5d5e585"
+  },
+  "lib.sixteen-bar-repeated-turnaround.why": {
+    "text": "The V-IV turnaround is played three times in a row, so the end of the form hangs in a groove before landing.",
+    "hash": "e0a65bed76"
+  },
+  "lib.i-iv-vamp.name": {
+    "text": "Plagal vamp",
+    "hash": "7bbc9dd5ab"
+  },
+  "lib.i-iv-vamp.why": {
+    "text": "Tonic and subdominant rock back and forth, the open, churchy groove behind gospel vamps and soul verses.",
+    "hash": "5a795527ae"
+  },
+  "lib.gospel-four-five-flat-six-flat-seven-one.name": {
+    "text": "Gospel step-up ending",
+    "hash": "675d1adf36"
+  },
+  "lib.gospel-four-five-flat-six-flat-seven-one.why": {
+    "text": "Two diatonic steps and two borrowed ones climb by step into the tonic, a dramatic gospel ending.",
+    "hash": "5359668631"
+  },
+  "lib.minor-three-chord.name": {
+    "text": "Minor three-chord song",
+    "hash": "398de47393"
+  },
+  "lib.minor-three-chord.why": {
+    "text": "Minor tonic and subdominant with a major dominant, the harmonic-minor engine of slow jams and street-guitar songs alike.",
+    "hash": "27f630eab7"
+  },
+  "lib.i-vi-two-chord.name": {
+    "text": "Relative-minor vamp",
+    "hash": "0b41ad3883"
+  },
+  "lib.i-vi-two-chord.why": {
+    "text": "Tonic and relative minor share two notes, so the vamp rocks gently between bright and soft.",
+    "hash": "ae291d450e"
+  },
+  "lib.pachelbel-canon.name": {
+    "text": "Pachelbel's Canon progression",
+    "hash": "0d4877cc64"
+  },
+  "lib.pachelbel-canon.why": {
+    "text": "The bass falls a fourth and rises a step in a repeating pattern, so the chords descend gracefully while staying bright.",
+    "hash": "b579924b0e"
+  },
+  "lib.galant-romanesca.name": {
+    "text": "Romanesca schema",
+    "hash": "f1c1e11c49"
+  },
+  "lib.galant-romanesca.why": {
+    "text": "A stepwise-falling bass under alternating root-position and first-inversion chords, the noble opening gambit of the galant style.",
+    "hash": "6318bd2f81"
+  },
+  "lib.prinner.name": {
+    "text": "Prinner schema",
+    "hash": "1dc7ef36d7"
+  },
+  "lib.prinner.why": {
+    "text": "The bass steps down 4-3-2-1 under a falling upper line, the galant style's gentle answer to an opening phrase.",
+    "hash": "d720eb3370"
+  },
+  "lib.fonte.name": {
+    "text": "Fonte schema",
+    "hash": "d9d1b97d2f"
+  },
+  "lib.fonte.why": {
+    "text": "A cadence onto minor ii is repeated a step lower in the major, so the phrase descends like water from a fountain.",
+    "hash": "c2f31c3d75"
+  },
+  "lib.monte.name": {
+    "text": "Monte schema",
+    "hash": "582d9083b9"
+  },
+  "lib.monte.why": {
+    "text": "Each secondary dominant resolves up a step, so the phrase climbs like a mountain path toward the dominant.",
+    "hash": "47e492a19f"
+  },
+  "lib.ponte.name": {
+    "text": "Ponte schema",
+    "hash": "0fe359f393"
+  },
+  "lib.ponte.why": {
+    "text": "The dominant is held like a pedal while the melody climbs, a bridge that builds expectation for the return of the tonic.",
+    "hash": "acae835bbb"
+  },
+  "lib.galant-do-re-mi.name": {
+    "text": "Do-Re-Mi schema",
+    "hash": "399e77a362"
+  },
+  "lib.galant-do-re-mi.why": {
+    "text": "The melody rises do-re-mi over tonic, dominant and tonic again, a simple and confident opening.",
+    "hash": "a822283799"
+  },
+  "lib.meyer.name": {
+    "text": "Meyer schema",
+    "hash": "eea7baf3cb"
+  },
+  "lib.meyer.why": {
+    "text": "The tonic moves to the dominant and back while the bass steps 1-2-7-1, a balanced question-and-answer opening.",
+    "hash": "0c4d6be593"
+  },
+  "lib.sol-fa-mi.name": {
+    "text": "Sol-Fa-Mi schema",
+    "hash": "3e5efd963e"
+  },
+  "lib.sol-fa-mi.why": {
+    "text": "The melody falls 5-4-4-3 while the bass rises to ii and returns through the leading tone, a courtly opening gambit.",
+    "hash": "6d41c9bd6e"
+  },
+  "lib.fenaroli.name": {
+    "text": "Fenaroli schema",
+    "hash": "8fa83d8486"
+  },
+  "lib.fenaroli.why": {
+    "text": "Two dominant-tonic pairs with the bass climbing 7-1-2-3, a circular figure that keeps turning around the tonic.",
+    "hash": "4205fae486"
+  },
+  "lib.quiescenza.name": {
+    "text": "Quiescenza schema",
+    "hash": "95a3db525b"
+  },
+  "lib.quiescenza.why": {
+    "text": "Over a tonic pedal the upper line sinks to the flat seventh and climbs back, a calm closing gesture after a cadence.",
+    "hash": "1fd5406e3f"
+  },
+  "lib.indugio.name": {
+    "text": "Indugio schema",
+    "hash": "91a752be5f"
+  },
+  "lib.indugio.why": {
+    "text": "The subdominant is lingered on before the bass rises to the raised fourth, a deliberate delay before the cadence.",
+    "hash": "a9f94daca3"
+  },
+  "lib.cadenza-semplice.name": {
+    "text": "Cadenza semplice",
+    "hash": "9371c9c3eb"
+  },
+  "lib.cadenza-semplice.why": {
+    "text": "The bass climbs 3-4-5 into the dominant and drops to the tonic, the plain galant cadence.",
+    "hash": "c3baafa3a3"
+  },
+  "lib.cadenza-composta.name": {
+    "text": "Cadential six-four",
+    "hash": "cbc2c46ab0"
+  },
+  "lib.cadenza-composta.why": {
+    "text": "A tonic six-four over the dominant bass delays the V7, the grand compound cadence of classical music.",
+    "hash": "4eeb9ddc18"
+  },
+  "lib.cadenza-doppia.name": {
+    "text": "Cadenza doppia",
+    "hash": "d6c3d0482f"
+  },
+  "lib.cadenza-doppia.why": {
+    "text": "The dominant is held while a six-four and a suspended fourth resolve above it, an ornate, ceremonious cadence.",
+    "hash": "ec3a8b3268"
+  },
+  "lib.converging-cadence.name": {
+    "text": "Converging cadence",
+    "hash": "034fef7597"
+  },
+  "lib.converging-cadence.why": {
+    "text": "The bass climbs chromatically 3-4-#4-5 to a half cadence while the melody falls, the voices converging on the dominant.",
+    "hash": "0276cd1399"
+  },
+  "lib.galant-deceptive-cadence.name": {
+    "text": "Deceptive cadence",
+    "hash": "5c69278bf1"
+  },
+  "lib.galant-deceptive-cadence.why": {
+    "text": "The bass climbs to the dominant and then steps up to vi instead of falling to I, a cadence that sidesteps its goal.",
+    "hash": "36555ddd1e"
+  },
+  "lib.circle-of-fifths-major.name": {
+    "text": "Diatonic circle of fifths (major)",
+    "hash": "1a8e019485"
+  },
+  "lib.circle-of-fifths-major.why": {
+    "text": "Every diatonic chord is visited by falling fifths, a sequence that feels unstoppable and returns to its start.",
+    "hash": "5a776c849b"
+  },
+  "lib.circle-of-fifths-minor.name": {
+    "text": "Diatonic circle of fifths (minor)",
+    "hash": "f34cc13ecb"
+  },
+  "lib.circle-of-fifths-minor.why": {
+    "text": "The minor-key circle passes through the relative major before the dominant pulls it back to the minor tonic.",
+    "hash": "fef2fc8ec4"
+  },
+  "lib.rule-of-the-octave-ascending.name": {
+    "text": "Rule of the octave (ascending)",
+    "hash": "3b9069ff1b"
+  },
+  "lib.rule-of-the-octave-ascending.why": {
+    "text": "Each step of a rising major-scale bass gets its standard Baroque chord, so a plain scale becomes a full progression.",
+    "hash": "2970c752b6"
+  },
+  "lib.rule-of-the-octave-descending.name": {
+    "text": "Rule of the octave (descending)",
+    "hash": "8e5677dfd0"
+  },
+  "lib.rule-of-the-octave-descending.why": {
+    "text": "The falling scale is harmonised with a brief tonicisation of V on the sixth degree, a model for accompanying any descending bass.",
+    "hash": "fee813a810"
+  },
+  "lib.lament-bass-diatonic.name": {
+    "text": "Diatonic lament bass",
+    "hash": "95a26c4976"
+  },
+  "lib.lament-bass-diatonic.why": {
+    "text": "The bass descends four steps from tonic to dominant under soft minor inversions, the Baroque emblem of grief.",
+    "hash": "473696fc34"
+  },
+  "lib.lament-bass-chromatic.name": {
+    "text": "Chromatic lament bass",
+    "hash": "1c18d91759"
+  },
+  "lib.lament-bass-chromatic.why": {
+    "text": "The bass sinks by half steps from tonic to dominant, each chromatic step adding weight to the mourning.",
+    "hash": "2d67899696"
+  },
+  "lib.phrygian-half-cadence.name": {
+    "text": "Phrygian half cadence",
+    "hash": "28144204f2"
+  },
+  "lib.phrygian-half-cadence.why": {
+    "text": "The bass falls a half step from the flat sixth to the dominant, an archaic, questioning close in minor.",
+    "hash": "b4a352a5e4"
+  },
+  "lib.ascending-5-6-sequence.name": {
+    "text": "Ascending 5-6 sequence",
+    "hash": "dbf45fd38b"
+  },
+  "lib.ascending-5-6-sequence.why": {
+    "text": "Each chord shares its bass with the next and then the bass steps up, so the music climbs one scale degree at a time.",
+    "hash": "9daa4a1ad2"
+  },
+  "lib.descending-5-6-sequence.name": {
+    "text": "Descending 5-6 sequence",
+    "hash": "ef489fe644"
+  },
+  "lib.descending-5-6-sequence.why": {
+    "text": "Root-position chords alternate with first inversions over a stepwise-falling bass, a smooth, singing descent.",
+    "hash": "bba791ae33"
+  },
+  "lib.rosalia-sequence.name": {
+    "text": "Up-a-fourth, down-a-third sequence",
+    "hash": "e7bf538e6e"
+  },
+  "lib.rosalia-sequence.why": {
+    "text": "Roots rise a fourth and fall a third, so each pair of chords sits a step above the last in a cheerful climb.",
+    "hash": "371ee46492"
+  },
+  "lib.la-folia.name": {
+    "text": "La Folia",
+    "hash": "b8621e1795"
+  },
+  "lib.la-folia.why": {
+    "text": "A slow sarabande ground that swings between minor tonic, dominant and the relative major, built for endless variation.",
+    "hash": "ba610929ef"
+  },
+  "lib.romanesca-ground.name": {
+    "text": "Romanesca ground",
+    "hash": "47c3e86f9a"
+  },
+  "lib.romanesca-ground.why": {
+    "text": "A ground that starts in the relative major and slides into the minor and back, a staple of sixteenth-century improvisation.",
+    "hash": "2154407893"
+  },
+  "lib.passamezzo-antico.name": {
+    "text": "Passamezzo antico",
+    "hash": "b2852e3ab7"
+  },
+  "lib.passamezzo-antico.why": {
+    "text": "Minor tonic and subtonic alternate, then the relative major and the dominant, the Renaissance ground behind countless dances.",
+    "hash": "35afc604aa"
+  },
+  "lib.passamezzo-moderno.name": {
+    "text": "Passamezzo moderno",
+    "hash": "b22721de89"
+  },
+  "lib.passamezzo-moderno.why": {
+    "text": "Tonic alternates with subdominant and dominant in two balanced strains, the major-key Renaissance ground that folk song inherited.",
+    "hash": "da9f324a26"
+  },
+  "lib.neapolitan-cadence.name": {
+    "text": "Neapolitan cadence",
+    "hash": "761ac51492"
+  },
+  "lib.neapolitan-cadence.why": {
+    "text": "The flat second, voiced over the fourth degree, darkens the approach to the dominant with a poignant half-step fall.",
+    "hash": "aa71238ce7"
+  },
+  "lib.italian-sixth-cadence.name": {
+    "text": "Italian sixth cadence",
+    "hash": "f7b5f83c56"
+  },
+  "lib.italian-sixth-cadence.why": {
+    "text": "The flat sixth in the bass and a raised fourth above it squeeze outward by half step onto the dominant.",
+    "hash": "bf09ed895d"
+  },
+  "lib.german-sixth-cadence.name": {
+    "text": "German sixth cadence",
+    "hash": "dc7aa26aa8"
+  },
+  "lib.german-sixth-cadence.why": {
+    "text": "A chord that sounds like a dominant seventh on the flat sixth resolves through a cadential six-four, a rich approach to V.",
+    "hash": "0c9b055c1b"
+  },
+  "lib.picardy-third.name": {
+    "text": "Picardy third cadence",
+    "hash": "2951f85f2a"
+  },
+  "lib.picardy-third.why": {
+    "text": "A minor progression that ends on a major tonic, so the final chord arrives like light after shadow.",
+    "hash": "f995c4a41f"
+  },
+  "lib.tristan-progression.name": {
+    "text": "Tristan chord resolution",
+    "hash": "ac01a8a41f"
+  },
+  "lib.tristan-progression.why": {
+    "text": "A half-diminished chord melts onto a dominant seventh that never reaches its tonic, the emblem of Romantic longing.",
+    "hash": "b659818117"
+  },
+  "lib.moravian-cadence.name": {
+    "text": "Moravian cadence",
+    "hash": "8918548872"
+  },
+  "lib.moravian-cadence.why": {
+    "text": "The outer notes of an added-sixth subdominant move inward by a tone onto a first-inversion tonic, a soft folk-like close.",
+    "hash": "058ea68f15"
+  },
+  "lib.dorian-shuttle.name": {
+    "text": "i7-IV7 (Dorian shuttle)",
+    "hash": "e11a35a528"
+  },
+  "lib.dorian-shuttle.why": {
+    "text": "The major IV carries the raised sixth of the Dorian mode, so the minor vamp sounds cool and groovy rather than sad.",
+    "hash": "9f6cd15512"
+  },
+  "lib.dorian-i-biii-bvii-iv.name": {
+    "text": "Dorian four-chord loop",
+    "hash": "a0a7bceb87"
+  },
+  "lib.dorian-i-biii-bvii-iv.why": {
+    "text": "A minor tonic answered at the end by a major IV, so the loop hovers between minor gloom and Dorian brightness.",
+    "hash": "97aa6f2952"
+  },
+  "lib.aeolian-i-bvi-shuttle.name": {
+    "text": "Minor flat-six shuttle",
+    "hash": "26377a9f9e"
+  },
+  "lib.aeolian-i-bvi-shuttle.why": {
+    "text": "The minor tonic and the major chord on the flat sixth share two notes, a stark, sorrowful two-chord rock.",
+    "hash": "803045c7e7"
+  },
+  "lib.mixolydian-subtonic-shuttle.name": {
+    "text": "I-bVII (subtonic shuttle)",
+    "hash": "f7936da18a"
+  },
+  "lib.mixolydian-subtonic-shuttle.why": {
+    "text": "Tonic and the major chord a whole step below alternate with no dominant, the loose, swaggering sound of Mixolydian rock.",
+    "hash": "255c078a83"
+  },
+  "lib.lydian-shuttle.name": {
+    "text": "I-II (Lydian shuttle)",
+    "hash": "95fc20d0ad"
+  },
+  "lib.lydian-shuttle.why": {
+    "text": "The major II brings in the raised fourth, so the tonic seems to float upward with wonder.",
+    "hash": "a08503bdd6"
+  },
+  "lib.lydian-cadence.name": {
+    "text": "II-IV-I (Lydian cadence)",
+    "hash": "469d221122"
+  },
+  "lib.lydian-cadence.why": {
+    "text": "The Lydian II falls to IV and then home, a sunny cadence that avoids the dominant entirely.",
+    "hash": "f2d7c65cf4"
+  },
+  "lib.phrygian-vamp.name": {
+    "text": "i-bII (Phrygian vamp)",
+    "hash": "a0a6675be7"
+  },
+  "lib.phrygian-vamp.why": {
+    "text": "The half step above the minor tonic gives a menacing, exotic pull, the core of Phrygian metal riffs.",
+    "hash": "d0ced3e5a3"
+  },
+  "lib.phrygian-i-bii-biii.name": {
+    "text": "i-bII-bIII (Phrygian climb)",
+    "hash": "f9e2722ec9"
+  },
+  "lib.phrygian-i-bii-biii.why": {
+    "text": "The riff climbs a half step and then a whole step from the minor tonic, a dark, heaving Phrygian figure.",
+    "hash": "9c62067e71"
+  },
+  "lib.aeolian-i-bvi-iv-bvii.name": {
+    "text": "Aeolian metal loop",
+    "hash": "57e700a933"
+  },
+  "lib.aeolian-i-bvi-iv-bvii.why": {
+    "text": "The minor tonic falls to bVI and climbs back through iv and bVII, a modal loop with no leading tone.",
+    "hash": "ddcacba351"
+  },
+  "lib.aeolian-cadence.name": {
+    "text": "bVI-bVII-i (Aeolian cadence)",
+    "hash": "4ce22e6a15"
+  },
+  "lib.aeolian-cadence.why": {
+    "text": "Two major chords climb by whole step into a minor tonic, a heroic but sombre arrival.",
+    "hash": "b746d630d4"
+  },
+  "lib.chromatic-mediant-bvi.name": {
+    "text": "Chromatic mediant, major third",
+    "hash": "d179b8fd1e"
+  },
+  "lib.chromatic-mediant-bvi.why": {
+    "text": "A major chord a major third below shares one note with the tonic, a sudden, glowing shift of colour.",
+    "hash": "48532bb08d"
+  },
+  "lib.chromatic-mediant-biii.name": {
+    "text": "Chromatic mediant, minor third",
+    "hash": "f2653aebf2"
+  },
+  "lib.chromatic-mediant-biii.why": {
+    "text": "A major chord a minor third above the tonic shares one note with it, a bold, cinematic lurch.",
+    "hash": "b29658ecdc"
+  },
+  "lib.hexatonic-pole.name": {
+    "text": "Hexatonic pole",
+    "hash": "1a6d1c30a6"
+  },
+  "lib.hexatonic-pole.why": {
+    "text": "A minor chord a major third below the major tonic shares no notes with it, an uncanny, otherworldly shift.",
+    "hash": "b829e42759"
+  },
+  "lib.doubly-chromatic-biii.name": {
+    "text": "I-biii (doubly chromatic mediant)",
+    "hash": "f44d4dc006"
+  },
+  "lib.doubly-chromatic-biii.why": {
+    "text": "A minor chord a minor third above the major tonic has no common tones, a dark, disorienting jolt.",
+    "hash": "73a486e227"
+  },
+  "lib.imperial-march-mediant.name": {
+    "text": "i-bvi (minor chromatic mediant)",
+    "hash": "d0c1d7a446"
+  },
+  "lib.imperial-march-mediant.why": {
+    "text": "Two minor chords a major third apart share one note, a progression that film music uses for evil, power and menace.",
+    "hash": "872ee7f430"
+  },
+  "lib.minor-plagal-shuttle.name": {
+    "text": "Minor plagal cadence",
+    "hash": "98c1225723"
+  },
+  "lib.minor-plagal-shuttle.why": {
+    "text": "A borrowed minor iv over a sustained tonic gives a bittersweet, longing glow.",
+    "hash": "d1895ed87d"
+  },
+  "lib.man-of-steel-progression.name": {
+    "text": "Heroic flat-six loop",
+    "hash": "b4f49bb943"
+  },
+  "lib.man-of-steel-progression.why": {
+    "text": "A borrowed bVI between tonic and IV casts a shadow over a heroic major key, heroism with a threat underneath.",
+    "hash": "5c96701354"
+  },
+  "lib.interstellar-progression.name": {
+    "text": "Ambient minor loop",
+    "hash": "2e352db010"
+  },
+  "lib.interstellar-progression.why": {
+    "text": "A major-seventh bVI and a minor v soften the minor key, so the loop feels vast and less lonely.",
+    "hash": "5212f45dd2"
+  },
+  "lib.mario-cadence.name": {
+    "text": "Aeolian cadence, major ending",
+    "hash": "8fb900c0f7"
+  },
+  "lib.mario-cadence.why": {
+    "text": "Two chords borrowed from the minor climb by whole steps into a major tonic, a triumphant fanfare ending.",
+    "hash": "6a02d21b77"
+  },
+  "lib.andalusian-cadence.name": {
+    "text": "Andalusian cadence",
+    "hash": "5f7443024e"
+  },
+  "lib.andalusian-cadence.why": {
+    "text": "Four chords step down the minor tetrachord to a major chord on the fifth, which flamenco hears as a Phrygian home.",
+    "hash": "591c628118"
+  },
+  "lib.andalusian-minor-bvii.name": {
+    "text": "i-bvii-bVI-V7 (Andalusian with minor bvii)",
+    "hash": "a342e4641c"
+  },
+  "lib.andalusian-minor-bvii.why": {
+    "text": "Making the second chord minor smooths the descent and gives the cadence a darker, more modal colour.",
+    "hash": "e233f6a61b"
+  },
+  "lib.solea-por-arriba-letra.name": {
+    "text": "Solea letra",
+    "hash": "4de29b138f"
+  },
+  "lib.solea-por-arriba-letra.why": {
+    "text": "Over two twelve-count compases the tonic rises through its seventh to iv and falls back down the Phrygian tetrachord, the solemn heart of flamenco.",
+    "hash": "3c9c4496f7"
+  },
+  "lib.flamenco-cambio.name": {
+    "text": "Flamenco cambio",
+    "hash": "7b2c25e22f"
+  },
+  "lib.flamenco-cambio.why": {
+    "text": "Moving from bII to bVI briefly sounds like the relative major before the half step back down to the Phrygian tonic.",
+    "hash": "04264cbb8d"
+  },
+  "lib.farruca-compas.name": {
+    "text": "Farruca compas",
+    "hash": "74b57d8af7"
+  },
+  "lib.farruca-compas.why": {
+    "text": "Dominant seventh and minor tonic alternate in four-count bars, a stern, proud minor pulse.",
+    "hash": "06d2ce4436"
+  },
+  "lib.farruca-llamada.name": {
+    "text": "Farruca llamada",
+    "hash": "644b886e29"
+  },
+  "lib.farruca-llamada.why": {
+    "text": "The subdominant leads into a plain minor cadence, the A-minor close that ends farruca phrases.",
+    "hash": "10d9d3e947"
+  },
+  "lib.fandango-de-huelva-copla.name": {
+    "text": "Fandango de Huelva copla",
+    "hash": "fef76387a4"
+  },
+  "lib.fandango-de-huelva-copla.why": {
+    "text": "The sung copla leaves the Phrygian tonic for the relative-major area and falls back through bII, the classic fandango shape.",
+    "hash": "d87e58d890"
+  },
+  "lib.flamenco-guajira.name": {
+    "text": "Flamenco guajira letra",
+    "hash": "55efa4bf4f"
+  },
+  "lib.flamenco-guajira.why": {
+    "text": "A Cuban-flavoured major song form in flamenco's twelve-count compas, swinging between tonic and dominant with a vi-ii turn.",
+    "hash": "71f152f047"
+  },
+  "lib.girl-from-ipanema-a.name": {
+    "text": "Bossa A section with II7",
+    "hash": "a33fd76aa2"
+  },
+  "lib.girl-from-ipanema-a.why": {
+    "text": "A Lydian-tinged II7 floats over the tonic before a ii and a tritone-substitute dominant glide down by half step home.",
+    "hash": "dfd28517f1"
+  },
+  "lib.blue-bossa-changes.name": {
+    "text": "Sixteen-bar minor bossa",
+    "hash": "a1bd709712"
+  },
+  "lib.blue-bossa-changes.why": {
+    "text": "Minor ii-V-i cadences frame a brief ii-V-I a half step up, a cool, sunlit minor bossa.",
+    "hash": "43ea0dcbf0"
+  },
+  "lib.i-iv-v-iv.name": {
+    "text": "Three-chord dance loop",
+    "hash": "8b9a78f38d"
+  },
+  "lib.i-iv-v-iv.why": {
+    "text": "The V falls back to IV instead of resolving, so the loop circles endlessly, ideal for a dance groove or a montuno.",
+    "hash": "6f418571f6"
+  },
+  "lib.double-tonic.name": {
+    "text": "i-bVII (double tonic)",
+    "hash": "9849f26184"
+  },
+  "lib.double-tonic.why": {
+    "text": "The tune swings between a minor tonic and the chord a whole step below, the modal heartbeat of English, Scottish and Irish song.",
+    "hash": "b419be09aa"
+  },
+  "lib.double-tonic-with-dominant.name": {
+    "text": "Double tonic with dominant close",
+    "hash": "e16261dd1f"
+  },
+  "lib.double-tonic-with-dominant.why": {
+    "text": "The double-tonic shuttle is closed with a real dominant, a tune shape that leads straight into the passamezzo antico.",
+    "hash": "ed96ac3e49"
+  },
+  "lib.tonic-dominant-vamp.name": {
+    "text": "Tonic-dominant vamp",
+    "hash": "88c5e928b8"
+  },
+  "lib.tonic-dominant-vamp.why": {
+    "text": "Just home and the dominant seventh, the simplest harmonic swing of folk dances, polkas, country and the alegrias compas.",
+    "hash": "85a7e5994b"
+  },
+  "lib.freygish-vamp.name": {
+    "text": "Freygish vamp",
+    "hash": "0437432feb"
+  },
+  "lib.freygish-vamp.why": {
+    "text": "The major tonic of freygish alternates with a minor chord a whole step below, whose third gives a half-step pull back to the tonic.",
+    "hash": "bb00c6ad68"
+  },
+  "lib.hijaz-vamp.name": {
+    "text": "Hijaz vamp",
+    "hash": "3ed9ee61f7"
+  },
+  "lib.hijaz-vamp.why": {
+    "text": "The flat second over a major tonic outlines the Hijaz augmented second, a hypnotic, exotic sway.",
+    "hash": "e6e3777ba7"
+  },
+  "lib.royal-road.name": {
+    "text": "Royal road progression",
+    "hash": "b903656b58"
+  },
+  "lib.royal-road.why": {
+    "text": "Subdominant and dominant climb, then the expected tonic is replaced by iii and vi, a bittersweet lift that J-pop choruses love.",
+    "hash": "4dd9783781"
+  },
+  "lib.royal-road-cadence.name": {
+    "text": "Royal road with ii-V-I",
+    "hash": "6ebab98bf1"
+  },
+  "lib.royal-road-cadence.why": {
+    "text": "The royal road keeps falling by fifths after vi until it reaches the tonic, turning the loop into a full cadence.",
+    "hash": "368ae297a9"
+  },
+  "lib.royal-road-secondary-dominants.name": {
+    "text": "Royal road with secondary dominants",
+    "hash": "e404ff49bf"
+  },
+  "lib.royal-road-secondary-dominants.why": {
+    "text": "Turning iii and vi into dominant sevenths makes the royal road push forward with brighter, more insistent tension.",
+    "hash": "bffa7357cb"
+  },
+  "lib.just-the-two-of-us.name": {
+    "text": "Soul-jazz III7 loop",
+    "hash": "c7ac912ad9"
+  },
+  "lib.just-the-two-of-us.why": {
+    "text": "A secondary-dominant III7 tips the key toward its relative minor, then v7-I7 slides back up, a smoky, urban loop.",
+    "hash": "f82f6c75b9"
+  },
+  "lib.four-five-six-one.name": {
+    "text": "Hopscotch loop",
+    "hash": "43f7724dd5"
+  },
+  "lib.four-five-six-one.why": {
+    "text": "IV and V rise to vi instead of the tonic, and the tonic follows a bar late, a hopeful loop that keeps stepping upward.",
+    "hash": "8101271eef"
+  },
+  "lib.interstate-love-song-descent.name": {
+    "text": "Half-diminished chromatic lament",
+    "hash": "f6312a1bbd"
+  },
+  "lib.interstate-love-song-descent.why": {
+    "text": "The chromatic lament bass is bent through a half-diminished chord on the raised sixth before landing on the flat sixth.",
+    "hash": "8710768310"
+  },
+  "lib.andalusian-secondary-dominant.name": {
+    "text": "i-bVII7-bIII-bVI-V (Andalusian with secondary dominant)",
+    "hash": "cd0571af72"
+  },
+  "lib.andalusian-secondary-dominant.why": {
+    "text": "A dominant seventh on bVII tonicises the relative major, so the lament detours through bright chords before the Phrygian close.",
+    "hash": "4c4c4dad6b"
+  },
+  "lib.fandango-estribillo-circle.name": {
+    "text": "Fandango estribillo by fifths",
+    "hash": "907dba3d38"
+  },
+  "lib.fandango-estribillo-circle.why": {
+    "text": "After iv the harmony runs a chain of dominant sevenths down the circle of fifths and drops onto the Phrygian tonic through bII.",
+    "hash": "1cab8d552d"
+  },
+  "lib.farruca-letra-close.name": {
+    "text": "i-bVI-V7-i (farruca letra close)",
+    "hash": "6c819bf281"
+  },
+  "lib.farruca-letra-close.why": {
+    "text": "The flat sixth slips down a half step onto the dominant seventh, a stark Spanish minor cadence.",
+    "hash": "8bfc8f63f6"
+  },
+  "lib.royal-road-minor-form.name": {
+    "text": "Royal road, minor-key form",
+    "hash": "ca003c953b"
+  },
+  "lib.royal-road-minor-form.why": {
+    "text": "The royal-road rise transplanted into minor, climbing from iv and v to the relative major and settling on bVI.",
+    "hash": "c581ac046a"
+  },
+  "lib.beethoven-lament-german-sixth.name": {
+    "text": "Chromatic lament with German sixth",
+    "hash": "44d1b23ea1"
+  },
+  "lib.beethoven-lament-german-sixth.why": {
+    "text": "The chromatic bass descends to the flat sixth, where a German sixth and a cadential six-four drive hard onto the dominant.",
+    "hash": "d30b0f2fd5"
+  },
+  "lib.jupiter.name": {
+    "text": "Jupiter schema",
+    "hash": "4fc996ca41"
+  },
+  "lib.jupiter.why": {
+    "text": "The melody climbs do-re and leaps up to fa before settling on mi, while the bass steps down to ti and drops to sol, a bright and confident opening.",
+    "hash": "85b7ddcfb1"
+  },
+  "lib.pastorella.name": {
+    "text": "Pastorella schema",
+    "hash": "d19a438d4f"
+  },
+  "lib.pastorella.why": {
+    "text": "Over a bass that drops from do to sol and stays there, the melody sways mi-re and then fa-mi, a gentle rustic opening rocking between tonic and dominant.",
+    "hash": "73289c5982"
+  },
+  "lib.modulating-prinner.name": {
+    "text": "Modulating Prinner schema",
+    "hash": "c49c4aac14"
+  },
+  "lib.modulating-prinner.why": {
+    "text": "The Prinner's falling line is moved up a fifth, so the bass walks down do-ti-la-sol and a raised fourth turns the dominant into the new tonic.",
+    "hash": "e0618697c1"
+  },
+  "lib.passo-indietro.name": {
+    "text": "Passo Indietro schema",
+    "hash": "6f1df905bb"
+  },
+  "lib.passo-indietro.why": {
+    "text": "The bass takes a step back from fa to mi under a dominant seventh, a small backward move that resets the phrase just before a strong cadence.",
+    "hash": "ae9233fb44"
+  },
+  "lib.galant-comma.name": {
+    "text": "Comma schema",
+    "hash": "23c29ffbba"
+  },
+  "lib.galant-comma.why": {
+    "text": "The melody falls fa-mi while the bass rises ti-do, the smallest galant close, a light comma at the end of a short phrase rather than a full stop.",
+    "hash": "07ec7ee31b"
+  },
+  "lib.galant-evaded-cadence.name": {
+    "text": "Evaded cadence",
+    "hash": "557165d07c"
+  },
+  "lib.galant-evaded-cadence.why": {
+    "text": "A standard cadence approach reaches V, but the bass slips back to mi under a first-inversion tonic, so the phrase dodges its close and keeps going.",
+    "hash": "9a1210ac4a"
+  },
+  "lib.chan-chan-son-vamp.name": {
+    "text": "Cuban son minor loop",
+    "hash": "dd453b83ff"
+  },
+  "lib.chan-chan-son-vamp.why": {
+    "text": "The minor tonic rises to its relative major and the minor subdominant before a major dominant pulls back, an unhurried, wistful son loop for tres and voice.",
+    "hash": "636aaf16f8"
+  },
+  "lib.salsa-minor-montuno.name": {
+    "text": "Minor salsa montuno",
+    "hash": "70293c434e"
+  },
+  "lib.salsa-minor-montuno.why": {
+    "text": "The minor form of the montuno loop: the major dominant falls back to the minor subdominant instead of resolving, so the piano vamp never quite comes to rest.",
+    "hash": "1abc543cdc"
+  },
+  "lib.how-insensitive-descent.name": {
+    "text": "Bossa minor chromatic descent",
+    "hash": "d920310382"
+  },
+  "lib.how-insensitive-descent.why": {
+    "text": "Over a bass sinking by half steps, the minor tonic passes through a diminished seventh and a minor sixth chord into bright major sevenths, then a minor ii-V closes.",
+    "hash": "768cc30e48"
+  },
+  "lib.wave-a-section.name": {
+    "text": "Bossa A section with minor iv",
+    "hash": "774ac1b7a2"
+  },
+  "lib.wave-a-section.why": {
+    "text": "A flat-six diminished chord slips into v7 and I7 to tonicise IV, which turns minor before a chain of dominants and a minor-plagal turn lead home.",
+    "hash": "8d7f2d2e4f"
+  },
+  "lib.choro-iv-iio-i-cadence.name": {
+    "text": "Choro cadence",
+    "hash": "28b31b2c98"
+  },
+  "lib.choro-iv-iio-i-cadence.why": {
+    "text": "The minor subdominant passes to the half-diminished supertonic and settles on the minor tonic with no dominant at all, a soft, sighing close that choro uses at section ends.",
+    "hash": "665d9a0b5f"
+  },
+  "lib.tsyganochka-circle.name": {
+    "text": "Tsyganochka circle",
+    "hash": "51673667e9"
+  },
+  "lib.tsyganochka-circle.why": {
+    "text": "The minor subdominant falls to the tonic and the dominant seventh lands on a major tonic seventh that pulls straight back into iv, so the circle spins and speeds up.",
+    "hash": "8d4c6c913a"
+  },
+  "lib.vengerka-dve-gitary-verse.name": {
+    "text": "Vengerka verse",
+    "hash": "b11969d537"
+  },
+  "lib.vengerka-dve-gitary-verse.why": {
+    "text": "Each half opens on the minor subdominant, the first dominant slips deceptively up to bVI, and the second resolves home before a major tonic seventh relaunches the verse.",
+    "hash": "ff44126caa"
+  },
+  "lib.marabi-cycle.name": {
+    "text": "Marabi cycle",
+    "hash": "9608c43799"
+  },
+  "lib.marabi-cycle.why": {
+    "text": "Tonic and subdominant lead to the tonic over its fifth, which leans straight into the dominant, a four-bar cycle built to repeat for as long as people dance.",
+    "hash": "27151d416f"
+  },
+  "lib.freygish-i-iv-bvii-cadence.name": {
+    "text": "Freygish cadence",
+    "hash": "ff1c96ff67"
+  },
+  "lib.freygish-i-iv-bvii-cadence.why": {
+    "text": "The major freygish tonic moves to the minor chord on its fourth, then to the minor chord a whole step below the tonic, whose flat second falls by half step back home.",
+    "hash": "38b0427b7f"
+  },
+  "lib.freygish-iv-i-bvii-i.name": {
+    "text": "Freygish bulgar turn",
+    "hash": "acac28f5b4"
+  },
+  "lib.freygish-iv-i-bvii-i.why": {
+    "text": "A long stretch on the minor fourth chord gives way to the major tonic, and the minor chord a whole step below pulls back to it by half step.",
+    "hash": "3f1228ef9a"
+  },
+  "lib.mi-sheberakh-bulgar-turn.name": {
+    "text": "Mi sheberakh turn",
+    "hash": "58ff9018b7"
+  },
+  "lib.mi-sheberakh-bulgar-turn.why": {
+    "text": "The dominant seventh on the second degree carries the raised fourth of the mode, leans on the minor fifth and falls back to the minor tonic before a harmonic-minor V7 closes the phrase.",
+    "hash": "98fd62ba41"
+  },
+  "lib.mogen-ovos-bvii-return.name": {
+    "text": "Klezmer minor return",
+    "hash": "4ca6346dbd"
+  },
+  "lib.mogen-ovos-bvii-return.why": {
+    "text": "After a passage in the relative major, a minor chord on the subtonic brings in the flat second, which falls by half step onto the minor tonic.",
+    "hash": "bc1102095f"
+  },
+  "lib.omnibus-progression.name": {
+    "text": "Omnibus progression",
+    "hash": "9ca9e98169"
+  },
+  "lib.omnibus-progression.why": {
+    "text": "The bass slides down by half steps while an upper voice climbs against it, so the dominant seventh melts through a second dominant and a minor six-four and comes back, as if the floor moved under a held chord.",
+    "hash": "95a60183b8"
+  },
+  "lib.common-tone-diminished-seventh.name": {
+    "text": "Common-tone diminished seventh",
+    "hash": "2ec14b6ac9"
+  },
+  "lib.common-tone-diminished-seventh.why": {
+    "text": "A diminished seventh slips in over the held tonic note and every other voice moves by half step back into the same chord, a flash of color with no change of function.",
+    "hash": "899aad3522"
+  },
+  "lib.ciaccona.name": {
+    "text": "Ciaccona",
+    "hash": "ea4905d9e1"
+  },
+  "lib.ciaccona.why": {
+    "text": "Tonic and dominant frame a dip to the relative minor and a return to the dominant, a short triple-time loop that never closes, so it runs straight into its next repeat.",
+    "hash": "8f65b3488e"
+  },
+  "lib.bergamasca.name": {
+    "text": "Bergamasca",
+    "hash": "fc35ff3b9d"
+  },
+  "lib.bergamasca.why": {
+    "text": "Tonic, subdominant, dominant and home in two bars, the plainest full cadence there is, turned into a ground that dancers and players could repeat as long as they liked.",
+    "hash": "f75184dcf3"
+  },
+  "lib.fantasy-fifth.name": {
+    "text": "Fantasy Fifth",
+    "hash": "c6bd1ebb3c"
+  },
+  "lib.fantasy-fifth.why": {
+    "text": "The raised sixth turns the minor key's fourth chord major, so a dark tonic opens onto a bright chord a fourth up, the sound of a door into another world.",
+    "hash": "c1a7ee1cee"
+  },
+  "lib.hexatonic-cycle.name": {
+    "text": "Hexatonic cycle",
+    "hash": "bdbcfde0f7"
+  },
+  "lib.hexatonic-cycle.why": {
+    "text": "Each step changes one note by a half step, alternating major and minor, so six triads circle back to the start without any key taking hold.",
+    "hash": "bc9ba9a820"
+  },
+  "lib.shona-mbira-cycle.name": {
+    "text": "Shona mbira cycle",
+    "hash": "e615d520de"
+  },
+  "lib.shona-mbira-cycle.why": {
+    "text": "Four three-chord phrases each lift one root by a step, so the cycle climbs gently through the scale and drops back to the start, a loop with no strong cadence that can turn for hours.",
+    "hash": "8decf66a5b"
+  },
+  "lib.tritone-sub-two-turnaround.name": {
+    "text": "Tritone-sub turnaround",
+    "hash": "3558c76169"
+  },
+  "lib.tritone-sub-two-turnaround.why": {
+    "text": "The secondary dominant II7 is swapped for the dominant a tritone away, so the bass falls by half steps from vi to V and the turnaround slides home chromatically.",
+    "hash": "8c53c0383c"
+  },
+  "lib.ascending-passing-diminished-turnaround.name": {
+    "text": "Rising diminished turnaround",
+    "hash": "cfeb1c03f9"
+  },
+  "lib.ascending-passing-diminished-turnaround.why": {
+    "text": "A diminished seventh on the raised tonic stands in for VI7 and pushes the bass up a half step into ii, the pull of a secondary dominant with a smoother line.",
+    "hash": "95bd9a347d"
+  },
+  "lib.minor-i-vi-ii-v-turnaround.name": {
+    "text": "Minor half-diminished turnaround",
+    "hash": "ffa951fc30"
+  },
+  "lib.minor-i-vi-ii-v-turnaround.why": {
+    "text": "The minor-key form of the I-vi-ii-V cycle: half-diminished chords on the raised sixth and on the second step fall by fifths into the dominant, dark but still turning.",
+    "hash": "d4fd773848"
+  },
+  "lib.gospel-walk-up-to-five.name": {
+    "text": "Gospel walk-up to V",
+    "hash": "11fb00991e"
+  },
+  "lib.gospel-walk-up-to-five.why": {
+    "text": "The bass climbs 3, 4, raised 4, 5 under the chords, so each step tightens the pull and the dominant lands at the top of the climb.",
+    "hash": "3be60a3822"
+  },
+  "lib.le-sol-fi-sol.name": {
+    "text": "Le-Sol-Fi-Sol",
+    "hash": "ad040609b1"
+  },
+  "lib.le-sol-fi-sol.why": {
+    "text": "The bass steps down from the flat sixth to the fifth, slips to the raised fourth and climbs back, so the first three chords act like an augmented-sixth approach that wraps the dominant in shadow.",
+    "hash": "107ca17024"
+  }
+}
