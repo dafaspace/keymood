@@ -10,3 +10,5 @@ tools
 node_modules
 .wrangler
 mobile
+tests
+i18n/en.json

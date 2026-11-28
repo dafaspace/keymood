@@ -84,6 +84,21 @@ self.addEventListener("fetch", function(e) {
     })());
     return;
   }
+  // A translation (i18n/<code>.json, fetched only when that language is chosen): the network
+  // first, so a release's new texts arrive with it, and the copy kept here when there is no
+  // network, so a chosen language works offline. The page also keeps the last one it read.
+  if (new URL(req.url).pathname.indexOf("/i18n/") !== -1) {
+    e.respondWith(fetch(req).then(function(res) {
+      if (res && res.ok && res.type === "basic") {
+        var copy = res.clone();
+        caches.open(CACHE).then(function(c){ c.put(req, copy); });
+      }
+      return res;
+    }).catch(function() {
+      return caches.match(req).then(function(r){ return r || Response.error(); });
+    }));
+    return;
+  }
   // Cache-first for static assets (icon, manifest) - and it now WRITES on a miss. The
   // old one never did, so anything absent from the cache stayed absent for the lifetime
   // of this CACHE name, however many times it was fetched successfully online.

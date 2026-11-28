@@ -14,6 +14,11 @@
 /manifest.json
   Cache-Control: no-cache
 
+# A translation is checked like the page: its name carries no version either, and the
+# service worker keeps the one a person chose for offline use.
+/i18n/*
+  Cache-Control: no-cache
+
 # A week, not a year: the file names carry no version, and a re-encoded note must arrive.
 /piano/*
   Cache-Control: public, max-age=604800
