@@ -224,6 +224,10 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 .settings-pop { max-width: calc(100vw - 24px); }
 .pro-row { flex-wrap: wrap; }
 .settings-pop .set-row[hidden] { display: none; }
+/* Set by _fitSettings() only when a row no longer fits (never in English): the control goes
+   under its label. */
+.settings-pop.wrap .set-row { flex-wrap: wrap; row-gap: 6px; }
+.settings-pop.wrap .seg { flex-wrap: wrap; border-radius: 14px; }
 /* Language and Note names: native selects, drawn as the row's value rather than as a field.
    16px, or iOS Safari zooms into it; 44px tall, a finger's target. */
 .set-sel { font: inherit; font-size: 16px; line-height: 1.2; color: var(--text2); background: none;
@@ -575,6 +579,11 @@ html:lang(ar) body * { letter-spacing: 0 !important; }
   .mode-strip { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
   .mode-strip-wrap { margin: 0 0 6px; }
   .mbtn { padding: 6px 2px; min-height: 44px; }
+  /* Two rows of four (_fitModeStrip) when a language's mode names cannot fit seven across;
+     a name still too long for its box breaks, hyphenated where the language allows. */
+  .mode-strip.two { grid-template-columns: repeat(4, 1fr); }
+  .mode-strip.two .mb-mode { white-space: normal; text-align: center; overflow-wrap: anywhere;
+                             -webkit-hyphens: auto; hyphens: auto; line-height: 1.15; }
   .mbtn .mb-mood { display: none; }
   .mode-div { display: none; }
   /* Mood/relation tiles as an equal grid (was ragged-width wrapping chips). */
@@ -614,10 +623,12 @@ canvas:focus-visible { outline-offset: 3px; }
 .circle-col { position: relative; }
 .sheet-grip { display: none; }
 .wheel-ctl { position: absolute; pointer-events: none; z-index: 1; }
-.wheel-ctl button { position: absolute; top: 0; pointer-events: auto; width: 44px; height: 44px; border-radius: 22px;
+/* min-width, not width: a longer word than English's (Drone, Twist) widens the pill
+   rather than spilling out of it; English stays 44 wide. */
+.wheel-ctl button { position: absolute; top: 0; pointer-events: auto; min-width: 44px; width: auto; padding: 0 5px; height: 44px; border-radius: 22px;
   display: inline-flex; flex-direction: column; align-items: center; justify-content: center; gap: 1px;
-  border: 0; margin: 0; padding: 0; font: inherit; font-size: 10px; line-height: 1; color: var(--text2);
-  background: var(--bg2); cursor: pointer; -webkit-appearance: none; appearance: none; text-box: normal; }
+  border: 0; margin: 0; font: inherit; font-size: 10px; line-height: 1; color: var(--text2);
+  background: var(--bg2); cursor: pointer; -webkit-appearance: none; appearance: none; text-box: normal; white-space: nowrap; }
 .wheel-ctl button.tl { left: 0; } .wheel-ctl button.tr { right: 0; }
 .wheel-ctl button.on { color: var(--text); box-shadow: inset 0 0 0 1.5px var(--text); font-weight: 600; }
 .wheel-ctl button:active { transform: scale(.94); transition-duration: 0s; }
@@ -635,6 +646,10 @@ canvas:focus-visible { outline-offset: 3px; }
 .tl-seg { display:flex; gap:2px; background:var(--bg2); border-radius:999px; padding:2px; }
 .tl-seg button { flex:1; padding:10px 6px; border-radius:999px; background:none; color:var(--text3); font-size:12px; }
 .tl-seg button.on { background:var(--text); color:var(--bg); font-weight:500; }
+/* Set by _fitRow() only when a longer language overflows the row (never English): the tabs
+   share it evenly, and a label too long for its share shrinks, then breaks. */
+.tl-seg.tight button { min-width: 0; }
+.tight-sq { white-space: normal !important; overflow-wrap: anywhere; line-height: 1.1 !important; text-box: normal !important; }
 .tl-seg button:hover:not(.on) { color:var(--text2); }
 .tl-body { padding: 10px 4px 2px; }
 .tl-lbl { font-size:10px; font-weight:500; color:var(--text3); letter-spacing:.07em; text-transform:uppercase; margin:0 0 6px; }
@@ -848,7 +863,9 @@ canvas:focus-visible { outline-offset: 3px; }
         <div class="seg" id="notation-seg" role="group" aria-label="Notation" data-t-attr="aria-label:set.notation">
           <button type="button" class="seg-btn active" id="seg-notes"   onclick="setNotation('notes')"   title="Standard note names" data-t-attr="title:set.notesTip" data-t="set.notes">Notes</button>
           <button type="button" class="seg-btn"        id="seg-camelot" onclick="setNotation('camelot')" title="Camelot DJ notation" data-t-attr="title:set.camelotTip" data-t="set.camelot">Camelot</button>
-          <button type="button" class="seg-btn"        id="seg-solfege" onclick="setNotation('solfege')" title="Movable-do solfège: Do is the tonic, so the wheel and scale show degrees" data-t-attr="title:set.solfegeTip" data-t="set.solfege">Solfège</button>
+          <!-- Its words are painted by updateNotationSeg(): Solfège, or Degrees where Do Re Mi
+               name fixed notes (solDegrees). -->
+          <button type="button" class="seg-btn"        id="seg-solfege" onclick="setNotation('solfege')" title="Movable-do solfège: Do is the tonic, so the wheel and scale show degrees">Solfège</button>
         </div>
       </div>
       <div class="set-row">
@@ -1133,6 +1150,11 @@ var I18N_EN = {
 //: Shown for a moment in a small round button: keep it very short.
 "share.copied": "Copied!",
 "share.failed": "Copy failed",
+"set.solfege": "Solfège",
+"set.solfegeTip": "Movable-do solfège: Do is the tonic, so the wheel and scale show degrees",
+//: Shown in place of Solfège where Do Re Mi are note names (the fixed-do languages): the wheel and the scale show degrees 1-7.
+"set.degrees": "Degrees",
+"set.degreesTip": "Scale degrees: 1 is the tonic, so the wheel and scale show degrees",
 "set.awakeNo": "This browser cannot keep the screen on. On an iPhone: Settings, Display & Brightness, Auto-Lock.",
 
 // The panel (Tonal and Modal)
@@ -1563,6 +1585,7 @@ function _germanName(L, a) {
   if (L === 2 || L === 5) return b + 's' + new Array(n).join('es');   // Es, Eses, As, Ases
   return b + new Array(n + 1).join('es');                             // Ces, Des, Fes, Ges
 }
+function _lettersH(L, a, base) { return (L === 6 && a >= 0 ? 'H' : base[L]) + _accSym(a); }
 // Japanese key names (ハ長調, 嬰ヘ短調, 変ロ長調) use the iroha letters, not the solfège of
 // the note names; offered to key titles only (LANG_MUSIC keys.notes), not in the picker.
 function _irohaName(L, a, base) {
@@ -1575,18 +1598,20 @@ function _irohaName(L, a, base) {
 // of ru, uk and ka write фа-диез мажор, си-бемоль мажор (tools/i18n/glossary.json).
 var NOTE_SYSTEMS = {
   letters:    { label: 'C D E',     base: ['C', 'D', 'E', 'F', 'G', 'A', 'B'] },
-  latin:      { label: 'Do Re Mi',  base: ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'] },
-  french:     { label: 'Do Ré Mi',  base: ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'] },
+  latin:      { label: 'Do Re Mi',  base: ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'], fixedDo: true },
+  french:     { label: 'Do Ré Mi',  base: ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'], fixedDo: true },
   // Lower case, as Russian and Ukrainian write note names (до, фа♯).
-  cyrillic:   { label: 'до ре ми',  base: ['до', 'ре', 'ми', 'фа', 'соль', 'ля', 'си'] },
+  cyrillic:   { label: 'до ре ми',  base: ['до', 'ре', 'ми', 'фа', 'соль', 'ля', 'си'], fixedDo: true },
   // Ukrainian is мі and сі, not the Russian ми and си (Spotanote's uk reuses the Russian table).
-  ukrainian:  { label: 'до ре мі',  base: ['до', 'ре', 'мі', 'фа', 'соль', 'ля', 'сі'] },
+  ukrainian:  { label: 'до ре мі',  base: ['до', 'ре', 'мі', 'фа', 'соль', 'ля', 'сі'], fixedDo: true },
   german:     { label: 'C D E … H', base: ['C', 'D', 'E', 'F', 'G', 'A', 'H'], name: _germanName },
-  georgian:   { label: 'დო რე მი',  base: ['დო', 'რე', 'მი', 'ფა', 'სოლ', 'ლა', 'სი'] },
-  portuguese: { label: 'Dó Ré Mi',  base: ['Dó', 'Ré', 'Mi', 'Fá', 'Sol', 'Lá', 'Si'] },
+  georgian:   { label: 'დო რე მი',  base: ['დო', 'რე', 'მი', 'ფა', 'სოლ', 'ლა', 'სი'], fixedDo: true },
+  portuguese: { label: 'Dó Ré Mi',  base: ['Dó', 'Ré', 'Mi', 'Fá', 'Sol', 'Lá', 'Si'], fixedDo: true },
   katakana:   { label: 'ド レ ミ',   base: ['ド', 'レ', 'ミ', 'ファ', 'ソ', 'ラ', 'シ'] },
-  hebrew:     { label: 'דו רה מי',  base: ['דו', 'רה', 'מי', 'פה', 'סול', 'לה', 'סי'], rtl: true },
-  arabic:     { label: 'دو ري مي',  base: ['دو', 'ري', 'مي', 'فا', 'صول', 'لا', 'سي'], rtl: true },
+  hebrew:     { label: 'דו רה מי',  base: ['דו', 'רה', 'מי', 'פה', 'סול', 'לה', 'סי'], fixedDo: true, rtl: true },
+  arabic:     { label: 'دو ري مي',  base: ['دو', 'ري', 'مي', 'فا', 'صول', 'لا', 'سي'], fixedDo: true, rtl: true },
+  // German chord symbols: H for B natural, B♭ (never a bare B) for B flat (research, trap 4).
+  lettersH:   { base: ['C', 'D', 'E', 'F', 'G', 'A', 'B'], name: _lettersH, picker: false },
   // For key titles only, never in the picker.
   iroha:      { label: 'ハ ニ ホ',   base: ['ハ', 'ニ', 'ホ', 'ヘ', 'ト', 'イ', 'ロ'], name: _irohaName, picker: false },
   cyrillicWords:  { base: ['до', 'ре', 'ми', 'фа', 'соль', 'ля', 'си'], picker: false,
@@ -1606,23 +1631,26 @@ var NOTE_SYSTEMS = {
 //            minor 'lower' writes a minor key's note in lower case, as German does (a-Moll,
 //            fis-Moll; Dur keeps its capital). The words are key.major / key.minor / key.mode.
 //   chords - (c) 'letters' writes chord symbols in letters whatever the note names (C, B♭m7,
-//            as Brazilian cifras do although notes are Dó Ré Mi); 'notes' uses the chosen names.
-//            Letters everywhere: no language in the research writes chords in solfège.
+//            as Brazilian cifras do although notes are Dó Ré Mi); 'notes' uses the chosen names
+//            (Italian: Do, Lam, Sol7); a system's id writes them in that one (German lettersH:
+//            H7, B♭maj7). Spanish stays in letters (Dafa, 28 Nov 2026).
+//   solfege - 'degrees' where Do Re Mi name fixed notes: the Solfège notation shows scale
+//            degrees 1-7 there (Dafa, 28 Nov 2026; solDegrees).
 // Roman numerals (I-V-vi-IV) are the same in every language.
 var LANG_MUSIC = {
-  en:      { notes: 'letters',    keys: { notes: null, minor: null }, chords: 'letters' },
-  ru:      { notes: 'cyrillic',   keys: { notes: { cyrillic: 'cyrillicWords' }, minor: null }, chords: 'letters' },
-  uk:      { notes: 'ukrainian',  keys: { notes: { ukrainian: 'ukrainianWords' }, minor: null }, chords: 'letters' },
-  ka:      { notes: 'georgian',   keys: { notes: { georgian: 'georgianWords' }, minor: null }, chords: 'letters' },
-  es:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters' },
-  fr:      { notes: 'french',     keys: { notes: null, minor: null }, chords: 'letters' },
-  de:      { notes: 'german',     keys: { notes: null, minor: 'lower' }, chords: 'letters' },
-  it:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters' },
-  'pt-BR': { notes: 'portuguese', keys: { notes: null, minor: null }, chords: 'letters' },
-  tr:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters' },
-  ja:      { notes: 'letters',    keys: { notes: null, minor: null }, chords: 'letters' },
-  he:      { notes: 'hebrew',     keys: { notes: null, minor: null }, chords: 'letters' },
-  ar:      { notes: 'arabic',     keys: { notes: null, minor: null }, chords: 'letters' }
+  en:      { notes: 'letters',    keys: { notes: null, minor: null }, chords: 'letters', solfege: 'movable' },
+  ru:      { notes: 'cyrillic',   keys: { notes: { cyrillic: 'cyrillicWords' }, minor: null }, chords: 'letters', solfege: 'degrees' },
+  uk:      { notes: 'ukrainian',  keys: { notes: { ukrainian: 'ukrainianWords' }, minor: null }, chords: 'letters', solfege: 'degrees' },
+  ka:      { notes: 'georgian',   keys: { notes: { georgian: 'georgianWords' }, minor: null }, chords: 'letters', solfege: 'degrees' },
+  es:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' },
+  fr:      { notes: 'french',     keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' },
+  de:      { notes: 'german',     keys: { notes: null, minor: 'lower' }, chords: 'lettersH', solfege: 'movable' },
+  it:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'notes', solfege: 'degrees' },
+  'pt-BR': { notes: 'portuguese', keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' },
+  tr:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' },
+  ja:      { notes: 'letters',    keys: { notes: null, minor: null }, chords: 'letters', solfege: 'movable' },
+  he:      { notes: 'hebrew',     keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' },
+  ar:      { notes: 'arabic',     keys: { notes: null, minor: null }, chords: 'letters', solfege: 'degrees' }
 };
 
 // ── State ──
@@ -1710,11 +1738,13 @@ function _iso(s) {
 }
 function noteName(s) { return _iso(_sysName(_noteSys, s)); }
 function chordName(root, sym, bass) {
-  var sys = _music().chords === 'notes' ? _noteSys : 'letters';
+  var c = _music().chords, sys = c === 'notes' ? _noteSys : c || 'letters';
   return _iso(_sysName(sys, root) + (sym || '') + (bass ? '/' + _sysName(sys, bass) : ''));
 }
-function _keyNote(s, minor) {
-  var k = _music().keys || {}, kn = k.notes;
+// title: a key title in words takes the language's key-title system (keys.notes); a short
+// key on the wheel or in a list keeps the chosen names. Both take the minor's case rule.
+function _keyNote(s, minor, title) {
+  var k = _music().keys || {}, kn = title ? k.notes : null;
   var n = _sysName(!kn ? _noteSys : typeof kn === 'string' ? kn : (kn[_noteSys] || _noteSys), s);
   return minor && k.minor === 'lower' ? n.toLocaleLowerCase(langLocale()) : n;
 }
@@ -1727,7 +1757,7 @@ function keyShort(s, minor, ascii) {
 // A key in words. kind: 'major' or 'minor' ("C major"), a MODES index ("D Dorian", also
 // "G Ionian" where a mode is named), or a progression's mode id ('harmonic-minor').
 function keyName(s, kind, ascii) {
-  var n = _keyNote(s, kind === 'minor');
+  var n = _keyNote(s, kind === 'minor', true);
   if (ascii) n = qName(n);
   n = _iso(n);
   if (kind === 'major' || kind === 'minor') return t('key.' + kind, { note: n });
@@ -1854,7 +1884,7 @@ function _i18nLoad(code) {
 function i18nRepaint() {
   _i18nRoot(); _i18nStatic(); _i18nSettings();
   _updateThemeBtn(); _paintSoundBtn(); _paintProRow(); _paintAwake(); _paintGrip(); _paintBuyBtn(); _paintProCount();
-  buildModeStrip(); updatePanel(); resize();
+  updateNotationSeg(); buildModeStrip(); updatePanel(); resize(); _fitSettings();
 }
 function setLang(code) {
   if (!LANGS[code] || I18N_READY.indexOf(code) < 0) return;
@@ -2195,6 +2225,10 @@ function updateNotationSeg() {
     var b = document.getElementById('seg-' + m);
     // Selection was signalled by a CSS class alone, which assistive tech cannot see -
     // every one of these read as an ordinary button with no state.
+    if (b && m === 'solfege') {
+      b.textContent = t(solDegrees() ? 'set.degrees' : 'set.solfege');
+      b.title = t(solDegrees() ? 'set.degreesTip' : 'set.solfegeTip');
+    }
     if (b) { b.classList.toggle('active', m === mode);
              b.setAttribute('aria-pressed', m === mode ? 'true' : 'false'); }
   });
@@ -2293,6 +2327,16 @@ function _setSettingsOpen(open) {
 }
 function toggleSettings() {
   _setSettingsOpen(document.getElementById('settings-pop').style.display === 'none');
+  _fitSettings();
+}
+// A row whose label and control no longer fit side by side (a longer language on a phone)
+// puts the control under its label; English always fits and never wraps.
+function _fitSettings() {
+  var p = document.getElementById('settings-pop');
+  if (!p || p.style.display === 'none') return;
+  p.classList.remove('wrap');
+  var rows = p.querySelectorAll('.set-row');
+  for (var i = 0; i < rows.length; i++) if (rows[i].scrollWidth > rows[i].clientWidth + 1) { p.classList.add('wrap'); return; }
 }
 window.toggleSettings = toggleSettings;
 document.addEventListener('click', function(e) {
@@ -2333,13 +2377,20 @@ function isSol() { var el=document.getElementById('cb-sol'); return el&&el.check
 // lowered 5th is Se - same pitch, different degree, different syllable.
 function solDeg(degIdx, semi) {
   var d = (((semi - SOL_MAJ_IV[degIdx]) % 12) + 18) % 12 - 6;   // -6..+5, signed
+  if (solDegrees()) return (d < 0 ? '♭' : d > 0 ? '♯' : '') + (degIdx + 1);
   return d === 0 ? SOL_NAT[degIdx] : d < 0 ? SOL_LOW[degIdx] : SOL_RAISE[degIdx];
 }
 // Syllable for an arbitrary distance above the tonic - used on the wheel, where a
 // sector has no degree index. Flat-side names on the flat side of the circle, which
 // is where those sectors actually sit relative to the tonic.
 var SOL_CHROM = ['Do','Ra','Re','Me','Mi','Fa','Fi','Sol','Le','La','Te','Ti'];
-function solChrom(semiAboveTonic) { return SOL_CHROM[((semiAboveTonic%12)+12)%12]; }
+var DEG_CHROM = ['1','♭2','2','♭3','3','4','♯4','5','♭6','6','♭7','7'];   // the same, as degrees
+function solChrom(semiAboveTonic) { var i = ((semiAboveTonic%12)+12)%12; return solDegrees() ? DEG_CHROM[i] : SOL_CHROM[i]; }
+// Where Do Re Mi name fixed notes - the fixed-do languages (Dafa, 28 Nov 2026), or note names
+// in syllables chosen in any language - movable syllables would say a wrong fact (Si for a
+// raised fifth reads as the note B), so the mode shows scale degrees 1-7 instead, as those
+// countries teach relative hearing (research/l10n-music-terms-2026-11-26.md, trap 6).
+function solDegrees() { return _music().solfege === 'degrees' || !!(NOTE_SYSTEMS[_noteSys] || {}).fixedDo; }
 // The semitone the current selection calls "Do". Null when nothing is selected.
 function currentTonicSemi() {
   if (!selected) return null;
@@ -2458,7 +2509,7 @@ function resize() {
   // Doing it here rather than only in a resize listener covers every path that
   // re-fits the layout, whatever triggered it.
   if (typeof paintWordmark === 'function') paintWordmark();
-  _fitWordmark();
+  _fitWordmark(); _fitModeStrip(); _fitSettings(); _fitRow(document.querySelector('#tools .tl-seg'));
 }
 
 function ha(hex, a) {
@@ -3463,6 +3514,7 @@ function buildModeStrip() {
         + '</button>';
     }
     strip.innerHTML = html;
+    _fitModeStrip();
     return;
   }
 
@@ -3488,6 +3540,21 @@ function buildModeStrip() {
       + '</button>';
   }
   strip.innerHTML = html;
+  _fitModeStrip();
+}
+// Phone: seven equal columns of about 46px. English's Mixolydian already runs a third past
+// its box (53px in 39, measured at 360px) and has always been drawn so; a language whose
+// names run further takes two rows of four instead, where they fit.
+function _fitModeStrip() {
+  var strip = document.getElementById('modestrip');
+  if (!strip) return;
+  strip.classList.remove('two');
+  if (window.innerWidth > 620 || !strip.children.length) return;
+  var over = false;
+  [].forEach.call(strip.querySelectorAll('.mb-mode'), function(e) {
+    if (e.scrollWidth > (e.parentElement.clientWidth - 4) * 1.4) over = true;
+  });
+  if (over) strip.classList.add('two');
 }
 
 function togglePanelMore() {
@@ -6643,7 +6710,26 @@ function renderTools() {
   else if (tl === 'metro') h += _metroHTML();
   else if (tl === 'prog') h += _progHTML();
   el.innerHTML = h;
+  _fitRow(el.querySelector('.tl-seg'));
   if (tl === 'prog') _fitBars();
+}
+// A row of equal controls (the tool tabs) that a longer language overflows: the controls
+// share the row evenly and a label too long for its share shrinks, down to 9px, then
+// breaks. English fits (Progressions takes its 107px at 360px, as it always has) and is
+// left as it is.
+function _fitRow(row) {
+  if (!row) return;
+  row.classList.remove('tight');
+  var kids = row.children, i;
+  for (i = 0; i < kids.length; i++) { kids[i].style.fontSize = ''; kids[i].classList.remove('tight-sq'); }
+  if (row.scrollWidth <= row.clientWidth + 1) return;
+  row.classList.add('tight');
+  for (i = 0; i < kids.length; i++) {
+    var k = kids[i];
+    if (k.scrollWidth <= k.clientWidth + 1) continue;
+    k.style.fontSize = Math.max(9, parseFloat(getComputedStyle(k).fontSize) * k.clientWidth / k.scrollWidth) + 'px';
+    if (k.scrollWidth > k.clientWidth + 1) k.classList.add('tight-sq');
+  }
 }
 function _tempoRow(id, v, minus, plus) {
   return '<div class="tl-bpm"><button type="button" class="tl-pm" aria-label="' + ta('tools.slower') + '" onclick="' + minus + '">' + TL_ICON.minus +

@@ -104,7 +104,8 @@ for (const c of SET) {
   const kn = m.keys.notes, titles = !kn ? [] : typeof kn === 'string' ? [kn] : Object.entries(kn).flat();
   for (const id of titles) if (!X.NOTE_SYSTEMS[id]) fail(`${c}: key titles name ${id}, not a note system`);
   if (m.keys.minor !== null && m.keys.minor !== 'lower') fail(`${c}: keys.minor must be null or lower`);
-  if (m.chords !== 'letters' && m.chords !== 'notes') fail(`${c}: chords must be letters or notes`);
+  if (m.chords !== 'letters' && m.chords !== 'notes' && !X.NOTE_SYSTEMS[m.chords]) fail(`${c}: chords must be letters, notes or a note system`);
+  if (m.solfege !== 'movable' && m.solfege !== 'degrees') fail(`${c}: solfege must be movable or degrees`);
 }
 for (const [id, S] of Object.entries(X.NOTE_SYSTEMS)) if (S.base.length !== 7) fail(`note system ${id} has ${S.base.length} names, not 7`);
 
@@ -140,7 +141,18 @@ eq(X.keyShort('E♭', true), 'es', 'German short minor');
 X.set({ LANG: 'ru', _noteSys: 'cyrillic', _tr: { 'key.major': '{note} мажор' } });
 eq(X.keyName('F♯', 'major'), 'фа-диез мажор', 'Russian key title in words');
 eq(X.noteName('F♯'), 'фа♯', 'Russian note name with a sign');
+eq(X.keyShort('F♯', false), 'фа♯', 'Russian short key keeps the sign');
+X.set({ LANG: 'it', _noteSys: 'latin', _tr: null });
+eq(X.chordName('A', 'm'), 'Lam', 'Italian chord in note names');
+X.set({ LANG: 'de', _noteSys: 'german', _tr: null });
+eq(X.chordName('B', '7'), 'H7', 'German chord: H for B');
+eq(X.chordName('B♭', 'maj7'), 'B♭maj7', 'German chord: B♭ for B flat');
+X.set({ LANG: 'es', _noteSys: 'latin', _tr: null });
+eq(X.chordName('A', 'm'), 'Am', 'Spanish chord stays in letters');
 X.set({ LANG: 'en', _noteSys: 'letters', _tr: null });
+// Dafa, 28 Nov 2026: where Do Re Mi name fixed notes, the Solfège mode shows degrees.
+const FIXED = ['ru', 'uk', 'ka', 'es', 'fr', 'it', 'pt-BR', 'tr', 'he', 'ar'];
+for (const c of SET) if ((X.LANG_MUSIC[c].solfege === 'degrees') !== FIXED.includes(c)) fail(`${c}: solfege should be ${FIXED.includes(c) ? 'degrees' : 'movable'}`);
 X.set({ LANG: 'ru', _tr: { 'pro.count.few': '{n} прогрессии' } });
 eq(X.tn('pro.count', 3), '3 прогрессии', 'ru plural few');
 eq(X.tn('pro.count', 5), '5 progressions in any key', 'a missing form falls back to English');

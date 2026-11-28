@@ -67,14 +67,6 @@
     "text": "Camelot",
     "hash": "b856282cad"
   },
-  "set.solfegeTip": {
-    "text": "Movable-do solfège: Do is the tonic, so the wheel and scale show degrees",
-    "hash": "90d59e251b"
-  },
-  "set.solfege": {
-    "text": "Solfège",
-    "hash": "620c639942"
-  },
   "set.keySigs": {
     "text": "Key signatures",
     "hash": "5b9874ad31"
@@ -497,6 +489,23 @@
   "share.failed": {
     "text": "Copy failed",
     "hash": "bd5acbff63"
+  },
+  "set.solfege": {
+    "text": "Solfège",
+    "hash": "620c639942"
+  },
+  "set.solfegeTip": {
+    "text": "Movable-do solfège: Do is the tonic, so the wheel and scale show degrees",
+    "hash": "90d59e251b"
+  },
+  "set.degrees": {
+    "text": "Degrees",
+    "hash": "f36756a237",
+    "note": "Shown in place of Solfège where Do Re Mi are note names (the fixed-do languages): the wheel and the scale show degrees 1-7."
+  },
+  "set.degreesTip": {
+    "text": "Scale degrees: 1 is the tonic, so the wheel and scale show degrees",
+    "hash": "52088e70b2"
   },
   "set.awakeNo": {
     "text": "This browser cannot keep the screen on. On an iPhone: Settings, Display & Brightness, Auto-Lock.",
