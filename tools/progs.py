@@ -8,7 +8,8 @@ sources stay here, in the repo, out of the deployed page.
 
 Each entry may also carry "c", a rough commonness: 3 very common, 2 common, 1 rare (Dafa,
 27-28 Nov 2026: three steps, no numbers, ranked inside the style). It is read from the corpus
-counts in corpus/out/library-evidence.json (corpus/METHOD.md) and ranked against the other
+counts in ../../corpus/out/library-evidence.json (the corpus tools and their METHOD.md
+live in the project folder, outside this public repo; Dafa, 28 Nov 2026) and ranked against the other
 entries of the same family. An entry gets no "c" when:
 - its family's own music is not in the corpora (classical, galant and Renaissance are thin;
   film, metal, gospel, flamenco, klezmer, Arabic, Japanese are absent), so a low count there
@@ -23,7 +24,7 @@ import json, os, re
 
 HERE = os.path.dirname(os.path.abspath(__file__))
 SRC = os.path.join(HERE, 'progressions.json')
-EVID = os.path.join(HERE, 'corpus', 'out', 'library-evidence.json')
+EVID = os.path.join(HERE, '..', '..', 'corpus', 'out', 'library-evidence.json')   # outside the repo
 COVERED = {'jazz', 'pop-rock', 'blues', 'modal', 'folk-celtic'}
 STRICT = {'form', 'schema', 'none'}
 APP = os.path.join(HERE, '..', 'index.html')
