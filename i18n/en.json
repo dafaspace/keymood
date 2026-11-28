@@ -279,7 +279,7 @@
   "key.minor": {
     "text": "{note} minor",
     "hash": "017a843e3c",
-    "note": "{note} is a note name. A minor key in words."
+    "note": "{note} is a note name. A minor key in words. Where a language writes a minor key's note in lower case (German a-Moll), the app does it (LANG_MUSIC): write {note}, not a case of your own."
   },
   "key.mode": {
     "text": "{note} {mode}",
@@ -289,7 +289,7 @@
   "key.shortMinor": {
     "text": "{note}m",
     "hash": "b2ca0b7495",
-    "note": "A minor key written short, on the wheel and in lists (\"Am\"). Keep it short."
+    "note": "A minor key written short, on the wheel and in lists (\"Am\"). Keep it short. German writes the note alone, in lower case (a, fis): \"{note}\"."
   },
   "mode.ionian": {
     "text": "Ionian",

@@ -223,11 +223,13 @@ h1 { font-size: 15px; font-weight: 500; color: var(--text2); margin-bottom: 0; }
 /* A longer language must not push the popover off a phone: it stays inside the screen. */
 .settings-pop { max-width: calc(100vw - 24px); }
 .pro-row { flex-wrap: wrap; }
-/* Language and Note names: native selects. 16px, or iOS Safari zooms into the field. */
-.set-sel { font: inherit; font-size: 16px; line-height: 1.2; color: var(--text); background: var(--bg);
-           border: 0.5px solid var(--bd2); border-radius: 10px; padding: 0 8px; min-height: 44px;
-           max-width: 100%; cursor: pointer; }
-:root.light .set-sel { background: #ffffff; }
+.settings-pop .set-row[hidden] { display: none; }
+/* Language and Note names: native selects, drawn as the row's value rather than as a field.
+   16px, or iOS Safari zooms into it; 44px tall, a finger's target. */
+.set-sel { font: inherit; font-size: 16px; line-height: 1.2; color: var(--text2); background: none;
+           border: 0; border-radius: 10px; padding: 0 4px; margin: -10px -4px; min-height: 44px;
+           max-width: 100%; cursor: pointer; text-align: end; }
+.set-sel:hover { color: var(--text); background: var(--bg3); }
 /* Arrows that point along the line of reading turn round in a right-to-left language. The
    wheel, the scale, the chords and the bars are music and stay left to right (dir="ltr"). */
 [dir="rtl"] .flip { display: inline-block; transform: scaleX(-1); }
@@ -1064,11 +1066,11 @@ var I18N_EN = {
 // Keys and modes
 //: {note} is a note name ("C", "F♯"). A major key in words.
 "key.major": "{note} major",
-//: {note} is a note name. A minor key in words.
+//: {note} is a note name. A minor key in words. Where a language writes a minor key's note in lower case (German a-Moll), the app does it (LANG_MUSIC): write {note}, not a case of your own.
 "key.minor": "{note} minor",
 //: {note} is a note name, {mode} a mode's name ("D Dorian", "G Ionian", "A harmonic minor").
 "key.mode": "{note} {mode}",
-//: A minor key written short, on the wheel and in lists ("Am"). Keep it short.
+//: A minor key written short, on the wheel and in lists ("Am"). Keep it short. German writes the note alone, in lower case (a, fis): "{note}".
 "key.shortMinor": "{note}m",
 "mode.ionian": "Ionian",
 "mode.ionian.mood": "Bright",
@@ -1568,43 +1570,57 @@ function _irohaName(L, a, base) {
   for (var i = 2; i < Math.abs(a); i++) p = (a > 0 ? '嬰' : '変') + p;
   return p + base[L];
 }
-// Labels as Spotanote shows them in its picker.
+// Labels as Spotanote shows them in its picker. A system writes its accidentals as signs
+// (Si♭, Fa♯) unless it carries words (acc, from double flat to double sharp): the key titles
+// of ru, uk and ka write фа-диез мажор, си-бемоль мажор (tools/i18n/glossary.json).
 var NOTE_SYSTEMS = {
   letters:    { label: 'C D E',     base: ['C', 'D', 'E', 'F', 'G', 'A', 'B'] },
   latin:      { label: 'Do Re Mi',  base: ['Do', 'Re', 'Mi', 'Fa', 'Sol', 'La', 'Si'] },
   french:     { label: 'Do Ré Mi',  base: ['Do', 'Ré', 'Mi', 'Fa', 'Sol', 'La', 'Si'] },
-  cyrillic:   { label: 'До Ре Ми',  base: ['До', 'Ре', 'Ми', 'Фа', 'Соль', 'Ля', 'Си'] },
+  // Lower case, as Russian and Ukrainian write note names (до, фа♯).
+  cyrillic:   { label: 'до ре ми',  base: ['до', 'ре', 'ми', 'фа', 'соль', 'ля', 'си'] },
+  // Ukrainian is мі and сі, not the Russian ми and си (Spotanote's uk reuses the Russian table).
+  ukrainian:  { label: 'до ре мі',  base: ['до', 'ре', 'мі', 'фа', 'соль', 'ля', 'сі'] },
   german:     { label: 'C D E … H', base: ['C', 'D', 'E', 'F', 'G', 'A', 'H'], name: _germanName },
   georgian:   { label: 'დო რე მი',  base: ['დო', 'რე', 'მი', 'ფა', 'სოლ', 'ლა', 'სი'] },
   portuguese: { label: 'Dó Ré Mi',  base: ['Dó', 'Ré', 'Mi', 'Fá', 'Sol', 'Lá', 'Si'] },
   katakana:   { label: 'ド レ ミ',   base: ['ド', 'レ', 'ミ', 'ファ', 'ソ', 'ラ', 'シ'] },
   hebrew:     { label: 'דו רה מי',  base: ['דו', 'רה', 'מי', 'פה', 'סול', 'לה', 'סי'], rtl: true },
   arabic:     { label: 'دو ري مي',  base: ['دو', 'ري', 'مي', 'فا', 'صول', 'لا', 'سي'], rtl: true },
-  iroha:      { label: 'ハ ニ ホ',   base: ['ハ', 'ニ', 'ホ', 'ヘ', 'ト', 'イ', 'ロ'], name: _irohaName, picker: false }
+  // For key titles only, never in the picker.
+  iroha:      { label: 'ハ ニ ホ',   base: ['ハ', 'ニ', 'ホ', 'ヘ', 'ト', 'イ', 'ロ'], name: _irohaName, picker: false },
+  cyrillicWords:  { base: ['до', 'ре', 'ми', 'фа', 'соль', 'ля', 'си'], picker: false,
+                    acc: ['-дубль-бемоль', '-бемоль', '', '-диез', '-дубль-диез'] },
+  ukrainianWords: { base: ['до', 'ре', 'мі', 'фа', 'соль', 'ля', 'сі'], picker: false,
+                    acc: ['-дубль-бемоль', '-бемоль', '', '-дієз', '-дубль-дієз'] },
+  georgianWords:  { base: ['დო', 'რე', 'მი', 'ფა', 'სოლ', 'ლა', 'სი'], picker: false,
+                    acc: ['-დუბლ-ბემოლ', '-ბემოლ', '', '-დიეზ', '-დუბლ-დიეზ'] }
 };
-// Three switches per language, kept apart because they are three decisions. The research
-// that settles them lands in tools/i18n/glossary.json (26 Nov 2026); until then every
-// language has Spotanote's default note names, key titles in those names with no change of
-// case, and chord symbols in letters.
+// Three switches per language, kept apart because they are three decisions, set from the
+// research in tools/i18n/glossary.json (26-27 Nov 2026; confidence and sources are there).
 //   notes  - (a) the default of the Note names setting (the person's own choice wins).
-//   keys   - (b) key titles: notes, a system of their own (null = the chosen one; Japanese
-//            may take 'iroha', ハ長調); minor 'lower' writes a minor tonic in lower case, as
-//            German does (a-Moll). The words themselves are key.major / key.minor / key.mode.
+//            Japanese reads letters, as pop and jazz do (ド レ ミ is solfa singing).
+//   keys   - (b) key titles. notes: the system they are written in - null for the chosen
+//            one, a system's id for always that one, or { chosen: title } to swap the chosen
+//            system for its key-title form (ru: до♯ in a list, до-диез мажор in a title).
+//            minor 'lower' writes a minor key's note in lower case, as German does (a-Moll,
+//            fis-Moll; Dur keeps its capital). The words are key.major / key.minor / key.mode.
 //   chords - (c) 'letters' writes chord symbols in letters whatever the note names (C, B♭m7,
 //            as Brazilian cifras do although notes are Dó Ré Mi); 'notes' uses the chosen names.
+//            Letters everywhere: no language in the research writes chords in solfège.
 // Roman numerals (I-V-vi-IV) are the same in every language.
 var LANG_MUSIC = {
   en:      { notes: 'letters',    keys: { notes: null, minor: null }, chords: 'letters' },
-  ru:      { notes: 'cyrillic',   keys: { notes: null, minor: null }, chords: 'letters' },
-  uk:      { notes: 'cyrillic',   keys: { notes: null, minor: null }, chords: 'letters' },
-  ka:      { notes: 'georgian',   keys: { notes: null, minor: null }, chords: 'letters' },
+  ru:      { notes: 'cyrillic',   keys: { notes: { cyrillic: 'cyrillicWords' }, minor: null }, chords: 'letters' },
+  uk:      { notes: 'ukrainian',  keys: { notes: { ukrainian: 'ukrainianWords' }, minor: null }, chords: 'letters' },
+  ka:      { notes: 'georgian',   keys: { notes: { georgian: 'georgianWords' }, minor: null }, chords: 'letters' },
   es:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters' },
   fr:      { notes: 'french',     keys: { notes: null, minor: null }, chords: 'letters' },
-  de:      { notes: 'german',     keys: { notes: null, minor: null }, chords: 'letters' },
+  de:      { notes: 'german',     keys: { notes: null, minor: 'lower' }, chords: 'letters' },
   it:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters' },
   'pt-BR': { notes: 'portuguese', keys: { notes: null, minor: null }, chords: 'letters' },
   tr:      { notes: 'latin',      keys: { notes: null, minor: null }, chords: 'letters' },
-  ja:      { notes: 'katakana',   keys: { notes: null, minor: null }, chords: 'letters' },
+  ja:      { notes: 'letters',    keys: { notes: null, minor: null }, chords: 'letters' },
   he:      { notes: 'hebrew',     keys: { notes: null, minor: null }, chords: 'letters' },
   ar:      { notes: 'arabic',     keys: { notes: null, minor: null }, chords: 'letters' }
 };
@@ -1685,7 +1701,7 @@ function _sysName(sys, s) {
   if (sys === 'letters' || !s) return s;
   var p = _parseNote(s), S = NOTE_SYSTEMS[sys] || NOTE_SYSTEMS.letters;
   if (p.L < 0) return s;
-  return S.name ? S.name(p.L, p.a, S.base) : S.base[p.L] + _accSym(p.a);
+  return S.name ? S.name(p.L, p.a, S.base) : S.base[p.L] + (S.acc && Math.abs(p.a) <= 2 ? S.acc[p.a + 2] : _accSym(p.a));
 }
 // A name set into right-to-left text (or written in Hebrew or Arabic letters) is isolated,
 // so its accidental stays on its own side: "C♯" would otherwise read "♯C" in a Hebrew line.
@@ -1698,7 +1714,8 @@ function chordName(root, sym, bass) {
   return _iso(_sysName(sys, root) + (sym || '') + (bass ? '/' + _sysName(sys, bass) : ''));
 }
 function _keyNote(s, minor) {
-  var k = _music().keys || {}, n = _sysName(k.notes || _noteSys, s);
+  var k = _music().keys || {}, kn = k.notes;
+  var n = _sysName(!kn ? _noteSys : typeof kn === 'string' ? kn : (kn[_noteSys] || _noteSys), s);
   return minor && k.minor === 'lower' ? n.toLocaleLowerCase(langLocale()) : n;
 }
 // A key as the wheel and the lists write it: "B♭", "Am". ascii: the quiz's "F#m".

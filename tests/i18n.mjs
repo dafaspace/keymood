@@ -101,7 +101,9 @@ for (const c of SET) {
   const m = X.LANG_MUSIC[c];
   if (!m) { fail(`${c}: no LANG_MUSIC entry`); continue; }
   if (!X.NOTE_SYSTEMS[m.notes] || X.NOTE_SYSTEMS[m.notes].picker === false) fail(`${c}: note names ${m.notes} is not a system in the picker`);
-  if (m.keys.notes && !X.NOTE_SYSTEMS[m.keys.notes]) fail(`${c}: key titles name ${m.keys.notes}, not a note system`);
+  const kn = m.keys.notes, titles = !kn ? [] : typeof kn === 'string' ? [kn] : Object.entries(kn).flat();
+  for (const id of titles) if (!X.NOTE_SYSTEMS[id]) fail(`${c}: key titles name ${id}, not a note system`);
+  if (m.keys.minor !== null && m.keys.minor !== 'lower') fail(`${c}: keys.minor must be null or lower`);
   if (m.chords !== 'letters' && m.chords !== 'notes') fail(`${c}: chords must be letters or notes`);
 }
 for (const [id, S] of Object.entries(X.NOTE_SYSTEMS)) if (S.base.length !== 7) fail(`note system ${id} has ${S.base.length} names, not 7`);
@@ -117,6 +119,9 @@ eq(X._sysName('french', 'E♭'), 'Mi♭', 'French E♭');
 eq(X._sysName('portuguese', 'F♯'), 'Fá♯', 'Portuguese F♯');
 eq(X._sysName('iroha', 'F♯'), '嬰ヘ', 'iroha F♯');
 eq(X._sysName('iroha', 'B♭'), '変ロ', 'iroha B♭');
+eq(X._sysName('ukrainian', 'B♭'), 'сі♭', 'Ukrainian B♭');
+eq(X._sysName('cyrillicWords', 'F♯'), 'фа-диез', 'Russian key-title F♯');
+eq(X._sysName('cyrillicWords', 'B♭'), 'си-бемоль', 'Russian key-title B♭');
 for (const k of ['C', 'F♯♯', 'B𝄫', 'E♭']) eq(X._sysName('letters', k), k, 'letters keep ' + k);
 X.set({ LANG: 'en', LANG_PSEUDO: false, _tr: null, _noteSys: 'letters' });
 eq(X.keyName('C♯', 'major'), 'C♯ major', 'English key title');
@@ -128,6 +133,14 @@ eq(X.chordName('B♭', 'm7'), 'B♭m7', 'chords stay letters while (c) is letter
 eq(X.keyName('B♭', 'minor'), 'Si♭ minor', 'key title in the chosen names');
 X.set({ _noteSys: 'letters' });
 eq(X.t('no.such.key'), '', 'a missing key never shows its name');
+X.set({ LANG: 'de', _noteSys: 'german', _tr: { 'key.minor': '{note}-Moll', 'key.major': '{note}-Dur', 'key.shortMinor': '{note}' } });
+eq(X.keyName('F♯', 'minor'), 'fis-Moll', 'German minor key title');
+eq(X.keyName('B♭', 'major'), 'B-Dur', 'German major key title');
+eq(X.keyShort('E♭', true), 'es', 'German short minor');
+X.set({ LANG: 'ru', _noteSys: 'cyrillic', _tr: { 'key.major': '{note} мажор' } });
+eq(X.keyName('F♯', 'major'), 'фа-диез мажор', 'Russian key title in words');
+eq(X.noteName('F♯'), 'фа♯', 'Russian note name with a sign');
+X.set({ LANG: 'en', _noteSys: 'letters', _tr: null });
 X.set({ LANG: 'ru', _tr: { 'pro.count.few': '{n} прогрессии' } });
 eq(X.tn('pro.count', 3), '3 прогрессии', 'ru plural few');
 eq(X.tn('pro.count', 5), '5 progressions in any key', 'a missing form falls back to English');
